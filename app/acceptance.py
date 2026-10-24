@@ -27,6 +27,12 @@ def start(app):
     home = app.root.get_screen("home")
     assert list(home.ids.input_text.hint_text_color) == [0.35, 0.35, 0.35, 1]
     assert list(home.ids.output_text.hint_text_color) == [0.35, 0.35, 0.35, 1]
+    input_field = home.ids.input_text
+    assert input_field._focus_outline.width == dp(2)
+    assert list(input_field._focus_outline_color.rgba) == [0, 0, 0, 0]
+    input_field.focus = True
+    assert list(input_field._focus_outline_color.rgba) == [0, 0, 0, 1]
+    input_field.focus = False
     app.update_layout(Window, dp(320), dp(700))
     assert not app.wide_layout
     assert home.ids.translation_panels.orientation == "vertical"
@@ -406,7 +412,7 @@ def start(app):
                     "three Borama/Kaddare copy actions",
                     "offline pack cancellation control and request state",
                     "keyboard-only mode, language, offline-pack, and safe removal actions",
-                    "translator hint contrast and compact/wide/short-landscape breakpoints",
+                    "translator hint contrast, visible keyboard focus, and compact/wide/short-landscape breakpoints",
                     "Old Nubian reverse alternatives",
                     "Old Nubian paired reading with case and line-break preservation",
                     "Old Nubian searchable alphabet and reading studio",

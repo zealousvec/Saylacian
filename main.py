@@ -36,6 +36,7 @@ from kivy.core.clipboard import Clipboard
 from kivy.core.text import LabelBase
 from kivy.core.window import Keyboard, Window
 from kivy.factory import Factory
+from kivy.graphics import Color, Line
 from kivy.lang import Builder
 from kivy.metrics import dp
 from kivy.properties import BooleanProperty, NumericProperty, StringProperty
@@ -126,6 +127,25 @@ def clipboard_text(text, script=None):
 
 
 class SaylacianTextInput(TextInput):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        with self.canvas.after:
+            self._focus_outline_color = Color(rgba=(0, 0, 0, 0))
+            self._focus_outline = Line(width=dp(2))
+        self.bind(focus=self._update_focus_outline)
+        self.bind(pos=self._update_focus_outline, size=self._update_focus_outline)
+        self._update_focus_outline()
+
+    def _update_focus_outline(self, *_args):
+        self._focus_outline_color.rgba = (0, 0, 0, 1 if self.focus else 0)
+        inset = dp(1)
+        self._focus_outline.rectangle = (
+            self.x + inset,
+            self.y + inset,
+            max(0, self.width - 2 * inset),
+            max(0, self.height - 2 * inset),
+        )
+
     def copy(self, data=""):
         selected = data or self.selection_text
         app = MDApp.get_running_app()

@@ -2,7 +2,7 @@
 
 Live task board for `SAYLACIAN_MASTER_DEVELOPMENT_DIRECTIVE.md`. This board records evidence, not aspirations. `verified` means the stated check passed; it does not establish linguistic acceptance.
 
-Current checkpoint: branch `main`, local HEAD `565ad37`; public `origin/main` is `c4f2f87270c22a05e772816ce98e57a99b871b18` (24 local commits ahead). No push. Existing edits in `docs/PROJECT_STATUS.md` and `docs/TECHNICAL_AUDIT.md` remain unstaged and untouched.
+Current checkpoint: branch `main`; local main is 25 commits ahead of public `origin/main` at `c4f2f87270c22a05e772816ce98e57a99b871b18`. No push. Existing edits in `docs/PROJECT_STATUS.md` and `docs/TECHNICAL_AUDIT.md` remain unstaged and untouched.
 
 ## Autonomous execution queues
 
@@ -12,7 +12,7 @@ Move each task among these queues at every milestone. A blocker must name the ex
 
 | Task | Acceptance | Current evidence / next step |
 |---|---|---|
-| Audit theme-derived focus, disabled and selected states | Inspect real Kivy widget colors/states without physical input; calculate contrast for text and controls; fix only verified failures and add regression coverage. | Explicit base color pairs and translator hints pass AA; theme-derived states remain unverified. |
+| Check text scaling and layout overflow | Verify increased text size at compact and wide breakpoints using live Kivy measurements; fix only demonstrated clipping or inaccessible controls. | Current sizes fit at default scale; enlarged-scale behavior has not been checked. |
 
 ### BLOCKED
 
@@ -47,6 +47,7 @@ Move each task among these queues at every milestone. A blocker must name the ex
 | Launch post-change clean clone with network denied | New local clone of `044cbf2` launched all six screens, enumerated both pack manifests, denied socket connections and isolated APPDATA/LOCALAPPDATA/Kivy under clone test state. App stopped cleanly; clone source has no tracked changes. |
 | Measure isolated startup and picker filtering | Import + Kivy build 1.32–1.46 s (median 1.39 s, n=3; not first-frame); picker filter median 10.7 ms (n=25), occasional outliers. No repeatable bottleneck; no performance code changed. Raw data `%TEMP%\saylacian_perf_baseline_20261024.json`. |
 | Audit active KivyMD API exposure | `docs/KIVYMD_MIGRATION.md` maps legacy buttons, dialog, text fields, icon buttons and checks to official 2.0 docs. No migration or pin change. |
+| Add a visible keyboard-focus ring to translator fields | Blank normal/active backgrounds provided no focus cue. A 2dp black outline now tracks focus; live Kivy acceptance asserted its color/width; captured and inspected rendered screenshot. Contrast against #F2F2F2 card is about 18.8:1. |
 
 | ID | Milestone | Task | Evidence/source | Status | Tests | Blocker | Next action |
 |---|---|---|---|---|---|---|---|
