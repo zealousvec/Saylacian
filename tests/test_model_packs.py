@@ -187,7 +187,9 @@ class ModelPackTests(unittest.TestCase):
                     Path(temporary) / "empty-bundled-models",
                 ),
             ):
-                self.assertEqual(model_directory("English", "Somali Latin"), folder)
+                self.assertEqual(
+                    model_directory("English", "Somali Latin"), folder.resolve()
+                )
             manager = ModelPackManager(
                 store,
                 {
