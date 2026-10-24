@@ -2,7 +2,7 @@
 
 Live task board for `SAYLACIAN_MASTER_DEVELOPMENT_DIRECTIVE.md`. This board records evidence, not aspirations. `verified` means the stated check passed; it does not establish linguistic acceptance.
 
-Baseline at start of this session: branch `main`, local HEAD `41090b93d6ab0992fced466f1af2e843c2b98408`, and public `origin/main` at `c4f2f87270c22a05e772816ce98e57a99b871b18` (12 local commits ahead). Local commits this session: `f8415c3`, `b309ec3`, `09d4894`, `74b1286`; no push. Existing uncommitted edits in `docs/PROJECT_STATUS.md` and `docs/TECHNICAL_AUDIT.md` predate this session and remain separate. No push.
+Current checkpoint: branch `main`, local HEAD `565ad37`; public `origin/main` is `c4f2f87270c22a05e772816ce98e57a99b871b18` (24 local commits ahead). No push. Existing edits in `docs/PROJECT_STATUS.md` and `docs/TECHNICAL_AUDIT.md` remain unstaged and untouched.
 
 ## Autonomous execution queues
 
@@ -12,7 +12,7 @@ Move each task among these queues at every milestone. A blocker must name the ex
 
 | Task | Acceptance | Current evidence / next step |
 |---|---|---|
-| Repeat clean source startup after approved-UI hint adjustment | Launch from a fresh local clone with network denied and isolated data; verify all screens start and pack manifests remain valid. |
+| Audit theme-derived focus, disabled and selected states | Inspect real Kivy widget colors/states without physical input; calculate contrast for text and controls; fix only verified failures and add regression coverage. | Explicit base color pairs and translator hints pass AA; theme-derived states remain unverified. |
 
 ### BLOCKED
 
@@ -26,8 +26,9 @@ Move each task among these queues at every milestone. A blocker must name the ex
 
 | Order | Task | Acceptance |
 |---|---|---|
-| 1 | Screen-reader acceptance | Requires manual Windows Narrator/NVDA session; record actual spoken feedback and focus navigation. |
-| 2 | Clean source setup regression | Repeat pinned runtime startup and pack integrity from clean clone after relevant changes. |
+| 1 | Obtain valid compact-layout visual evidence | Capture a correct 360×640 Kivy render in an isolated renderer/viewport; current screenshot path produced black/warped output, so do not claim pixel-level validation yet. |
+| 2 | Check text scaling and layout overflow | Verify compact and wide layouts with increased text size using programmatic Kivy acceptance; record any clipped controls and fix only demonstrated defects. |
+| 3 | Recheck clean source setup after runtime changes | Repeat clean checkout setup/start and pack integrity validation when relevant source/dependency files change. |
 
 ### VERIFIED
 
