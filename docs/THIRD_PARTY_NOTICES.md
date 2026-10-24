@@ -21,7 +21,8 @@ Saylacian source does **not** vendor the Material Design Icons TTF. It depends o
 
 ## Old Nubian reading references
 
-- **Smagina, *The Old Nubian Language*, translated by José Andrés Alonso de la Fuente** (Punctum Books / Dotawo, 2017) is openly accessible and licensed CC BY-NC-SA 4.0, as stated on the [publisher/JSTOR book page](https://www.jstor.org/stable/jj.2354037). The Reading Studio does not bundle that book's example text, transliteration, or glossary. The DBMNT [transliteration table](https://dbmnt.uw.edu.pl/static/pdf/transliteration_tables.pdf) is cited for the existing letter table and Reading Studio, but its data-reuse licence was not established here; it is linked as a reference and no PDF/pages are bundled.
+- **Smagina, *The Old Nubian Language*, translated by José Andrés Alonso de la Fuente** (Punctum Books / Dotawo, 2017) is openly accessible and licensed CC BY-NC-SA 4.0, as stated on the [publisher/JSTOR book page](https://www.jstor.org/stable/jj.2354037). The Reading Studio does not bundle that book's example text, transliteration, or glossary.
+- **DBMNT transliteration table** is cited as the reference for the current Old Nubian letter readings: [PDF](https://dbmnt.uw.edu.pl/static/pdf/transliteration_tables.pdf). The official [General Guidelines](https://dbmnt.uw.edu.pl/guidelines/general/) say the table is downloadable and show a © 2011–2026 Grzegorz Ochała notice, but no open licence or reuse grant was found on that page (reviewed 2026-10-24). The PDF/pages are not bundled. Reuse rights for the 34 current table-derived readings and any future data are unresolved; do not treat download availability as permission or extend the dataset pending clarification.
 
 ## Python dependencies
 

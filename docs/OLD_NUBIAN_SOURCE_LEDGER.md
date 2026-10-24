@@ -6,6 +6,10 @@ The current route is a limited Coptic/Greek-derived character transliteration ta
 
 Primary mapping reference: Database of Medieval Nubian Texts, [transliteration tables](https://dbmnt.uw.edu.pl/static/pdf/transliteration_tables.pdf), page 1. The table gives a comparative `Greek, Coptic, Old Nubian` column. Its footnotes state that the romanization generally follows ALA-LC, with `ϣ` represented as `sh`, `ϫ` as `dj`, `ⳟ` as `ng`, `ⳡ` as `ny`, and `ⳝ` as `j`; it describes `ⳣ` as `w, ou`. The app's `ky` for `ϭ` follows this table, not the Sahidic Coptic value. The PDF's reuse licence was not confirmed; Saylacian cites the reference but does not bundle its text or manuscript records.
 
+## Rights review (2026-10-24)
+
+The official [DBMNT General Guidelines](https://dbmnt.uw.edu.pl/guidelines/general/) say the transliteration tables can be downloaded and identify the database copyright as © 2011–2026 Grzegorz Ochała. The page contains no licence or reuse grant. Download availability is not redistribution permission. The 34 source-linked readings already implemented in Saylacian therefore remain a rights question; do not extend or redistribute additional table-derived data until terms are clarified. The PDF itself is not bundled.
+
 Unicode NamesList evidence: [Coptic block names list, Unicode 18.0](https://www.unicode.org/Public/18.0.0/charts/nameslist/2c80/). The names list identifies the Old Nubian additions at U+2CDD, U+2CDF, U+2CE1 and U+2CE3. Standard character names establish code-point identity, not the correct language-specific reading.
 
 Every lowercase entry below is source-linked but **not independently reviewed**. The implementation derives uppercase entries mechanically from Unicode's paired uppercase characters and uppercases the corresponding Latin reading; this is a software case-preservation convention, not a claim about capitalization in Old Nubian manuscripts. The bundled Coptic font is checked against every generated converter glyph. The reviewer field is intentionally explicit. Changes to the lowercase mapping must update this ledger and its tests together.
