@@ -1,10 +1,9 @@
 # Contributing
 
-Saylacian is an experimental preservation project and has not been publicly released. When a public repository is approved, contributions can be proposed through its issue tracker or pull requests. Until then, use these local development checks:
+Saylacian is a public experimental alpha for language preservation. Contributions can be proposed through GitHub issues or pull requests. Install the development dependencies from `requirements-dev.txt`, then run the same test command used in the README and CI:
 
 ```powershell
-.\.venv\Scripts\python.exe -m unittest discover -s tests -q
-.\.venv\Scripts\python.exe tools\check_ui.py
+.\.venv\Scripts\python.exe -m pytest -q
 ```
 
 For the full locked contributor environment and CI-equivalent checks, install `requirements-dev.txt`; see the root README.
