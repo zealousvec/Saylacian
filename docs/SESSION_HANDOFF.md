@@ -125,3 +125,24 @@ Saved-history screen now supports Up/Down selection and Enter restore. The selec
 ## Isolated responsiveness baseline (2026-10-24)
 
 Three subprocess runs measured import plus Kivy `build()` at 1.32–1.46 s (median 1.39 s) and confirmed all six screens; this does not include main-loop first frame. Twenty-five language-picker filter rebuilds had 10.7 ms median with occasional 49–99 ms outliers, likely coupled to widget/render initialization; repeat before attributing cause. No code optimization made because measurements do not show a stable bottleneck. Raw data: `%TEMP%\saylacian_perf_baseline_20261024.json`. Full tests 96/148; Ruff and format (101 files), compileall, `pip check`, release scan, live UI and diff checks pass. Next ACTIVE: inspect contrast ratios from source color pairs; screen-reader claims still need an appropriate assistive-technology setup.
+
+
+## Contrast and KivyMD API audit (2026-10-24)
+
+Explicit app color pairs were computed in linearized sRGB: input/card 16.44:1; action/card 13.50:1; card icon/card 11.31:1; pack caption/black 9.40:1; white/black 21:1. All listed pairs pass WCAG AA normal text contrast. This does not cover theme-derived focus/disabled states or assistive technology.
+
+Reviewed active KivyMD usage against official 2.0 component API comparisons. Buttons (`MDFlatButton`, `MDFillRoundFlatIconButton`), dialogs (`title`/`text`/`buttons`) and text fields (`mode="rectangle"` and inline hints) all require structural porting. `MDIconButton` remains, but needs state/style testing; labels/cards/theme need visual comparison. KivyMD's `padding_x` warning is internal; project search found no direct use. Updated `docs/KIVYMD_MIGRATION.md` with component inventory, acceptance gates and official docs links. Kept lock unchanged.
+
+Screen-reader acceptance is BLOCKED until a manual Narrator/NVDA session can be run. Resolution: exercise the keyboard flows and record actual labels, focus and announcement behavior; no conformance claims until then. Next ACTIVE: inspect theme-derived contrast states programmatically. READY: responsive layout acceptance. Full suite `96 passed, 148 subtests`; Ruff/format, compileall, `pip check`, release safety, live Kivy and diff checks pass.
+
+
+## Translator hint contrast correction (2026-10-24)
+
+Rendered-state review found the input/output placeholders were Kivy gray (#787878) on #F2F2F2 cards, only 3.94:1. Set just those two `hint_text_color` values to #595959 for 6.25:1. Live acceptance asserts both widget values; actual post-fix screenshot: `%TEMP%\Saylacian-theme-state-capture-20261024\disabled-after-fix0001.png`. This is the only source UI visual adjustment; approved palette remains intact. Full tests/format/Ruff and live Kivy passed before final doc edits; rerun after changes.
+
+ACTIVE: verify compact/wide/short-landscape breakpoints programmatically. BLOCKED: screen-reader behavior requires manual Windows Narrator/NVDA keyboard session; exact action is to exercise flows and record actual speech/focus behavior. DBMNT and Somali blockers unchanged.
+
+
+## Responsive breakpoint check (2026-10-24)
+
+Live Kivy harness verified `wide_layout` policy for 320×700 dp compact, 800×700 dp wide, and 500×500 dp short-landscape inputs, then restored the real window size. This checks policy branches; not physical resize or device-level layout. Full suite 96 passed/148 subtests; live acceptance, Ruff/format, compileall, `pip check`, release scan and diff check pass. Next ACTIVE: clean local clone startup with network blocked and isolated user data, checking all six screens and pack manifest. Screen-reader test is blocked until manual Narrator/NVDA session can be performed; exact resolution action is recorded above.

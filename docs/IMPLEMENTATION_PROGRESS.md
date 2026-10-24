@@ -2,7 +2,7 @@
 
 Live task board for `SAYLACIAN_MASTER_DEVELOPMENT_DIRECTIVE.md`. This board records evidence, not aspirations. `verified` means the stated check passed; it does not establish linguistic acceptance.
 
-Baseline at start of this session: branch `main`, local HEAD `41090b93d6ab0992fced466f1af2e843c2b98408`, and public `origin/main` at `c4f2f87270c22a05e772816ce98e57a99b871b18` (12 local commits ahead). Local commits this session: `f8415c3`, `b309ec3`, `09d4894`; no push. Existing uncommitted edits in `docs/PROJECT_STATUS.md` and `docs/TECHNICAL_AUDIT.md` predate this session and remain separate. No push.
+Baseline at start of this session: branch `main`, local HEAD `41090b93d6ab0992fced466f1af2e843c2b98408`, and public `origin/main` at `c4f2f87270c22a05e772816ce98e57a99b871b18` (12 local commits ahead). Local commits this session: `f8415c3`, `b309ec3`, `09d4894`, `74b1286`; no push. Existing uncommitted edits in `docs/PROJECT_STATUS.md` and `docs/TECHNICAL_AUDIT.md` predate this session and remain separate. No push.
 
 ## Autonomous execution queues
 
@@ -12,7 +12,7 @@ Move each task among these queues at every milestone. A blocker must name the ex
 
 | Task | Acceptance | Current evidence / next step |
 |---|---|---|
-| Audit color contrast in approved UI | Calculate contrast ratios for explicit foreground/background pairs and repair only confirmed failures without changing brand palette. Screen-reader checks remain distinct. |
+| Repeat clean source startup after approved-UI hint adjustment | Launch from a fresh local clone with network denied and isolated data; verify all screens start and pack manifests remain valid. |
 
 ### BLOCKED
 
@@ -20,26 +20,31 @@ Move each task among these queues at every milestone. A blocker must name the ex
 |---|---|---|
 | Extend or redistribute DBMNT-derived Old Nubian readings | DBMNT General Guidelines provide no reuse grant and there is no qualified Old Nubian review | Obtain written reuse terms from the rights holder and qualified specialist review. Owner approval is required before outreach. Until then, do not expand or redistribute the derived table. |
 | Upgrade Somali linguistic-quality status | No fluent Somali human review or approved reviewer recruitment | Obtain owner-approved, consent-based fluent review and an appropriate reviewed sample. Keep automatic metrics as engineering evidence only. |
+| Verify screen-reader behavior | No assistive-technology session was run; speech output and semantics cannot be inferred from source alone | Perform a manual Windows Narrator/NVDA run through keyboard flows and record actual announcements, selection and focus. Do not claim conformance before testing. |
 
 ### READY
 
 | Order | Task | Acceptance |
 |---|---|---|
-| 1 | Inspect assistive-technology behavior | Requires supported screen-reader setup; record tested platform and concrete results. |
-| 2 | Review KivyMD 1.2.0 deprecation path | Assess isolated migration only; do not change framework without approval. |
+| 1 | Screen-reader acceptance | Requires manual Windows Narrator/NVDA session; record actual spoken feedback and focus navigation. |
+| 2 | Clean source setup regression | Repeat pinned runtime startup and pack integrity from clean clone after relevant changes. |
 
 ### VERIFIED
 
 | Task | Evidence |
 |---|---|
 | Make saved-history clearing atomic and failure-safe | Same-directory unique temp file and atomic replace. Failure injection confirms old history is byte-identical and temp files are cleaned; local commit `66581de`. |
-| Add practical keyboard access for core translation and pack flows | Ctrl+Shift+M mode; Ctrl+P packs; Ctrl+K target and Ctrl+Shift+K source; arrows/Enter choose picker and pack; Ctrl+L editor; Esc back/cancel. Live Kivy acceptance selected a changed route, invoked a pack action through a stub, and requested cancellation; shortcuts are in `RUN.md`. |
-| Add a visible cancellation action for offline pack downloads | `main.py`, `app/main.kv`, `app/acceptance.py`; live `main.py --self-test` asserted the Cancel button is visible/enabled while busy, signals cancellation, disables itself and reports stopping. A streamed partial-download cancellation regression confirms no active pack or staging data remains. |
-| Reproduce startup from a clean checkout | Local clone of `55b3736` started all six Kivy screens under a temporary source checkout, isolated APPDATA/LOCALAPPDATA/Kivy/pack paths, blocked socket connects and a two-second stop. It used the existing venv interpreter; dependency installation remains next. |
-| Install pinned runtime and start the app from a clean checkout | Installed all 21 locked packages into a disposable Python 3.12 venv; `pip check` passed. From a clean clone, the actual app started all six screens with network denied and isolated data paths. No model pack was downloaded. |
-| Operate installed-pack removal from keyboard | Live Kivy acceptance opens existing dialog, verifies Enter defaults KEEP, Right selects REMOVE and Enter calls only test stub; Esc keeps. No real pack removed. |
-| Operate Old Nubian reader core flow from keyboard | Live Kivy acceptance verifies Enter recomputes line-preserving reading and Escape returns. |
-| Navigate saved history without pointer | Up/Down updates visible cursor and scrolls selected row into view; Enter dispatches restore. Live Kivy acceptance used mocked rows and stub restore; commits b309ec3, 09d4894. |
+| Add practical keyboard access for core translation and pack flows | Ctrl+Shift+M mode; Ctrl+P packs; Ctrl+K target and Ctrl+Shift+K source; arrows/Enter choose picker and pack; Ctrl+L editor; Esc back/cancel. Live Kivy checks passed. |
+| Add a visible cancellation action for offline pack downloads | Live Kivy acceptance checked visible/enabled Cancel, event signaling, disabled repeat request and status; streamed cancellation regression confirms no active pack or staging remains. |
+| Install pinned runtime and start app from clean checkout | All 21 locked packages installed in disposable Python 3.12 venv; `pip check` passed; all six screens launched with network denied and isolated user data. |
+| Operate installed-pack removal from keyboard | Enter opens confirmation; KEEP default; Right/Tab selects REMOVE; Enter confirms; Esc keeps. Live acceptance calls stub only; no real pack removed. |
+| Operate Old Nubian reader core flow from keyboard | Live acceptance verifies Enter recomputes line-preserving reading and Escape returns. |
+| Navigate saved history without pointer | Up/Down cursor follows row order and scrolls selection into view; Enter dispatches restore. Live acceptance used mocked entries/stub restore; commits `b309ec3`, `09d4894`. |
+| Audit explicit source color pairs for text and controls | WCAG ratios: input/card 16.44:1, action/card 13.50:1, icon/card 11.31:1, pack caption/black 9.40:1, white/black 21:1. Explicit pairs pass AA normal text. |
+| Fix low-contrast translator placeholder hints | Screenshot showed #787878 on #F2F2F2 (3.94:1). Set only the two main translator hints to #595959; measured 6.25:1. Live Kivy acceptance asserts both widget colors; post-fix screenshot: `%TEMP%\Saylacian-theme-state-capture-20261024\disabled-after-fix0001.png`. |
+| Verify compact, wide and short-landscape layout breakpoints | Live Kivy acceptance called layout policy at 320×700, 800×700 and 500×500 dp equivalents and verified compact/wide flags; no physical resize/input. |
+| Measure isolated startup and picker filtering | Import + Kivy build 1.32–1.46 s (median 1.39 s, n=3; not first-frame); picker filter median 10.7 ms (n=25), occasional outliers. No repeatable bottleneck; no performance code changed. Raw data `%TEMP%\saylacian_perf_baseline_20261024.json`. |
+| Audit active KivyMD API exposure | `docs/KIVYMD_MIGRATION.md` maps legacy buttons, dialog, text fields, icon buttons and checks to official 2.0 docs. No migration or pin change. |
 
 | ID | Milestone | Task | Evidence/source | Status | Tests | Blocker | Next action |
 |---|---|---|---|---|---|---|---|
@@ -75,7 +80,7 @@ Keyboard usability milestone (2026-10-24): added Ctrl+Shift+M mode switch, Ctrl+
 
 Clean source/runtime startup (2026-10-24): installed all `requirements-runtime-lock.txt` packages into a disposable Python 3.12 venv; `pip check` passed. A local clone of source commit `55b3736` launched all six Kivy screens under that venv for two seconds, with socket connections replaced by a hard failure and APPDATA, LOCALAPPDATA, Kivy home and pack storage redirected to temporary state. No model packs were installed or downloaded.
 
-Keyboard pack removal milestone (2026-10-24): installed packs now open the existing removal confirmation with Enter. Keyboard navigation defaults to KEEP, Right/Tab selects REMOVE, Enter confirms that choice, and Esc keeps the pack. Live Kivy acceptance used a mocked pack listing and a stubbed remover, proving no real pack was deleted. Full suite remains `96 passed, 148 subtests`; Ruff, formatting, compilation, `pip check`, safety scan, and live Kivy acceptance passed. Next ACTIVE task: check history and Old Nubian reader keyboard paths. KivyMD 1.2.0 upstream deprecation warning remains.
+Keyboard pack removal milestone (2026-10-24): installed packs now open the existing removal confirmation with Enter. Keyboard navigation defaults to KEEP, Right/Tab selects REMOVE, Enter confirms that choice, and Esc keeps the pack. Live Kivy acceptance used a mocked pack listing and a stubbed remover, proving no real pack was deleted. Full suite remains `96 passed, 148 subtests`; Ruff, formatting, compilation, `pip check`, safety scan, and live Kivy acceptance passed. Next ACTIVE task: audit actual focus, hover and disabled contrast states. KivyMD 1.2.0 upstream deprecation warning remains.
 
 - Full suite: `88 passed, 148 subtests passed`.
 - Full repository Ruff: `ruff check .` and `ruff format --check .` pass; all 30 previous findings were addressed without suppressions. Ruff's automatic `U+` integer rewrite was corrected after tests exposed the format mismatch.
@@ -89,6 +94,15 @@ Installed-pack removal now works from the keyboard through the existing confirma
 
 Verification: full suite `96 passed, 148 subtests`; live `main.py --self-test` passed with local English-to-French output `Bonjour, comment allez-vous ?`; Ruff check and format passed; compileall, `pip check`, release-safety scan and `git diff --check` passed. KivyMD 1.2.0 deprecation warnings remain. No clipboard interaction, physical input, network model download or real pack removal.
 
-Queue update: ACTIVE is remaining keyboard/focus audit on history and reader. BLOCKED remains Old Nubian data reuse pending written rights and qualified review (owner approval before outreach), and Somali quality pending owner-approved consent-based fluent-speaker review. READY: isolated startup/picker performance measurement, then contrast/screen-reader affordance inspection with appropriate test setup. Continue only with evidence-backed useful work.
+Queue update: ACTIVE is remaining keyboard/focus audit on history and reader. BLOCKED remains Old Nubian data reuse pending written rights and qualified review (owner approval before outreach), and Somali quality pending owner-approved consent-based fluent-speaker review. READY: screen-reader test with Windows Narrator/NVDA, then KivyMD compatibility planning. Continue only with evidence-backed useful work.
 
 Performance baseline (2026-10-24): isolated Python subprocess import plus Kivy `build()` produced six screens in 1.32–1.46 s (median 1.39 s, n=3); this is not first-frame latency. Picker filter rebuild measured 25 alternations: median 10.7 ms, with a few 49–99 ms widget/render spikes. No stable bottleneck established, so no performance code changed. Raw measurements are in `%TEMP%\saylacian_perf_baseline_20261024.json`; repeat on target devices before optimizing.
+
+
+Contrast and KivyMD compatibility milestone (2026-10-24): explicit source foreground/background pairs all exceed WCAG AA normal-text threshold; see verified table for ratios. This does not cover theme-derived states or assistive technology. Official KivyMD 2.0 component guides document API breaks for buttons, text fields and dialogs; Saylacian still uses each legacy pattern. The dependency remains pinned, with component-level trial gates in `docs/KIVYMD_MIGRATION.md`. No framework migration.
+
+
+Contrast correction milestone (2026-10-24): actual rendered screenshot revealed translator placeholder text at #787878 on #F2F2F2, ratio 3.94:1. Updated only the two primary translator hint colors to #595959; measured contrast is 6.25:1. Live Kivy acceptance asserts both properties. Post-fix render captured at `%TEMP%\Saylacian-theme-state-capture-20261024\disabled-after-fix0001.png`. Approved black/white scheme unchanged.
+
+
+Responsive layout check (2026-10-24): live Kivy acceptance verified compact (320×700 dp), wide (800×700 dp) and short-landscape (500×500 dp) `wide_layout` policy branches, then restored actual window dimensions. This exercises breakpoint logic only, not screenshot/device layout. ACTIVE is a clean post-change startup/manifest check. Screen-reader test remains blocked pending a manual Windows Narrator/NVDA run.

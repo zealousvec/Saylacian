@@ -10,6 +10,7 @@ from unittest.mock import patch
 
 from kivy.clock import Clock
 from kivy.core.window import Window
+from kivy.metrics import dp
 
 from saylacian.core.interchange import encode_saylacian_text
 from saylacian.core.old_nubian_reader import (
@@ -24,6 +25,15 @@ def start(app):
     )
     folder.mkdir(parents=True, exist_ok=True)
     home = app.root.get_screen("home")
+    assert list(home.ids.input_text.hint_text_color) == [0.35, 0.35, 0.35, 1]
+    assert list(home.ids.output_text.hint_text_color) == [0.35, 0.35, 0.35, 1]
+    app.update_layout(Window, dp(320), dp(700))
+    assert not app.wide_layout
+    app.update_layout(Window, dp(800), dp(700))
+    assert app.wide_layout
+    app.update_layout(Window, dp(500), dp(500))
+    assert app.wide_layout
+    app.update_layout(Window, *Window.size)
     try:
         pack_screen = app.root.get_screen("packs")
         app.root.current = "packs"
@@ -393,6 +403,7 @@ def start(app):
                     "three Borama/Kaddare copy actions",
                     "offline pack cancellation control and request state",
                     "keyboard-only mode, language, offline-pack, and safe removal actions",
+                    "translator hint contrast and compact/wide/short-landscape breakpoints",
                     "Old Nubian reverse alternatives",
                     "Old Nubian paired reading with case and line-break preservation",
                     "Old Nubian searchable alphabet and reading studio",
