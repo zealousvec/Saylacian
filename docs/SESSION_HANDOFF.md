@@ -252,3 +252,15 @@ Queue reconciliation against `docs/DEVELOPMENT_ROADMAP.md`: ACTIVE none; READY n
 BLOCKED, exact resolution: Old Nubian DBMNT-derived expansion needs written reuse terms plus qualified specialist review; owner approval before outreach. Somali quality needs owner-approved consent-based fluent-speaker review. Screen-reader claims need manual Windows Narrator/NVDA interaction and observed announcements. Compact pixels need a validated isolated virtual display/OpenGL/SDL capture. Hosted pack integration needs owner approval to push the workflow commit, then manually dispatch and inspect Actions.
 
 Current HEAD `1a07540` (progress-board sync), latest code checkpoint `3bdc380`, branch `main`. No remote writes/push. User edits in `docs/PROJECT_STATUS.md` and `docs/TECHNICAL_AUDIT.md` remain untouched and uncommitted. The active Codex goal remains active for future READY work.
+
+## 2026-10-24 — saved-history recovery made actionable
+
+Damaged saved history now offers two explicit choices: KEEP FILE (default, Escape-safe) and BACK UP & START FRESH. The second choice writes a unique backup using exclusive creation, flushes it, then atomically resets the original file. If reset fails, the original and backup both remain and the visible error includes the backup name. Unknown future versions are not eligible for recovery. After success, the user sees the backup filename and instruction to reopen Saved.
+
+Tests: 9 history tests, including malformed JSON, invalid schemas, unknown version, valid-file refusal, backup integrity and simulated reset failure. Full suite `112 passed, 188 subtests`; Ruff check/format, compileall, `pip check`, `git diff --check`, and isolated `main.py --self-test` passed. The Kivy acceptance verifies default KEEP, keyboard-selected recovery, backup bytes, blank new history, and user-visible next step. No actual app user data or physical input was used.
+
+- ACTIVE: stage reviewed recovery implementation/tests/progress and make focused local commit.
+- READY: clone that commit into a disposable clean checkout, deny network, and confirm six-screen launch, backup-preserving recovery, and refusal to reset unknown versions.
+- BLOCKED: Old Nubian DBMNT expansion needs written reuse terms and qualified specialist review (owner approval before outreach); Somali quality needs owner-approved consent-based fluent review; screen-reader claims need manual Narrator/NVDA run; compact pixels need a validated isolated capture environment; hosted pack workflow needs owner approval to push then dispatch.
+
+Preserve user edits in `docs/PROJECT_STATUS.md` and `docs/TECHNICAL_AUDIT.md`; do not stage them. Nothing pushed or published. Existing source branch base before this milestone: `97e356a`.

@@ -2,8 +2,14 @@
 """Explicit local saves; schema version and atomic writes protect existing records."""
 
 import json
+import os
 import tempfile
+import time
 from pathlib import Path
+
+
+class DamagedHistoryError(ValueError):
+    """Indicate malformed history that can be backed up before recovery."""
 
 
 class History:
@@ -16,7 +22,7 @@ class History:
         try:
             data = json.loads(self.path.read_text(encoding="utf-8"))
         except (json.JSONDecodeError, UnicodeDecodeError) as error:
-            raise ValueError(
+            raise DamagedHistoryError(
                 "Saved history is damaged; file left untouched."
             ) from error
 
@@ -27,8 +33,43 @@ class History:
         if not isinstance(items, list) or not all(
             self._is_valid_item(item) for item in items
         ):
-            raise ValueError("Saved history has invalid entries; file left untouched.")
+            raise DamagedHistoryError(
+                "Saved history has invalid entries; file left untouched."
+            )
         return items
+
+    def backup_and_reset(self):
+        """Preserve malformed history, then atomically start a fresh file."""
+        try:
+            self.read()
+        except DamagedHistoryError:
+            pass
+        else:
+            raise ValueError("Saved history is readable; recovery was not needed.")
+
+        original = self.path.read_bytes()
+        for attempt in range(10):
+            backup_path = self.path.with_name(
+                f"{self.path.name}.backup-{time.time_ns()}-{attempt}"
+            )
+            try:
+                with backup_path.open("xb") as backup_file:
+                    backup_file.write(original)
+                    backup_file.flush()
+                    os.fsync(backup_file.fileno())
+                break
+            except FileExistsError:
+                continue
+        else:
+            raise FileExistsError("Could not create a unique saved-history backup.")
+
+        try:
+            self._write([])
+        except OSError as error:
+            raise OSError(
+                f"Could not reset saved history; original remains. Backup: {backup_path.name}. {error}"
+            ) from error
+        return backup_path
 
     @staticmethod
     def _is_valid_item(item):

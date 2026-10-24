@@ -2,7 +2,7 @@
 
 Live task board for `SAYLACIAN_MASTER_DEVELOPMENT_DIRECTIVE.md`. This board records evidence, not aspirations. `verified` means the stated check passed; it does not establish linguistic acceptance.
 
-Current checkpoint: branch `main`, local HEAD `1a07540` (progress-board sync); latest code checkpoint `3bdc380`. The last recorded public `origin/main` is `c4f2f87270c22a05e772816ce98e57a99b871b18`; no remote mutation occurred. Existing edits in `docs/PROJECT_STATUS.md` and `docs/TECHNICAL_AUDIT.md` remain unstaged and untouched.
+Current checkpoint: branch `main`, latest committed handoff checkpoint `97e356a`; saved-history recovery UX is being implemented. Latest code checkpoint before this change: `3bdc380`. The last recorded public `origin/main` is `c4f2f87270c22a05e772816ce98e57a99b871b18`; no remote mutation occurred. Existing edits in `docs/PROJECT_STATUS.md` and `docs/TECHNICAL_AUDIT.md` remain unstaged and untouched.
 
 ## Autonomous execution queues
 
@@ -10,7 +10,7 @@ Move each task among these queues at every milestone. A blocker must name the ex
 
 ### ACTIVE
 
-Current implementation milestones are committed and validated. Roadmap recheck found no additional independent code task with safe evidence and resources currently available; keep blocked items separate and resume when a READY item becomes actionable.
+Finish the damaged-history recovery flow. It is implemented with backup-preserving reset and passed unit/live Kivy tests; make a focused local commit, then run a clean-checkout acceptance.
 
 ### BLOCKED
 
@@ -26,13 +26,13 @@ Current implementation milestones are committed and validated. Roadmap recheck f
 
 | Order | Task | Acceptance |
 |---|---|---|
-No additional code task currently meets acceptance criteria without external permission, specialist evidence, or a validated capture resource. Reconcile roadmap at the next session; do not duplicate BLOCKED tasks here.
+| 1 | P2 | Verify saved-history backup recovery from a clean checkout | Launch all Kivy screens with isolated user data and network denied; confirm KEEP preserves bytes, BACK UP creates a complete backup before reset, and unknown future versions offer no reset. |
 
 ### VERIFIED
 
 | Task | Evidence |
 |---|---|
-| Preserve saved history and report malformed content safely | JSON decode errors and invalid top-level/entry schemas raise actionable `ValueError`; read, save and clear preserve original bytes. Live Kivy self-test checks the Saved screen reports damaged history without changing the file or navigating away. Full suite: 107 passed, 154 subtests; Ruff, format, compileall, `pip check`, and diff checks pass. |
+| Preserve saved history and provide safe recovery | JSON decode/schema errors are distinguished from unknown future versions. A confirmation defaults to KEEP; BACK UP & START FRESH writes a unique durable byte-for-byte backup before atomic reset. Tests prove backup, refusal for valid/future data, and preservation if reset fails. Live Kivy acceptance covers keep, recover, visible confirmation and re-opening Saved. Full suite: 112 passed, 188 subtests; Ruff, format, compileall, `pip check`, and diff checks pass. |
 | Warn on forward Osmanya long-vowel ambiguity | Somali `ii`/`uu` still produce U+10495/U+10493, with a warning that reverse conversion may read them as `y`/`w`. Unit tests assert both code points/warnings; live Kivy self-test verifies warning appears in app status. Based on Unicode Standard 16.0 §19.2.1. Full suite: 108 passed, 156 subtests; Ruff, format, compileall, `pip check`, live Kivy and diff checks pass. |
 | Validate Osmanya mapping assignments and detect number-only text | All 32 supported spellings map to Unicode characters named `OSMANYA LETTER`; Osmanya-only digits U+104A0–U+104A9 are detected as the script, while ASCII digits and mixed scripts abstain. Tests and live app acceptance pass; this verifies Unicode assignment/detection, not Somali orthography. Full suite: 109 passed, 188 subtests; Ruff/format, compileall, `pip check`, live Kivy and diff checks pass. |
 | Verify committed source in a clean checkout | Commit `3bdc380` cloned to an isolated temp path; all six Kivy screens started with network blocked; pack manifest listed French and Somali as not installed; saved-history corruption stayed byte-identical; Osmanya mapping names, digit-only detection, mixed-script abstention and ambiguity warnings passed. Checkout remained clean. Reused the pinned venv (not a fresh dependency installation); no pack weights downloaded. |
@@ -127,3 +127,5 @@ Responsive layout check (2026-10-24): live Kivy acceptance verified compact (320
 
 
 Clean-clone startup after UI adjustment (2026-10-24): cloned current commit `044cbf2` locally, launched actual app with socket connects denied, isolated user/Kivy data and verified six screens plus two pack definitions. Clone source stayed clean; `.test-state` contains only isolated generated runtime data. Compact layout policy orientation is verified by live acceptance, but `Window.screenshot` at 360×640 was black/warped even after delayed capture; visual compact rendering remains unverified. Do not claim device-level visual acceptance.
+
+Saved-history recovery interaction (2026-10-24): after a damaged history file is reported, modal offers KEEP FILE (default) or BACK UP & START FRESH. Backup is unique, created exclusively, flushed, and preserved if atomic reset fails; unknown versions and valid files are refused. Kivy acceptance checks both choices, unchanged bytes after KEEP, complete backup bytes after recovery, new empty history, and visible continuation instructions. Full suite: 112 passed, 188 subtests; Ruff/format, compileall, `pip check`, live Kivy self-test and diff checks passed. Next ACTIVE: local commit; READY: clean-checkout validation with network blocked.

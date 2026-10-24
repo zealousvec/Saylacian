@@ -256,6 +256,27 @@ def start(app):
         assert "Saved history is damaged" in app.status
         assert app.root.current == "home"
         assert damaged_history_path.read_bytes() == damaged_history_bytes
+        assert app.history_recovery_dialog is not None
+        assert app.history_recovery_index == 0
+        assert app.keyboard(Window, 13, None, 13, [])
+        assert app.history_recovery_dialog is None
+        assert damaged_history_path.read_bytes() == damaged_history_bytes
+        previous_backups = set(folder.glob("damaged-history.json.backup-*"))
+        app.show_history()
+        assert app.history_recovery_dialog is not None
+        assert app.keyboard(Window, 275, None, None, [])
+        assert app.history_recovery_index == 1
+        assert app.keyboard(Window, 13, None, 13, [])
+        new_backups = (
+            set(folder.glob("damaged-history.json.backup-*")) - previous_backups
+        )
+        assert len(new_backups) == 1
+        assert next(iter(new_backups)).read_bytes() == damaged_history_bytes
+        assert app.history.read() == []
+        assert app.root.current == "home"
+        assert "Open Saved to continue" in app.status
+        app.show_history()
+        assert app.root.current == "saved"
         app.history = saved_history
 
         saved_mode, saved_source, saved_target = app.mode, app.source, app.target

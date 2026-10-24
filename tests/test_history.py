@@ -8,7 +8,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from saylacian.core.history import History
+from saylacian.core.history import DamagedHistoryError, History
 
 
 class HistoryTests(unittest.TestCase):
@@ -35,7 +35,9 @@ class HistoryTests(unittest.TestCase):
             path.write_text('{"version":1,"items":[', encoding="utf-8")
             original = path.read_bytes()
 
-            with self.assertRaisesRegex(ValueError, "damaged; file left untouched"):
+            with self.assertRaisesRegex(
+                DamagedHistoryError, "damaged; file left untouched"
+            ):
                 History(path).read()
 
             self.assertEqual(path.read_bytes(), original)
@@ -56,6 +58,53 @@ class HistoryTests(unittest.TestCase):
                             history.clear()
 
                     self.assertEqual(path.read_bytes(), original)
+
+    def test_backup_and_reset_preserves_damaged_history(self):
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder) / "history.json"
+            original = b'{"version":1,"items":[broken'
+            path.write_bytes(original)
+
+            backup = History(path).backup_and_reset()
+
+            self.assertEqual(backup.read_bytes(), original)
+            self.assertEqual(History(path).read(), [])
+            self.assertNotEqual(backup, path)
+
+    def test_recovery_refuses_valid_and_unknown_version_history(self):
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder) / "history.json"
+            history = History(path)
+            history.save("English", "French", "hello", "bonjour")
+            valid_bytes = path.read_bytes()
+            with self.assertRaisesRegex(ValueError, "readable"):
+                history.backup_and_reset()
+            self.assertEqual(path.read_bytes(), valid_bytes)
+
+            future_format = b'{"version":2,"items":[]}'
+            path.write_bytes(future_format)
+            with self.assertRaisesRegex(ValueError, "Unknown history format"):
+                history.backup_and_reset()
+            self.assertEqual(path.read_bytes(), future_format)
+            self.assertEqual(list(Path(folder).glob("*.backup-*")), [])
+
+    def test_reset_failure_keeps_original_and_complete_backup(self):
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder) / "history.json"
+            original = b'{"version":1,"items":[broken'
+            path.write_bytes(original)
+            history = History(path)
+
+            with (
+                patch.object(Path, "replace", side_effect=OSError("disk full")),
+                self.assertRaisesRegex(OSError, "disk full"),
+            ):
+                history.backup_and_reset()
+
+            backups = list(Path(folder).glob("history.json.backup-*"))
+            self.assertEqual(len(backups), 1)
+            self.assertEqual(backups[0].read_bytes(), original)
+            self.assertEqual(path.read_bytes(), original)
 
     def test_invalid_history_schema_is_reported_without_modifying_file(self):
         invalid_documents = (

@@ -61,7 +61,7 @@ from saylacian.core.clipboard_repr import (
     formats_as_saylacian_text,
 )
 from saylacian.core.diagnostics import PrivateDiagnostics, install_exception_hooks
-from saylacian.core.history import History
+from saylacian.core.history import DamagedHistoryError, History
 from saylacian.core.interchange import (
     decode_saylacian_text,
     encode_saylacian_text,
@@ -262,6 +262,18 @@ class SaylacianApp(MDApp):
                     self.remove_pack(self.pack_dialog, self.pack_dialog_pack_id)
             elif key_name == "escape":
                 self.dismiss_pack_dialog(self.pack_dialog)
+            return True
+        if getattr(self, "history_recovery_dialog", None) is not None:
+            if key_name in {"left", "right", "tab"}:
+                self.history_recovery_index = 1 - self.history_recovery_index
+                self._update_history_recovery_cursor()
+            elif key_name in {"enter", "numpadenter"}:
+                if self.history_recovery_index == 0:
+                    self.dismiss_history_recovery(self.history_recovery_dialog)
+                else:
+                    self.recover_saved_history(self.history_recovery_dialog)
+            elif key_name == "escape":
+                self.dismiss_history_recovery(self.history_recovery_dialog)
             return True
         if key_name == "m" and {"ctrl", "shift"}.issubset(modifiers):
             self.switch_mode()
@@ -1298,6 +1310,10 @@ class SaylacianApp(MDApp):
         self.saved_index = -1
         try:
             items = self.history.read()
+        except DamagedHistoryError as error:
+            self.status = str(error)
+            self.confirm_history_recovery()
+            return
         except (OSError, ValueError) as error:
             self.status = str(error)
             return
@@ -1312,6 +1328,50 @@ class SaylacianApp(MDApp):
             self.saved_options.append(item)
         self._update_saved_cursor()
         self.root.current = "saved"
+
+    def confirm_history_recovery(self):
+        keep_button = MDFlatButton(
+            text="KEEP FILE",
+            on_release=lambda *_: self.dismiss_history_recovery(dialog),
+        )
+        recover_button = MDFlatButton(
+            text="BACK UP & START FRESH",
+            on_release=lambda *_: self.recover_saved_history(dialog),
+        )
+        dialog = MDDialog(
+            title="Saved history needs recovery",
+            text=(
+                "Keep the original, or save a backup before starting a fresh history?"
+            ),
+            buttons=[keep_button, recover_button],
+        )
+        self.history_recovery_dialog = dialog
+        self.history_recovery_index = 0
+        self.history_recovery_buttons = (keep_button, recover_button)
+        self._update_history_recovery_cursor()
+        dialog.open()
+
+    def _update_history_recovery_cursor(self):
+        for index, button in enumerate(self.history_recovery_buttons):
+            label = "KEEP FILE" if index == 0 else "BACK UP & START FRESH"
+            button.text = ("› " if index == self.history_recovery_index else "") + label
+
+    def dismiss_history_recovery(self, dialog):
+        dialog.dismiss()
+        self.history_recovery_dialog = None
+        self.history_recovery_buttons = ()
+        self.history_recovery_index = 0
+
+    def recover_saved_history(self, dialog):
+        self.dismiss_history_recovery(dialog)
+        try:
+            backup = self.history.backup_and_reset()
+        except (OSError, ValueError) as error:
+            self.status = f"Could not recover saved history: {error}"
+            return
+        self.status = (
+            f"History restarted. Backup saved as {backup.name}. Open Saved to continue."
+        )
 
     def _update_saved_cursor(self):
         screen = self.root.get_screen("saved")
