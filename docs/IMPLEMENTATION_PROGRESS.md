@@ -2,7 +2,7 @@
 
 Live task board for `SAYLACIAN_MASTER_DEVELOPMENT_DIRECTIVE.md`. This board records evidence, not aspirations. `verified` means the stated check passed; it does not establish linguistic acceptance.
 
-Current checkpoint: branch `main`, latest committed code checkpoint `279d94d`; this local milestone adds a Somali unknown-token fallback guard, a regression test, and the missing benchmark-only development dependency. The last recorded public `origin/main` is `c4f2f87270c22a05e772816ce98e57a99b871b18`; no remote mutation occurred. Existing edits in `docs/PROJECT_STATUS.md` and `docs/TECHNICAL_AUDIT.md` remain unstaged and untouched.
+Current checkpoint: branch `main`, latest committed code checkpoint `1f97472`; this local milestone adds a Somali unknown-token fallback guard, a regression test, and the missing benchmark-only development dependency. The last recorded public `origin/main` is `c4f2f87270c22a05e772816ce98e57a99b871b18`; no remote mutation occurred. Existing edits in `docs/PROJECT_STATUS.md` and `docs/TECHNICAL_AUDIT.md` remain unstaged and untouched.
 
 ## Autonomous execution queues
 
@@ -10,7 +10,7 @@ Move each task among these queues at every milestone. A blocker must name the ex
 
 ### ACTIVE
 
-None after the current milestone. The post-guard diagnostics and roadmap were reconciled; remaining work is blocked by external evidence/permissions or lacks a reproducible acceptance criterion.
+None after the current milestone. The post-guard diagnostics and roadmap were reconciled; remaining work is blocked by external evidence/permissions or lacks a reproducible acceptance criterion. Code and evidence committed locally as `1f97472`.
 
 ### BLOCKED
 
