@@ -9,7 +9,7 @@ Branch: `main`
 Public `origin/main`: `c4f2f87270c22a05e772816ce98e57a99b871b18`
 Public CI: run `40087020450` passed on that commit.
 Recent local milestones include model-pack path containment, Old Nubian mark readability and short-text language detection. Public `main` remains at `c4f2f87270c22a05e772816ce98e57a99b871b18`; no push has occurred.
-Preserve the pre-existing user edits in `docs/PROJECT_STATUS.md` and `docs/TECHNICAL_AUDIT.md`; do not stage or rewrite them. Latest verified milestones improve Old Nubian mark readability and short-text language detection; next ACTIVE is broader provenance-labeled detection evaluation.
+Preserve the pre-existing user edits in `docs/PROJECT_STATUS.md` and `docs/TECHNICAL_AUDIT.md`; do not stage or rewrite them. Latest verified milestones improve Old Nubian mark readability and short-text detection. Tatoeba corpus evaluation supports 0.80 short confidence threshold for further testing; next ACTIVE expands unsupported-language coverage.
 
 ## Current milestone — memory recovery and rendering blocker (2026-10-24)
 
@@ -297,4 +297,12 @@ Queue reconciliation: **ACTIVE** short-text language-detection audit, using exis
 
 ## 2026-10-24 — Short-text language detection
 
-Below 20 characters, offline detection now requires at least 12 characters, three words and model confidence ≥0.85; longer text keeps the 0.70 floor and 20-character minimum. This increased accepted/explicitly unsupported cases from 5 to 17 in a small 40-prompt hand-authored probe: 13 expected supported labels and four unsupported-language responses, with no false supported labels in this sample. Three new unit tests and live Kivy route verification passed. Prompts are not a representative test set or linguistic review; keep accuracy status experimental. Full suite `124 passed, 2 skipped`; Ruff/format, compileall, `pip check`, release scan, `git diff --check` and live Kivy self-test pass. ACTIVE: broaden the provenance-labeled sample before more threshold changes. READY: none additionally queued.
+Below 20 characters, offline detection initially required at least 12 characters, three words and model confidence ≥0.85; longer text kept the 0.70 floor and 20-character minimum. A small 40-prompt hand-authored probe increased accepted/explicitly unsupported cases from 5 to 17. This was an initial engineering smoke check only.
+
+## 2026-10-24 — Tatoeba short-text calibration
+
+Added `tools/evaluate_language_detection_corpus.py`. It verifies five Tatoeba compressed exports by SHA-256, filters 12–19 code-point sentences with at least three words, makes a deterministic every-fifth holdout per language, and reports aggregates without printing or bundling sentence text. English/French/German/Spanish files were CC0 exports; Somali used Tatoeba's standard CC BY 2.0 France export, attributed in the roadmap. All files are in an isolated temporary directory.
+
+The pinned sample yielded 1,918 English, 252 French, 43 Somali, 4 German and 1 Spanish eligible sentences. At short confidence 0.80, 562 outputs matched source language labels (456 development, 106 holdout); at 0.85, 432 matched (346/86). Neither threshold produced a false supported label, but unsupported evidence was only five items, Somali only 43. Because thresholds were explored after inspecting the full sample, the split is reproducible but not blind or preregistered. Lowered code threshold to 0.80; added a French regression at confidence 0.824. Somali translation quality remains experimental; dataset labels do not substitute for fluent review.
+
+Tatoeba is a community-supplied corpus, not a specialist-validated language-ID benchmark. Current ACTIVE: expand unsupported-language coverage before any accuracy claim or threshold relaxation. BLOCKED approvals and external resources remain unchanged. READY: none additionally queued.
