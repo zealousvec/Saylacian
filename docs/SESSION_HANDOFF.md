@@ -225,3 +225,15 @@ Regression tests cover each digraph's unchanged code point plus warning. Live Ki
 - BLOCKED: Old Nubian DBMNT reuse needs written terms and specialist review (owner approval before outreach); Somali linguistic quality needs owner-approved consent-based fluent-speaker review; screen-reader claims need manual Narrator/NVDA observation; compact pixel review needs validated isolated OpenGL/SDL capture; hosted pack workflow needs explicit push approval before dispatch.
 
 History resilience remains in local commit `b86bdb1`. Current pre-commit branch checkpoint was `b86bdb1`; no push/publish occurred. Preserve owner edits in `docs/PROJECT_STATUS.md` and `docs/TECHNICAL_AUDIT.md`. No OS clipboard or physical input used.
+
+## 2026-10-24 — Osmanya character assignment and digit detection
+
+Audited every supported Somali-to-Osmanya output code point against Python Unicode character names: all 32 spelling entries name assigned `OSMANYA LETTER` characters. Added a regression guard; this verifies assignment only, not Somali orthographic accuracy. `detect_script()` now recognizes digit-only and letter-plus-digit Osmanya using Unicode U+10480–U+1049D and digit U+104A0–U+104A9 ranges. It still abstains on ASCII numerals and mixed scripts. Live Kivy acceptance confirms number-only input is labeled as Osmanya script, never meaning translation.
+
+Full suite: 109 passed, 188 subtests. Ruff check/format (103 files), compileall, pip check, and `git diff --check` passed. Clean source clone of `be0e422` launched all six screens with socket connections denied and isolated APPDATA/LOCALAPPDATA/Kivy/pack paths; saved-history damage and forward `ii`/`uu` warning checks passed, source checkout stayed clean, and the two manifest packs enumerated as not installed. This clone uses the existing pinned Python environment; it was not a fresh dependency installation and no model pack was downloaded.
+
+- ACTIVE: make a local commit for the Osmanya assignment/detection tests and Kivy acceptance.
+- READY: after commit, re-run clean-checkout smoke against committed source; then reconcile roadmap for another independent, evidence-backed task.
+- BLOCKED: Old Nubian DBMNT reuse needs written terms and specialist review (owner approval before outreach); Somali linguistic quality needs owner-approved consent-based fluent-speaker review; screen-reader claims need manual Narrator/NVDA observation; compact pixel review needs validated isolated OpenGL/SDL capture; hosted pack workflow needs explicit push approval before dispatch.
+
+Local commits: `b86bdb1` (damaged saved-history safety), `be0e422` (Osmanya reverse-ambiguity warning). Existing user edits in `docs/PROJECT_STATUS.md` and `docs/TECHNICAL_AUDIT.md` remain untouched and excluded. No remote writes.

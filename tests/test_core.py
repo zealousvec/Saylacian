@@ -2,11 +2,13 @@
 
 """Tests the public core capabilities and shared application behavior."""
 
+import unicodedata
 import unittest
 
 from saylacian.core.capabilities import get_capability, list_capabilities
 from saylacian.core.transliteration import (
     OLD_NUBIAN_TO_LATIN,
+    SOMALI_TO_OSMANYA,
     detect_chart_script,
     detect_script,
     transliterate,
@@ -19,6 +21,15 @@ class CoreTests(unittest.TestCase):
             transliterate("dh sh kh aa ee oo", "Somali Latin", "Osmanya").text,
             "𐒊 𐒉 𐒅 𐒛 𐒜 𐒝",
         )
+
+    def test_every_osmanya_mapping_targets_an_assigned_letter(self):
+        for spelling, glyph in SOMALI_TO_OSMANYA.items():
+            with self.subTest(spelling=spelling):
+                name = unicodedata.name(glyph, "")
+                self.assertTrue(
+                    name.startswith("OSMANYA LETTER "),
+                    f"{spelling!r} maps to U+{ord(glyph):04X} ({name or 'unassigned'})",
+                )
 
     def test_twelve_somali_osmanya_examples(self):
         examples = {
@@ -97,6 +108,9 @@ class CoreTests(unittest.TestCase):
 
     def test_script_not_language_detection(self):
         self.assertEqual(detect_script("𐒁! ")[0], "Osmanya")
+        self.assertEqual(detect_script("𐒠𐒡!")[0], "Osmanya")
+        self.assertIsNone(detect_script("123!")[0])
+        self.assertIsNone(detect_script("𐒠 1")[0])
         self.assertIsNone(detect_script("bonjour")[0])
         self.assertIsNone(detect_script("a𐒁")[0])
 

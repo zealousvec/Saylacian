@@ -228,7 +228,11 @@ def detect_script(text):
     letters = [c for c in text if c.isalpha()]
     if letters and all(0x2C80 <= ord(c) <= 0x2CFF for c in letters):
         return "Coptic script", "Coptic script detected; language is not inferred."
-    if letters and all(0x10480 <= ord(c) <= 0x1049D for c in letters):
+    alphanumeric = [c for c in text if c.isalnum()]
+    if alphanumeric and all(
+        0x10480 <= ord(c) <= 0x1049D or 0x104A0 <= ord(c) <= 0x104A9
+        for c in alphanumeric
+    ):
         return "Osmanya", "Osmanya script detected; language is not inferred."
     return (
         None,

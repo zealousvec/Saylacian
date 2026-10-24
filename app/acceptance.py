@@ -258,6 +258,15 @@ def start(app):
         assert damaged_history_path.read_bytes() == damaged_history_bytes
         app.history = saved_history
 
+        saved_mode, saved_source, saved_target = app.mode, app.source, app.target
+        app.mode = "Translate meaning"
+        app.source, app.target = "Detect language/script", "English"
+        app.convert("𐒠𐒡")
+        assert "Osmanya script detected" in app.status
+        assert "not meaning translation" in app.status
+        app.mode, app.source, app.target = saved_mode, saved_source, saved_target
+        app.refresh_fonts()
+
         app.mode = "Convert writing system"
         app.source, app.target = "Old Nubian (Coptic)", "Old Nubian scholarly Latin"
         app.open_old_nubian_studio()

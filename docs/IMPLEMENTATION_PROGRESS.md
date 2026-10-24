@@ -2,7 +2,7 @@
 
 Live task board for `SAYLACIAN_MASTER_DEVELOPMENT_DIRECTIVE.md`. This board records evidence, not aspirations. `verified` means the stated check passed; it does not establish linguistic acceptance.
 
-Current checkpoint: branch `main`, local HEAD `b86bdb1` before the current Osmanya fix. The last recorded public `origin/main` is `c4f2f87270c22a05e772816ce98e57a99b871b18`; no remote mutation occurred. Existing edits in `docs/PROJECT_STATUS.md` and `docs/TECHNICAL_AUDIT.md` remain unstaged and untouched.
+Current checkpoint: branch `main`, local HEAD `be0e422` before the current Osmanya verification fixes. The last recorded public `origin/main` is `c4f2f87270c22a05e772816ce98e57a99b871b18`; no remote mutation occurred. Existing edits in `docs/PROJECT_STATUS.md` and `docs/TECHNICAL_AUDIT.md` remain unstaged and untouched.
 
 ## Autonomous execution queues
 
@@ -10,7 +10,7 @@ Move each task among these queues at every milestone. A blocker must name the ex
 
 ### ACTIVE
 
-Finish the verified Osmanya ambiguity warning with a focused local commit, then run the READY clean-checkout acceptance.
+Commit verified Osmanya code-point checks and digit-only script detection, then run the READY clean-checkout acceptance.
 
 ### BLOCKED
 
@@ -26,7 +26,7 @@ Finish the verified Osmanya ambiguity warning with a focused local commit, then 
 
 | Order | Task | Acceptance |
 |---|---|---|
-| 1 | Recheck clean source setup after the saved-history and Osmanya fixes | Use a disposable checkout and isolated app data; run the actual Kivy self-test, then confirm checkout remains clean. |
+| 1 | Recheck clean source setup after saved-history and Osmanya fixes | Use a disposable checkout and isolated app data; load all six screens, verify both pack manifests, damaged-history recovery and digit-only Osmanya detection, then confirm checkout remains clean. |
 
 ### VERIFIED
 
@@ -34,6 +34,7 @@ Finish the verified Osmanya ambiguity warning with a focused local commit, then 
 |---|---|
 | Preserve saved history and report malformed content safely | JSON decode errors and invalid top-level/entry schemas raise actionable `ValueError`; read, save and clear preserve original bytes. Live Kivy self-test checks the Saved screen reports damaged history without changing the file or navigating away. Full suite: 107 passed, 154 subtests; Ruff, format, compileall, `pip check`, and diff checks pass. |
 | Warn on forward Osmanya long-vowel ambiguity | Somali `ii`/`uu` still produce U+10495/U+10493, with a warning that reverse conversion may read them as `y`/`w`. Unit tests assert both code points/warnings; live Kivy self-test verifies warning appears in app status. Based on Unicode Standard 16.0 §19.2.1. Full suite: 108 passed, 156 subtests; Ruff, format, compileall, `pip check`, live Kivy and diff checks pass. |
+| Validate Osmanya mapping assignments and detect number-only text | All 32 supported spellings map to Unicode characters named `OSMANYA LETTER`; Osmanya-only digits U+104A0–U+104A9 are detected as the script, while ASCII digits and mixed scripts abstain. Tests and live app acceptance pass; this verifies Unicode assignment/detection, not Somali orthography. Full suite: 109 passed, 188 subtests; Ruff/format, compileall, `pip check`, live Kivy and diff checks pass. |
 | Make saved-history clearing atomic and failure-safe | Same-directory unique temp file and atomic replace. Failure injection confirms old history is byte-identical and temp files are cleaned; local commit `66581de`. |
 | Add practical keyboard access for core translation and pack flows | Ctrl+Shift+M mode; Ctrl+P packs; Ctrl+K target and Ctrl+Shift+K source; arrows/Enter choose picker and pack; Ctrl+L editor; Esc back/cancel. Live Kivy checks passed. |
 | Add a visible cancellation action for offline pack downloads | Live Kivy acceptance checked visible/enabled Cancel, event signaling, disabled repeat request and status; streamed cancellation regression confirms no active pack or staging remains. |
@@ -82,6 +83,8 @@ Finish the verified Osmanya ambiguity warning with a focused local commit, then 
 Saved-history resilience (2026-10-24): added strict shape validation before the Saved screen renders records. Damaged JSON and invalid records now produce a clear error rather than an uncaught `AttributeError`/`KeyError`; read, save and clear leave the existing file untouched. Regression tests cover corrupt JSON, root/list/entry type errors, and preservation on save/clear. Isolated live Kivy acceptance passed and verified the view stays on Home while the error is reported. Full suite: 107 passed, 154 subtests; Ruff check/format (103 files), compileall, `pip check`, and `git diff --check` passed. Next ACTIVE is a local focused commit; READY is the forward Osmanya long-vowel ambiguity warning, followed by clean-checkout smoke validation. No physical input, clipboard access, user-data writes, model downloads or push.
 
 Osmanya ambiguity recovery (2026-10-24): Unicode Standard 16.0 §19.2.1 states long `ii`/`uu` are written with YA/WAW, the same code points used for `y`/`w` in this converter. Forward Latin-to-Osmanya conversion now preserves its established output but warns that reverse conversion can choose the other reading. Added regressions for both digraphs and live Kivy status. Full suite: 108 passed, 156 subtests; Ruff, format, compileall, `pip check`, and isolated Kivy self-test passed. No linguistic quality claim or spelling change. Next ACTIVE: local commit; READY: clean-checkout setup/self-test.
+
+Osmanya assignment and numeric input (2026-10-24): audited each of the 32 supported spellings against Python's Unicode character names; all map to assigned Unicode Osmanya letters (this does not validate phonetic/orthographic correctness). Script detection now recognizes digit-only Osmanya text U+104A0–U+104A9 and mixed letter/digit Osmanya, while rejecting ASCII-number and mixed-script input. Added unit cases and live Kivy checks that detect-mode labels digits as script, not meaning translation. Full suite: 109 passed, 188 subtests; Ruff, format, compileall, `pip check`, and isolated Kivy self-test passed. Next ACTIVE: focused local commit; READY: clean-checkout startup and feature check.
 
 Phase 2 Reading Studio addition (2026-10-24): 4 focused regression tests added. Full local suite: `92 passed, 148 subtests passed` after final code edits. Live Kivy `main.py --self-test` returned pass and checked studio route, line-paired reading, alphabet search, letter detail, both copy actions, record import through a controlled clipboard fixture, plus existing script and translation paths. Formatting/Ruff, `compileall`, `pip check`, release-safety scan and `git diff --check` passed. The final inspected studio screenshot is `%TEMP%\Saylacian-phase2-reader-acceptance\old-nubian-reading-studio0001.png`. An earlier black capture was resolved by allowing the screen to render before capture and delaying navigation until afterward. No ordinary OS clipboard was read or written by this feature.
 
