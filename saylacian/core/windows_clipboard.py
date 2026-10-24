@@ -49,10 +49,14 @@ def _format_id(user32, name: str) -> int:
     return result
 
 
-def publish(formats: Formats) -> None:
+def publish(formats: Formats, *, owner: int | None = None) -> None:
     """Set ordered [(format-name, bytes)] data; ownership transfers to Windows."""
     if not formats:
         raise ValueError("At least one clipboard representation is required.")
+    if not owner:
+        raise ValueError(
+            "A valid owner window handle is required for Windows clipboard publishing."
+        )
     user32, kernel32 = _dlls()
 
     format_ids = [_format_id(user32, name) for name, _ in formats]
@@ -77,7 +81,7 @@ def publish(formats: Formats) -> None:
     transferred = set()
     try:
         for attempt in range(12):
-            if user32.OpenClipboard(None):
+            if user32.OpenClipboard(owner):
                 opened = True
                 break
             time.sleep(0.025 * (attempt + 1))

@@ -10,7 +10,7 @@ Move each task among these queues at every milestone. A blocker must name the ex
 
 ### ACTIVE
 
-No independent short-text language-identification labels are currently available. Reconcile the next product milestone against the master directive and roadmap; do not promote source-locale checks into accuracy claims or invent filler work.
+No ACTIVE implementation item remains after the short-text threshold and Windows clipboard-owner fixes. Reconcile the next product milestone against the master directive and roadmap; do not promote source-locale checks into accuracy claims or invent filler work.
 
 ### BLOCKED
 
@@ -20,7 +20,7 @@ No independent short-text language-identification labels are currently available
 | Upgrade Somali linguistic-quality status | No fluent Somali human review or approved reviewer recruitment | Obtain owner-approved, consent-based fluent review and an appropriate reviewed sample. Keep automatic metrics as engineering evidence only. |
 | Verify screen-reader behavior | No assistive-technology session was run; speech output and semantics cannot be inferred from source alone | Perform a manual Windows Narrator/NVDA run through keyboard flows and record actual announcements, selection and focus. Do not claim conformance before testing. |
 | Obtain compact-layout pixel evidence | SDL2 `Window.screenshot` returned an all-black frame at a 360×640 dp viewport; widget geometry is verified but pixels are not | Use a validated isolated virtual display or a known-good OpenGL/SDL screenshot path, then capture and inspect the 360×640 dp view. Do not claim visual acceptance until that works. |
-| Verify portable Borama/Kaddare clipboard use in an external application | Real Windows clipboard acceptance is restricted to a disposable VM; host clipboard must remain untouched | Provision/use a disposable Windows VM with host clipboard sharing disabled, then run the guarded harness and import into a font-compatible external app. Record OS Unicode/RTF/bitmap/custom-format support separately. |
+| Verify portable Borama/Kaddare clipboard use in an external application | The Win32 clipboard publisher now supplies Saylacian's native HWND; fake-API regressions pass, but no real OS clipboard or external application was exercised | Provision/use a disposable Windows VM with host clipboard sharing disabled, then run the guarded harness and import into a font-compatible external app. Record OS Unicode/RTF/bitmap/custom-format support separately. |
 | Run the hosted model-pack integration workflow | Workflow is local and tested; no hosted run occurred because the user prohibited pushes without approval | Obtain owner approval to push the reviewed workflow commit, then manually dispatch the French or Somali job and inspect its logs. Do not run before approval. |
 | Validate short-input language-detection accuracy | Tatoeba source labels conflict with some texts; WiLI has no native rows in the app gate. Qor provides 67 verified Somali short rows but no negative classes. MASSIVE 1.1 is CC BY 4.0 and has useful short locale-labelled test text, but no per-row language-identification judgments and no Somali. Common Voice's official 950.41 MB archive requires Mozilla Data Collective access; SomaliWeb v1's cited benchmark CSV returns 404. | Obtain reviewer-adjudicated, consented short examples for Somali, English/French and unsupported languages under clear reuse terms. Alternatively, owner obtains Common Voice through MDC for additional source-locale evidence, then arranges independent review. Do not use mirrors, infer label correctness, or claim accuracy from source tags. |
 
@@ -28,7 +28,7 @@ No independent short-text language-identification labels are currently available
 
 | Order | Task | Acceptance |
 |---|---|---|
-No separate task is READY after the short-input threshold milestone. Reconcile the roadmap when new evidence, permission, reviewer input or a validated isolated resource becomes available. Continue independent READY work in future sessions; keep the unresolved independent-label accuracy task BLOCKED.
+No separate task is READY after the Windows clipboard-owner fix. Reconcile the roadmap when new evidence, permission, reviewer input or a validated isolated resource becomes available. Continue independent READY work in future sessions; keep unresolved independent-label accuracy and external clipboard validation BLOCKED.
 
 ### VERIFIED
 

@@ -94,7 +94,7 @@ from saylacian.core.transliteration import (
     is_private_use_character,
     transliterate,
 )
-from saylacian.core.windows_clipboard import publish as publish_windows_clipboard
+from saylacian.core.windows_clipboard import publish as _publish_windows_clipboard
 
 
 class HomeScreen(Screen):
@@ -131,6 +131,15 @@ def clipboard_text(text, script=None):
     if has_private_characters:
         return None, None
     return text, None
+
+
+def publish_windows_clipboard(formats):
+    """Publish clipboard formats owned by Saylacian's native window."""
+    window_info = Window.get_window_info()
+    owner = getattr(window_info, "window", None)
+    if not owner:
+        raise OSError("Windows clipboard is unavailable until the app window is ready.")
+    _publish_windows_clipboard(formats, owner=int(owner))
 
 
 class SaylacianTextInput(TextInput):
