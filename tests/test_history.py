@@ -5,6 +5,7 @@
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 from saylacian.core.history import History
 
@@ -26,3 +27,19 @@ class HistoryTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 h.save("a", "b", "c", "d")
             self.assertIn('"version":2', p.read_text())
+
+    def test_clear_write_failure_preserves_existing_history(self):
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder) / "history.json"
+            history = History(path)
+            history.save("English", "French", "hello", "bonjour")
+            original = path.read_bytes()
+
+            with (
+                patch.object(Path, "replace", side_effect=OSError("disk full")),
+                self.assertRaisesRegex(OSError, "disk full"),
+            ):
+                history.clear()
+
+            self.assertEqual(path.read_bytes(), original)
+            self.assertEqual(list(Path(folder).iterdir()), [path])

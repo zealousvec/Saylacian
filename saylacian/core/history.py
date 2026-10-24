@@ -2,6 +2,7 @@
 """Explicit local saves; schema version and atomic writes protect existing records."""
 
 import json
+import tempfile
 from pathlib import Path
 
 
@@ -38,17 +39,32 @@ class History:
                 "mode": mode,
             },
         )
-        self.path.parent.mkdir(parents=True, exist_ok=True)
-        temp = self.path.with_suffix(".tmp")
-        temp.write_text(
-            json.dumps(
-                {"version": 1, "items": items[:100]}, ensure_ascii=False, indent=2
-            ),
-            encoding="utf-8",
-        )
-        temp.replace(self.path)
+        self._write(items[:100])
 
     def clear(self):
-
         self.read()
-        self.path.write_text(json.dumps({"version": 1, "items": []}), encoding="utf-8")
+        self._write([])
+
+    def _write(self, items):
+        self.path.parent.mkdir(parents=True, exist_ok=True)
+        temporary_path = None
+        try:
+            with tempfile.NamedTemporaryFile(
+                mode="w",
+                encoding="utf-8",
+                dir=self.path.parent,
+                prefix=f".{self.path.name}.",
+                suffix=".tmp",
+                delete=False,
+            ) as temporary_file:
+                temporary_path = Path(temporary_file.name)
+                json.dump(
+                    {"version": 1, "items": items},
+                    temporary_file,
+                    ensure_ascii=False,
+                    indent=2,
+                )
+            temporary_path.replace(self.path)
+        finally:
+            if temporary_path is not None:
+                temporary_path.unlink(missing_ok=True)
