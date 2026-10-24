@@ -32,6 +32,29 @@ class LanguageDetectionTests(unittest.TestCase):
         self.assertEqual(confidence, 0.0)
         self.assertIn("three words", message)
 
+    def test_detects_high_confidence_short_text_in_supported_languages(self):
+        samples = (
+            ("Where is my phone?", "English"),
+            ("Je suis heureux", "French"),
+            ("Waan ku jeclahay", "Somali Latin"),
+        )
+        for text, expected in samples:
+            with self.subTest(language=expected):
+                language, confidence, message = detect_language(text)
+                self.assertEqual(language, expected, message)
+                self.assertGreaterEqual(confidence, 0.85)
+
+    def test_abstains_on_low_confidence_short_text(self):
+        language, _, message = detect_language("Bonjour mon ami")
+        self.assertIsNone(language)
+        self.assertIn("Short text is uncertain", message)
+
+    def test_short_high_confidence_unsupported_language_stays_unsupported(self):
+        language, confidence, message = detect_language("Guten Tag mein Freund")
+        self.assertIsNone(language)
+        self.assertGreaterEqual(confidence, 0.85)
+        self.assertIn("not supported", message)
+
     def test_abstains_on_unsupported_language(self):
         language, _, _ = detect_language(
             "Ola, como estás? Espero que te encuentres muy bien hoy."

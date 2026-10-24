@@ -8,8 +8,8 @@ Repository: the current checkout of `zealousvec/Saylacian`
 Branch: `main`
 Public `origin/main`: `c4f2f87270c22a05e772816ce98e57a99b871b18`
 Public CI: run `40087020450` passed on that commit.
-Latest committed source checkpoint: `5030cd0` (`fix: contain model pack paths`); public `main` remains at `c4f2f87270c22a05e772816ce98e57a99b871b18`. No push has occurred.
-Preserve the pre-existing user edits in `docs/PROJECT_STATUS.md` and `docs/TECHNICAL_AUDIT.md`; do not stage or rewrite them. Latest verified milestone confines pack pointers/versions/assets and records exact external clipboard test blocker. Old Nubian mark display is improved and tested; next ACTIVE is short-text language detection audit from the roadmap.
+Recent local milestones include model-pack path containment, Old Nubian mark readability and short-text language detection. Public `main` remains at `c4f2f87270c22a05e772816ce98e57a99b871b18`; no push has occurred.
+Preserve the pre-existing user edits in `docs/PROJECT_STATUS.md` and `docs/TECHNICAL_AUDIT.md`; do not stage or rewrite them. Latest verified milestones improve Old Nubian mark readability and short-text language detection; next ACTIVE is broader provenance-labeled detection evaluation.
 
 ## Current milestone — memory recovery and rendering blocker (2026-10-24)
 
@@ -294,3 +294,7 @@ A reproducible traversal test showed `ModelPackManager.active_model_roots()` acc
 The Old Nubian forward route no longer normalizes to NFC, preserving combining-mark order. Both translator output and Reading Studio Latin output use the bundled Noto Sans Coptic font. Reading Studio adds a display-only note with Unicode names and one-based code-point positions; it assigns no linguistic reading. Tests verify converted text, mark order, metadata and font selection. Live Kivy self-test passed; screenshot is `%TEMP%\saylacian-oldnubian-mark-20261024\evidence-final\old-nubian-reading-studio0001.png`. The screenshot shows the reading and mark note, but SDL capture omits some widgets; correct mark attachment in Latin context remains unverified. Full suite: `121 passed, 2 skipped`; Ruff, format, compileall, `pip check`, release safety and diff checks pass.
 
 Queue reconciliation: **ACTIVE** short-text language-detection audit, using existing roadmap acceptance and labeled tests; **BLOCKED** DBMNT reuse (written terms plus qualified review; owner approval before outreach), Somali quality (owner-approved consent-based fluent review), screen-reader behavior (manual Narrator/NVDA), compact pixels (validated isolated capture path), external clipboard interoperability (disposable VM with sharing disabled), hosted workflow (push approval then manual dispatch). **READY:** none additionally queued. Preserve owner's pre-existing edits in `docs/PROJECT_STATUS.md` and `docs/TECHNICAL_AUDIT.md`; no push or external action.
+
+## 2026-10-24 — Short-text language detection
+
+Below 20 characters, offline detection now requires at least 12 characters, three words and model confidence ≥0.85; longer text keeps the 0.70 floor and 20-character minimum. This increased accepted/explicitly unsupported cases from 5 to 17 in a small 40-prompt hand-authored probe: 13 expected supported labels and four unsupported-language responses, with no false supported labels in this sample. Three new unit tests and live Kivy route verification passed. Prompts are not a representative test set or linguistic review; keep accuracy status experimental. Full suite `124 passed, 2 skipped`; Ruff/format, compileall, `pip check`, release scan, `git diff --check` and live Kivy self-test pass. ACTIVE: broaden the provenance-labeled sample before more threshold changes. READY: none additionally queued.

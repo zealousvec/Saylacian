@@ -5,8 +5,10 @@ from functools import lru_cache
 
 SUPPORTED = {"en": "English", "fr": "French", "so": "Somali Latin"}
 MIN_CHARACTERS = 20
+MIN_SHORT_CHARACTERS = 12
 MIN_WORDS = 3
 MIN_CONFIDENCE = 0.70
+MIN_SHORT_CONFIDENCE = 0.85
 
 
 @lru_cache(maxsize=1)
@@ -21,16 +23,22 @@ def _identifier():
 def detect_language(text):
     """Return (display name, confidence, message); abstain on short/uncertain text."""
     text = text.strip()
-    if len(text) < MIN_CHARACTERS or len(text.split()) < MIN_WORDS:
+    if len(text) < MIN_SHORT_CHARACTERS or len(text.split()) < MIN_WORDS:
         return (
             None,
             0.0,
-            "Add at least 20 characters and three words for language detection.",
+            "Add at least 12 characters and three words for language detection.",
         )
 
     code, confidence = _identifier().classify(text)
-    if confidence < MIN_CONFIDENCE:
-        return None, confidence, "Language is uncertain; choose it manually."
+    threshold = MIN_SHORT_CONFIDENCE if len(text) < MIN_CHARACTERS else MIN_CONFIDENCE
+    if confidence < threshold:
+        message = (
+            "Short text is uncertain; add more text or choose the language manually."
+            if len(text) < MIN_CHARACTERS
+            else "Language is uncertain; choose it manually."
+        )
+        return None, confidence, message
     language = SUPPORTED.get(code)
     if language is None:
         return (

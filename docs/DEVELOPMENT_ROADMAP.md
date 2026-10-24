@@ -23,6 +23,8 @@ This roadmap is ordered by correctness and evidence dependencies. Complexity des
 | Evaluate English↔Somali separately from Somali↔French pivot. | Medium | Direction-specific scores and error review; retain explicit pivot warning. |
 | Improve language detection with short-text abstention and labeled test data. | Medium | Representative examples and false-positive/false-negative report. |
 
+The first short-text pass is implemented locally: texts under 20 characters need at least 12 characters, three words, and 0.85 model confidence; longer texts retain the existing 20-character/0.70 gate. On 40 hand-authored prompts (10 each for English, French, Somali and unsupported languages), the new behavior accepted 17 versus 5 under the previous gate: 13 supported-language labels and 4 explicit unsupported-language results, with no false supported labels in this small sample. This is model-specific engineering evidence, not a representative accuracy estimate or Somali linguistic review. Keep thresholds conservative until a larger, provenance-labeled test set is reviewed.
+
 **Acceptance rule:** a software test passing or a model returning text never upgrades a route’s linguistic status on its own. Publish evaluation method, sample limits, model identity, reviewer role, and known failure classes.
 
 ## Historical Somali scripts

@@ -288,6 +288,17 @@ def start(app):
         app.mode, app.source, app.target = saved_mode, saved_source, saved_target
         app.refresh_fonts()
 
+        saved_mode, saved_source, saved_target = app.mode, app.source, app.target
+        app.mode = "Translate meaning"
+        app.source, app.target = "Detect language/script", "English"
+        with patch("main.model_directory"):
+            app.convert("Waan ku jeclahay")
+        assert app.detected_language[0] == "Somali Latin"
+        assert "Detected Somali Latin" in app.status
+        app.translate_trigger.cancel()
+        app.mode, app.source, app.target = saved_mode, saved_source, saved_target
+        app.refresh_fonts()
+
         app.mode = "Convert writing system"
         app.source, app.target = "Old Nubian (Coptic)", "Old Nubian scholarly Latin"
         app.open_old_nubian_studio()
