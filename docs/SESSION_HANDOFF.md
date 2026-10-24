@@ -195,3 +195,21 @@ Live widget inspection showed the translator fields have blank normal/active bac
 Full verification after this change: `96 passed, 148 subtests`; Ruff check, Ruff formatting (101 files), compileall and release-safety scan passed. Live `main.py --self-test` passed including translation output `Bonjour, comment allez-vous ?`, keyboard focus and layout checks. KivyMD 1.2.0 deprecation and internal `padding_x` warnings remain.
 
 Next ACTIVE task: test text scaling and layout overflow at compact and wide sizes. READY: valid compact pixel-render capture, then clean-start regression if runtime-affecting files change. BLOCKED remains exact: DBMNT reuse requires written terms and qualified review (owner approval before outreach); Somali quality requires owner-approved consent-based fluent review; screen-reader behavior requires manual Narrator/NVDA observation. Current `main` is 25 commits ahead of `origin/main`; do not push. Preserve the two pre-existing owner edits.
+
+## 2026-10-24 — saved-history recovery and blocked-work continuation
+
+Permanent workflow updated in the master directive and Obsidian mission: maintain separate ACTIVE/BLOCKED/READY queues; every blocked task names the exact action needed; when an external dependency blocks the top item, choose the highest-impact independent READY task. If READY is empty, reconcile the roadmap and acceptance criteria before concluding no safe task remains. Do not invent filler tasks or bypass approvals. At verified milestones update Obsidian and repository handoff, commit locally, and continue while session is active. No push or publication.
+
+### Verified product change
+
+`History.read()` now validates JSON decoding, top-level version/schema, list shape and required record fields before the Saved screen consumes records. Damaged JSON and malformed entries raise actionable `ValueError`s. `read`, `save` and `clear` do not modify invalid or unknown-version history. `app/acceptance.py` verifies the live Saved flow reports a damaged file, leaves its bytes unchanged, and stays on Home.
+
+Tests: `107 passed, 154 subtests`; Ruff check and format pass (103 files); `compileall`, `pip check`, `git diff --check` pass. Isolated live `main.py --self-test` passes with network denied; app/Kivy/evidence data redirected under `%TEMP%\saylacian-history-recovery-check`. No mouse/keyboard automation, clipboard operations, user-data writes, model downloads or remote writes.
+
+### Queue
+
+- ACTIVE: make focused local commit for saved-history resilience, then implement the READY Osmanya warning.
+- READY: warn on Somali `ii`/`uu` converting to U+10495/U+10493, which also represent `y`/`w`; preserve mapping, explain reverse ambiguity, and add regression coverage using the Unicode Standard. After that, test a disposable clean checkout.
+- BLOCKED: Old Nubian DBMNT-derived data requires written reuse terms and qualified review; owner approval before outreach. Somali quality needs owner-approved consent-based fluent-speaker review. Screen-reader claims need manual Narrator/NVDA observation. Compact screenshot needs a validated display because current 360×640 SDL capture was black. Hosted pack workflow needs explicit push approval before dispatch.
+
+Previous user changes in `docs/PROJECT_STATUS.md` and `docs/TECHNICAL_AUDIT.md` remain untouched and excluded from staging. Current committed HEAD before this milestone: `f6a604f`; public origin was last verified at `c4f2f87270c22a05e772816ce98e57a99b871b18`. No remote action taken. KivyMD 1.2.0 and its `padding_x` deprecation warnings remain.

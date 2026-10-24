@@ -13,6 +13,7 @@ from kivy.core.window import Window
 from kivy.metrics import dp
 from kivy.uix.button import Button
 
+from saylacian.core.history import History
 from saylacian.core.interchange import encode_saylacian_text
 from saylacian.core.old_nubian_reader import (
     export_reading_record,
@@ -212,6 +213,7 @@ def start(app):
         assert app.root.current == "home"
         home.ids.input_text.focus = False
 
+        saved_history = app.history
         saved_items = [
             {
                 "favourite": False,
@@ -246,7 +248,15 @@ def start(app):
             assert app.keyboard(Window, 13, None, 13, [])
             restore_saved.assert_called_once_with(saved_items[1])
             app.close_picker()
-        app.history.read = list
+        damaged_history_path = folder / "damaged-history.json"
+        damaged_history_path.write_text('{"version":1,"items":[', encoding="utf-8")
+        damaged_history_bytes = damaged_history_path.read_bytes()
+        app.history = History(damaged_history_path)
+        app.show_history()
+        assert "Saved history is damaged" in app.status
+        assert app.root.current == "home"
+        assert damaged_history_path.read_bytes() == damaged_history_bytes
+        app.history = saved_history
 
         app.mode = "Convert writing system"
         app.source, app.target = "Old Nubian (Coptic)", "Old Nubian scholarly Latin"

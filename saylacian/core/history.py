@@ -13,10 +13,33 @@ class History:
     def read(self):
         if not self.path.exists():
             return []
-        data = json.loads(self.path.read_text(encoding="utf-8"))
-        if data.get("version") != 1:
+        try:
+            data = json.loads(self.path.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, UnicodeDecodeError) as error:
+            raise ValueError(
+                "Saved history is damaged; file left untouched."
+            ) from error
+
+        if not isinstance(data, dict) or data.get("version") != 1:
             raise ValueError("Unknown history format; file left untouched.")
-        return data["items"]
+
+        items = data.get("items")
+        if not isinstance(items, list) or not all(
+            self._is_valid_item(item) for item in items
+        ):
+            raise ValueError("Saved history has invalid entries; file left untouched.")
+        return items
+
+    @staticmethod
+    def _is_valid_item(item):
+        if not isinstance(item, dict):
+            return False
+        required_text = ("source", "target", "text", "result")
+        if any(not isinstance(item.get(key), str) for key in required_text):
+            return False
+        if not isinstance(item.get("favourite"), bool):
+            return False
+        return "mode" not in item or isinstance(item["mode"], str)
 
     def save(
         self,
