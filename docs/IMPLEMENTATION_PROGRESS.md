@@ -12,7 +12,7 @@ Move each task among these queues at every milestone. A blocker must name the ex
 
 | Task | Acceptance | Current evidence / next step |
 |---|---|---|
-| Check text scaling and layout overflow | Verify increased text size at compact and wide breakpoints using live Kivy measurements; fix only demonstrated clipping or inaccessible controls. | Current sizes fit at default scale; enlarged-scale behavior has not been checked. |
+| Recheck a clean source setup after runtime UI changes | Clone the committed source, launch with network denied and isolated app data, verify all six screens and pack manifests. | Live 200% font-scale geometry now passes at compact and wide sizes; clean-clone smoke is next. |
 
 ### BLOCKED
 
@@ -26,9 +26,8 @@ Move each task among these queues at every milestone. A blocker must name the ex
 
 | Order | Task | Acceptance |
 |---|---|---|
-| 1 | Obtain valid compact-layout visual evidence | Capture a correct 360×640 Kivy render in an isolated renderer/viewport; current screenshot path produced black/warped output, so do not claim pixel-level validation yet. |
-| 2 | Check text scaling and layout overflow | Verify compact and wide layouts with increased text size using programmatic Kivy acceptance; record any clipped controls and fix only demonstrated defects. |
-| 3 | Recheck clean source setup after runtime changes | Repeat clean checkout setup/start and pack integrity validation when relevant source/dependency files change. |
+| 1 | Obtain valid compact-layout visual evidence | Capture a correct 360×640 Kivy render in an isolated renderer/viewport; the existing window capture path produced black/warped output, so do not claim pixel-level validation yet. |
+| 2 | Recheck text scale after future layout edits | Run 200% live Kivy label-fit checks at compact and wide sizes after changes to screen copy, layout or fonts. |
 
 ### VERIFIED
 
@@ -48,6 +47,8 @@ Move each task among these queues at every milestone. A blocker must name the ex
 | Measure isolated startup and picker filtering | Import + Kivy build 1.32–1.46 s (median 1.39 s, n=3; not first-frame); picker filter median 10.7 ms (n=25), occasional outliers. No repeatable bottleneck; no performance code changed. Raw data `%TEMP%\saylacian_perf_baseline_20261024.json`. |
 | Audit active KivyMD API exposure | `docs/KIVYMD_MIGRATION.md` maps legacy buttons, dialog, text fields, icon buttons and checks to official 2.0 docs. No migration or pin change. |
 | Add a visible keyboard-focus ring to translator fields | Blank normal/active backgrounds provided no focus cue. A 2dp black outline now tracks focus; live Kivy acceptance asserted its color/width; captured and inspected rendered screenshot. Contrast against #F2F2F2 card is about 18.8:1. |
+| Prevent enlarged-text clipping on secondary screens | Live Kivy checks at 200% text scale measured label texture against widget height on Home, Packs, Saved, Alphabet/Osmanya and Old Nubian at 360×640 dp and 900×700 dp; all passed. Expanded headings, notes, captions and pack rows to fit rendered text. |
+| Keep Osmanya alphabet usable without a chart image | The repository contains no Osmanya chart asset. The alphabet reference now opens the Unicode letter grid; absent historical chart files show a clear status instead of a broken image. Live 200% check confirmed the grid is populated. |
 
 | ID | Milestone | Task | Evidence/source | Status | Tests | Blocker | Next action |
 |---|---|---|---|---|---|---|---|

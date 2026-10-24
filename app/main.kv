@@ -200,7 +200,7 @@
                 size: self.size
         BoxLayout:
             size_hint_y: None
-            height: dp(48)
+            height: max(dp(48), self.minimum_height)
             ActionIcon:
                 icon: "arrow-left"
                 tooltip_text: "Back to translator"
@@ -244,10 +244,12 @@
             MDLabel:
                 text: "Offline language packs"
                 font_style: "H6"
+                size_hint_y: None
+                height: max(dp(44), self.texture_size[1] + dp(4))
         MDLabel:
             text: "Download packs once, then translate on this device without internet."
             size_hint_y: None
-            height: dp(54)
+            height: max(dp(54), self.texture_size[1] + dp(12))
             text_size: self.width, None
         ProgressBar:
             max: 100
@@ -258,7 +260,7 @@
             text: app.pack_status
             font_style: "Caption"
             size_hint_y: None
-            height: dp(44)
+            height: max(dp(44), self.texture_size[1] + dp(8))
             text_size: self.width, None
         MDFlatButton:
             id: pack_cancel_button
@@ -280,7 +282,7 @@
             text: app.pack_storage
             font_style: "Caption"
             size_hint_y: None
-            height: dp(44)
+            height: max(dp(44), self.texture_size[1] + dp(8))
             text_size: self.width, None
 <SavedScreen>:
     name: "saved"
@@ -296,13 +298,15 @@
                 size: self.size
         BoxLayout:
             size_hint_y: None
-            height: dp(48)
+            height: max(dp(48), self.minimum_height)
             ActionIcon:
                 icon: "arrow-left"
                 tooltip_text: "Back to translator"
                 on_release: app.close_picker()
             MDLabel:
                 text: "History & favourites"
+                size_hint_y: None
+                height: max(dp(44), self.texture_size[1] + dp(4))
         MDFlatButton:
             text: "Clear saved"
             on_release: app.clear_history()
@@ -327,7 +331,7 @@
                 size: self.size
         BoxLayout:
             size_hint_y: None
-            height: dp(48)
+            height: max(dp(48), self.minimum_height)
             ActionIcon:
                 icon: "arrow-left"
                 tooltip_text: "Back to translator"
@@ -335,16 +339,18 @@
             MDLabel:
                 text: app.script_heading
                 font_style: "H6"
+                size_hint_y: None
+                height: max(dp(44), self.texture_size[1] + dp(4))
         MDLabel:
             text: app.script_note
             size_hint_y: None
-            height: dp(60)
+            height: max(dp(60), self.texture_size[1] + dp(8))
             text_size: self.width, None
         MDLabel:
             id: chart_status
             text: "Select Osmanya as source to insert letters."
             size_hint_y: None
-            height: dp(48)
+            height: max(dp(48), self.texture_size[1] + dp(8))
             font_style: "Caption"
             text_size: self.width, None
         ScrollView:
@@ -358,7 +364,7 @@
         MDLabel:
             text: "Unicode reference. Somali-speaker review is still needed."
             size_hint_y: None
-            height: dp(40)
+            height: max(dp(40), self.texture_size[1] + dp(8))
             font_style: "Caption"
             text_size: self.width, None
 <OldNubianStudioScreen>:
@@ -375,7 +381,7 @@
                 size: self.size
         BoxLayout:
             size_hint_y: None
-            height: dp(44)
+            height: max(dp(44), self.minimum_height)
             ActionIcon:
                 icon: "arrow-left"
                 tooltip_text: "Back to translator"
@@ -383,6 +389,8 @@
             MDLabel:
                 text: "Old Nubian reading"
                 font_style: "H6"
+                size_hint_y: None
+                height: max(dp(44), self.texture_size[1] + dp(4))
         ScrollView:
             do_scroll_x: False
             BoxLayout:
@@ -393,7 +401,7 @@
                 MDLabel:
                     text: "Enter a passage. This gives a limited character reading, not a translation."
                     size_hint_y: None
-                    height: dp(42)
+                    height: max(dp(42), self.texture_size[1] + dp(8))
                     text_size: self.width, None
                 MDTextField:
                     id: reader_original
@@ -439,7 +447,7 @@
                 MDLabel:
                     text: "Letter reference"
                     size_hint_y: None
-                    height: dp(32)
+                    height: max(dp(32), self.texture_size[1] + dp(8))
                     font_style: "Subtitle1"
                 MDTextField:
                     id: alphabet_search
@@ -450,7 +458,7 @@
                 MDLabel:
                     text: app.reader_detail
                     size_hint_y: None
-                    height: dp(82)
+                    height: max(dp(82), self.texture_size[1] + dp(8))
                     font_style: "Caption"
                     text_size: self.width, None
                 MDFlatButton:

@@ -377,19 +377,26 @@ class SaylacianApp(MDApp):
         self.pack_index = -1
         packs = self.pack_manager.list_packs()
         for pack in packs:
-            row = BoxLayout(
-                orientation="horizontal", size_hint_y=None, height=dp(76), spacing=dp(8)
+            row = BoxLayout(orientation="horizontal", size_hint_y=None, spacing=dp(8))
+            available_update = (
+                not pack["installed"]
+                and bool(pack.get("installed_version"))
+                and pack["installed_version"] != pack["version"]
             )
             details = BoxLayout(orientation="vertical")
             title = MDLabel(
                 text=pack["title"],
                 bold=True,
-                size_hint_y=0.55,
+                size_hint_y=None,
+                height=dp(34),
                 halign="left",
                 valign="middle",
+                text_size=(None, None),
             )
             if pack["installed"]:
                 note = f"Installed · {self._format_bytes(pack['installed_bytes'])} on device"
+            elif available_update:
+                note = f"Update available · {self._format_bytes(pack['download_bytes'])} download"
             else:
                 note = f"Download {self._format_bytes(pack['download_bytes'])} · works offline"
             subtitle = MDLabel(
@@ -397,15 +404,45 @@ class SaylacianApp(MDApp):
                 theme_text_color="Custom",
                 text_color=(0.68, 0.68, 0.68, 1),
                 font_style="Caption",
-                size_hint_y=0.45,
+                size_hint_y=None,
+                height=dp(28),
                 halign="left",
                 valign="middle",
+                text_size=(None, None),
+            )
+
+            def fit_text(widget, width):
+                widget.text_size = (max(dp(80), width - dp(112)), None)
+
+            row.bind(
+                width=lambda _row, width, title=title, subtitle=subtitle: (
+                    fit_text(title, width),
+                    fit_text(subtitle, width),
+                )
+            )
+            fit_text(title, row.width)
+            fit_text(subtitle, row.width)
+            title.bind(
+                texture_size=lambda widget, size: setattr(
+                    widget, "height", size[1] + dp(4)
+                )
+            )
+            subtitle.bind(
+                texture_size=lambda widget, size: setattr(
+                    widget, "height", size[1] + dp(4)
+                )
             )
             details.add_widget(title)
             details.add_widget(subtitle)
             row.add_widget(details)
             button = Button(
-                text="Remove" if pack["installed"] else "Download",
+                text=(
+                    "Remove"
+                    if pack["installed"]
+                    else "Update"
+                    if available_update
+                    else "Download"
+                ),
                 size_hint=(None, None),
                 size=(dp(96), dp(42)),
                 color=(0.9, 0.95, 0.96, 1),
@@ -429,6 +466,12 @@ class SaylacianApp(MDApp):
                     )
                 )
             row.add_widget(button)
+            row.height = max(dp(76), details.minimum_height, dp(48))
+            details.bind(
+                minimum_height=lambda _details, height, row=row: setattr(
+                    row, "height", max(dp(76), height, dp(48))
+                )
+            )
             rows.add_widget(row)
             self.pack_options.append(
                 {"id": pack["id"], "title": title, "installed": pack["installed"]}
@@ -916,10 +959,23 @@ class SaylacianApp(MDApp):
             "Copied text may need the Saylacian font."
         )
         screen.ids.chart_status.text = "Text may need the Saylacian font in other apps."
+        if script == "Osmanya":
+            self.show_alphabet()
+            screen.ids.chart_status.text = (
+                "Unicode letters. Select Osmanya as source to insert letters."
+            )
+            return
         grid = screen.ids.letters
         grid.clear_widgets()
         grid.cols = 1
         chart = PROJECT / "assets/research" / f"{script}_Alphabet_Chart.jpg"
+        if not chart.is_file():
+            screen.ids.chart_status.text = (
+                "No chart image is available. Letter entry remains experimental."
+            )
+            self.root.get_screen("home").ids.input_text.focus = False
+            self.root.current = "alphabet"
+            return
         grid.add_widget(
             Image(
                 source=str(chart),

@@ -8,10 +8,22 @@ Repository: the current checkout of `zealousvec/Saylacian`
 Branch: `main`
 Public `origin/main`: `c4f2f87270c22a05e772816ce98e57a99b871b18`
 Public CI: run `40087020450` passed on that commit.
-Five implementation/progress commits were ahead of public main at session start. This session's implementation is committed locally as `5a5b54f` (`fix: improve readings and reliability`); it is unpushed. Public `main` remains `c4f2f87270c22a05e772816ce98e57a99b871b18`.
-No push has occurred. The only pre-existing user edits were `docs/PROJECT_STATUS.md` and `docs/TECHNICAL_AUDIT.md`; both remain unstaged and outside this commit. Preserve them.
+Local HEAD at start of the current milestone: `998ade1` (`fix: support enlarged text on compact layouts`); public `main` remains `c4f2f87270c22a05e772816ce98e57a99b871b18`. No push has occurred.
+Preserve the pre-existing user edits in `docs/PROJECT_STATUS.md` and `docs/TECHNICAL_AUDIT.md`; do not stage or rewrite them. The ongoing pack-update UI/acceptance/test changes and current text-fit fix are implementation work; stage only reviewed project files.
 
-## Latest session milestone
+## Current milestone — enlarged-text fit and Osmanya reference recovery (2026-10-24)
+
+At 200% Kivy font scale, live label geometry checks found clipping in Packs, Saved, Alphabet and Old Nubian. Updated fixed text heights and made pack rows follow their wrapped text. The missing Osmanya JPG lookup now falls back to the real Unicode alphabet grid; missing Borama/Kaddare images receive a readable status. A separate live Kivy measurement run passed for Home, Packs, Saved, Alphabet/Osmanya and Old Nubian at compact 360×640 dp and wide 900×700 dp. This is programmatic widget geometry evidence, not a claim of pixel-perfect compact screenshot review.
+
+`main.py --self-test` passed at `KIVY_METRICS_FONTSCALE=2.0`, including offline output `Bonjour, comment allez-vous ?`. Full suite: 97 passed / 148 subtests. Ruff check passes; formatting was applied to `main.py`; compileall passed. Screenshot: `%TEMP%\saylacian-large-ui-evidence\old-nubian-reading-studio0002.png`.
+
+### Current queues
+
+- ACTIVE: run a clean-clone startup check after the runtime UI changes; isolate app data and deny network connections.
+- BLOCKED: DBMNT reuse needs written rights and qualified review (owner approval before outreach); Somali translation needs owner-approved consent-based fluent-speaker review; screen-reader claims need a manual Narrator/NVDA run.
+- READY: get valid 360×640 pixel-render evidence in a suitable isolated Kivy viewport. The previous Kivy window screenshot had black/warped pixels; do not claim visual validation based on it.
+
+## Earlier implementation milestone
 
 Completed the visible UI and GitHub wording review, corrected stale pre-publication documentation, and added a KivyMD 2.0.0 migration plan. No UI redesign or GitHub settings change was made.
 
@@ -35,9 +47,9 @@ Live Kivy evidence: `%TEMP%\Saylacian-Autonomous-20261024-final`. `result.json` 
 
 ## Next three tasks
 
-1. Continue Old Nubian work only with cited scholarly evidence or a specialist reviewer; improve mark display only if raw copy remains unchanged.
-2. Run external clipboard acceptance in a disposable Windows VM with host clipboard sharing disabled. Never run it on the everyday desktop.
-3. Continue Somali-speaker evaluation and investigate remaining KivyMD warnings; migrate only in an isolated branch after UI acceptance.
+1. Run a clean local clone of the committed revision with networking denied, isolated app/Kivy data and no model download.
+2. Obtain valid compact pixel-render evidence using an isolated Kivy viewport; preserve the current pixel-level validation limitation until then.
+3. Continue the next highest-impact READY product task; keep DBMNT, Somali human review, screen reader and external clipboard checks BLOCKED with their exact resolution actions.
 
 ## Verification for latest milestone
 

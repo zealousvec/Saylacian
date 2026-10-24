@@ -149,6 +149,83 @@ class ModelPackTests(unittest.TestCase):
             self.assertEqual(manager.active_model_roots(), [])
             self.assertEqual(list((Path(temporary) / "somali").glob("1-test")), [])
 
+    def test_pack_upgrade_keeps_previous_version_until_new_hash_verifies(self):
+        old_content = b"model-v1"
+        new_content = b"model-v2"
+        tampered_content = b"model-x2"
+
+        def make_spec(version, content):
+            return {
+                "somali": {
+                    "id": "somali",
+                    "title": "Somali",
+                    "version": version,
+                    "download_bytes": len(content),
+                    "assets": [
+                        {
+                            "kind": "file",
+                            "url": "https://huggingface.co/test/model.bin",
+                            "bytes": len(content),
+                            "sha256": hashlib.sha256(content).hexdigest(),
+                            "destination": "somali/en_so/model.bin",
+                        }
+                    ],
+                }
+            }
+
+        with tempfile.TemporaryDirectory() as temporary:
+            store = Path(temporary)
+            old_manager = ModelPackManager(store, make_spec("1-test", old_content))
+            new_manager = ModelPackManager(store, make_spec("2-test", new_content))
+            with patch(
+                "saylacian.core.model_packs.urllib.request.urlopen",
+                return_value=io.BytesIO(old_content),
+            ):
+                old_version = old_manager.install("somali")
+
+            with (
+                patch(
+                    "saylacian.core.model_packs.urllib.request.urlopen",
+                    return_value=io.BytesIO(tampered_content),
+                ),
+                self.assertRaisesRegex(ValueError, "SHA-256"),
+            ):
+                new_manager.install("somali")
+
+            pointer = store / "somali" / "current.json"
+            self.assertEqual(
+                json.loads(pointer.read_text(encoding="utf-8"))["version"], "1-test"
+            )
+            self.assertEqual(old_manager.active_model_roots(), [old_version])
+            self.assertEqual(
+                (old_version / "somali/en_so/model.bin").read_bytes(), old_content
+            )
+            self.assertEqual(list((store / "somali").glob(".staging-*")), [])
+            failed_update = new_manager.list_packs()[0]
+            self.assertFalse(failed_update["installed"])
+            self.assertEqual(failed_update["installed_version"], "1-test")
+            self.assertEqual(failed_update["installed_bytes"], len(old_content))
+
+            with patch(
+                "saylacian.core.model_packs.urllib.request.urlopen",
+                return_value=io.BytesIO(new_content),
+            ):
+                new_version = new_manager.install("somali")
+
+            self.assertEqual(
+                json.loads(pointer.read_text(encoding="utf-8"))["version"], "2-test"
+            )
+            self.assertEqual(new_manager.active_model_roots(), [new_version])
+            self.assertEqual(
+                (new_version / "somali/en_so/model.bin").read_bytes(), new_content
+            )
+            self.assertTrue(old_version.is_dir())
+            installed_update = new_manager.list_packs()[0]
+            self.assertTrue(installed_update["installed"])
+            self.assertEqual(installed_update["installed_version"], "2-test")
+            self.assertEqual(installed_update["installed_bytes"], len(new_content))
+            self.assertGreater(installed_update["storage_bytes"], len(old_content))
+
     def test_cancelled_install_removes_staging_without_activating_pack(self):
         content = b"ab"
         item = {

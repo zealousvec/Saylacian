@@ -11,6 +11,7 @@ from unittest.mock import patch
 from kivy.clock import Clock
 from kivy.core.window import Window
 from kivy.metrics import dp
+from kivy.uix.button import Button
 
 from saylacian.core.interchange import encode_saylacian_text
 from saylacian.core.old_nubian_reader import (
@@ -56,9 +57,17 @@ def start(app):
         app.pack_cancel_requested = False
         cancel_button = pack_screen.ids.pack_cancel_button
         assert cancel_button.height > 0 and not cancel_button.disabled
+        cancel_text = next(
+            widget
+            for widget in cancel_button.walk()
+            if type(widget).__name__ == "MDLabel"
+            and getattr(widget, "text", "") == "Cancel download"
+        )
         app.cancel_pack_download()
         assert app.pack_cancel_event.is_set()
         assert cancel_button.disabled
+        assert cancel_text.disabled
+        assert list(cancel_text.disabled_color) == [1, 1, 1, 0.5]
         assert app.pack_status == "Stopping download..."
         assert app.keyboard(Window, 108, None, 108, ["ctrl"])
         assert app.root.current == "home"
@@ -75,6 +84,7 @@ def start(app):
         assert app.picker_index == 0
         assert app.keyboard(Window, 274, None, None, ["down"])
         selected_target = app.picker_options[app.picker_index][0]
+        assert app.picker_options[app.picker_index][1].text.startswith("› ")
         assert app.keyboard(Window, 13, None, 13, [])
         assert app.target == selected_target
         assert selected_target == "French"
@@ -87,9 +97,11 @@ def start(app):
                 "id": "somali",
                 "title": "Somali / English",
                 "installed": False,
-                "installed_bytes": 0,
-                "download_bytes": 300,
-                "storage_bytes": 0,
+                "version": "2-test",
+                "installed_version": "1-test",
+                "installed_bytes": 300,
+                "download_bytes": 2 * 1024 * 1024,
+                "storage_bytes": 3 * 1024 * 1024,
             },
             {
                 "id": "french",
@@ -97,7 +109,7 @@ def start(app):
                 "installed": False,
                 "installed_bytes": 0,
                 "download_bytes": 166,
-                "storage_bytes": 0,
+                "storage_bytes": 1024 * 1024,
             },
         ]
         with (
@@ -106,12 +118,30 @@ def start(app):
         ):
             assert app.keyboard(Window, 112, None, 112, ["ctrl"])
             assert app.root.current == "packs"
+            assert app.pack_storage.startswith("Using 4 MB.")
             assert app.keyboard(Window, 274, None, None, ["down"])
+            assert app.pack_index == 0
+            update_button = next(
+                widget
+                for widget in app.root.get_screen("packs").ids.pack_rows.walk()
+                if isinstance(widget, Button) and widget.text == "Update"
+            )
+            update_note = next(
+                widget
+                for widget in app.root.get_screen("packs").ids.pack_rows.walk()
+                if type(widget).__name__ == "MDLabel"
+                and widget.text.startswith("Update available")
+            )
+            assert not update_button.disabled
+            assert "2 MB download" in update_note.text
+            assert app.keyboard(Window, 13, None, 13, [])
+            start_download.assert_called_once_with("somali")
             assert app.keyboard(Window, 274, None, None, ["down"])
             assert app.pack_index == 1
             assert app.pack_options[1]["title"].text.startswith("› ")
             assert app.keyboard(Window, 13, None, 13, [])
-            start_download.assert_called_once_with("french")
+            assert start_download.call_count == 2
+            start_download.assert_any_call("french")
         installed_pack = [
             {
                 "id": "somali",
@@ -416,7 +446,7 @@ def start(app):
                     "Borama/Kaddare tagged-package import, font selection, and reverse conversion",
                     "three Borama/Kaddare copy actions",
                     "offline pack cancellation control and request state",
-                    "keyboard-only mode, language, offline-pack, and safe removal actions",
+                    "keyboard-only mode, language, offline-pack, safe removal, and pack-update actions",
                     "translator hint contrast, visible keyboard focus, text-scale fit, and compact/wide/short-landscape breakpoints",
                     "Old Nubian reverse alternatives",
                     "Old Nubian paired reading with case and line-break preservation",
