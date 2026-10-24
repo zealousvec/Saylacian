@@ -296,6 +296,11 @@ def start(app):
         assert app.detected_language[0] == "Somali Latin"
         assert "Detected Somali Latin" in app.status
         app.translate_trigger.cancel()
+        with patch("main.model_directory"):
+            app.convert("Ou est la gare")
+        assert app.detected_language[0] == "French"
+        assert "Detected French (82% confidence)" in app.status
+        app.translate_trigger.cancel()
         app.mode, app.source, app.target = saved_mode, saved_source, saved_target
         app.refresh_fonts()
 
@@ -533,6 +538,7 @@ def start(app):
                     "Old Nubian copy actions and versioned record import/export",
                     "picker search",
                     "local meaning model",
+                    "short French detection route with visible confidence",
                 ]
                 (folder / "result.json").write_text(
                     json.dumps(
