@@ -10,7 +10,7 @@ The candidate is prepared for final owner review. The owner approved GNU AGPL-3.
 
 The authenticated profile `zealousvec` owns public [zealousvec/Saylacian](https://github.com/zealousvec/Saylacian); GitHub confirms default branch `main` and an empty repository. The local `origin` URL matches it. The actual GitHub description currently differs from the owner-approved wording and includes “non-profit”; correct this before the source push. Repository security settings and account email-privacy state are not exposed by the connected read-only tools.
 
-The local folder is named `Saylacian`; source root commit `594b4807e32a3feb9da6a3c943845b423d8e9a29` and docs follow-up `0744ccf2f0d7f80aa83f31eff31028c472c0dd50` are reachable from both local `main` and `codex/release-prep`. `origin` points to the empty public repo; no remote refs exist. The noreply author is configured locally. Account-level private-email privacy was not verifiable. No mouse or keyboard control was used.
+The local folder is named `Saylacian`; source root commit `594b4807e32a3feb9da6a3c943845b423d8e9a29` and subsequent release-preparation commits are reachable from both local `main` and `codex/release-prep`. `origin` points to the empty public repo; no remote refs exist. The noreply author is configured locally. Account-level private-email privacy was not verifiable. No mouse or keyboard control was used.
 
 ## Staged-file audit
 
