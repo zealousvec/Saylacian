@@ -90,5 +90,15 @@ def translation_error_message(error: Exception) -> str:
     if isinstance(error, MemoryError):
         return "Not enough memory for this translation. Try a shorter passage or close other apps."
     if isinstance(error, ValueError):
-        return str(error)
+        details = str(error)
+        if "no local model installed" in details.casefold():
+            if "downloaded-model fallback unavailable" in details.casefold():
+                return (
+                    "Online translation failed and no offline pack is installed. "
+                    "Open Packs to download one, then try again."
+                )
+            return "No offline pack is installed. Open Packs to download one, then try again."
+        if details == "Local translation runtime is not installed.":
+            return "Translation support is missing. Reinstall Saylacian's Python dependencies."
+        return details
     return "Could not translate. Check your connection or installed language packs."

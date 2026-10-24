@@ -128,7 +128,9 @@ def start(app):
             ),
         ):
             app.convert("Tijaabo kooban.")
-        assert "Download its offline language pack first" in app.status, app.status
+        assert app.status == (
+            "No offline pack is installed. Open Packs to download one, then try again."
+        )
         assert home.ids.output_text.text == ""
         app.mode = saved_mode
         with (
@@ -576,6 +578,7 @@ def start(app):
                     "offline pack cancellation control and request state",
                     "keyboard-only mode, language, offline-pack, safe removal, and pack-update actions",
                     "missing-pack recovery and estimated offline download guidance",
+                    "direct Open Packs recovery for missing offline translation support",
                     "translator hint contrast, visible keyboard focus, text-scale fit, and compact/wide/short-landscape breakpoints",
                     "Old Nubian reverse alternatives",
                     "Old Nubian paired reading with case and line-break preservation",

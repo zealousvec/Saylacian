@@ -758,7 +758,7 @@ class SaylacianApp(MDApp):
                 self.status = detected + route
                 self.translate_trigger()
             except ValueError as error:
-                self.status = str(error)
+                self.status = translation_error_message(error)
             return
         source = self.source
         detection_note = ""

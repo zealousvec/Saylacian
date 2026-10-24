@@ -25,6 +25,31 @@ class PresentationTests(unittest.TestCase):
             "Select a source language.",
         )
         self.assertEqual(
+            translation_error_message(
+                ValueError(
+                    "No local model installed for this pair. "
+                    "Download its offline language pack first."
+                )
+            ),
+            "No offline pack is installed. Open Packs to download one, then try again.",
+        )
+        self.assertEqual(
+            translation_error_message(
+                ValueError(
+                    "Online service unavailable. Downloaded-model fallback unavailable: "
+                    "No local model installed for this pair."
+                )
+            ),
+            "Online translation failed and no offline pack is installed. "
+            "Open Packs to download one, then try again.",
+        )
+        self.assertEqual(
+            translation_error_message(
+                ValueError("Local translation runtime is not installed.")
+            ),
+            "Translation support is missing. Reinstall Saylacian's Python dependencies.",
+        )
+        self.assertEqual(
             translation_error_message(RuntimeError()),
             "Could not translate. Check your connection or installed language packs.",
         )
