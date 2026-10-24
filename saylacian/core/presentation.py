@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
-"""Small user-facing labels for the route picker; route IDs stay stable."""
+"""Small user-facing labels and recoverable failure messages."""
 
 from __future__ import annotations
 
@@ -54,3 +54,12 @@ def picker_choices(capabilities, mode: str) -> list[tuple[str, str]]:
             for name in ("Borama", "Kaddare")
         )
     return choices
+
+
+def translation_error_message(error: Exception) -> str:
+    """Give translation failures a next step without hiding explicit validation errors."""
+    if isinstance(error, MemoryError):
+        return "Not enough memory for this translation. Try a shorter passage or close other apps."
+    if isinstance(error, ValueError):
+        return str(error)
+    return "Could not translate. Check your connection or installed language packs."

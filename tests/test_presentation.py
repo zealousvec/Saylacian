@@ -5,10 +5,28 @@
 import unittest
 
 from saylacian.core.capabilities import list_capabilities
-from saylacian.core.presentation import display_name, picker_choices
+from saylacian.core.presentation import (
+    display_name,
+    picker_choices,
+    translation_error_message,
+)
 
 
 class PresentationTests(unittest.TestCase):
+    def test_translation_errors_suggest_recovery_for_memory_failure(self):
+        self.assertEqual(
+            translation_error_message(MemoryError()),
+            "Not enough memory for this translation. Try a shorter passage or close other apps.",
+        )
+        self.assertEqual(
+            translation_error_message(ValueError("Select a source language.")),
+            "Select a source language.",
+        )
+        self.assertEqual(
+            translation_error_message(RuntimeError()),
+            "Could not translate. Check your connection or installed language packs.",
+        )
+
     def test_concise_labels_keep_route_names_internal(self):
         self.assertEqual(display_name("Detect language/script"), "Detect")
         self.assertEqual(display_name("Somali Latin"), "Somali")

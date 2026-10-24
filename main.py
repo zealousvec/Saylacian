@@ -79,7 +79,11 @@ from saylacian.core.online_translation import (
     online_provider_label,
     online_translation_enabled,
 )
-from saylacian.core.presentation import display_name, picker_choices
+from saylacian.core.presentation import (
+    display_name,
+    picker_choices,
+    translation_error_message,
+)
 from saylacian.core.script_info import osmanya_letters
 from saylacian.core.translation import model_directory, translate_meaning
 from saylacian.core.transliteration import (
@@ -854,14 +858,16 @@ class SaylacianApp(MDApp):
                 Clock.schedule_once(
                     lambda dt, r=result: self.show_translation(generation, r, None)
                 )
-            except (ImportError, OSError, RuntimeError, ValueError) as error:
+            except (
+                ImportError,
+                MemoryError,
+                OSError,
+                RuntimeError,
+                ValueError,
+            ) as error:
                 if self.diagnostics:
                     self.diagnostics.record_exception("translation-worker", error)
-                message = (
-                    str(error)
-                    if isinstance(error, ValueError)
-                    else "Could not translate. Check your connection or installed language packs."
-                )
+                message = translation_error_message(error)
                 Clock.schedule_once(
                     lambda dt, message=message: self.show_translation(
                         generation, None, message

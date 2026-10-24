@@ -8,20 +8,30 @@ Repository: the current checkout of `zealousvec/Saylacian`
 Branch: `main`
 Public `origin/main`: `c4f2f87270c22a05e772816ce98e57a99b871b18`
 Public CI: run `40087020450` passed on that commit.
-Local HEAD at start of the current milestone: `998ade1` (`fix: support enlarged text on compact layouts`); public `main` remains `c4f2f87270c22a05e772816ce98e57a99b871b18`. No push has occurred.
-Preserve the pre-existing user edits in `docs/PROJECT_STATUS.md` and `docs/TECHNICAL_AUDIT.md`; do not stage or rewrite them. The ongoing pack-update UI/acceptance/test changes and current text-fit fix are implementation work; stage only reviewed project files.
+Latest local source checkpoint: `2db5bef` (`fix: fit text in script screens`); public `main` remains `c4f2f87270c22a05e772816ce98e57a99b871b18`. No push has occurred.
+Preserve the pre-existing user edits in `docs/PROJECT_STATUS.md` and `docs/TECHNICAL_AUDIT.md`; do not stage or rewrite them. Current uncommitted implementation adds a translation-memory recovery message; stage only reviewed project files.
 
-## Current milestone — enlarged-text fit and Osmanya reference recovery (2026-10-24)
+## Current milestone — memory recovery and rendering blocker (2026-10-24)
+
+The translation worker now catches `MemoryError` and shows an actionable shorter-passage/close-apps recovery message. Live Kivy worker injection displayed the expected status; presentation unit tests preserve explicit `ValueError` and generic runtime messages. Latest suite: 98 passed / 148 subtests. Re-run formatting, lint, compilation, `pip check`, release scan and live `--self-test` before the next commit.
+
+The compact SDL2 screenshot task is BLOCKED: `Window.screenshot` generated an all-black 450×800 px frame for a 360×640 dp viewport. Widget geometry at 200% font scale remains verified, but pixel review is not. Exact resolution: run through a validated isolated virtual display or known-good OpenGL/SDL screenshot path and capture the compact viewport. Keep this in BLOCKED, not READY.
+
+The previous milestone at `2db5bef` improved fixed-height layout at 200% font scale. Live label geometry passed for Home, Packs, Saved, Alphabet/Osmanya and Old Nubian at 360×640 dp and 900×700 dp. Osmanya's missing chart image now routes to its Unicode alphabet grid.
+
+Clean clone of `2db5bef` launched all six screens with socket networking denied, app/Kivy/pack data isolated, and both pack manifests listed; no downloads. The pinned existing environment was reused; this was not a fresh dependency install.
+
+### Current queues
+
+- ACTIVE: verify that a missing offline pack failure tells users how to obtain it and that the pack screen shows the download size/offline benefit.
+- BLOCKED: DBMNT reuse needs written rights and qualified review (owner approval before outreach); Somali translation needs owner-approved consent-based fluent-speaker review; screen-reader claims need a manual Narrator/NVDA run; compact pixel review needs a functioning isolated capture environment as specified above.
+- READY: rerun the 200% compact/wide text-fit check after future layout or copy changes.
+
+## Earlier session milestone — enlarged text and reference recovery (2026-10-24)
 
 At 200% Kivy font scale, live label geometry checks found clipping in Packs, Saved, Alphabet and Old Nubian. Updated fixed text heights and made pack rows follow their wrapped text. The missing Osmanya JPG lookup now falls back to the real Unicode alphabet grid; missing Borama/Kaddare images receive a readable status. A separate live Kivy measurement run passed for Home, Packs, Saved, Alphabet/Osmanya and Old Nubian at compact 360×640 dp and wide 900×700 dp. This is programmatic widget geometry evidence, not a claim of pixel-perfect compact screenshot review.
 
 `main.py --self-test` passed at `KIVY_METRICS_FONTSCALE=2.0`, including offline output `Bonjour, comment allez-vous ?`. Full suite: 97 passed / 148 subtests. Ruff check passes; formatting was applied to `main.py`; compileall passed. Screenshot: `%TEMP%\saylacian-large-ui-evidence\old-nubian-reading-studio0002.png`.
-
-### Current queues
-
-- ACTIVE: run a clean-clone startup check after the runtime UI changes; isolate app data and deny network connections.
-- BLOCKED: DBMNT reuse needs written rights and qualified review (owner approval before outreach); Somali translation needs owner-approved consent-based fluent-speaker review; screen-reader claims need a manual Narrator/NVDA run.
-- READY: get valid 360×640 pixel-render evidence in a suitable isolated Kivy viewport. The previous Kivy window screenshot had black/warped pixels; do not claim visual validation based on it.
 
 ## Earlier implementation milestone
 
@@ -47,9 +57,9 @@ Live Kivy evidence: `%TEMP%\Saylacian-Autonomous-20261024-final`. `result.json` 
 
 ## Next three tasks
 
-1. Run a clean local clone of the committed revision with networking denied, isolated app/Kivy data and no model download.
-2. Obtain valid compact pixel-render evidence using an isolated Kivy viewport; preserve the current pixel-level validation limitation until then.
-3. Continue the next highest-impact READY product task; keep DBMNT, Somali human review, screen reader and external clipboard checks BLOCKED with their exact resolution actions.
+1. Verify the actual missing-pack error and download guidance in a live app; do not trigger downloads.
+2. Continue the next highest-impact READY product task; keep DBMNT, Somali human review, screen reader and compact screenshot capture BLOCKED with exact resolution actions.
+3. Re-run UI text-fit acceptance after future UI copy/layout changes; do not describe the all-black compact capture as visual proof.
 
 ## Verification for latest milestone
 
