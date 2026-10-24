@@ -6,6 +6,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import re
 import shutil
 import sys
 import threading
@@ -16,6 +17,7 @@ import zipfile
 from pathlib import Path, PurePosixPath
 
 DATA_ROOT = Path(__file__).resolve().parent / "data"
+_SAFE_COMPONENT = re.compile(r"[A-Za-z0-9][A-Za-z0-9._-]{0,127}\Z")
 _LOCKS: dict[str, threading.Lock] = {}
 _LOCKS_GUARD = threading.Lock()
 
@@ -42,6 +44,37 @@ def _safe_relative(value: str) -> Path:
     ):
         raise ValueError("Invalid model pack path in manifest.")
     return Path(*parsed.parts)
+
+
+def _safe_component(value: str, label: str) -> str:
+    if not isinstance(value, str) or not _SAFE_COMPONENT.fullmatch(value):
+        raise ValueError(f"Invalid model pack {label}.")
+    return value
+
+
+def _pack_home(store_root: Path, pack_id: str) -> tuple[Path, Path]:
+    store = store_root.resolve()
+    requested_home = store / _safe_component(pack_id, "id")
+    home = requested_home.resolve()
+    if home != requested_home or home.parent != store:
+        raise ValueError("Language pack path escaped the configured storage directory.")
+    return store, home
+
+
+def _version_folder(home: Path, version: str) -> Path:
+    requested_folder = home.resolve() / _safe_component(version, "version")
+    folder = requested_folder.resolve()
+    if folder != requested_folder or folder.parent != home.resolve():
+        raise ValueError("Model pack version escaped its storage directory.")
+    return folder
+
+
+def _installed_file(folder: Path, relative_path: str) -> Path:
+    candidate = folder / _safe_relative(relative_path)
+    resolved = candidate.resolve()
+    if folder.resolve() not in resolved.parents:
+        raise ValueError("Installed model file escaped its version directory.")
+    return resolved
 
 
 def _huggingface_url(repository: str, revision: str, filename: str) -> str:
@@ -174,29 +207,33 @@ class ModelPackManager:
     def list_packs(self) -> list[dict]:
         packs = []
         for pack_id, spec in self.specs.items():
-            pack_home = self.store_root / pack_id
-            pointer = pack_home / "current.json"
+            try:
+                _, pack_home = _pack_home(self.store_root, pack_id)
+            except ValueError:
+                continue
             current_version = None
             installed_bytes = 0
-            if pointer.is_file():
-                try:
-                    current_version = json.loads(pointer.read_text(encoding="utf-8"))[
-                        "version"
-                    ]
-                    folder = pack_home / current_version
-                    manifest_path = folder / "installed.json"
+            try:
+                pointer = _installed_file(pack_home, "current.json")
+                if pointer.is_file():
+                    current_version = _safe_component(
+                        json.loads(pointer.read_text(encoding="utf-8"))["version"],
+                        "version",
+                    )
+                    folder = _version_folder(pack_home, current_version)
+                    manifest_path = _installed_file(folder, "installed.json")
                     if manifest_path.is_file():
                         manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
                         if manifest.get("version") == current_version:
                             installed_bytes = sum(
-                                (folder / _safe_relative(item["path"])).stat().st_size
+                                _installed_file(folder, item["path"]).stat().st_size
                                 for item in manifest.get("files", [])
-                                if (folder / _safe_relative(item["path"])).is_file()
+                                if _installed_file(folder, item["path"]).is_file()
                             )
                         else:
                             current_version = None
-                except (OSError, KeyError, ValueError, json.JSONDecodeError):
-                    current_version = None
+            except (OSError, KeyError, ValueError, json.JSONDecodeError):
+                current_version = None
             packs.append(
                 {
                     "id": pack_id,
@@ -223,19 +260,27 @@ class ModelPackManager:
     def active_model_roots(self) -> list[Path]:
         roots = []
         for pack_id in self.specs:
-            home = self.store_root / pack_id
-            pointer = home / "current.json"
             try:
-                version = json.loads(pointer.read_text(encoding="utf-8"))["version"]
-                folder = home / version
+                _, home = _pack_home(self.store_root, pack_id)
+            except ValueError:
+                continue
+            try:
+                pointer = _installed_file(home, "current.json")
+                version = _safe_component(
+                    json.loads(pointer.read_text(encoding="utf-8"))["version"],
+                    "version",
+                )
+                folder = _version_folder(home, version)
                 manifest = json.loads(
-                    (folder / "installed.json").read_text(encoding="utf-8")
+                    _installed_file(folder, "installed.json").read_text(
+                        encoding="utf-8"
+                    )
                 )
                 if manifest.get("version") != version or not manifest.get("files"):
                     continue
                 if all(
-                    (folder / _safe_relative(item["path"])).is_file()
-                    and (folder / _safe_relative(item["path"])).stat().st_size
+                    _installed_file(folder, item["path"]).is_file()
+                    and _installed_file(folder, item["path"]).stat().st_size
                     == item["bytes"]
                     for item in manifest["files"]
                 ):
@@ -249,17 +294,13 @@ class ModelPackManager:
             raise ValueError("Unknown language pack.")
         with _lock_for(pack_id):
             spec = self.specs[pack_id]
-            home = (self.store_root / pack_id).resolve()
-            store = self.store_root.resolve()
-            if store not in home.parents:
-                raise ValueError(
-                    "Language pack path escaped the configured storage directory."
-                )
+            _, home = _pack_home(self.store_root, pack_id)
+            version = _safe_component(spec["version"], "version")
             home.mkdir(parents=True, exist_ok=True)
-            version_dir = home / spec["version"]
+            version_dir = _version_folder(home, version)
             if version_dir.exists():
-                self._verify_installed(version_dir, spec["version"])
-                self._write_pointer(home, spec["version"])
+                self._verify_installed(version_dir, version)
+                self._write_pointer(home, version)
                 return version_dir
 
             staging = home / (".staging-" + uuid.uuid4().hex)
@@ -396,7 +437,7 @@ class ModelPackManager:
                 )
                 self._check_cancel(cancel_event)
                 staging.replace(version_dir)
-                self._write_pointer(home, spec["version"])
+                self._write_pointer(home, version)
                 if progress:
                     progress(total, total, "Installed and verified")
                 return version_dir
@@ -473,7 +514,7 @@ class ModelPackManager:
 
     @staticmethod
     def _verify_installed(folder: Path, version: str):
-        manifest_path = folder / "installed.json"
+        manifest_path = _installed_file(folder, "installed.json")
         if not manifest_path.is_file():
             raise ValueError(
                 "Existing model pack version is incomplete; it was left untouched."
@@ -482,7 +523,7 @@ class ModelPackManager:
         if manifest.get("version") != version:
             raise ValueError("Existing model pack version does not match its manifest.")
         for item in manifest.get("files", []):
-            path = folder / _safe_relative(item["path"])
+            path = _installed_file(folder, item["path"])
             size, checksum = _hash(path)
             if size != item["bytes"] or checksum.lower() != item["sha256"].lower():
                 raise ValueError(
@@ -491,19 +532,22 @@ class ModelPackManager:
 
     @staticmethod
     def _write_pointer(home: Path, version: str):
+        version = _safe_component(version, "version")
         pointer = home / "current.json"
-        temporary = home / "current.json.tmp"
-        temporary.write_text(json.dumps({"version": version}), encoding="utf-8")
-        temporary.replace(pointer)
+        temporary = home / (".current-" + uuid.uuid4().hex + ".tmp")
+        try:
+            with temporary.open("x", encoding="utf-8") as output:
+                output.write(json.dumps({"version": version}))
+                output.flush()
+                os.fsync(output.fileno())
+            temporary.replace(pointer)
+        finally:
+            temporary.unlink(missing_ok=True)
 
     def remove(self, pack_id: str) -> None:
         if pack_id not in self.specs:
             raise ValueError("Unknown language pack.")
         with _lock_for(pack_id):
-            home = (self.store_root / pack_id).resolve()
-            if self.store_root.resolve() not in home.parents:
-                raise ValueError(
-                    "Language pack path escaped the configured storage directory."
-                )
+            _, home = _pack_home(self.store_root, pack_id)
             if home.exists():
                 shutil.rmtree(home)

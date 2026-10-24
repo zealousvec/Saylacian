@@ -118,6 +118,175 @@ class ModelPackTests(unittest.TestCase):
             self.assertEqual((installed / asset["destination"]).read_bytes(), data)
             self.assertEqual(manager.list_packs()[0]["installed_bytes"], len(data))
 
+    def test_current_pointer_cannot_escape_pack_storage(self):
+        content = b"outside model data"
+        for unsafe_version in ("../outside", r"..\outside"):
+            with (
+                self.subTest(version=unsafe_version),
+                tempfile.TemporaryDirectory() as temporary,
+            ):
+                store = Path(temporary) / "packs"
+                outside = store / "outside"
+                outside.mkdir(parents=True)
+                model_file = outside / "model.bin"
+                model_file.write_bytes(content)
+                (outside / "installed.json").write_text(
+                    json.dumps(
+                        {
+                            "version": unsafe_version,
+                            "files": [
+                                {
+                                    "path": "model.bin",
+                                    "bytes": len(content),
+                                    "sha256": hashlib.sha256(content).hexdigest(),
+                                }
+                            ],
+                        }
+                    ),
+                    encoding="utf-8",
+                )
+                home = store / "somali"
+                home.mkdir()
+                (home / "current.json").write_text(
+                    json.dumps({"version": unsafe_version}), encoding="utf-8"
+                )
+                manager = ModelPackManager(
+                    store,
+                    {
+                        "somali": {
+                            "title": "Somali",
+                            "version": "1-safe",
+                            "assets": [],
+                            "download_bytes": 1,
+                        }
+                    },
+                )
+
+                self.assertEqual(manager.active_model_roots(), [])
+                self.assertFalse(manager.list_packs()[0]["installed"])
+                self.assertEqual(model_file.read_bytes(), content)
+
+    def test_install_rejects_path_like_pack_version_before_download(self):
+        for unsafe_version in ("../outside", r"..\outside", r"C:\outside"):
+            with (
+                self.subTest(version=unsafe_version),
+                tempfile.TemporaryDirectory() as temporary,
+            ):
+                item = {
+                    "kind": "file",
+                    "url": "https://huggingface.co/test/model.bin",
+                    "bytes": 1,
+                    "sha256": hashlib.sha256(b"x").hexdigest(),
+                    "destination": "somali/en_so/model.bin",
+                }
+                spec = {
+                    "somali": {
+                        "title": "Somali",
+                        "version": unsafe_version,
+                        "download_bytes": 1,
+                        "assets": [item],
+                    }
+                }
+                manager = ModelPackManager(Path(temporary), spec)
+                with (
+                    patch(
+                        "saylacian.core.model_packs.urllib.request.urlopen"
+                    ) as opener,
+                    self.assertRaisesRegex(ValueError, "Invalid model pack version"),
+                ):
+                    manager.install("somali")
+
+                opener.assert_not_called()
+                self.assertFalse((Path(temporary) / "outside").exists())
+
+    def test_version_symlink_cannot_escape_pack_storage(self):
+        content = b"external model data"
+        with tempfile.TemporaryDirectory() as temporary:
+            store = Path(temporary) / "packs"
+            home = store / "somali"
+            home.mkdir(parents=True)
+            outside = Path(temporary) / "outside" / "1-safe"
+            outside.mkdir(parents=True)
+            model_file = outside / "model.bin"
+            model_file.write_bytes(content)
+            (outside / "installed.json").write_text(
+                json.dumps(
+                    {
+                        "version": "1-safe",
+                        "files": [
+                            {
+                                "path": "model.bin",
+                                "bytes": len(content),
+                                "sha256": hashlib.sha256(content).hexdigest(),
+                            }
+                        ],
+                    }
+                ),
+                encoding="utf-8",
+            )
+            try:
+                (home / "1-safe").symlink_to(outside, target_is_directory=True)
+            except OSError as error:
+                self.skipTest(f"Directory symlinks unavailable: {error}")
+            (home / "current.json").write_text(
+                json.dumps({"version": "1-safe"}), encoding="utf-8"
+            )
+            manager = ModelPackManager(
+                store,
+                {
+                    "somali": {
+                        "title": "Somali",
+                        "version": "1-safe",
+                        "assets": [],
+                        "download_bytes": 1,
+                    }
+                },
+            )
+
+            self.assertEqual(manager.active_model_roots(), [])
+            self.assertFalse(manager.list_packs()[0]["installed"])
+            self.assertEqual(model_file.read_bytes(), content)
+
+    def test_pointer_activation_does_not_follow_preexisting_temp_symlink(self):
+        content = b"verified model"
+        item = {
+            "kind": "file",
+            "url": "https://huggingface.co/test/model.bin",
+            "bytes": len(content),
+            "sha256": hashlib.sha256(content).hexdigest(),
+            "destination": "somali/en_so/model.bin",
+        }
+        spec = {
+            "somali": {
+                "title": "Somali",
+                "version": "1-test",
+                "download_bytes": len(content),
+                "assets": [item],
+            }
+        }
+        with tempfile.TemporaryDirectory() as temporary:
+            store = Path(temporary) / "packs"
+            home = store / "somali"
+            home.mkdir(parents=True)
+            outside_file = Path(temporary) / "keep.txt"
+            outside_file.write_text("preserve this file", encoding="utf-8")
+            try:
+                (home / "current.json.tmp").symlink_to(outside_file)
+            except OSError as error:
+                self.skipTest(f"File symlinks unavailable: {error}")
+            manager = ModelPackManager(store, spec)
+            with patch(
+                "saylacian.core.model_packs.urllib.request.urlopen",
+                return_value=io.BytesIO(content),
+            ):
+                installed = manager.install("somali")
+
+            self.assertEqual(
+                outside_file.read_text(encoding="utf-8"), "preserve this file"
+            )
+            self.assertEqual(manager.active_model_roots(), [installed])
+            self.assertTrue((home / "current.json.tmp").is_symlink())
+
     def test_bad_hash_leaves_no_active_partial_pack(self):
         content = b"wrong bytes"
         item = {

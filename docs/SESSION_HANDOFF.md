@@ -277,3 +277,14 @@ Full test suite: 114 passed. Ruff check/format (103 files), compileall, `pip che
 - ACTIVE: none after screening remaining roadmap items for safe, measurable implementation.
 - BLOCKED: Somali semantic quality requires owner-approved consent-based fluent-speaker review; DBMNT-derived expansion requires written reuse terms and qualified review, with owner approval before outreach; screen-reader behavior needs observed Narrator/NVDA announcements; compact pixels need validated isolated graphics capture; hosted pack workflow needs push approval before dispatch.
 - READY: none currently. Numeric-token and possible-negation counters are automatic cues, not verified errors; no linguistic fix is safe without review. Reconcile the roadmap again when evidence/permissions change or a new independent acceptance task is found.
+
+
+## 2026-10-24 — close pack-version path escapes (M6-1)
+
+A reproducible traversal test showed `ModelPackManager.active_model_roots()` accepted `current.json` version `../outside` and exposed a model directory outside its pack version folder. Pack IDs and versions now must be single safe ASCII path components. Pointer, version folder, installed manifest and every manifest-listed model file are resolved and checked under their expected storage directory before status reporting, verification or inference. Install rejects path-like version values before any download. Added regression coverage for POSIX and Windows traversal spellings; a directory-symlink escape test skips when the host denies symlink creation.
+
+`docs/UPDATE_ARCHITECTURE.md` now records the trust boundary and keeps app self-updates separate and disabled. Full suite: 116 passed, 2 symlink tests skipped because Windows denied symlink creation. Ruff check/format (103 files), compileall, `pip check`, release safety scan, `git diff --check`, pinned Somali pack integrity recheck, both offline smoke directions, and isolated fresh-environment Kivy launch passed. No remote writes or real user pack/data changes.
+
+- ACTIVE: inspect Old Nubian Reading Studio mark visibility using current Unicode/source evidence; display-only changes must preserve input code points and have rendered Kivy verification.
+- BLOCKED: Old Nubian table expansion still needs DBMNT reuse terms and qualified review (owner approval before outreach); Somali linguistic quality needs owner-approved, consent-based fluent-speaker assessment; screen-reader behavior needs observed Narrator/NVDA announcements; compact pixels need validated isolated graphics capture; hosted pack workflow needs push approval.
+- READY: none additional until the Old Nubian display investigation yields a concrete, testable issue.
