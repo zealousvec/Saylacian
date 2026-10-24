@@ -23,9 +23,11 @@ No other meaning-translation pairs are installed. Picker labels distinguish expe
 | Somali Latin ↔ Borama | Experimental partial chart-label mapping | Bundled font renders app-generated private-use output; app paste auto-detects that mapping. Not portable/standardized; external PUA font mappings cannot be inferred. |
 | Somali Latin ↔ Kaddare | Experimental partial chart-label mapping | Bundled font renders app-generated private-use output; app paste auto-detects that mapping. Not portable/standardized; external PUA font mappings cannot be inferred. |
 | Borama / Kaddare clipboard | Windows: Latin, image, Saylacian Text v1, RTF and CF_HTML published and read by a separate WinForms process | Plain text and images are broadly consumable according to receiving-app paste support. Editable PUA glyph display needs the matching chart font; exact round-trip is via Saylacian Text v1 in Saylacian. Other OSes currently offer Latin only. |
-| Nubian | Unsupported and underspecified | Exact language variety and writing convention need a source-backed decision |
+| Old Nubian Coptic script → scholarly Latin | Limited table-based transliteration is implemented; listed characters are mapped and unlisted Coptic letters are preserved with a warning | Historical-language/script route only; not meaning translation or complete manuscript coverage. Conventions may differ. |
+| Old Nubian scholarly Latin → Coptic script | Experimental reverse transliteration with alternatives/warnings | Romanization can be ambiguous; specialist review is needed. |
+| Modern Nubian varieties (including Nobiin, Kenzi/Mattokki, Dongolawi/Andaandi, Midob and others) | Unsupported; listed only as research targets | Each variety and writing convention needs separate evidence. Old Nubian mappings and a Coptic font do not establish modern Nubian support. |
 
-Osmanya script conversion changes writing system; it does not translate meaning. No PUA or invented Unicode substitute is presented as a real alphabet.
+Osmanya script conversion changes writing system; it does not translate meaning. The Old Nubian routes above also transliterate writing and do not translate meaning. No PUA or invented Unicode substitute is presented as a real alphabet.
 
 ## Language identification and platforms
 

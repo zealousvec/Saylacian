@@ -240,7 +240,7 @@ class ModelPackManager:
                     == item["bytes"]
                     for item in manifest["files"]
                 ):
-                    roots.append(folder)
+                    roots.append(folder.resolve())
             except (OSError, KeyError, ValueError, json.JSONDecodeError):
                 continue
         return roots

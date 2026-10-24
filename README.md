@@ -14,9 +14,10 @@ Saylacian is a free Python/Kivy language and script-preservation app. It combine
 | Somali ↔ French | Experimental two-step route through English; errors can compound |
 | Somali Latin ↔ Osmanya | Experimental script conversion; not meaning translation |
 | Borama/Kaddare | Experimental partial chart-based mappings; not standardized Unicode text |
-| Old Nubian | No verified general converter; see support matrix |
+| Old Nubian | Limited Coptic-script to scholarly Latin transliteration; reverse conversion is experimental. This does not translate Old Nubian meaning or cover all conventions. |
+| Modern Nubian varieties | Unsupported; each variety and orthography needs separate research and review. |
 
-Somali meaning translation has not had fluent-speaker review. Borama and Kaddare use partial mappings transcribed from historical charts; they are experimental, not standardized Unicode text, and do not establish accepted spelling or general orthography. These labels describe code and evidence, not validated translation quality. Full coverage and limitations: [support matrix](docs/SUPPORT_MATRIX.md), [quality evidence](docs/SOMALI_TRANSLATION_QUALITY.md), and [project status](docs/PROJECT_STATUS.md).
+Somali meaning translation has not had fluent-speaker review. Borama and Kaddare use partial mappings transcribed from historical charts; they are experimental, not standardized Unicode text, and do not establish accepted spelling or general orthography. The limited Old Nubian route is a character transliteration table, not evidence of complete or fluent Old Nubian support. Modern Nubian varieties are not implemented. These labels describe code and evidence, not validated translation quality. Full coverage and limitations: [support matrix](docs/SUPPORT_MATRIX.md), [script feasibility](docs/SCRIPT_FEASIBILITY.md), [quality evidence](docs/SOMALI_TRANSLATION_QUALITY.md), and [project status](docs/PROJECT_STATUS.md).
 
 ## Install and run on Windows
 
@@ -64,4 +65,4 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for code and linguistic review expectatio
 
 Offline translation stays on-device. Optional online providers are user-configured enhancements and are not required for local translation. Review [online provider behavior](docs/ONLINE_TRANSLATION.md) before enabling one. Android and iOS builds are not verified; see [mobile runtime status](docs/MOBILE_RUNTIME_STATUS.md).
 
-Saylacian-authored code that the project licensor owns is licensed under GNU AGPL version 3 or (at your option) any later version (SPDX: `AGPL-3.0-or-later`). The complete official text is in [LICENSE](LICENSE). This grant does not cover third-party code or independently licensed fonts, chart-derived data, datasets, or model weights; their terms and notices remain separate in [third-party notices](docs/THIRD_PARTY_NOTICES.md). Saylacian is available as an experimental open-source alpha. Public Windows installers and verified mobile releases are not yet available. Third-party font, chart, and native-library notices are listed in [third-party notices](docs/THIRD_PARTY_NOTICES.md).
+Saylacian's initial source snapshot was published to the public [GitHub repository](https://github.com/zealousvec/Saylacian) on 2026-10-24 as an experimental alpha. Saylacian-authored code that the project licensor owns is licensed under GNU AGPL version 3 or (at your option) any later version (SPDX: `AGPL-3.0-or-later`). The complete official text is in [LICENSE](LICENSE). This grant does not cover third-party code or independently licensed fonts, chart-derived data, datasets, or model weights; their terms and notices remain separate in [third-party notices](docs/THIRD_PARTY_NOTICES.md). Public Windows installers and verified mobile releases are not available.
