@@ -10,9 +10,7 @@ Move each task among these queues at every milestone. A blocker must name the ex
 
 ### ACTIVE
 
-| Task | Acceptance | Current evidence / next step |
-|---|---|---|
-| Add manually triggered offline-pack integration verification | Use manifest-pinned pack downloads, installer hash checks and real local inference; keep ordinary CI fast and never upload model weights. | Explicit P1 roadmap task; implement a least-privilege `workflow_dispatch` job and validate its YAML/script locally. |
+No unblocked task remains in the current queue. Do not invent work to stay busy; choose the next roadmap item only when its evidence, permission and resources are available.
 
 ### BLOCKED
 
@@ -22,12 +20,13 @@ Move each task among these queues at every milestone. A blocker must name the ex
 | Upgrade Somali linguistic-quality status | No fluent Somali human review or approved reviewer recruitment | Obtain owner-approved, consent-based fluent review and an appropriate reviewed sample. Keep automatic metrics as engineering evidence only. |
 | Verify screen-reader behavior | No assistive-technology session was run; speech output and semantics cannot be inferred from source alone | Perform a manual Windows Narrator/NVDA run through keyboard flows and record actual announcements, selection and focus. Do not claim conformance before testing. |
 | Obtain compact-layout pixel evidence | SDL2 `Window.screenshot` returned an all-black frame at a 360×640 dp viewport; widget geometry is verified but pixels are not | Use a validated isolated virtual display or a known-good OpenGL/SDL screenshot path, then capture and inspect the 360×640 dp view. Do not claim visual acceptance until that works. |
+| Run the hosted model-pack integration workflow | Workflow is local and tested; no hosted run occurred because the user prohibited pushes without approval | Obtain owner approval to push the reviewed workflow commit, then manually dispatch the French or Somali job and inspect its logs. Do not run before approval. |
 
 ### READY
 
 | Order | Task | Acceptance |
 |---|---|---|
-| 1 | Recheck text scale after future layout edits | Run live Kivy label-fit checks at 200% scale for compact and wide viewports after changing UI text, fonts or layout. |
+No ready item is currently queued; reevaluate the roadmap when this session resumes and keep blocked tasks out of READY.
 
 ### VERIFIED
 
@@ -49,6 +48,8 @@ Move each task among these queues at every milestone. A blocker must name the ex
 | Launch current source from a clean clone without network | Clone at `2db5bef`, run the Kivy app with connections denied and app/Kivy/pack data redirected to a temporary directory. All six screens and both pack manifests loaded; no model downloads. |
 | Recover gracefully from local translation memory pressure | Catch `MemoryError` from the worker and show “Not enough memory… Try a shorter passage or close other apps.” Live Kivy worker test injected the error; the UI displayed the recovery action. Unit tests preserve ValueError details and generic runtime fallback. |
 | Explain missing-pack recovery and long-input limits | Live acceptance confirmed a missing pack directs users to download; pack fixtures show estimated size and “works offline.” Token-limit tests cover generic, Somali marker overhead and synthetic EN→SO routes; all reject over 400 tokens before inference. |
+| Verify real French and Somali offline packs end to end | Downloaded into an isolated temporary store from pinned manifests; installer verified assets; both directions produced nonempty output with socket connects blocked. French: 174,530,568 bytes; Somali: 314,460,609 bytes. No weights were added to the repository. Somali accuracy remains experimental. |
+| Add manual-only pack integration workflow | `.github/workflows/offline-pack-integration.yml` lets the operator choose French, Somali or both; installer SHA/size checks precede real offline inference. Locally parsed/tested and run against both real packs. No hosted workflow run or upload. |
 | Add a visible keyboard-focus ring to translator fields | Blank normal/active backgrounds provided no focus cue. A 2dp black outline now tracks focus; live Kivy acceptance asserted its color/width; captured and inspected rendered screenshot. Contrast against #F2F2F2 card is about 18.8:1. |
 | Prevent enlarged-text clipping on secondary screens | Live Kivy checks at 200% text scale measured label texture against widget height on Home, Packs, Saved, Alphabet/Osmanya and Old Nubian at 360×640 dp and 900×700 dp; all passed. Expanded headings, notes, captions and pack rows to fit rendered text. |
 | Keep Osmanya alphabet usable without a chart image | The repository contains no Osmanya chart asset. The alphabet reference now opens the Unicode letter grid; absent historical chart files show a clear status instead of a broken image. Live 200% check confirmed the grid is populated. |

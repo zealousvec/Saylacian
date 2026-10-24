@@ -10,7 +10,7 @@ This roadmap is ordered by correctness and evidence dependencies. Complexity des
 | P0 | Windows model-pack path normalization and strict test correction. | Small | Completed on public `main` at `c4f2f87270c22a05e772816ce98e57a99b871b18`; Windows CI run `40087020450` passed. |
 | P0 | Correct public GitHub About description that says “non-profit” while project records say it is not a registered nonprofit. | Small | Repository admin action; no source code change. |
 | P1 | Continue narrow cleanup of the 30 remaining repository-wide Ruff findings. | Small–medium | Five findings were removed in local clipboard/pack changes; changed modules pass targeted checks. Do not mass-fix or mix with behavior changes. |
-| P1 | Add a manual/scheduled integration workflow that downloads manifest-pinned packs and runs model smoke checks. | Medium | Keep normal CI fast; record pack revision/hash and cache/timeout policy. |
+| P1 | Add a manual integration workflow for manifest-pinned packs and real offline model smoke checks. | Medium | Implemented locally in `.github/workflows/offline-pack-integration.yml`; tested against French and Somali packs in an isolated temp store. Host run is pending owner-approved push; no weights are uploaded and routine CI remains unchanged. |
 
 ## Translation evaluation and Somali improvement
 

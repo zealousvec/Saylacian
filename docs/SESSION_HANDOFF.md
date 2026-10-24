@@ -8,12 +8,14 @@ Repository: the current checkout of `zealousvec/Saylacian`
 Branch: `main`
 Public `origin/main`: `c4f2f87270c22a05e772816ce98e57a99b871b18`
 Public CI: run `40087020450` passed on that commit.
-Latest local source checkpoint: `8acd57f` (`fix: explain translation memory failures`); public `main` remains `c4f2f87270c22a05e772816ce98e57a99b871b18`. No push has occurred.
-Preserve the pre-existing user edits in `docs/PROJECT_STATUS.md` and `docs/TECHNICAL_AUDIT.md`; do not stage or rewrite them. Current uncommitted work adds live missing-pack recovery acceptance and token-boundary regression tests; stage only reviewed project files.
+Latest committed source checkpoint: `1397cbf` (`test: cover pack recovery and token limits`); public `main` remains `c4f2f87270c22a05e772816ce98e57a99b871b18`. No push has occurred.
+Preserve the pre-existing user edits in `docs/PROJECT_STATUS.md` and `docs/TECHNICAL_AUDIT.md`; do not stage or rewrite them. Current uncommitted work adds a manual pack-integration workflow, verifier, tests and this handoff; stage only reviewed project files.
 
 ## Current milestone — memory recovery and rendering blocker (2026-10-24)
 
-The translation worker catches `MemoryError` and shows an actionable shorter-passage/close-apps recovery message. Live Kivy worker injection displayed the expected status. The live app acceptance also verifies missing-pack recovery, clears stale output, and confirms the pack fixture communicates estimated size/offline use. Token-boundary tests cover standard models, Somali language-marker overhead, and synthetic EN→SO; every over-limit case rejects before inference. Full suite: 101 passed / 148 subtests; Ruff, formatting, compileall, `pip check`, release safety, live Kivy `--self-test`, and injected-memory check passed.
+The translation worker catches `MemoryError` and shows an actionable shorter-passage/close-apps recovery message. Live Kivy worker injection displayed the expected status. App acceptance verifies missing-pack recovery, stale-output clearing, and fixture size/offline labels. Token-boundary tests cover standard models, Somali marker overhead, and synthetic EN→SO; over-limit input is rejected before inference.
+
+The manual-only pack workflow and verifier were implemented. The full local suite is 104 passed / 148 subtests; Ruff, formatting, compileall, `pip check`, release-safety, live Kivy acceptance and YAML parsing passed. The actual French pack (174,530,568 bytes) and Somali pack (314,460,609 bytes) were downloaded into a temporary isolated store from pinned manifests, size/hash verified by `ModelPackManager`, then inferred in both directions with socket connections blocked. No weights were put in the repository. This verifies operation, not Somali linguistic quality. No hosted workflow run was triggered.
 
 The compact SDL2 screenshot task is BLOCKED: `Window.screenshot` generated an all-black 450×800 px frame for a 360×640 dp viewport. Widget geometry at 200% font scale remains verified, but pixel review is not. Exact resolution: run through a validated isolated virtual display or known-good OpenGL/SDL screenshot path and capture the compact viewport. Keep this in BLOCKED, not READY.
 
@@ -23,9 +25,9 @@ Clean clone of `2db5bef` launched all six screens with socket networking denied,
 
 ### Current queues
 
-- ACTIVE: add a manual offline-pack integration workflow using manifest hashes and real inference; this is explicitly listed in `docs/DEVELOPMENT_ROADMAP.md`.
-- BLOCKED: DBMNT reuse needs written rights and qualified review (owner approval before outreach); Somali translation needs owner-approved consent-based fluent-speaker review; screen-reader claims need a manual Narrator/NVDA run; compact pixel review needs a functioning isolated capture environment as specified above.
-- READY: rerun the 200% compact/wide text-fit check after future layout or copy changes.
+- ACTIVE: no unblocked task remains in the current queue; do not invent filler work. Reconcile against the roadmap on the next session.
+- BLOCKED: DBMNT reuse needs written rights and qualified review (owner approval before outreach); Somali translation needs owner-approved consent-based fluent-speaker review; screen-reader claims need a manual Narrator/NVDA run; compact pixel review needs a functioning isolated capture environment; hosted model-pack workflow needs owner-approved push followed by manual dispatch.
+- READY: none currently queued. Do not copy blocked tasks here. Reevaluate the roadmap when the session resumes.
 
 ## Earlier session milestone — enlarged text and reference recovery (2026-10-24)
 
@@ -57,9 +59,9 @@ Live Kivy evidence: `%TEMP%\Saylacian-Autonomous-20261024-final`. `result.json` 
 
 ## Next three tasks
 
-1. Implement and locally validate the manual manifest-pinned model-pack integration workflow; do not trigger a hosted run.
-2. Continue the next highest-impact READY task; keep DBMNT, Somali human review, screen reader and compact screenshot capture BLOCKED with exact resolution actions.
-3. Re-run UI text-fit acceptance after future UI copy/layout changes; do not describe the all-black compact capture as visual proof.
+1. Do not run the hosted workflow until the owner approves pushing this source-only change; after approval, dispatch it manually and inspect the logs.
+2. Use a validated isolated SDL/OpenGL viewport to resume compact pixel acceptance; the last 360×640 capture was black.
+3. Continue only with an independent roadmap task that is READY; preserve the exact blockers and do not invent work to stay busy.
 
 ## Verification for latest milestone
 
