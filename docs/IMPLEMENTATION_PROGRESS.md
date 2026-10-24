@@ -12,7 +12,7 @@ Move each task among these queues at every milestone. A blocker must name the ex
 
 | Task | Acceptance | Current evidence / next step |
 |---|---|---|
-| Make history clearing atomic and failure-safe | On write/replace failure, old history remains byte-for-byte intact and temporary files are removed; successful clear still empties records | Core implementation and failure-injection test are in place; full suite passes. Finish milestone update and focused local commit. |
+| Reproduce application startup from a clean checkout | Fresh source tree and isolated user-data/model-pack locations; actual Kivy window starts without implicit download or edits outside the test folder | Use a temporary clone and existing pinned test interpreter; deny network and bound the app lifetime. |
 
 ### BLOCKED
 
@@ -25,13 +25,15 @@ Move each task among these queues at every milestone. A blocker must name the ex
 
 | Order | Task | Acceptance |
 |---|---|---|
-| 1 | Audit keyboard/focus accessibility in the existing Kivy flows | Verify practical keyboard access for translator and offline pack screen; implement only reproducible, design-preserving fixes. |
-| 2 | Reproduce actual app startup in a clean project environment | Use locked dependencies and a fresh user-data folder; launch without changing system Python or downloading models. |
+| 1 | Continue keyboard/focus accessibility audit beyond the picker shortcuts | Check remaining app actions and focus order; implement only observed gaps without redesigning the approved UI. |
+| 2 | Add focused real-device accessibility checks | Verify text scaling, contrast and screen-reader behavior on a supported device before making accessibility claims. |
 
 ### VERIFIED
 
 | Task | Evidence |
 |---|---|
+| Make saved-history clearing atomic and failure-safe | Same-directory unique temp file and atomic replace. Failure injection confirms old history is byte-identical and temp files are cleaned; local commit `66581de`. |
+| Add practical keyboard-only text and language selection | Ctrl+K target, Ctrl+Shift+K source, Up/Down results, Enter selects, Ctrl+L editor focus, Esc back. Live Kivy acceptance verified source/target selection and focus; shortcuts are documented in `RUN.md`. |
 | Add a visible cancellation action for offline pack downloads | `main.py`, `app/main.kv`, `app/acceptance.py`; live `main.py --self-test` asserted the Cancel button is visible/enabled while busy, signals cancellation, disables itself and reports stopping. A streamed partial-download cancellation regression confirms no active pack or staging data remains. |
 
 | ID | Milestone | Task | Evidence/source | Status | Tests | Blocker | Next action |
@@ -62,6 +64,8 @@ Phase 2 Reading Studio addition (2026-10-24): 4 focused regression tests added. 
 Permanent mission initialization and Somali benchmark (2026-10-24): created a 12-note Saylacian-only section in the owner-specified Obsidian vault; all internal links resolve and no unrelated notes were read or changed. Reproduced the full 150-pair EN↔SO offline benchmark with network blocked, exactly matching documented BLEU/chrF++. Output and checkpoint used a fresh `%TEMP%` directory. Added an explicit `--output` option and atomic output tests. Full suite after this task: `94 passed, 148 subtests`; `ruff check .`, `ruff format --check .` (101 files), compile, dependency and release-safety checks passed. No quality status changed and no human review was performed. Local commits: `3d59e05` (benchmark output isolation), `d4804d4` (Old Nubian data-rights clarification), `41090b9` (progress/handoff checkpoint). Branch is 12 commits ahead of origin; no push.
 
 Autonomous milestone workflow and pack-download cancellation (2026-10-24): added separate ACTIVE/BLOCKED/READY queues. The offline-pack screen now exposes Cancel while a pack downloads, disables repeat requests after cancellation, and reports that no partial pack was installed. A live Kivy self-test confirmed the widget state and event; an installer regression cancels after a received chunk and verifies no active version or temporary staging remains. Also fixed and tested atomic saved-history clearing; that independent change is the next in-progress checkpoint. Full suite: `96 passed, 148 subtests`; Ruff, compileall, `pip check`, `git diff --check` passed. KivyMD 1.2.0 upstream deprecation warnings remain. No UI redesign, mouse/keyboard automation, system clipboard interaction, or network download was performed.
+
+Keyboard usability milestone (2026-10-24): added Ctrl+K / Ctrl+Shift+K to open target/source pickers, Up/Down and Enter for result navigation, Ctrl+L to focus the editor and Esc to return. Live Kivy acceptance drove these key events through the app callback, selected a changed target and verified editor focus; it used no physical mouse or keyboard. Full suite remains `96 passed, 148 subtests`; Ruff, formatting (101 files), compileall, `pip check` and `git diff --check` pass. These shortcuts improve keyboard access but do not establish screen-reader or full accessibility conformance. Next active item: clean-checkout startup under isolated data directories and network-denied testing.
 
 - Full suite: `88 passed, 148 subtests passed`.
 - Full repository Ruff: `ruff check .` and `ruff format --check .` pass; all 30 previous findings were addressed without suppressions. Ruff's automatic `U+` integer rewrite was corrected after tests exposed the format mismatch.

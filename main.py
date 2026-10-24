@@ -34,7 +34,7 @@ from concurrent.futures import ThreadPoolExecutor
 from kivy.clock import Clock
 from kivy.core.clipboard import Clipboard
 from kivy.core.text import LabelBase
-from kivy.core.window import Window
+from kivy.core.window import Keyboard, Window
 from kivy.factory import Factory
 from kivy.lang import Builder
 from kivy.metrics import dp
@@ -216,6 +216,40 @@ class SaylacianApp(MDApp):
             Clock.schedule_once(lambda dt: start(self), 1)
 
     def keyboard(self, window, key, *args):
+        modifiers = (
+            set(args[-1])
+            if args and isinstance(args[-1], (list, tuple, set))
+            else set()
+        )
+        key_name = next(
+            (name for name, code in Keyboard.keycodes.items() if code == key),
+            str(key),
+        ).lower()
+        if key_name == "k" and "ctrl" in modifiers:
+            side = "source" if "shift" in modifiers else "target"
+            self.open_picker(side)
+            return True
+        if key_name == "l" and "ctrl" in modifiers:
+            home = self.root.get_screen("home")
+            self.root.current = "home"
+            home.ids.input_text.focus = True
+            return True
+        if self.root.current == "picker" and key_name in {"up", "down"}:
+            if not self.picker_options:
+                return False
+            offset = 1 if key_name == "down" else -1
+            self.picker_index = (self.picker_index + offset) % len(self.picker_options)
+            self._update_picker_cursor()
+            picker = self.root.get_screen("picker")
+            button = self.picker_options[self.picker_index][1]
+            picker.ids.picker_scroll.scroll_to(button, padding=dp(8), animate=False)
+            return True
+        if self.root.current == "picker" and key_name in {"enter", "numpadenter"}:
+            if not self.picker_options:
+                return False
+            self.picker_index = max(self.picker_index, 0)
+            self.choose(self.picker_options[self.picker_index][0])
+            return True
         if key == 27 and self.root.current != "home":
             self.close_picker()
             return True
@@ -227,6 +261,7 @@ class SaylacianApp(MDApp):
         self.root.get_screen("picker").ids.search.text = ""
         self.filter_languages("")
         self.root.current = "picker"
+        self.root.get_screen("picker").ids.search.focus = True
 
     @staticmethod
     def display_name(route_name):
@@ -397,6 +432,8 @@ class SaylacianApp(MDApp):
             return
         box = self.root.get_screen("picker").ids.options
         box.clear_widgets()
+        self.picker_options = []
+        self.picker_index = -1
         mode = "translation" if self.mode == "Translate meaning" else "transliteration"
         choices = picker_choices(list_capabilities(), mode)
         current = getattr(self, self.side)
@@ -413,6 +450,14 @@ class SaylacianApp(MDApp):
                 on_release=lambda b, n=name: self.choose(n),
             )
             box.add_widget(button)
+            self.picker_options.append((name, button))
+
+    def _update_picker_cursor(self):
+        current = getattr(self, self.side)
+        for index, (name, button) in enumerate(self.picker_options):
+            pointer = "› " if index == self.picker_index else ""
+            selected = "Selected: " if name == current else ""
+            button.text = pointer + selected + display_name(name)
 
     def choose(self, name):
         if name.endswith(" alphabet chart"):

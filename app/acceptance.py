@@ -36,10 +36,29 @@ def start(app):
         assert app.pack_cancel_event.is_set()
         assert cancel_button.disabled
         assert app.pack_status == "Stopping download..."
+        assert app.keyboard(Window, 108, None, 108, ["ctrl"])
+        assert app.root.current == "home"
+        assert home.ids.input_text.focus
+        app.mode = "Translate meaning"
+        app.source, app.target = "English", "Somali Latin"
+        app.open_picker("target")
+        app.filter_languages("e")
+        assert app.picker_options
+        assert app.keyboard(Window, 274, None, None, ["down"])
+        assert app.picker_index == 0
+        assert app.keyboard(Window, 274, None, None, ["down"])
+        selected_target = app.picker_options[app.picker_index][0]
+        assert app.keyboard(Window, 13, None, 13, [])
+        assert app.target == selected_target
+        assert selected_target == "French"
+        assert app.root.current == "home"
+        app.root.current = "packs"
+        assert app.keyboard(Window, 27)
+        assert app.root.current == "home"
         app.pack_busy = False
         app.pack_cancel_event = None
         app.pack_cancel_requested = False
-        app.root.current = "home"
+        home.ids.input_text.focus = False
 
         app.mode = "Convert writing system"
         app.source, app.target = "Somali Latin", "Osmanya"
@@ -253,6 +272,7 @@ def start(app):
                     "Borama/Kaddare tagged-package import, font selection, and reverse conversion",
                     "three Borama/Kaddare copy actions",
                     "offline pack cancellation control and request state",
+                    "keyboard-only editor focus and language picker navigation",
                     "Old Nubian reverse alternatives",
                     "Old Nubian paired reading with case and line-break preservation",
                     "Old Nubian searchable alphabet and reading studio",
