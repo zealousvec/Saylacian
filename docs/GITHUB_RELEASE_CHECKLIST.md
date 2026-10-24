@@ -1,6 +1,6 @@
 # GitHub source alpha checklist
 
-Scope: source-only experimental alpha. One local initial commit has been prepared; no remote, public repository, push, tag, release, deployment, or account-setting change exists.
+Scope: source-only experimental alpha. The verified public repository exists and `origin` is configured. No source push, tag, release, deployment, or account-setting change has occurred.
 
 ## Completed locally
 
@@ -11,14 +11,17 @@ Scope: source-only experimental alpha. One local initial commit has been prepare
 - [x] Reviewed chart/font/model/dataset/dependency notices and recorded file-level scope in `docs/LICENSING.md` and `docs/THIRD_PARTY_NOTICES.md`.
 - [x] Clean Windows clone installed dependencies, fetched/checksummed Somali and French packs, tested offline translations and a Kaddare round-trip, and launched the Kivy event loop. Full local suite and static checks are documented in `docs/SOURCE_RELEASE_READINESS.md`.
 - [x] Secret/path scan found no recognized credentials or local profile paths; staged Markdown local links resolve. No installer/DLL/EXE/model weights are staged.
-- [x] The local checkout folder is named `Saylacian`. Authenticated GitHub profile selection: public attribution `zealous`; login `zealousvec`. No accessible `zealousvec/Saylacian` repository was found, but the 404 cannot prove name availability (private/inaccessible repositories may also return 404).
+- [x] Authenticated owner `zealousvec` verified. Public repo [zealousvec/Saylacian](https://github.com/zealousvec/Saylacian) is public, has default branch `main`, and is empty (size 0, no remote refs). Local `origin` matches the expected HTTPS URL. The current GitHub description differs from the approved copy and mentions “non-profit”; correct it before publication.
 
 ## Remaining before publication
 
-- [ ] Create the already-authorized public `zealousvec/Saylacian` repository. The authenticated account and currently visible repositories were checked; no repository with this name is present. The available GitHub connector has no create-repository or repository-security-settings operation, and GitHub CLI is absent, so creation cannot be completed from this session.
-- [ ] Repository-local author identity is `zealous` with the owner-provided GitHub noreply address. Commit `594b4807e32a3feb9da6a3c943845b423d8e9a29` contains 149 files on `codex/release-prep`; local `main` points at this commit. GitHub account email-privacy settings are not exposed to the connected tools, so they remain unverified.
-- [ ] After repository creation and initial push approval, enable and verify Private vulnerability reporting, Dependabot alerts/updates, secret scanning/push protection where available, and maintainer security notifications. The connector has no repository security-settings operation; none of these are claimed enabled.
-- [ ] Owner must separately approve the initial public push. No source or release has been published.
+- [ ] In Settings → General → Description, set `Open-source, offline-first translation and language-preservation software.` and save. The current text is different and calls the project “non-profit,” which conflicts with the project credits.
+- [ ] In Settings → Security → Advanced Security, enable Private vulnerability reporting, Dependabot alerts, Dependabot security updates, Secret scanning, and Push protection wherever GitHub offers the toggle. Verify each control after enabling; current connector only reads public repository data, so none are claimed enabled.
+- [ ] Watch → Custom → Security alerts (or All activity), then check GitHub Settings → Notifications → Watching and enable email delivery if desired. Verify the repository notification subscription.
+- [ ] Local commit `594b4807e32a3feb9da6a3c943845b423d8e9a29` contains the 149-file source tree; docs follow-up `0744ccf2f0d7f80aa83f31eff31028c472c0dd50` is at local `main` and `codex/release-prep`. Local `origin` points to the empty public repo.
+- [ ] Owner must separately approve the initial public push. Proposed command: `git push -u origin main`. It publishes only local `main` history (the two commits above), no tags, and does not force-push. No source or release has been published.
+
+See [GitHub security settings](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/enabling-features-for-your-repository/managing-security-and-analysis-settings-for-your-repository) and [private vulnerability reporting](https://docs.github.com/en/code-security/how-tos/report-and-fix-vulnerabilities/configure-vulnerability-reporting/configure-for-a-repository) for the controls above.
 
 ## Separate binary/mobile checks (not source-alpha blockers)
 

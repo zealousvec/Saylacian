@@ -2,15 +2,15 @@
 
 **Audit date:** 2026-10-24
 
-**Scope:** source-only experimental GitHub alpha. Read-only account/repository inspection and local release preparation; no GitHub repository, account setting, publication, or UI changes.
+**Scope:** source-only experimental GitHub alpha. Repository metadata was read and `origin` was configured; no GitHub security setting, source publication, or UI change occurred.
 
 ## Result
 
 The candidate is prepared for final owner review. The owner approved GNU AGPL-3.0-or-later for Saylacian-authored code they own or have the right to license. Root `LICENSE` matches the complete official GNU text byte-for-byte (SHA-256 `0D96A4FF68AD6D4B6F1F30F713B18D5184912BA8DD389F86AA7710DB079ABCB0`). Project metadata and 62 first-party Python/Kivy/web/config source files identify AGPL-3.0-or-later. Third-party works remain separately licensed.
 
-The authenticated GitHub profile has display name `zealous` and login `zealousvec`; the owner selected `zealous` for public attribution. The connector does not expose the account's privacy toggle or generated noreply address, and GitHub CLI is not installed. No email was configured. No accessible `zealousvec/Saylacian` repository was found; GitHub 404 cannot establish name availability because private or inaccessible repositories can return the same response.
+The authenticated profile `zealousvec` owns public [zealousvec/Saylacian](https://github.com/zealousvec/Saylacian); GitHub confirms default branch `main` and an empty repository. The local `origin` URL matches it. The actual GitHub description currently differs from the owner-approved wording and includes “non-profit”; correct this before the source push. Repository security settings and account email-privacy state are not exposed by the connected read-only tools.
 
-The local folder is named `Saylacian`; `codex/release-prep` contains root commit `594b4807e32a3feb9da6a3c943845b423d8e9a29`, and `main` points at the same commit. No remote is configured. No mouse or keyboard control was used. The authenticated account is `zealousvec`; its visible repository list contains no `Saylacian` repository. Repository creation and security settings are unavailable through the connected GitHub tools, and GitHub CLI is absent. The owner-provided noreply identity is set locally; account-level private-email settings could not be verified.
+The local folder is named `Saylacian`; source root commit `594b4807e32a3feb9da6a3c943845b423d8e9a29` and docs follow-up `0744ccf2f0d7f80aa83f31eff31028c472c0dd50` are reachable from both local `main` and `codex/release-prep`. `origin` points to the empty public repo; no remote refs exist. The noreply author is configured locally. Account-level private-email privacy was not verifiable. No mouse or keyboard control was used.
 
 ## Staged-file audit
 
@@ -44,10 +44,10 @@ Final source formatting preserved the Kivy interface. The current-worktree suite
 ## Remaining blockers / approvals
 
 1. Source scan found no specific ownership exception or copied third-party implementation. With no pre-existing Git history or contributor registry at audit time, per-line provenance cannot be proven; the owner licence grant remains limited to code they own or have the right to license.
-2. The owner-authorized public repository still needs creation. The authenticated account is verified and no `Saylacian` repository appears in its visible repository list. The installed GitHub connector has no create-repository operation and GitHub CLI is absent.
-3. Local branch `codex/release-prep` contains the initial commit; local `main` points to the same commit. The confirmed noreply identity is configured per-repository. GitHub profile privacy settings are not exposed to current tools.
-4. Private vulnerability reporting, Dependabot, secret scanning/push protection and notification settings remain unverified/unconfigured because the repository is not created and the connector exposes no repository-settings operations.
-5. The owner must separately approve the initial public push. No remote, push, release or publication exists.
+2. Repository description does not match the approved wording and incorrectly labels the project “non-profit.” Update it in Settings → General.
+3. Enable and verify private vulnerability reporting, Dependabot alerts/security updates, secret scanning, and push protection in Settings → Security → Advanced Security. The connected GitHub tools cannot change/read these settings.
+4. Configure Watch → Custom → Security alerts and verify email notifications if desired.
+5. The owner must separately approve initial publication. Exact operation: `git push -u origin main` (non-force, branch only; no tags). No source or release has been published.
 
 ### Separate binary/mobile work (not blockers for source alpha)
 
