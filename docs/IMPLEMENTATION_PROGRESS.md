@@ -2,7 +2,7 @@
 
 Live task board for `SAYLACIAN_MASTER_DEVELOPMENT_DIRECTIVE.md`. This board records evidence, not aspirations. `verified` means the stated check passed; it does not establish linguistic acceptance.
 
-Current checkpoint: branch `main`, latest committed handoff checkpoint `97e356a`; saved-history recovery UX is being implemented. Latest code checkpoint before this change: `3bdc380`. The last recorded public `origin/main` is `c4f2f87270c22a05e772816ce98e57a99b871b18`; no remote mutation occurred. Existing edits in `docs/PROJECT_STATUS.md` and `docs/TECHNICAL_AUDIT.md` remain unstaged and untouched.
+Current checkpoint: branch `main`, latest committed code checkpoint `279d94d`; this local milestone adds a Somali unknown-token fallback guard, a regression test, and the missing benchmark-only development dependency. The last recorded public `origin/main` is `c4f2f87270c22a05e772816ce98e57a99b871b18`; no remote mutation occurred. Existing edits in `docs/PROJECT_STATUS.md` and `docs/TECHNICAL_AUDIT.md` remain unstaged and untouched.
 
 ## Autonomous execution queues
 
@@ -10,7 +10,7 @@ Move each task among these queues at every milestone. A blocker must name the ex
 
 ### ACTIVE
 
-Finish the damaged-history recovery flow. It is implemented with backup-preserving reset and passed unit/live Kivy tests; make a focused local commit, then run a clean-checkout acceptance.
+None after the current milestone. The post-guard diagnostics and roadmap were reconciled; remaining work is blocked by external evidence/permissions or lacks a reproducible acceptance criterion.
 
 ### BLOCKED
 
@@ -26,13 +26,14 @@ Finish the damaged-history recovery flow. It is implemented with backup-preservi
 
 | Order | Task | Acceptance |
 |---|---|---|
-| 1 | P2 | Verify saved-history backup recovery from a clean checkout | Launch all Kivy screens with isolated user data and network denied; confirm KEEP preserves bytes, BACK UP creates a complete backup before reset, and unknown future versions offer no reset. |
+No independent implementation task currently meets the evidence and approval requirements. Reopen this queue when reviewer/rights access changes or a new acceptance task emerges from the master roadmap; do not invent filler work.
 
 ### VERIFIED
 
 | Task | Evidence |
 |---|---|
 | Preserve saved history and provide safe recovery | JSON decode/schema errors are distinguished from unknown future versions. A confirmation defaults to KEEP; BACK UP & START FRESH writes a unique durable byte-for-byte backup before atomic reset. Tests prove backup, refusal for valid/future data, and preservation if reset fails. Live Kivy acceptance covers keep, recover, visible confirmation and re-opening Saved. Full suite: 112 passed, 188 subtests; Ruff, format, compileall, `pip check`, and diff checks pass. |
+| Keep SentencePiece unknown markers out of the synthetic Somali candidate route | Official SentencePiece docs identify U+2047 as the default decoded unknown-token surface. The pinned pre-guard EN→SO output contained it in 46/150 rows (81 occurrences). The route now sends candidate output containing U+2047 through the existing multilingual fallback, with an explicit warning. Fresh Python 3.12 dev install; pinned Somali pack hash verification; full 150-pair run with network denied: 47 marker fallbacks, zero markers in final EN→SO, BLEU 5.287 / chrF++ 25.282 (pre-guard: 7.057 / 28.996); SO→EN unchanged. Metric regression is disclosed; this removes a decode artifact, not a verified semantic improvement. Full suite: 114 passed; Ruff, format, compileall, `pip check`, and isolated Kivy launch pass. |
 | Warn on forward Osmanya long-vowel ambiguity | Somali `ii`/`uu` still produce U+10495/U+10493, with a warning that reverse conversion may read them as `y`/`w`. Unit tests assert both code points/warnings; live Kivy self-test verifies warning appears in app status. Based on Unicode Standard 16.0 §19.2.1. Full suite: 108 passed, 156 subtests; Ruff, format, compileall, `pip check`, live Kivy and diff checks pass. |
 | Validate Osmanya mapping assignments and detect number-only text | All 32 supported spellings map to Unicode characters named `OSMANYA LETTER`; Osmanya-only digits U+104A0–U+104A9 are detected as the script, while ASCII digits and mixed scripts abstain. Tests and live app acceptance pass; this verifies Unicode assignment/detection, not Somali orthography. Full suite: 109 passed, 188 subtests; Ruff/format, compileall, `pip check`, live Kivy and diff checks pass. |
 | Verify committed source in a clean checkout | Commit `3bdc380` cloned to an isolated temp path; all six Kivy screens started with network blocked; pack manifest listed French and Somali as not installed; saved-history corruption stayed byte-identical; Osmanya mapping names, digit-only detection, mixed-script abstention and ambiguity warnings passed. Checkout remained clean. Reused the pinned venv (not a fresh dependency installation); no pack weights downloaded. |

@@ -26,10 +26,14 @@ PIVOT_ROUTES = {
 }
 _MODEL_LEADING_MARKERS = re.compile(r"^(?:[←▪❏▸○]\s*)+")
 _SENTENCE_SPLIT = re.compile(r"[.!?…]+")
+_SENTENCEPIECE_UNKNOWN_SURFACE = "\u2047"
 
 
 def _synthetic_candidate_is_degenerate(source, output):
     """Conservatively reject identity and obvious repeated output from candidate."""
+    if _SENTENCEPIECE_UNKNOWN_SURFACE in output:
+        return True
+
     normalize = lambda value: " ".join(
         "".join(
             char
@@ -228,7 +232,9 @@ def translate_meaning(text, source, target, model_root=None, *, provider_overrid
                 )
                 source_words = word_count(text)
                 output_words = word_count(candidate_text)
-                if output_words > source_words * 2 + 10:
+                if _SENTENCEPIECE_UNKNOWN_SURFACE in candidate_text:
+                    candidate_fallback_reason = "Synthetic candidate emitted an unknown-token marker; used multilingual fallback."
+                elif output_words > source_words * 2 + 10:
                     candidate_fallback_reason = "Synthetic candidate exceeded output-length guard; used multilingual fallback."
                 else:
                     candidate_fallback_reason = "Synthetic candidate showed identity/repetition; used multilingual fallback."

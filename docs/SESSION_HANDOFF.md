@@ -8,8 +8,8 @@ Repository: the current checkout of `zealousvec/Saylacian`
 Branch: `main`
 Public `origin/main`: `c4f2f87270c22a05e772816ce98e57a99b871b18`
 Public CI: run `40087020450` passed on that commit.
-Latest committed source checkpoint: `7ebccd3` (`feat: verify offline model packs manually`); public `main` remains `c4f2f87270c22a05e772816ce98e57a99b871b18`. No push has occurred.
-Preserve the pre-existing user edits in `docs/PROJECT_STATUS.md` and `docs/TECHNICAL_AUDIT.md`; do not stage or rewrite them. Current uncommitted work adds a manual pack-integration workflow, verifier, tests and this handoff; stage only reviewed project files.
+Latest committed source checkpoint: `279d94d` (`feat: recover damaged saved history safely`); public `main` remains at `c4f2f87270c22a05e772816ce98e57a99b871b18`. No push has occurred.
+Preserve the pre-existing user edits in `docs/PROJECT_STATUS.md` and `docs/TECHNICAL_AUDIT.md`; do not stage or rewrite them. Current milestone changes cover the SentencePiece unknown-token fallback, its regression, developer benchmark dependency and project handoff; stage only those reviewed files.
 
 ## Current milestone — memory recovery and rendering blocker (2026-10-24)
 
@@ -264,3 +264,16 @@ Tests: 9 history tests, including malformed JSON, invalid schemas, unknown versi
 - BLOCKED: Old Nubian DBMNT expansion needs written reuse terms and qualified specialist review (owner approval before outreach); Somali quality needs owner-approved consent-based fluent review; screen-reader claims need manual Narrator/NVDA run; compact pixels need a validated isolated capture environment; hosted pack workflow needs owner approval to push then dispatch.
 
 Preserve user edits in `docs/PROJECT_STATUS.md` and `docs/TECHNICAL_AUDIT.md`; do not stage them. Nothing pushed or published. Existing source branch base before this milestone: `97e356a`.
+
+
+## 2026-10-24 — reject SentencePiece unknown-token output in EN→SO candidate route
+
+The pinned pre-guard 150-pair benchmark contained U+2047 in 46/150 English→Somali candidate outputs (81 occurrences). Official SentencePiece documentation defines U+2047 as its default decoded surface for unknown tokens. Added a narrow check: if the experimental synthetic EN→SO candidate emits that marker, use the already-supported multilingual EN→SO route and tell the user why. Tests assert both marker detection and selected fallback output; no model mapping or Somali linguistic rule changed.
+
+Added `sacrebleu==2.5.1` to developer-only requirements because the benchmark imports it. Installed `requirements-dev.txt` into a fresh Python 3.12 venv and verified `pip check`. Launched Kivy with isolated APPDATA/LOCALAPPDATA/Kivy/pack paths, installed and hash-verified the pinned Somali pack in temporary storage, and passed both offline smoke directions. The post-guard 150-pair benchmark ran with network blocked during inference: synthetic candidate selected 97 times; unknown-token fallback 47 times; output-length fallback 6 times. No U+2047 remained in final EN→SO output. BLEU/chrF++ changed from 7.057/28.996 to 5.287/25.282; SO→EN stayed 6.300/24.680. This removes a decode artifact but does not prove better meaning or Somali quality.
+
+Full test suite: 114 passed. Ruff check/format (103 files), compileall, `pip check`, isolated Kivy startup and `git diff --check` passed. Benchmark output and model pack remain in `%TEMP%`; none is committed. Existing user edits in `docs/PROJECT_STATUS.md` and `docs/TECHNICAL_AUDIT.md` are untouched. No physical input, clipboard access or push.
+
+- ACTIVE: none after screening remaining roadmap items for safe, measurable implementation.
+- BLOCKED: Somali semantic quality requires owner-approved consent-based fluent-speaker review; DBMNT-derived expansion requires written reuse terms and qualified review, with owner approval before outreach; screen-reader behavior needs observed Narrator/NVDA announcements; compact pixels need validated isolated graphics capture; hosted pack workflow needs push approval before dispatch.
+- READY: none currently. Numeric-token and possible-negation counters are automatic cues, not verified errors; no linguistic fix is safe without review. Reconcile the roadmap again when evidence/permissions change or a new independent acceptance task is found.

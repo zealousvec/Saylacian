@@ -11,6 +11,7 @@ from unittest.mock import Mock, patch
 from saylacian.core.translation import (
     MODEL_ROOT,
     _clean_model_markers,
+    _synthetic_candidate_is_degenerate,
     translate_meaning,
 )
 
@@ -29,6 +30,63 @@ class TranslationTests(unittest.TestCase):
             "A child will read a book.",
         )
         self.assertEqual(_clean_model_markers("Text ○ remains."), "Text ○ remains.")
+
+    def test_synthetic_candidate_unknown_token_marker_is_degenerate(self):
+        self.assertTrue(
+            _synthetic_candidate_is_degenerate("rare term", "Tarjumid \u2047 calaamad")
+        )
+
+    def test_synthetic_unknown_token_marker_uses_multilingual_fallback(self):
+        with TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            fallback = root / "somali" / "en_so"
+            fallback.mkdir(parents=True)
+            for filename in (
+                "model.bin",
+                "config.json",
+                "shared_vocabulary.json",
+                "source.spm",
+                "target.spm",
+            ):
+                (fallback / filename).touch()
+            candidate = root / "somali" / "en_so_synthetic"
+            candidate.mkdir()
+            (candidate / "model.bin").touch()
+
+            candidate_source = Mock()
+            candidate_source.encode.return_value = ["candidate-token"]
+            candidate_target = Mock()
+            candidate_target.decode.return_value = "Tarjumid \u2047 calaamad"
+            candidate_engine = Mock()
+            candidate_engine.translate_batch.return_value = [
+                Mock(hypotheses=[["candidate-output"]])
+            ]
+
+            fallback_source = Mock()
+            fallback_source.encode.return_value = ["fallback-token"]
+            fallback_target = Mock()
+            fallback_target.decode.return_value = "Qoraal tijaabo"
+            fallback_engine = Mock()
+            fallback_engine.translate_batch.return_value = [
+                Mock(hypotheses=[["fallback-output"]])
+            ]
+
+            with patch(
+                "saylacian.core.translation.load_model",
+                side_effect=(
+                    ((candidate_source, candidate_target), candidate_engine),
+                    ((fallback_source, fallback_target), fallback_engine),
+                ),
+            ):
+                result = translate_meaning(
+                    "rare terminology", "English", "Somali Latin", root
+                )
+
+        self.assertEqual(result.text, "Qoraal tijaabo")
+        self.assertTrue(
+            any("unknown-token marker" in warning for warning in result.warnings)
+        )
+        fallback_engine.translate_batch.assert_called_once()
 
     def test_no_hidden_download(self):
         with (
