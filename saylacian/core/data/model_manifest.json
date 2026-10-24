@@ -1,0 +1,61 @@
+[
+  {
+    "pair": "en_fr",
+    "url": "https://raw.githubusercontent.com/uav4geo/LibreTranslate-Models/3d5ca0a2c3c302287339b2944329f767ac1673f4/en_fr.argosmodel",
+    "sha256": "c1a69b39280b85aa2a84a35e433c08cbe9bf773997909f3a92e562789be1c3cb",
+    "bytes": 87359317,
+    "repository": "uav4geo/LibreTranslate-Models",
+    "revision": "3d5ca0a2c3c302287339b2944329f767ac1673f4",
+    "license": "MIT",
+    "runtimes": {
+      "ctranslate2": "4.8.3",
+      "sentencepiece": "0.2.2"
+    }
+  },
+  {
+    "pair": "fr_en",
+    "url": "https://raw.githubusercontent.com/uav4geo/LibreTranslate-Models/3d5ca0a2c3c302287339b2944329f767ac1673f4/fr_en.argosmodel",
+    "sha256": "4119c11587ce1d6b53d87c6c5a6277a815243a1d52699f28ed0ec9cd44efd997",
+    "bytes": 87171251,
+    "repository": "uav4geo/LibreTranslate-Models",
+    "revision": "3d5ca0a2c3c302287339b2944329f767ac1673f4",
+    "license": "MIT",
+    "runtimes": {
+      "ctranslate2": "4.8.3",
+      "sentencepiece": "0.2.2"
+    }
+  },
+  {
+    "pair": "en_so_synthetic",
+    "source": "https://huggingface.co/Helsinki-NLP/opus-mt-synthetic-en-so/tree/49384e6b2c3ddd374f2cccc8efecb678724b739d",
+    "license": "CC-BY-4.0",
+    "conversion": "CTranslate2 int8 conversion; tokenizer files retained from upstream revision",
+    "files": [
+      {
+        "file": "config.json",
+        "sha256": "72901fbd8abd89fb5cf4a388f26fc681f5c4c58a1e1a88b30b879f107270e7ee",
+        "bytes": 233
+      },
+      {
+        "file": "model.bin",
+        "sha256": "62aacb4ec5812ce20a1eb2563fe763d16d20858e2490d6d8bdd0a3a1f4f72c22",
+        "bytes": 61622739
+      },
+      {
+        "file": "shared_vocabulary.json",
+        "sha256": "f41baa59721e534136730cf509ae60ce9dbf5d35bfa36427159742479d3a5919",
+        "bytes": 623936
+      },
+      {
+        "file": "source.spm",
+        "sha256": "324a71b7317b9f4e26a181a515d374fc31398e29cd240c4123a4a130b6fa31d8",
+        "bytes": 842939
+      },
+      {
+        "file": "target.spm",
+        "sha256": "324a71b7317b9f4e26a181a515d374fc31398e29cd240c4123a4a130b6fa31d8",
+        "bytes": 842939
+      }
+    ]
+  }
+]

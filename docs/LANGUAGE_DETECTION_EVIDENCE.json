@@ -1,0 +1,57 @@
+{
+  "implementation": "saylacian.core.language_detection",
+  "package": "py3langid==0.4.0",
+  "offline": true,
+  "supported_auto_language_codes": {
+    "en": "English",
+    "fr": "French",
+    "so": "Somali Latin"
+  },
+  "minimum_characters": 20,
+  "minimum_words": 3,
+  "minimum_confidence": 0.7,
+  "abstention": "short inputs, confidence below threshold, unsupported detected language, or Osmanya script for meaning mode",
+  "smoke_examples": [
+    {
+      "text": "The child is reading a book and learning every day.",
+      "detected": "English",
+      "confidence": 0.9971740246
+    },
+    {
+      "text": "Bonjour, comment allez-vous aujourd’hui ? Je vais bien, merci.",
+      "detected": "French",
+      "confidence": 0.9992625117
+    },
+    {
+      "text": "Salaan, sidee tahay?",
+      "detected": "Somali Latin",
+      "confidence": 0.8002853394
+    },
+    {
+      "text": "Ilmuhu wuxuu akhriyaa buug.",
+      "detected": "Somali Latin",
+      "confidence": 0.9811813235
+    },
+    {
+      "text": "Borama is a city in Somaliland.",
+      "detected": null,
+      "confidence": 0.4156595469,
+      "reason": "uncertain"
+    },
+    {
+      "text": "Ola, como estás? Espero que te encuentres muy bien hoy.",
+      "detected": null,
+      "confidence": 0.9753648639,
+      "reason": "Spanish is outside the app's automatic translation subset"
+    }
+  ],
+  "live_ui": {
+    "test": "offline Somali-to-English through Kivy Detect language/script source",
+    "input": "Salaan, sidee tahay?",
+    "output": "How are you?",
+    "status": "Detected Somali Latin (80% confidence). Experimental offline Somali output; fluent human review pending.",
+    "screen_capture": "previews/enhanced-meaning-somali0006.png",
+    "test_result": "passed with socket.connect blocked"
+  },
+  "scope_note": "Small smoke set only; not a representative benchmark or a claim of general detection accuracy. Confidence is model confidence, not a calibrated real-world probability."
+}

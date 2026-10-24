@@ -1,0 +1,5 @@
+Model attribution: Helsinki-NLP, “opus-mt-synthetic-en-so” (English–Somali synthetic baseline), source revision 49384e6b2c3ddd374f2cccc8efecb678724b739d.
+Source: https://huggingface.co/Helsinki-NLP/opus-mt-synthetic-en-so/tree/49384e6b2c3ddd374f2cccc8efecb678724b739d
+License declared by the model card: Creative Commons Attribution 4.0 International (CC BY 4.0): https://creativecommons.org/licenses/by/4.0/
+Changes: converted to CTranslate2 int8 format for local CPU inference. The app applies an identity/repetition guard and may fall back to its existing multilingual OPUS-MT model. This notice and model manifest provide attribution and identify the conversion.
+The upstream card describes GPT-4o forward-translated Europarl as the synthetic training data and references FLORES+; see the model card and cited paper for data provenance and evaluation context.

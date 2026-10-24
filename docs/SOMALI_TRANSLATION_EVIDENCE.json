@@ -1,0 +1,151 @@
+{
+  "status": "experimental; offline source smoke checked plus two-step Somali/French smoke; no fluent human evaluation",
+  "offline": true,
+  "model_repositories": {
+    "en_so": [
+      "gaudi/opus-mt-en-mul-ctranslate2",
+      "89fdef87793d0b4a3860bd4d7c5e4cf77e7575b9"
+    ],
+    "so_en": [
+      "gaudi/opus-mt-mul-en-ctranslate2",
+      "fb574c2082b1a49f89e55064aca6c1fba1125474"
+    ]
+  },
+  "files": [
+    {
+      "pair": "en_so",
+      "file": "model.bin",
+      "bytes": 154588381,
+      "sha256": "192367dbcd9c0cb773c5023e854381d169370fd0c545311a6f3d4c2301c048ba"
+    },
+    {
+      "pair": "en_so",
+      "file": "config.json",
+      "bytes": 197,
+      "sha256": "ca6d4e038e8e3f4388f95cf917a661780ad863283a79cbf86e1e82acd15941e5"
+    },
+    {
+      "pair": "en_so",
+      "file": "shared_vocabulary.json",
+      "bytes": 1110521,
+      "sha256": "643ea935c60168da11240be49e978bfcd8cf5c00fe17e772ddf94548948b40dd"
+    },
+    {
+      "pair": "en_so",
+      "file": "source.spm",
+      "bytes": 790473,
+      "sha256": "9129bf81ef9d5fcc1797ea3061e789dc5f9e5602786b0490238d207d4219e0f5"
+    },
+    {
+      "pair": "en_so",
+      "file": "target.spm",
+      "bytes": 706659,
+      "sha256": "6a0a52318dac3247455ec889eb3bd8da9bdf234974be8b9b0f99ad5378f474c9"
+    },
+    {
+      "pair": "so_en",
+      "file": "model.bin",
+      "bytes": 154652061,
+      "sha256": "c60e7b8ec6025796779f17029798e3de6f862f0da5bb6cc95ed6fffde7108e1d"
+    },
+    {
+      "pair": "so_en",
+      "file": "config.json",
+      "bytes": 215,
+      "sha256": "ce02c0c0d02f285d2ff34c80b0867ccb5c4a3b250a275e6d1d2884f5499a6e46"
+    },
+    {
+      "pair": "so_en",
+      "file": "shared_vocabulary.json",
+      "bytes": 1114188,
+      "sha256": "cfdce5094465eece9a53361286ed393e43ac7abf23ee731f60bb2bf6c376eacd"
+    },
+    {
+      "pair": "so_en",
+      "file": "source.spm",
+      "bytes": 706917,
+      "sha256": "c4a99ea3602b29fbf901ade8b93a45efa3d7c64eab8fc5fa812383efa327a87d"
+    },
+    {
+      "pair": "so_en",
+      "file": "target.spm",
+      "bytes": 791194,
+      "sha256": "c6dce5fa58fcd7dde9e81e279b8c075bf42ee558278f73d6fb48e342029d7f19"
+    }
+  ],
+  "config_note": "The en_so CTranslate2 config uses layer_norm_epsilon=1e-5; its upstream config had null and the local CTranslate2 reader raised a type error without a numeric epsilon. so_en retains the upstream null config, which loaded successfully.",
+  "tokenization": "Source-side >>som<< OPUS tag plus SentencePiece pieces and </s>; English-to-multilingual requires tag to choose Somali.",
+  "examples": [
+    {
+      "source": "English",
+      "target": "Somali Latin",
+      "input": "Hello, how are you?",
+      "output": "Halo, sidee baad u leedahay?",
+      "warnings": [
+        "Experimental offline Somali output; fluent human review pending."
+      ]
+    },
+    {
+      "source": "English",
+      "target": "Somali Latin",
+      "input": "The child is reading a book.",
+      "output": "Ilmuhu wuxuu akhriyo kitaabka.",
+      "warnings": [
+        "Experimental offline Somali output; fluent human review pending."
+      ]
+    },
+    {
+      "source": "Somali Latin",
+      "target": "English",
+      "input": "Salaan, sidee tahay?",
+      "output": "How are you?",
+      "warnings": [
+        "Experimental offline Somali output; fluent human review pending."
+      ]
+    },
+    {
+      "source": "Somali Latin",
+      "target": "English",
+      "input": "Ilmuhu buug buu akhrinayaa.",
+      "output": "○ A child will read a book.",
+      "warnings": [
+        "Experimental offline Somali output; fluent human review pending."
+      ]
+    }
+  ],
+  "quality_limit": "Examples include at least one awkward English-to-Somali phrase and one Somali-to-English stray glyph. Keep output explicitly experimental and require fluent review. Somali/French uses a pivot through English; the French-to-Somali sample is awkward and needs correction.",
+  "pivot_routes": [
+    {
+      "source": "Somali Latin",
+      "target": "French",
+      "via": "English",
+      "input": "Salaan, sidee tahay?",
+      "intermediate": "How are you?",
+      "output": "Comment allez-vous ?",
+      "warnings": [
+        "Somali output model remains experimental",
+        "Two-step errors may compound"
+      ]
+    },
+    {
+      "source": "French",
+      "target": "Somali Latin",
+      "via": "English",
+      "input": "Bonjour, comment allez-vous ?",
+      "intermediate": "Hello, how are you?",
+      "output": "Halo, sidee baad u leedahay?",
+      "warnings": [
+        "Somali output needs fluent review",
+        "This sample is awkward; two-step errors may compound"
+      ]
+    }
+  ],
+  "live_ui_pivot": {
+    "test": "Kivy Detect language/script Somali input to French through English; socket.connect blocked",
+    "input": "Salaan, sidee tahay?",
+    "output": "Comment allez-vous ?",
+    "status": "Detected Somali Latin (80% confidence). Experimental offline Somali output; fluent human review pending. Experimental local model output; human quality review pending. Experimental two-step translation via English; errors may compound.",
+    "screenshot_note": "Generated historical preview omitted from source release; live UI result retained.",
+    "result": "passed"
+  }
+}

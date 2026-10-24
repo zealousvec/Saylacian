@@ -1,0 +1,34 @@
+{
+  "network": "blocked",
+  "examples": [
+    {
+      "source": "English",
+      "target": "French",
+      "input": "Hello, how are you?",
+      "output": "Bonjour, comment allez-vous ?",
+      "seconds": 0.398
+    },
+    {
+      "source": "English",
+      "target": "French",
+      "input": "The child is reading a book.",
+      "output": "L'enfant lit un livre.",
+      "seconds": 0.037
+    },
+    {
+      "source": "French",
+      "target": "English",
+      "input": "Bonjour, comment allez-vous ?",
+      "output": "Hello, how are you?",
+      "seconds": 0.227
+    },
+    {
+      "source": "French",
+      "target": "English",
+      "input": "Je voudrais un verre d’eau.",
+      "output": "I would like a glass of water.",
+      "seconds": 0.034
+    }
+  ],
+  "quality": "small smoke sample only; human review required"
+}

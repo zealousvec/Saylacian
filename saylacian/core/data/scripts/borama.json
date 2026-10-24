@@ -1,0 +1,545 @@
+{
+  "language": "Somali",
+  "record_status": "partial experimental chart-label mapping",
+  "encoding": {
+    "kind": "private-use Unicode",
+    "portable": false,
+    "note": "PUA characters render only with the bundled Saylacian chart font. These are not standardized Unicode encodings."
+  },
+  "review": {
+    "reviewer_status": "unreviewed",
+    "independent_mapping_attestations": 0,
+    "word_level_orthography": "not verified"
+  },
+  "script": "Borama",
+  "direction": "left-to-right (chart citation)",
+  "source": {
+    "title": "Borama Alphabet Chart.jpg",
+    "creator": "Jugydmort",
+    "page": "single-page alphabet chart (no printed page number)",
+    "url": "https://commons.wikimedia.org/wiki/File:Borama_Alphabet_Chart.jpg",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "modification": "Selected glyphs cropped from the chart and converted to a bundled font; labels are transcribed as shown."
+  },
+  "mapping_confidence": "The chart explicitly pairs each listed letter label with a glyph. This does not establish word-level spelling rules or a portable encoding.",
+  "unsupported_labels": [
+    "q"
+  ],
+  "unsupported_note": "LETTER Q is not present in this chart image; input q is preserved and flagged.",
+  "records": [
+    {
+      "grapheme": "a",
+      "display_label": "LETTER A",
+      "glyph_id": "borama.a",
+      "pua": "U+E000",
+      "chart_forms": [
+        {
+          "id": "chart-form-1",
+          "crop": [
+            0,
+            20,
+            80,
+            24
+          ]
+        }
+      ],
+      "confidence": "chart-label only",
+      "reversible_in_subset": true
+    },
+    {
+      "grapheme": "e",
+      "display_label": "LETTER E",
+      "glyph_id": "borama.e",
+      "pua": "U+E001",
+      "chart_forms": [
+        {
+          "id": "chart-form-1",
+          "crop": [
+            0,
+            91,
+            80,
+            23
+          ]
+        }
+      ],
+      "confidence": "chart-label only",
+      "reversible_in_subset": true
+    },
+    {
+      "grapheme": "i",
+      "display_label": "LETTER I",
+      "glyph_id": "borama.i",
+      "pua": "U+E002",
+      "chart_forms": [
+        {
+          "id": "chart-form-1",
+          "crop": [
+            0,
+            163,
+            80,
+            23
+          ]
+        }
+      ],
+      "confidence": "chart-label only",
+      "reversible_in_subset": true
+    },
+    {
+      "grapheme": "ii",
+      "display_label": "LETTER II",
+      "glyph_id": "borama.ii",
+      "pua": "U+E003",
+      "chart_forms": [
+        {
+          "id": "chart-form-1",
+          "crop": [
+            0,
+            234,
+            80,
+            23
+          ]
+        }
+      ],
+      "confidence": "chart-label only",
+      "reversible_in_subset": true
+    },
+    {
+      "grapheme": "u",
+      "display_label": "LETTER U",
+      "glyph_id": "borama.u",
+      "pua": "U+E004",
+      "chart_forms": [
+        {
+          "id": "chart-form-1",
+          "crop": [
+            0,
+            305,
+            80,
+            23
+          ]
+        }
+      ],
+      "confidence": "chart-label only",
+      "reversible_in_subset": true
+    },
+    {
+      "grapheme": "uu",
+      "display_label": "LETTER UU",
+      "glyph_id": "borama.uu",
+      "pua": "U+E005",
+      "chart_forms": [
+        {
+          "id": "chart-form-1",
+          "crop": [
+            0,
+            376,
+            80,
+            23
+          ]
+        }
+      ],
+      "confidence": "chart-label only",
+      "reversible_in_subset": true
+    },
+    {
+      "grapheme": "oo",
+      "display_label": "LETTER OO",
+      "glyph_id": "borama.oo",
+      "pua": "U+E006",
+      "chart_forms": [
+        {
+          "id": "chart-form-1",
+          "crop": [
+            0,
+            446,
+            80,
+            24
+          ]
+        }
+      ],
+      "confidence": "chart-label only",
+      "reversible_in_subset": true
+    },
+    {
+      "grapheme": "b",
+      "display_label": "LETTER B",
+      "glyph_id": "borama.b",
+      "pua": "U+E007",
+      "chart_forms": [
+        {
+          "id": "chart-form-1",
+          "crop": [
+            0,
+            518,
+            80,
+            22
+          ]
+        }
+      ],
+      "confidence": "chart-label only",
+      "reversible_in_subset": true
+    },
+    {
+      "grapheme": "t",
+      "display_label": "LETTER T",
+      "glyph_id": "borama.t",
+      "pua": "U+E008",
+      "chart_forms": [
+        {
+          "id": "chart-form-1",
+          "crop": [
+            0,
+            589,
+            80,
+            23
+          ]
+        }
+      ],
+      "confidence": "chart-label only",
+      "reversible_in_subset": true
+    },
+    {
+      "grapheme": "j",
+      "display_label": "LETTER J",
+      "glyph_id": "borama.j",
+      "pua": "U+E009",
+      "chart_forms": [
+        {
+          "id": "chart-form-1",
+          "crop": [
+            230,
+            21,
+            90,
+            23
+          ]
+        }
+      ],
+      "confidence": "chart-label only",
+      "reversible_in_subset": true
+    },
+    {
+      "grapheme": "dh",
+      "display_label": "LETTER DH",
+      "glyph_id": "borama.dh",
+      "pua": "U+E00A",
+      "chart_forms": [
+        {
+          "id": "chart-form-1",
+          "crop": [
+            230,
+            92,
+            90,
+            23
+          ]
+        }
+      ],
+      "confidence": "chart-label only",
+      "reversible_in_subset": true
+    },
+    {
+      "grapheme": "g",
+      "display_label": "LETTER G",
+      "glyph_id": "borama.g",
+      "pua": "U+E00B",
+      "chart_forms": [
+        {
+          "id": "chart-form-1",
+          "crop": [
+            230,
+            163,
+            90,
+            22
+          ]
+        }
+      ],
+      "confidence": "chart-label only",
+      "reversible_in_subset": true
+    },
+    {
+      "grapheme": "h",
+      "display_label": "LETTER H",
+      "glyph_id": "borama.h",
+      "pua": "U+E00C",
+      "chart_forms": [
+        {
+          "id": "chart-form-1",
+          "crop": [
+            230,
+            234,
+            90,
+            23
+          ]
+        }
+      ],
+      "confidence": "chart-label only",
+      "reversible_in_subset": true
+    },
+    {
+      "grapheme": "kh",
+      "display_label": "LETTER KH",
+      "glyph_id": "borama.kh",
+      "pua": "U+E00D",
+      "chart_forms": [
+        {
+          "id": "chart-form-1",
+          "crop": [
+            230,
+            304,
+            90,
+            24
+          ]
+        }
+      ],
+      "confidence": "chart-label only",
+      "reversible_in_subset": true
+    },
+    {
+      "grapheme": "d",
+      "display_label": "LETTER D",
+      "glyph_id": "borama.d",
+      "pua": "U+E00E",
+      "chart_forms": [
+        {
+          "id": "chart-form-1",
+          "crop": [
+            230,
+            376,
+            90,
+            22
+          ]
+        }
+      ],
+      "confidence": "chart-label only",
+      "reversible_in_subset": true
+    },
+    {
+      "grapheme": "r",
+      "display_label": "LETTER R",
+      "glyph_id": "borama.r",
+      "pua": "U+E00F",
+      "chart_forms": [
+        {
+          "id": "chart-form-1",
+          "crop": [
+            230,
+            447,
+            90,
+            23
+          ]
+        }
+      ],
+      "confidence": "chart-label only",
+      "reversible_in_subset": true
+    },
+    {
+      "grapheme": "s",
+      "display_label": "LETTER S",
+      "glyph_id": "borama.s",
+      "pua": "U+E010",
+      "chart_forms": [
+        {
+          "id": "chart-form-1",
+          "crop": [
+            230,
+            519,
+            90,
+            22
+          ]
+        }
+      ],
+      "confidence": "chart-label only",
+      "reversible_in_subset": true
+    },
+    {
+      "grapheme": "sh",
+      "display_label": "LETTER SH",
+      "glyph_id": "borama.sh",
+      "pua": "U+E011",
+      "chart_forms": [
+        {
+          "id": "chart-form-1",
+          "crop": [
+            230,
+            590,
+            90,
+            21
+          ]
+        }
+      ],
+      "confidence": "chart-label only",
+      "reversible_in_subset": true
+    },
+    {
+      "grapheme": "c",
+      "display_label": "LETTER C",
+      "glyph_id": "borama.c",
+      "pua": "U+E012",
+      "chart_forms": [
+        {
+          "id": "chart-form-1",
+          "crop": [
+            500,
+            21,
+            80,
+            23
+          ]
+        }
+      ],
+      "confidence": "chart-label only",
+      "reversible_in_subset": true
+    },
+    {
+      "grapheme": "f",
+      "display_label": "LETTER F",
+      "glyph_id": "borama.f",
+      "pua": "U+E013",
+      "chart_forms": [
+        {
+          "id": "chart-form-1",
+          "crop": [
+            500,
+            91,
+            80,
+            24
+          ]
+        }
+      ],
+      "confidence": "chart-label only",
+      "reversible_in_subset": true
+    },
+    {
+      "grapheme": "o",
+      "display_label": "LETTER O",
+      "glyph_id": "borama.o",
+      "pua": "U+E014",
+      "chart_forms": [
+        {
+          "id": "chart-form-1",
+          "crop": [
+            500,
+            161,
+            80,
+            24
+          ]
+        }
+      ],
+      "confidence": "chart-label only",
+      "reversible_in_subset": true
+    },
+    {
+      "grapheme": "k",
+      "display_label": "LETTER K",
+      "glyph_id": "borama.k",
+      "pua": "U+E015",
+      "chart_forms": [
+        {
+          "id": "chart-form-1",
+          "crop": [
+            500,
+            233,
+            80,
+            24
+          ]
+        }
+      ],
+      "confidence": "chart-label only",
+      "reversible_in_subset": true
+    },
+    {
+      "grapheme": "l",
+      "display_label": "LETTER L",
+      "glyph_id": "borama.l",
+      "pua": "U+E016",
+      "chart_forms": [
+        {
+          "id": "chart-form-1",
+          "crop": [
+            500,
+            304,
+            80,
+            23
+          ]
+        }
+      ],
+      "confidence": "chart-label only",
+      "reversible_in_subset": true
+    },
+    {
+      "grapheme": "m",
+      "display_label": "LETTER M",
+      "glyph_id": "borama.m",
+      "pua": "U+E017",
+      "chart_forms": [
+        {
+          "id": "chart-form-1",
+          "crop": [
+            500,
+            375,
+            80,
+            24
+          ]
+        }
+      ],
+      "confidence": "chart-label only",
+      "reversible_in_subset": true
+    },
+    {
+      "grapheme": "n",
+      "display_label": "LETTER N",
+      "glyph_id": "borama.n",
+      "pua": "U+E018",
+      "chart_forms": [
+        {
+          "id": "chart-form-1",
+          "crop": [
+            500,
+            448,
+            80,
+            22
+          ]
+        }
+      ],
+      "confidence": "chart-label only",
+      "reversible_in_subset": true
+    },
+    {
+      "grapheme": "w",
+      "display_label": "LETTER W",
+      "glyph_id": "borama.w",
+      "pua": "U+E019",
+      "chart_forms": [
+        {
+          "id": "chart-form-1",
+          "crop": [
+            500,
+            517,
+            80,
+            23
+          ]
+        }
+      ],
+      "confidence": "chart-label only",
+      "reversible_in_subset": true
+    },
+    {
+      "grapheme": "y",
+      "display_label": "LETTER Y",
+      "glyph_id": "borama.y",
+      "pua": "U+E01A",
+      "chart_forms": [
+        {
+          "id": "chart-form-1",
+          "crop": [
+            500,
+            589,
+            80,
+            22
+          ]
+        }
+      ],
+      "confidence": "chart-label only",
+      "reversible_in_subset": true
+    }
+  ]
+}

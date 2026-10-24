@@ -1,0 +1,22 @@
+{
+  "name": "Saylacian Somali translation quality sample",
+  "dataset": "TICO-19 Translation Initiative for COVID-19",
+  "upstream_url": "https://tico-19.github.io/testset.html",
+  "source_archive_url": "https://tico-19.github.io/data/tico19-testset.zip",
+  "upstream_split": "test",
+  "upstream_size": 2100,
+  "sample_size": 150,
+  "sampling": "Deterministic random sample with seed 20261023, stratified by English source length: 50 <=10 whitespace tokens, 50 11-22, 50 >22. Records sorted by stringID after sampling.",
+  "reference_quality": "TICO reports translations prepared and reviewed by paid professional translators. Not Saylacian human review.",
+  "translation_license": "CC0-1.0 as stated by TICO-19 distribution; each source_material_license and source_url retained from original TSV.",
+  "data_scope": "Clinical and COVID-19 health communication only; not representative of ordinary conversation, dialect breadth, or all public-service language.",
+  "overlap": "Model training overlap is not fully established for every existing OPUS-derived checkpoint; scores are comparison evidence on this named set, not a pristine training-independent benchmark.",
+  "source_archive_sha256": "0e82fc7ceaa877606c8934f32ead185716c9d2c54b3818f2a7ae655f5e7a08d8",
+  "references_retained": "English source and Somali reference included. Reverse direction uses Somali reference as input and English source as reference.",
+  "count_by_source_license": {
+    "public": 16,
+    "CC BY 4.0": 44,
+    "CC_BY-SA_2.5": 2,
+    "CC_BY-SA_3.0": 88
+  }
+}

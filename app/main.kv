@@ -1,0 +1,340 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Saylacian's primary translator screen and reusable KivyMD widget layout.
+#:import dp kivy.metrics.dp
+#:import NoTransition kivy.uix.screenmanager.NoTransition
+#:import MDCard kivymd.uix.card.MDCard
+#:import MDLabel kivymd.uix.label.MDLabel
+#:import MDFlatButton kivymd.uix.button.MDFlatButton
+#:import MDRaisedButton kivymd.uix.button.MDRaisedButton
+#:import MDIconButton kivymd.uix.button.MDIconButton
+#:import MDTextField kivymd.uix.textfield.MDTextField
+#:import MDFillRoundFlatIconButton kivymd.uix.button.MDFillRoundFlatIconButton
+#:import ProgressBar kivy.uix.progressbar.ProgressBar
+<HomeScreen>:
+    name: "home"
+    AnchorLayout:
+        anchor_x: "center"
+        anchor_y: "center"
+        canvas.before:
+            Color:
+                rgba: 0, 0, 0, 1
+            Rectangle:
+                pos: self.pos
+                size: self.size
+        BoxLayout:
+            orientation: "vertical"
+            size_hint: None, 1
+            width: max(dp(288), min(dp(1120), root.width - dp(32)))
+            padding: dp(16), dp(20)
+            spacing: dp(12)
+            BoxLayout:
+                size_hint_y: None
+                height: dp(44)
+                MDLabel:
+                    text: "Saylacian"
+                    font_style: "H6"
+                    bold: True
+                MDFlatButton:
+                    text: "Transliterate" if app.mode == "Convert writing system" else "Translate"
+                    on_release: app.switch_mode()
+                ActionIcon:
+                    icon: "download"
+                    tooltip_text: "Offline language packs"
+                    size_hint: None, None
+                    size: dp(44), dp(44)
+                    on_release: app.open_packs()
+            BoxLayout:
+                id: language_controls
+                orientation: "horizontal" if root.width >= dp(360) else "vertical"
+                spacing: dp(10)
+                size_hint_y: None
+                height: dp(48) if root.width >= dp(360) else dp(156)
+                MDFillRoundFlatIconButton:
+                    text: app.source if len(app.source) <= 18 else app.source[:15] + "..."
+                    icon: "chevron-down"
+                    size_hint_x: 1
+                    size_hint_y: None
+                    height: dp(44)
+                    md_bg_color: .24, .24, .24, 1
+                    text_color: 1, 1, 1, 1
+                    on_release: app.open_picker("source")
+                ActionIcon:
+                    icon: "swap-horizontal"
+                    tooltip_text: "Swap languages"
+                    size_hint: None, None
+                    size: dp(48), dp(48)
+                    md_bg_color: 1, 1, 1, 1
+                    theme_icon_color: "Custom"
+                    icon_color: 0, 0, 0, 1
+                    on_release: app.swap()
+                MDFillRoundFlatIconButton:
+                    text: app.target if len(app.target) <= 18 else app.target[:15] + "..."
+                    icon: "chevron-down"
+                    size_hint_x: 1
+                    size_hint_y: None
+                    height: dp(44)
+                    md_bg_color: .24, .24, .24, 1
+                    text_color: 1, 1, 1, 1
+                    on_release: app.open_picker("target")
+            BoxLayout:
+                id: translation_panels
+                orientation: "horizontal" if app.wide_layout else "vertical"
+                spacing: dp(12)
+                MDCard:
+                    orientation: "vertical"
+                    md_bg_color: .95, .95, .95, 1
+                    radius: [dp(14)]
+                    padding: [dp(16), dp(12), dp(16), dp(6)]
+                    SaylacianTextInput:
+                        id: input_text
+                        hint_text: "Enter text"
+                        background_normal: ""
+                        background_active: ""
+                        padding: [0, dp(8)]
+                        background_color: .95, .95, .95, 1
+                        foreground_color: .08, .08, .08, 1
+                        cursor_color: 0, 0, 0, 1
+                        font_name: app.input_font
+                        font_size: "20sp"
+                        multiline: True
+                        on_text: app.on_input_text(self.text)
+                    BoxLayout:
+                        size_hint_y: None
+                        height: dp(44)
+                        MDFlatButton:
+                            text: "Paste"
+                            theme_text_color: "Custom"
+                            text_color: .15, .15, .15, 1
+                            on_release: app.paste()
+                        MDFlatButton:
+                            text: "Clear"
+                            theme_text_color: "Custom"
+                            text_color: .15, .15, .15, 1
+                            on_release: app.clear()
+                        Widget:
+                        ActionIcon:
+                            id: input_copy_button
+                            icon: "content-copy"
+                            tooltip_text: "Copy text"
+                            theme_icon_color: "Custom"
+                            icon_color: .2, .2, .2, 1
+                            on_release: app.open_copy_menu(self, input_text.text)
+                MDCard:
+                    orientation: "vertical"
+                    md_bg_color: .95, .95, .95, 1
+                    radius: [dp(14)]
+                    padding: [dp(16), dp(12), dp(16), dp(6)]
+                    SaylacianTextInput:
+                        id: output_text
+                        hint_text: "Result appears here"
+                        background_normal: ""
+                        background_active: ""
+                        padding: [0, dp(8)]
+                        background_color: .95, .95, .95, 1
+                        foreground_color: .08, .08, .08, 1
+                        font_name: app.output_font
+                        font_size: "22sp"
+                        multiline: True
+                        readonly: True
+                    BoxLayout:
+                        size_hint_y: None
+                        height: dp(44)
+                        ActionIcon:
+                            icon: "star-outline"
+                            tooltip_text: "Save favourite"
+                            theme_icon_color: "Custom"
+                            icon_color: .2, .2, .2, 1
+                            on_release: app.save_result()
+                        ActionIcon:
+                            icon: "history"
+                            tooltip_text: "Saved history"
+                            theme_icon_color: "Custom"
+                            icon_color: .2, .2, .2, 1
+                            on_release: app.show_history()
+                        Widget:
+                        ActionIcon:
+                            id: output_copy_button
+                            icon: "content-copy"
+                            tooltip_text: "Copy text"
+                            theme_icon_color: "Custom"
+                            icon_color: .2, .2, .2, 1
+                            on_release: app.open_copy_menu(self, output_text.text)
+            MDLabel:
+                id: status_label
+                text: app.status + app.alternative_readings
+                font_style: "Caption"
+                size_hint_y: None
+                height: dp(64) if app.alternative_readings else dp(36)
+                text_size: self.width, None
+<PickerScreen>:
+    name: "picker"
+    BoxLayout:
+        orientation: "vertical"
+        padding: dp(20)
+        spacing: dp(12)
+        canvas.before:
+            Color:
+                rgba: 0, 0, 0, 1
+            Rectangle:
+                pos: self.pos
+                size: self.size
+        BoxLayout:
+            size_hint_y: None
+            height: dp(48)
+            ActionIcon:
+                icon: "arrow-left"
+                tooltip_text: "Back to translator"
+                on_release: app.close_picker()
+            MDLabel:
+                text: app.picker_heading
+                font_style: "H6"
+        MDTextField:
+            id: search
+            hint_text: "Search languages or scripts"
+            mode: "rectangle"
+            on_text: app.filter_languages(self.text)
+        ScrollView:
+            do_scroll_x: False
+            BoxLayout:
+                id: options
+                orientation: "vertical"
+                spacing: dp(8)
+                size_hint_y: None
+                height: self.minimum_height
+<PacksScreen>:
+    name: "packs"
+    BoxLayout:
+        orientation: "vertical"
+        padding: dp(20)
+        spacing: dp(12)
+        canvas.before:
+            Color:
+                rgba: 0, 0, 0, 1
+            Rectangle:
+                pos: self.pos
+                size: self.size
+        BoxLayout:
+            size_hint_y: None
+            height: dp(48)
+            ActionIcon:
+                icon: "arrow-left"
+                tooltip_text: "Back to translator"
+                on_release: app.close_picker()
+            MDLabel:
+                text: "Offline language packs"
+                font_style: "H6"
+        MDLabel:
+            text: "Download once. Translate on this device with no account, quota or internet."
+            size_hint_y: None
+            height: dp(54)
+            text_size: self.width, None
+        ProgressBar:
+            max: 100
+            value: app.pack_progress
+            size_hint_y: None
+            height: dp(8)
+        MDLabel:
+            text: app.pack_status
+            font_style: "Caption"
+            size_hint_y: None
+            height: dp(44)
+            text_size: self.width, None
+        ScrollView:
+            do_scroll_x: False
+            BoxLayout:
+                id: pack_rows
+                orientation: "vertical"
+                spacing: dp(8)
+                size_hint_y: None
+                height: self.minimum_height
+        MDLabel:
+            text: app.pack_storage
+            font_style: "Caption"
+            size_hint_y: None
+            height: dp(44)
+            text_size: self.width, None
+<SavedScreen>:
+    name: "saved"
+    BoxLayout:
+        orientation: "vertical"
+        padding: dp(20)
+        spacing: dp(12)
+        canvas.before:
+            Color:
+                rgba: 0, 0, 0, 1
+            Rectangle:
+                pos: self.pos
+                size: self.size
+        BoxLayout:
+            size_hint_y: None
+            height: dp(48)
+            ActionIcon:
+                icon: "arrow-left"
+                tooltip_text: "Back to translator"
+                on_release: app.close_picker()
+            MDLabel:
+                text: "Local history / favourites"
+        MDFlatButton:
+            text: "Clear saved"
+            on_release: app.clear_history()
+        ScrollView:
+            BoxLayout:
+                id: saved_items
+                orientation: "vertical"
+                size_hint_y: None
+                height: self.minimum_height
+<ScriptInfoScreen>:
+    name: "alphabet"
+    BoxLayout:
+        orientation: "vertical"
+        padding: dp(20)
+        spacing: dp(12)
+        canvas.before:
+            Color:
+                rgba: 0, 0, 0, 1
+            Rectangle:
+                pos: self.pos
+                size: self.size
+        BoxLayout:
+            size_hint_y: None
+            height: dp(48)
+            ActionIcon:
+                icon: "arrow-left"
+                tooltip_text: "Back to translator"
+                on_release: app.close_picker()
+            MDLabel:
+                text: app.script_heading
+                font_style: "H6"
+        MDLabel:
+            text: app.script_note
+            size_hint_y: None
+            height: dp(60)
+            text_size: self.width, None
+        MDLabel:
+            id: chart_status
+            text: "Select Osmanya as source to insert letters."
+            size_hint_y: None
+            height: dp(48)
+            font_style: "Caption"
+            text_size: self.width, None
+        ScrollView:
+            do_scroll_x: False
+            GridLayout:
+                id: letters
+                cols: 3
+                spacing: dp(12)
+                size_hint_y: None
+                height: self.minimum_height
+        MDLabel:
+            text: "Reference: Unicode 16.0, section 19.2.1. Community validation pending."
+            size_hint_y: None
+            height: dp(40)
+            font_style: "Caption"
+            text_size: self.width, None
+ScreenManager:
+    transition: NoTransition()
+    HomeScreen:
+    PickerScreen:
+    SavedScreen:
+    ScriptInfoScreen:
+    PacksScreen:

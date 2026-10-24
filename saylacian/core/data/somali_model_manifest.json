@@ -1,0 +1,76 @@
+[
+  {
+    "pair": "en_so",
+    "repository": "gaudi/opus-mt-en-mul-ctranslate2",
+    "revision": "89fdef87793d0b4a3860bd4d7c5e4cf77e7575b9",
+    "license": "Apache-2.0",
+    "files": {
+      "config.json": {
+        "sha256": "ca6d4e038e8e3f4388f95cf917a661780ad863283a79cbf86e1e82acd15941e5",
+        "bytes": 197,
+        "generated_json": {
+          "add_source_bos": false,
+          "add_source_eos": false,
+          "bos_token": "<s>",
+          "decoder_start_token": "</s>",
+          "eos_token": "</s>",
+          "layer_norm_epsilon": 1e-05,
+          "unk_token": "<unk>",
+          "model_type": "marian"
+        }
+      },
+      "model.bin": {
+        "sha256": "192367dbcd9c0cb773c5023e854381d169370fd0c545311a6f3d4c2301c048ba",
+        "bytes": 154588381
+      },
+      "shared_vocabulary.json": {
+        "sha256": "643ea935c60168da11240be49e978bfcd8cf5c00fe17e772ddf94548948b40dd",
+        "bytes": 1110521
+      },
+      "source.spm": {
+        "sha256": "9129bf81ef9d5fcc1797ea3061e789dc5f9e5602786b0490238d207d4219e0f5",
+        "bytes": 790473
+      },
+      "target.spm": {
+        "sha256": "6a0a52318dac3247455ec889eb3bd8da9bdf234974be8b9b0f99ad5378f474c9",
+        "bytes": 706659
+      }
+    },
+    "runtimes": {
+      "ctranslate2": "4.8.3",
+      "sentencepiece": "0.2.2"
+    }
+  },
+  {
+    "pair": "so_en",
+    "repository": "gaudi/opus-mt-mul-en-ctranslate2",
+    "revision": "fb574c2082b1a49f89e55064aca6c1fba1125474",
+    "license": "Apache-2.0",
+    "files": {
+      "config.json": {
+        "sha256": "ce02c0c0d02f285d2ff34c80b0867ccb5c4a3b250a275e6d1d2884f5499a6e46",
+        "bytes": 215
+      },
+      "model.bin": {
+        "sha256": "c60e7b8ec6025796779f17029798e3de6f862f0da5bb6cc95ed6fffde7108e1d",
+        "bytes": 154652061
+      },
+      "shared_vocabulary.json": {
+        "sha256": "cfdce5094465eece9a53361286ed393e43ac7abf23ee731f60bb2bf6c376eacd",
+        "bytes": 1114188
+      },
+      "source.spm": {
+        "sha256": "c4a99ea3602b29fbf901ade8b93a45efa3d7c64eab8fc5fa812383efa327a87d",
+        "bytes": 706917
+      },
+      "target.spm": {
+        "sha256": "c6dce5fa58fcd7dde9e81e279b8c075bf42ee558278f73d6fb48e342029d7f19",
+        "bytes": 791194
+      }
+    },
+    "runtimes": {
+      "ctranslate2": "4.8.3",
+      "sentencepiece": "0.2.2"
+    }
+  }
+]

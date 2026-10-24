@@ -1,0 +1,220 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# The recovered first-prototype Saylacian interface layout.
+#:kivy 2.3.1
+#:import MDTextField kivymd.uix.textfield.MDTextField
+#:import MDRaisedButton kivymd.uix.button.MDRaisedButton
+#:import MDLabel kivymd.uix.label.MDLabel
+#:import MDIconButton kivymd.uix.button.MDIconButton
+#:import NoTransition kivy.uix.screenmanager.NoTransition
+#:import Window kivy.core.window.Window
+
+<MainScreen>:
+    name: "first"
+    md_bg_color: [0, 0, 0, 1]
+
+    BoxLayout:
+        orientation: 'vertical'
+        padding: [20, 20, 20, 20]
+        spacing: 20
+
+        MDCard:
+
+            size_hint_y: 0.4
+            md_bg_color: 0.95, 0.95, 0.95, 1
+            radius: [8, 8, 8, 8]
+            padding: 10
+
+                orientation: "vertical"
+                spacing: 5
+
+                FloatLayout:
+                    size_hint_y: 0.9
+
+                    Translator:
+                        id: first_input
+                        multiline: True
+                        hint_text: "Enter text to translate"
+                        font_size: "16sp"
+                        size_hint: 1,1
+                        pos_hint: {"x":0,"y":0}
+
+                    MDIconButton:
+                        icon: "content-copy"
+                        theme_icon_color: "Custom"
+                        icon_color: 0.3,0.3,0.3,1
+                        size_hint: None,None
+                        size: dp(30), dp(30)
+                        pos: self.parent.right - dp(40), self.parent.y - dp(2)
+                        on_press: app.copy_first()
+
+        MDCard:
+            size_hint_y: 0.4
+            elevation: 2
+            md_bg_color: 0.95, 0.95, 0.95, 1
+            radius: [8, 8, 8, 8]
+            padding: 10
+
+
+                orientation: "vertical"
+                spacing: 5
+
+                FloatLayout:
+                    size_hint_y: 0.9
+
+                    Translator:
+                        id: second_input
+                        multiline: True
+                        readonly: True
+                        hint_text: "Translation will appear here"
+                        font_size: "16sp"
+                        font_name: "Fonts/Noto Sans Osmanya.ttf"
+                        size_hint: 1,1
+                        pos_hint: {"x":0,"y":0}
+
+                    MDIconButton:
+                        icon: "content-copy"
+                        theme_icon_color: "Custom"
+                        icon_color: 0.3,0.3,0.3,1
+                        size_hint: None,None
+                        size: dp(30), dp(30)
+                        pos: self.parent.right - dp(40), self.parent.y - dp(2)
+                        on_press: app.copy_second()
+
+
+
+        BoxLayout:
+            size_hint_y: 0.15
+            spacing: 15
+            padding: [10, 0, 10, 0]
+
+            MDRaisedButton:
+                id: btn1
+                text: "English"
+                size_hint_x: 0.4
+                md_bg_color: 0.4, 0.4, 0.4, 1
+                text_color: 1, 1, 1, 1
+                font_size: "14sp"
+                on_press:
+                    root.manager.transition = NoTransition()
+                    app.root.current = "second"
+
+            MDRaisedButton:
+                text: "⇄"
+                size_hint_x: 0.2
+                md_bg_color: 1, 1, 1, 1
+                text_color: 0, 0, 0, 1
+                font_size: "18sp"
+                on_press: app.switch_language(self)
+
+            MDRaisedButton:
+                id: btn2
+                text: "Osmanya"
+                size_hint_x: 0.4
+                md_bg_color: 0.4, 0.4, 0.4, 1
+                text_color: 1, 1, 1, 1
+                font_size: "14sp"
+                on_press:
+                    root.manager.transition = NoTransition()
+                    app.root.current = "second"
+
+
+<SecondWindow>:
+    name: "second"
+    md_bg_color: 0, 0, 0, 1
+
+    FloatLayout:
+        MDRaisedButton:
+            text: "Back"
+            size_hint: 0.15, 0.08
+            pos_hint: {"x": 0.05, "top": 0.95}
+            md_bg_color: 0.4, 0.4, 0.4, 1
+            theme_text_color: "Custom"
+            text_color: 1, 1, 1, 1
+            on_press: app.root.current = "first"
+
+        MDLabel:
+            text: "Translate from"
+            halign: "center"
+            size_hint: None, None
+            size: self.texture_size
+            pos_hint: {"center_x": 0.5, "top": 0.95}
+            theme_text_color: "Custom"
+            text_color: 1, 1, 1, 1
+            font_style: "H5"
+
+        MDCard:
+            size_hint: 0.85, 0.75
+            pos_hint: {"center_x": 0.5, "center_y": 0.45}
+            elevation: 3
+            md_bg_color: 0.1, 0.1, 0.1, 1
+            radius: [10, 10, 10, 10]
+
+            BoxLayout:
+                orientation: 'vertical'
+                padding: [20, 20, 20, 20]
+                spacing: 20
+
+                MDLabel:
+                    text: "Languages:"
+                    size_hint_y: None
+                    height: self.texture_size[1]
+                    theme_text_color: "Custom"
+                    text_color: 0.7, 0.7, 0.7, 1
+                    font_style: "Subtitle1"
+
+                MDRaisedButton:
+                    text: "English"
+                    size_hint_y: None
+                    height: dp(50)
+                    md_bg_color: 0, 0, 0, 1
+                    theme_text_color: "Custom"
+                    text_color: 1, 1, 1, 1
+                    font_size: "16sp"
+
+                MDRaisedButton:
+                    text: "Osmanya"
+                    size_hint_y: None
+                    height: dp(50)
+                    md_bg_color: 0, 0, 0, 1
+                    theme_text_color: "Custom"
+                    text_color: 1, 1, 1, 1
+                    font_size: "16sp"
+
+                MDLabel:
+                    text: "Upcoming:"
+                    size_hint_y: None
+                    height: self.texture_size[1]
+                    theme_text_color: "Custom"
+                    text_color: 0.7, 0.7, 0.7, 1
+                    font_style: "Subtitle1"
+
+                MDRaisedButton:
+                    text: "Borama"
+                    size_hint_y: None
+                    height: dp(50)
+                    md_bg_color: 0, 0, 0, 1
+                    theme_text_color: "Custom"
+                    text_color: 1, 1, 1, 1
+                    font_size: "16sp"
+
+                MDRaisedButton:
+                    text: "Nubian"
+                    size_hint_y: None
+                    height: dp(50)
+                    md_bg_color: 0, 0, 0, 1
+                    theme_text_color: "Custom"
+                    text_color: 1, 1, 1, 1
+                    font_size: "16sp"
+
+                MDRaisedButton:
+                    text: "Kaddare"
+                    size_hint_y: None
+                    height: dp(50)
+                    md_bg_color: 0, 0, 0, 1
+                    theme_text_color: "Custom"
+                    text_color: 1, 1, 1, 1
+                    font_size: "16sp"
+
+MainLayout:
+    MainScreen:
+    SecondWindow:

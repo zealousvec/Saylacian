@@ -1,0 +1,10 @@
+[tool.saylacian]
+project-name = "Saylacian"
+spdx-license-expression = "AGPL-3.0-or-later"
+license-scope = "Saylacian-authored code that the project licensor owns or has the right to license; separately licensed third-party works remain under their own terms."
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+target-version = "py312"

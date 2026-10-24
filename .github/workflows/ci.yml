@@ -1,0 +1,32 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+name: Python checks
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
+      - name: Install app and check dependencies
+        run: python -m pip install -r requirements-dev.txt
+      - name: Compile Python sources
+        run: python -m compileall -q main.py app saylacian tools tests
+      - name: Lint for Python correctness errors
+        run: python -m ruff check --select E9,F63,F7,F82 main.py app saylacian tools tests
+      - name: Check accidental credentials
+        run: python tools/check_release_safety.py
+      - name: Run tests without downloading language packs
+        run: python -m pytest -q

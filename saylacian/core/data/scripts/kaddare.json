@@ -1,0 +1,757 @@
+{
+  "language": "Somali",
+  "record_status": "partial experimental chart-label mapping",
+  "encoding": {
+    "kind": "private-use Unicode",
+    "portable": false,
+    "note": "PUA characters render only with the bundled Saylacian chart font. These are not standardized Unicode encodings."
+  },
+  "review": {
+    "reviewer_status": "unreviewed",
+    "independent_mapping_attestations": 0,
+    "word_level_orthography": "not verified"
+  },
+  "script": "Kaddare",
+  "direction": "left-to-right (1961 Somali Language Committee report, cited in project research notes)",
+  "source": {
+    "title": "Kaddare Alphabet Chart.jpg",
+    "creator": "Jugydmort",
+    "page": "single-page alphabet chart (no printed page number)",
+    "url": "https://commons.wikimedia.org/wiki/File:Kaddare_Alphabet_Chart.jpg",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "modification": "Selected chart forms cropped and converted to a bundled font; labels transcribed as shown."
+  },
+  "mapping_confidence": "The chart explicitly pairs each listed letter label with two glyph forms. This does not establish which form belongs in each word, word-level spelling rules, or a portable encoding.",
+  "unsupported_labels": [],
+  "records": [
+    {
+      "grapheme": "a",
+      "display_label": "LETTER A",
+      "glyph_id": "kaddare.a",
+      "pua": "U+E100",
+      "chart_forms": [
+        {
+          "id": "chart-form-1",
+          "crop": [
+            0,
+            7,
+            40,
+            28
+          ]
+        },
+        {
+          "id": "chart-form-2",
+          "crop": [
+            42,
+            7,
+            48,
+            28
+          ]
+        }
+      ],
+      "confidence": "chart-label only",
+      "reversible_in_subset": true
+    },
+    {
+      "grapheme": "e",
+      "display_label": "LETTER E",
+      "glyph_id": "kaddare.e",
+      "pua": "U+E101",
+      "chart_forms": [
+        {
+          "id": "chart-form-1",
+          "crop": [
+            0,
+            76,
+            40,
+            28
+          ]
+        },
+        {
+          "id": "chart-form-2",
+          "crop": [
+            42,
+            76,
+            48,
+            28
+          ]
+        }
+      ],
+      "confidence": "chart-label only",
+      "reversible_in_subset": true
+    },
+    {
+      "grapheme": "i",
+      "display_label": "LETTER I",
+      "glyph_id": "kaddare.i",
+      "pua": "U+E102",
+      "chart_forms": [
+        {
+          "id": "chart-form-1",
+          "crop": [
+            0,
+            145,
+            40,
+            28
+          ]
+        },
+        {
+          "id": "chart-form-2",
+          "crop": [
+            42,
+            145,
+            48,
+            28
+          ]
+        }
+      ],
+      "confidence": "chart-label only",
+      "reversible_in_subset": true
+    },
+    {
+      "grapheme": "o",
+      "display_label": "LETTER O",
+      "glyph_id": "kaddare.o",
+      "pua": "U+E103",
+      "chart_forms": [
+        {
+          "id": "chart-form-1",
+          "crop": [
+            0,
+            213,
+            40,
+            28
+          ]
+        },
+        {
+          "id": "chart-form-2",
+          "crop": [
+            42,
+            213,
+            48,
+            28
+          ]
+        }
+      ],
+      "confidence": "chart-label only",
+      "reversible_in_subset": true
+    },
+    {
+      "grapheme": "u",
+      "display_label": "LETTER U",
+      "glyph_id": "kaddare.u",
+      "pua": "U+E104",
+      "chart_forms": [
+        {
+          "id": "chart-form-1",
+          "crop": [
+            0,
+            282,
+            40,
+            28
+          ]
+        },
+        {
+          "id": "chart-form-2",
+          "crop": [
+            42,
+            282,
+            48,
+            28
+          ]
+        }
+      ],
+      "confidence": "chart-label only",
+      "reversible_in_subset": true
+    },
+    {
+      "grapheme": "b",
+      "display_label": "LETTER B",
+      "glyph_id": "kaddare.b",
+      "pua": "U+E105",
+      "chart_forms": [
+        {
+          "id": "chart-form-1",
+          "crop": [
+            0,
+            351,
+            40,
+            29
+          ]
+        },
+        {
+          "id": "chart-form-2",
+          "crop": [
+            42,
+            351,
+            48,
+            29
+          ]
+        }
+      ],
+      "confidence": "chart-label only",
+      "reversible_in_subset": true
+    },
+    {
+      "grapheme": "t",
+      "display_label": "LETTER T",
+      "glyph_id": "kaddare.t",
+      "pua": "U+E106",
+      "chart_forms": [
+        {
+          "id": "chart-form-1",
+          "crop": [
+            0,
+            420,
+            40,
+            29
+          ]
+        },
+        {
+          "id": "chart-form-2",
+          "crop": [
+            42,
+            420,
+            48,
+            29
+          ]
+        }
+      ],
+      "confidence": "chart-label only",
+      "reversible_in_subset": true
+    },
+    {
+      "grapheme": "j",
+      "display_label": "LETTER J",
+      "glyph_id": "kaddare.j",
+      "pua": "U+E107",
+      "chart_forms": [
+        {
+          "id": "chart-form-1",
+          "crop": [
+            0,
+            489,
+            40,
+            29
+          ]
+        },
+        {
+          "id": "chart-form-2",
+          "crop": [
+            42,
+            489,
+            48,
+            29
+          ]
+        }
+      ],
+      "confidence": "chart-label only",
+      "reversible_in_subset": true
+    },
+    {
+      "grapheme": "x",
+      "display_label": "LETTER X",
+      "glyph_id": "kaddare.x",
+      "pua": "U+E108",
+      "chart_forms": [
+        {
+          "id": "chart-form-1",
+          "crop": [
+            0,
+            557,
+            40,
+            29
+          ]
+        },
+        {
+          "id": "chart-form-2",
+          "crop": [
+            42,
+            557,
+            48,
+            29
+          ]
+        }
+      ],
+      "confidence": "chart-label only",
+      "reversible_in_subset": true
+    },
+    {
+      "grapheme": "kh",
+      "display_label": "LETTER KH",
+      "glyph_id": "kaddare.kh",
+      "pua": "U+E109",
+      "chart_forms": [
+        {
+          "id": "chart-form-1",
+          "crop": [
+            0,
+            626,
+            40,
+            29
+          ]
+        },
+        {
+          "id": "chart-form-2",
+          "crop": [
+            42,
+            626,
+            48,
+            29
+          ]
+        }
+      ],
+      "confidence": "chart-label only",
+      "reversible_in_subset": true
+    },
+    {
+      "grapheme": "d",
+      "display_label": "LETTER D",
+      "glyph_id": "kaddare.d",
+      "pua": "U+E10A",
+      "chart_forms": [
+        {
+          "id": "chart-form-1",
+          "crop": [
+            0,
+            695,
+            40,
+            29
+          ]
+        },
+        {
+          "id": "chart-form-2",
+          "crop": [
+            42,
+            695,
+            48,
+            29
+          ]
+        }
+      ],
+      "confidence": "chart-label only",
+      "reversible_in_subset": true
+    },
+    {
+      "grapheme": "r",
+      "display_label": "LETTER R",
+      "glyph_id": "kaddare.r",
+      "pua": "U+E10B",
+      "chart_forms": [
+        {
+          "id": "chart-form-1",
+          "crop": [
+            0,
+            764,
+            40,
+            29
+          ]
+        },
+        {
+          "id": "chart-form-2",
+          "crop": [
+            42,
+            764,
+            48,
+            29
+          ]
+        }
+      ],
+      "confidence": "chart-label only",
+      "reversible_in_subset": true
+    },
+    {
+      "grapheme": "s",
+      "display_label": "LETTER S",
+      "glyph_id": "kaddare.s",
+      "pua": "U+E10C",
+      "chart_forms": [
+        {
+          "id": "chart-form-1",
+          "crop": [
+            0,
+            832,
+            40,
+            29
+          ]
+        },
+        {
+          "id": "chart-form-2",
+          "crop": [
+            42,
+            832,
+            48,
+            29
+          ]
+        }
+      ],
+      "confidence": "chart-label only",
+      "reversible_in_subset": true
+    },
+    {
+      "grapheme": "sh",
+      "display_label": "LETTER SH",
+      "glyph_id": "kaddare.sh",
+      "pua": "U+E10D",
+      "chart_forms": [
+        {
+          "id": "chart-form-1",
+          "crop": [
+            360,
+            7,
+            50,
+            28
+          ]
+        },
+        {
+          "id": "chart-form-2",
+          "crop": [
+            412,
+            7,
+            48,
+            28
+          ]
+        }
+      ],
+      "confidence": "chart-label only",
+      "reversible_in_subset": true
+    },
+    {
+      "grapheme": "dh",
+      "display_label": "LETTER DH",
+      "glyph_id": "kaddare.dh",
+      "pua": "U+E10E",
+      "chart_forms": [
+        {
+          "id": "chart-form-1",
+          "crop": [
+            360,
+            76,
+            50,
+            28
+          ]
+        },
+        {
+          "id": "chart-form-2",
+          "crop": [
+            412,
+            76,
+            48,
+            28
+          ]
+        }
+      ],
+      "confidence": "chart-label only",
+      "reversible_in_subset": true
+    },
+    {
+      "grapheme": "c",
+      "display_label": "LETTER C",
+      "glyph_id": "kaddare.c",
+      "pua": "U+E10F",
+      "chart_forms": [
+        {
+          "id": "chart-form-1",
+          "crop": [
+            360,
+            145,
+            50,
+            28
+          ]
+        },
+        {
+          "id": "chart-form-2",
+          "crop": [
+            412,
+            145,
+            48,
+            28
+          ]
+        }
+      ],
+      "confidence": "chart-label only",
+      "reversible_in_subset": true
+    },
+    {
+      "grapheme": "g",
+      "display_label": "LETTER G",
+      "glyph_id": "kaddare.g",
+      "pua": "U+E110",
+      "chart_forms": [
+        {
+          "id": "chart-form-1",
+          "crop": [
+            360,
+            213,
+            50,
+            28
+          ]
+        },
+        {
+          "id": "chart-form-2",
+          "crop": [
+            412,
+            213,
+            48,
+            28
+          ]
+        }
+      ],
+      "confidence": "chart-label only",
+      "reversible_in_subset": true
+    },
+    {
+      "grapheme": "f",
+      "display_label": "LETTER F",
+      "glyph_id": "kaddare.f",
+      "pua": "U+E111",
+      "chart_forms": [
+        {
+          "id": "chart-form-1",
+          "crop": [
+            360,
+            282,
+            50,
+            28
+          ]
+        },
+        {
+          "id": "chart-form-2",
+          "crop": [
+            412,
+            282,
+            48,
+            28
+          ]
+        }
+      ],
+      "confidence": "chart-label only",
+      "reversible_in_subset": true
+    },
+    {
+      "grapheme": "q",
+      "display_label": "LETTER Q",
+      "glyph_id": "kaddare.q",
+      "pua": "U+E112",
+      "chart_forms": [
+        {
+          "id": "chart-form-1",
+          "crop": [
+            360,
+            351,
+            50,
+            29
+          ]
+        },
+        {
+          "id": "chart-form-2",
+          "crop": [
+            412,
+            351,
+            48,
+            29
+          ]
+        }
+      ],
+      "confidence": "chart-label only",
+      "reversible_in_subset": true
+    },
+    {
+      "grapheme": "k",
+      "display_label": "LETTER K",
+      "glyph_id": "kaddare.k",
+      "pua": "U+E113",
+      "chart_forms": [
+        {
+          "id": "chart-form-1",
+          "crop": [
+            360,
+            420,
+            50,
+            29
+          ]
+        },
+        {
+          "id": "chart-form-2",
+          "crop": [
+            412,
+            420,
+            48,
+            29
+          ]
+        }
+      ],
+      "confidence": "chart-label only",
+      "reversible_in_subset": true
+    },
+    {
+      "grapheme": "l",
+      "display_label": "LETTER L",
+      "glyph_id": "kaddare.l",
+      "pua": "U+E114",
+      "chart_forms": [
+        {
+          "id": "chart-form-1",
+          "crop": [
+            360,
+            489,
+            50,
+            29
+          ]
+        },
+        {
+          "id": "chart-form-2",
+          "crop": [
+            412,
+            489,
+            48,
+            29
+          ]
+        }
+      ],
+      "confidence": "chart-label only",
+      "reversible_in_subset": true
+    },
+    {
+      "grapheme": "m",
+      "display_label": "LETTER M",
+      "glyph_id": "kaddare.m",
+      "pua": "U+E115",
+      "chart_forms": [
+        {
+          "id": "chart-form-1",
+          "crop": [
+            360,
+            557,
+            50,
+            29
+          ]
+        },
+        {
+          "id": "chart-form-2",
+          "crop": [
+            412,
+            557,
+            48,
+            29
+          ]
+        }
+      ],
+      "confidence": "chart-label only",
+      "reversible_in_subset": true
+    },
+    {
+      "grapheme": "n",
+      "display_label": "LETTER N",
+      "glyph_id": "kaddare.n",
+      "pua": "U+E116",
+      "chart_forms": [
+        {
+          "id": "chart-form-1",
+          "crop": [
+            360,
+            626,
+            50,
+            29
+          ]
+        },
+        {
+          "id": "chart-form-2",
+          "crop": [
+            412,
+            626,
+            48,
+            29
+          ]
+        }
+      ],
+      "confidence": "chart-label only",
+      "reversible_in_subset": true
+    },
+    {
+      "grapheme": "w",
+      "display_label": "LETTER W",
+      "glyph_id": "kaddare.w",
+      "pua": "U+E117",
+      "chart_forms": [
+        {
+          "id": "chart-form-1",
+          "crop": [
+            360,
+            695,
+            50,
+            29
+          ]
+        },
+        {
+          "id": "chart-form-2",
+          "crop": [
+            412,
+            695,
+            48,
+            29
+          ]
+        }
+      ],
+      "confidence": "chart-label only",
+      "reversible_in_subset": true
+    },
+    {
+      "grapheme": "h",
+      "display_label": "LETTER H",
+      "glyph_id": "kaddare.h",
+      "pua": "U+E118",
+      "chart_forms": [
+        {
+          "id": "chart-form-1",
+          "crop": [
+            360,
+            764,
+            50,
+            29
+          ]
+        },
+        {
+          "id": "chart-form-2",
+          "crop": [
+            412,
+            764,
+            48,
+            29
+          ]
+        }
+      ],
+      "confidence": "chart-label only",
+      "reversible_in_subset": true
+    },
+    {
+      "grapheme": "y",
+      "display_label": "LETTER Y",
+      "glyph_id": "kaddare.y",
+      "pua": "U+E119",
+      "chart_forms": [
+        {
+          "id": "chart-form-1",
+          "crop": [
+            360,
+            832,
+            50,
+            29
+          ]
+        },
+        {
+          "id": "chart-form-2",
+          "crop": [
+            412,
+            832,
+            48,
+            29
+          ]
+        }
+      ],
+      "confidence": "chart-label only",
+      "reversible_in_subset": true
+    }
+  ]
+}
