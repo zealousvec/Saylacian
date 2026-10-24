@@ -108,10 +108,27 @@ def start(app):
                 "title": "French / English",
                 "installed": False,
                 "installed_bytes": 0,
-                "download_bytes": 166,
+                "download_bytes": 5 * 1024 * 1024,
                 "storage_bytes": 1024 * 1024,
             },
         ]
+        saved_mode = app.mode
+        app.mode = "Translate meaning"
+        app.source, app.target = "Somali Latin", "English"
+        app_module = app.__class__.__module__
+        with (
+            patch(f"{app_module}.online_translation_enabled", return_value=False),
+            patch(
+                f"{app_module}.model_directory",
+                side_effect=ValueError(
+                    "No local model installed for this pair. Download its offline language pack first."
+                ),
+            ),
+        ):
+            app.convert("Tijaabo kooban.")
+        assert "Download its offline language pack first" in app.status, app.status
+        assert home.ids.output_text.text == ""
+        app.mode = saved_mode
         with (
             patch.object(app.pack_manager, "list_packs", return_value=pack_rows),
             patch.object(app, "start_pack_download") as start_download,
@@ -119,6 +136,13 @@ def start(app):
             assert app.keyboard(Window, 112, None, 112, ["ctrl"])
             assert app.root.current == "packs"
             assert app.pack_storage.startswith("Using 4 MB.")
+            somali_note = next(
+                widget
+                for widget in app.root.get_screen("packs").ids.pack_rows.walk()
+                if type(widget).__name__ == "MDLabel"
+                and widget.text.startswith("Download 5 MB")
+            )
+            assert "works offline" in somali_note.text
             assert app.keyboard(Window, 274, None, None, ["down"])
             assert app.pack_index == 0
             update_button = next(
@@ -447,6 +471,7 @@ def start(app):
                     "three Borama/Kaddare copy actions",
                     "offline pack cancellation control and request state",
                     "keyboard-only mode, language, offline-pack, safe removal, and pack-update actions",
+                    "missing-pack recovery and estimated offline download guidance",
                     "translator hint contrast, visible keyboard focus, text-scale fit, and compact/wide/short-landscape breakpoints",
                     "Old Nubian reverse alternatives",
                     "Old Nubian paired reading with case and line-break preservation",

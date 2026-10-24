@@ -12,7 +12,7 @@ Move each task among these queues at every milestone. A blocker must name the ex
 
 | Task | Acceptance | Current evidence / next step |
 |---|---|---|
-| Verify missing-pack recovery guidance | Confirm translation failure points to the pack download and the pack screen shows download size and offline use. | Missing-pack product flow is listed as a medium roadmap item; inspect existing behavior and add live acceptance if the copy/action is unclear. |
+| Add manually triggered offline-pack integration verification | Use manifest-pinned pack downloads, installer hash checks and real local inference; keep ordinary CI fast and never upload model weights. | Explicit P1 roadmap task; implement a least-privilege `workflow_dispatch` job and validate its YAML/script locally. |
 
 ### BLOCKED
 
@@ -48,6 +48,7 @@ Move each task among these queues at every milestone. A blocker must name the ex
 | Audit active KivyMD API exposure | `docs/KIVYMD_MIGRATION.md` maps legacy buttons, dialog, text fields, icon buttons and checks to official 2.0 docs. No migration or pin change. |
 | Launch current source from a clean clone without network | Clone at `2db5bef`, run the Kivy app with connections denied and app/Kivy/pack data redirected to a temporary directory. All six screens and both pack manifests loaded; no model downloads. |
 | Recover gracefully from local translation memory pressure | Catch `MemoryError` from the worker and show “Not enough memory… Try a shorter passage or close other apps.” Live Kivy worker test injected the error; the UI displayed the recovery action. Unit tests preserve ValueError details and generic runtime fallback. |
+| Explain missing-pack recovery and long-input limits | Live acceptance confirmed a missing pack directs users to download; pack fixtures show estimated size and “works offline.” Token-limit tests cover generic, Somali marker overhead and synthetic EN→SO routes; all reject over 400 tokens before inference. |
 | Add a visible keyboard-focus ring to translator fields | Blank normal/active backgrounds provided no focus cue. A 2dp black outline now tracks focus; live Kivy acceptance asserted its color/width; captured and inspected rendered screenshot. Contrast against #F2F2F2 card is about 18.8:1. |
 | Prevent enlarged-text clipping on secondary screens | Live Kivy checks at 200% text scale measured label texture against widget height on Home, Packs, Saved, Alphabet/Osmanya and Old Nubian at 360×640 dp and 900×700 dp; all passed. Expanded headings, notes, captions and pack rows to fit rendered text. |
 | Keep Osmanya alphabet usable without a chart image | The repository contains no Osmanya chart asset. The alphabet reference now opens the Unicode letter grid; absent historical chart files show a clear status instead of a broken image. Live 200% check confirmed the grid is populated. |

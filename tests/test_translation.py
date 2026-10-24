@@ -4,8 +4,9 @@
 
 import os
 import unittest
+from pathlib import Path
 from tempfile import TemporaryDirectory
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 from saylacian.core.translation import (
     MODEL_ROOT,
@@ -44,6 +45,89 @@ class TranslationTests(unittest.TestCase):
     def test_length_limit(self):
         with self.assertRaises(ValueError):
             translate_meaning("a" * 4001, "English", "French")
+
+    def test_token_limit_rejects_without_model_inference(self):
+        with TemporaryDirectory() as temporary:
+            model = Path(temporary) / "en_fr"
+            (model / "model").mkdir(parents=True)
+            (model / "model" / "model.bin").touch()
+            (model / "sentencepiece.model").touch()
+            tokenizer = Mock()
+            tokenizer.encode.return_value = ["piece"] * 401
+            engine = Mock()
+
+            with (
+                patch(
+                    "saylacian.core.translation.load_model",
+                    return_value=(tokenizer, engine),
+                ),
+                self.assertRaisesRegex(ValueError, "400-token limit"),
+            ):
+                translate_meaning(
+                    "small enough by characters", "English", "French", temporary
+                )
+
+            engine.translate_batch.assert_not_called()
+
+    def test_somali_token_limit_includes_language_markers(self):
+        with TemporaryDirectory() as temporary:
+            folder = Path(temporary) / "somali" / "so_en"
+            folder.mkdir(parents=True)
+            for filename in (
+                "model.bin",
+                "config.json",
+                "shared_vocabulary.json",
+                "source.spm",
+                "target.spm",
+            ):
+                (folder / filename).touch()
+            source_tokenizer = Mock()
+            source_tokenizer.encode.return_value = ["piece"] * 399
+            target_tokenizer = Mock()
+            engine = Mock()
+
+            with (
+                patch(
+                    "saylacian.core.translation.load_model",
+                    return_value=((source_tokenizer, target_tokenizer), engine),
+                ),
+                self.assertRaisesRegex(ValueError, "400-token limit"),
+            ):
+                translate_meaning("short passage", "Somali Latin", "English", temporary)
+
+            engine.translate_batch.assert_not_called()
+
+    def test_synthetic_somali_token_limit_rejects_before_inference(self):
+        with TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            model = root / "somali" / "en_so"
+            model.mkdir(parents=True)
+            for filename in (
+                "model.bin",
+                "config.json",
+                "shared_vocabulary.json",
+                "source.spm",
+                "target.spm",
+            ):
+                (model / filename).touch()
+            synthetic = root / "somali" / "en_so_synthetic"
+            synthetic.mkdir()
+            (synthetic / "model.bin").touch()
+            source_tokenizer = Mock()
+            source_tokenizer.encode.return_value = ["piece"] * 401
+            target_tokenizer = Mock()
+            engine = Mock()
+
+            with (
+                patch(
+                    "saylacian.core.translation.load_model",
+                    return_value=((source_tokenizer, target_tokenizer), engine),
+                ),
+                self.assertRaisesRegex(ValueError, "400-token limit"),
+            ):
+                translate_meaning("short passage", "English", "Somali Latin", temporary)
+
+            engine.translate_batch.assert_not_called()
 
     @unittest.skipUnless(
         (MODEL_ROOT / "en_fr/model/model.bin").exists(), "Local model not installed"

@@ -8,12 +8,12 @@ Repository: the current checkout of `zealousvec/Saylacian`
 Branch: `main`
 Public `origin/main`: `c4f2f87270c22a05e772816ce98e57a99b871b18`
 Public CI: run `40087020450` passed on that commit.
-Latest local source checkpoint: `2db5bef` (`fix: fit text in script screens`); public `main` remains `c4f2f87270c22a05e772816ce98e57a99b871b18`. No push has occurred.
-Preserve the pre-existing user edits in `docs/PROJECT_STATUS.md` and `docs/TECHNICAL_AUDIT.md`; do not stage or rewrite them. Current uncommitted implementation adds a translation-memory recovery message; stage only reviewed project files.
+Latest local source checkpoint: `8acd57f` (`fix: explain translation memory failures`); public `main` remains `c4f2f87270c22a05e772816ce98e57a99b871b18`. No push has occurred.
+Preserve the pre-existing user edits in `docs/PROJECT_STATUS.md` and `docs/TECHNICAL_AUDIT.md`; do not stage or rewrite them. Current uncommitted work adds live missing-pack recovery acceptance and token-boundary regression tests; stage only reviewed project files.
 
 ## Current milestone — memory recovery and rendering blocker (2026-10-24)
 
-The translation worker now catches `MemoryError` and shows an actionable shorter-passage/close-apps recovery message. Live Kivy worker injection displayed the expected status; presentation unit tests preserve explicit `ValueError` and generic runtime messages. Latest suite: 98 passed / 148 subtests. Re-run formatting, lint, compilation, `pip check`, release scan and live `--self-test` before the next commit.
+The translation worker catches `MemoryError` and shows an actionable shorter-passage/close-apps recovery message. Live Kivy worker injection displayed the expected status. The live app acceptance also verifies missing-pack recovery, clears stale output, and confirms the pack fixture communicates estimated size/offline use. Token-boundary tests cover standard models, Somali language-marker overhead, and synthetic EN→SO; every over-limit case rejects before inference. Full suite: 101 passed / 148 subtests; Ruff, formatting, compileall, `pip check`, release safety, live Kivy `--self-test`, and injected-memory check passed.
 
 The compact SDL2 screenshot task is BLOCKED: `Window.screenshot` generated an all-black 450×800 px frame for a 360×640 dp viewport. Widget geometry at 200% font scale remains verified, but pixel review is not. Exact resolution: run through a validated isolated virtual display or known-good OpenGL/SDL screenshot path and capture the compact viewport. Keep this in BLOCKED, not READY.
 
@@ -23,7 +23,7 @@ Clean clone of `2db5bef` launched all six screens with socket networking denied,
 
 ### Current queues
 
-- ACTIVE: verify that a missing offline pack failure tells users how to obtain it and that the pack screen shows the download size/offline benefit.
+- ACTIVE: add a manual offline-pack integration workflow using manifest hashes and real inference; this is explicitly listed in `docs/DEVELOPMENT_ROADMAP.md`.
 - BLOCKED: DBMNT reuse needs written rights and qualified review (owner approval before outreach); Somali translation needs owner-approved consent-based fluent-speaker review; screen-reader claims need a manual Narrator/NVDA run; compact pixel review needs a functioning isolated capture environment as specified above.
 - READY: rerun the 200% compact/wide text-fit check after future layout or copy changes.
 
@@ -57,8 +57,8 @@ Live Kivy evidence: `%TEMP%\Saylacian-Autonomous-20261024-final`. `result.json` 
 
 ## Next three tasks
 
-1. Verify the actual missing-pack error and download guidance in a live app; do not trigger downloads.
-2. Continue the next highest-impact READY product task; keep DBMNT, Somali human review, screen reader and compact screenshot capture BLOCKED with exact resolution actions.
+1. Implement and locally validate the manual manifest-pinned model-pack integration workflow; do not trigger a hosted run.
+2. Continue the next highest-impact READY task; keep DBMNT, Somali human review, screen reader and compact screenshot capture BLOCKED with exact resolution actions.
 3. Re-run UI text-fit acceptance after future UI copy/layout changes; do not describe the all-black compact capture as visual proof.
 
 ## Verification for latest milestone
