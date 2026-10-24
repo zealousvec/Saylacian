@@ -1233,11 +1233,12 @@ class SaylacianApp(MDApp):
 
     def _update_saved_cursor(self):
         screen = self.root.get_screen("saved")
-        for index, (item, button) in enumerate(
-            zip(self.saved_options, screen.ids.saved_items.children[::-1])
-        ):
+        buttons = screen.ids.saved_items.children[::-1]
+        for index, (item, button) in enumerate(zip(self.saved_options, buttons)):
             label = ("Favourite: " if item["favourite"] else "") + item["text"][:42]
             button.text = ("› " if index == self.saved_index else "") + label
+        if 0 <= self.saved_index < len(buttons):
+            screen.ids.saved_scroll.scroll_to(buttons[self.saved_index], animate=False)
 
     def restore_saved(self, item):
         self.mode = item.get("mode", "Convert writing system")
