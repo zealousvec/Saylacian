@@ -56,6 +56,30 @@ def alphabet_entries(query: str = "") -> tuple[dict[str, object], ...]:
     return tuple(rows)
 
 
+def describe_combining_marks(text: str, limit: int = 6) -> str:
+    """Describe preserved marks for display without assigning reading rules."""
+    if not isinstance(text, str):
+        raise TypeError("Old Nubian text must be a string.")
+    if not isinstance(limit, int) or isinstance(limit, bool) or limit < 1:
+        raise ValueError("Mark detail limit must be a positive integer.")
+    marks = [
+        (index, character)
+        for index, character in enumerate(text, start=1)
+        if unicodedata.category(character).startswith("M")
+    ]
+    if not marks:
+        return ""
+    details = [
+        f"U+{ord(character):04X} {unicodedata.name(character, 'UNNAMED MARK')} "
+        f"(code point {index})"
+        for index, character in marks[:limit]
+    ]
+    omitted = len(marks) - len(details)
+    if omitted:
+        details.append(f"and {omitted} more")
+    return "Display note only; no reading rule applied. " + "; ".join(details)
+
+
 def make_reading_record(original: str) -> ReadingRecord:
     """Create line-paired character readings without claiming a translation."""
     if not isinstance(original, str):

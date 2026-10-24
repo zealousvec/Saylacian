@@ -233,6 +233,14 @@ class CoreTests(unittest.TestCase):
         )
         self.assertEqual(mark_result.text, marks)
 
+    def test_old_nubian_reading_preserves_original_combining_mark_order(self):
+        marks = "ⲁ\u0301\u0323"
+        result = transliterate(
+            marks, "Old Nubian (Coptic)", "Old Nubian scholarly Latin"
+        )
+        self.assertEqual(result.text, "a\u0301\u0323")
+        self.assertNotEqual(result.text, unicodedata.normalize("NFC", result.text))
+
     def test_old_nubian_reverse_and_ambiguity_notice(self):
         result = transliterate(
             "ng, ny! dj", "Old Nubian scholarly Latin", "Old Nubian (Coptic)"

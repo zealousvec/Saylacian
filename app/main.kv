@@ -437,7 +437,15 @@
                     readonly: True
                     size_hint_y: None
                     height: dp(110)
+                    font_name: app.font_for("Old Nubian (Coptic)")
                     font_size: "18sp"
+                MDLabel:
+                    id: reader_mark_details
+                    text: app.reader_mark_details
+                    size_hint_y: None
+                    height: 0 if not self.text else self.texture_size[1] + dp(8)
+                    font_style: "Caption"
+                    text_size: self.width, None
                 MDLabel:
                     text: app.reader_status
                     size_hint_y: None

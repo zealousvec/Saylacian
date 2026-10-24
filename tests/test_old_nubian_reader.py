@@ -5,6 +5,7 @@ import unittest
 from saylacian.core.old_nubian_reader import (
     FORMAT,
     alphabet_entries,
+    describe_combining_marks,
     export_reading_record,
     import_reading_record,
     make_reading_record,
@@ -12,6 +13,29 @@ from saylacian.core.old_nubian_reader import (
 
 
 class OldNubianReaderTests(unittest.TestCase):
+    def test_mark_details_name_marks_and_show_original_code_point_positions(self):
+        self.assertEqual(
+            describe_combining_marks("ⲁ⳯⳰⳱"),
+            "Display note only; no reading rule applied. "
+            "U+2CEF COPTIC COMBINING NI ABOVE (code point 2); "
+            "U+2CF0 COPTIC COMBINING SPIRITUS ASPER (code point 3); "
+            "U+2CF1 COPTIC COMBINING SPIRITUS LENIS (code point 4)",
+        )
+
+    def test_mark_details_are_empty_without_combining_marks(self):
+        self.assertEqual(describe_combining_marks("ⲁab!"), "")
+
+    def test_mark_details_limit_long_runs(self):
+        details = describe_combining_marks("ⲁ" + "⳯" * 8, limit=2)
+        self.assertIn("code point 2", details)
+        self.assertIn("code point 3", details)
+        self.assertIn("and 6 more", details)
+        self.assertNotIn("code point 4", details)
+
+    def test_mark_details_reject_invalid_limit(self):
+        with self.assertRaises(ValueError):
+            describe_combining_marks("⳯", limit=0)
+
     def test_alphabet_is_limited_to_cited_entries_and_searchable(self):
         entries = alphabet_entries()
         self.assertEqual(len(entries), 34)

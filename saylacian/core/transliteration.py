@@ -254,7 +254,7 @@ def transliterate(text: str, source: str, target: str) -> Conversion:
         warnings = []
         preserved_marks = False
         preserved_punctuation = False
-        for char in unicodedata.normalize("NFC", text):
+        for char in text:
             if char in OLD_NUBIAN_CASED_TO_LATIN:
                 output.append(OLD_NUBIAN_CASED_TO_LATIN[char])
             else:
@@ -267,7 +267,7 @@ def transliterate(text: str, source: str, target: str) -> Conversion:
                     preserved_punctuation |= category.startswith("P")
         if preserved_marks:
             warnings.append(
-                "Combining marks are preserved but may not render with Latin text; no reading rule is applied."
+                "Combining marks are preserved; their reading and placement with Latin are not interpreted."
             )
         if preserved_punctuation:
             warnings.append("Coptic punctuation is preserved without interpretation.")

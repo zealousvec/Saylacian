@@ -71,6 +71,7 @@ from saylacian.core.language_detection import detect_language
 from saylacian.core.model_packs import ModelPackManager
 from saylacian.core.old_nubian_reader import (
     alphabet_entries,
+    describe_combining_marks,
     export_reading_record,
     import_reading_record,
     make_reading_record,
@@ -192,6 +193,7 @@ class SaylacianApp(MDApp):
     script_heading = StringProperty("Osmanya alphabet")
     script_note = StringProperty("Select Osmanya as source to insert letters.")
     reader_status = StringProperty("Choose a cited letter or enter a passage to read.")
+    reader_mark_details = StringProperty("")
     reader_detail = StringProperty("Select a letter to see its code point and source.")
     reader_selected_glyph = StringProperty("")
     pack_status = StringProperty("Installed packs work offline.")
@@ -689,6 +691,11 @@ class SaylacianApp(MDApp):
     def refresh_fonts(self):
         self.input_font = self.font_for(self.source)
         self.output_font = self.font_for(self.target)
+        if self.mode == "Convert writing system" and {
+            self.source,
+            self.target,
+        }.issuperset({"Old Nubian (Coptic)", "Old Nubian scholarly Latin"}):
+            self.output_font = self.font_for("Old Nubian (Coptic)")
         if self.root:
             home = self.root.get_screen("home")
             home.ids.input_text.font_name = self.input_font
@@ -1029,9 +1036,11 @@ class SaylacianApp(MDApp):
             record = make_reading_record(studio.ids.reader_original.text)
         except ValueError as error:
             studio.ids.reader_latin.text = ""
+            self.reader_mark_details = ""
             self.reader_status = str(error)
             return
         studio.ids.reader_latin.text = record.latin
+        self.reader_mark_details = describe_combining_marks(record.original)
         self.reader_status = (
             "Limited character reading · "
             + record.convention

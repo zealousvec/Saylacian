@@ -9,7 +9,7 @@ Branch: `main`
 Public `origin/main`: `c4f2f87270c22a05e772816ce98e57a99b871b18`
 Public CI: run `40087020450` passed on that commit.
 Latest committed source checkpoint: `5030cd0` (`fix: contain model pack paths`); public `main` remains at `c4f2f87270c22a05e772816ce98e57a99b871b18`. No push has occurred.
-Preserve the pre-existing user edits in `docs/PROJECT_STATUS.md` and `docs/TECHNICAL_AUDIT.md`; do not stage or rewrite them. Latest verified milestone confines pack pointers/versions/assets and records exact external clipboard test blocker; next ACTIVE is Old Nubian mark visibility.
+Preserve the pre-existing user edits in `docs/PROJECT_STATUS.md` and `docs/TECHNICAL_AUDIT.md`; do not stage or rewrite them. Latest verified milestone confines pack pointers/versions/assets and records exact external clipboard test blocker. Old Nubian mark display is improved and tested; next ACTIVE is short-text language detection audit from the roadmap.
 
 ## Current milestone — memory recovery and rendering blocker (2026-10-24)
 
@@ -285,6 +285,12 @@ A reproducible traversal test showed `ModelPackManager.active_model_roots()` acc
 
 `docs/UPDATE_ARCHITECTURE.md` now records the trust boundary and keeps app self-updates separate and disabled. Full suite: 116 passed, 2 symlink tests skipped because Windows denied symlink creation. Ruff check/format (103 files), compileall, `pip check`, release safety scan, `git diff --check`, pinned Somali pack integrity recheck, both offline smoke directions, and isolated fresh-environment Kivy launch passed. No remote writes or real user pack/data changes.
 
-- ACTIVE: inspect Old Nubian Reading Studio mark visibility using current Unicode/source evidence; display-only changes must preserve input code points and have rendered Kivy verification.
+- ACTIVE: audit short-text language detection using labeled test data and current roadmap acceptance; preserve abstention when evidence does not support a language label.
 - BLOCKED: Old Nubian table expansion still needs DBMNT reuse terms and qualified review (owner approval before outreach); Somali linguistic quality needs owner-approved, consent-based fluent-speaker assessment; screen-reader behavior needs observed Narrator/NVDA announcements; compact pixels need validated isolated graphics capture; hosted pack workflow needs push approval.
-- READY: none additional until the Old Nubian display investigation yields a concrete, testable issue.
+- READY: none additional until the short-text detection audit identifies a concrete independent acceptance task.
+
+## 2026-10-24 — Old Nubian combining-mark readability
+
+The Old Nubian forward route no longer normalizes to NFC, preserving combining-mark order. Both translator output and Reading Studio Latin output use the bundled Noto Sans Coptic font. Reading Studio adds a display-only note with Unicode names and one-based code-point positions; it assigns no linguistic reading. Tests verify converted text, mark order, metadata and font selection. Live Kivy self-test passed; screenshot is `%TEMP%\saylacian-oldnubian-mark-20261024\evidence-final\old-nubian-reading-studio0001.png`. The screenshot shows the reading and mark note, but SDL capture omits some widgets; correct mark attachment in Latin context remains unverified. Full suite: `121 passed, 2 skipped`; Ruff, format, compileall, `pip check`, release safety and diff checks pass.
+
+Queue reconciliation: **ACTIVE** short-text language-detection audit, using existing roadmap acceptance and labeled tests; **BLOCKED** DBMNT reuse (written terms plus qualified review; owner approval before outreach), Somali quality (owner-approved consent-based fluent review), screen-reader behavior (manual Narrator/NVDA), compact pixels (validated isolated capture path), external clipboard interoperability (disposable VM with sharing disabled), hosted workflow (push approval then manual dispatch). **READY:** none additionally queued. Preserve owner's pre-existing edits in `docs/PROJECT_STATUS.md` and `docs/TECHNICAL_AUDIT.md`; no push or external action.

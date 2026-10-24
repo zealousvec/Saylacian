@@ -417,8 +417,8 @@ def start(app):
         app.refresh_fonts()
         home.ids.input_text.text = "ⲀⲂⲄ\nⳜⳞⳠⳢ\nⲁ⳯⳰⳱"
         assert home.ids.output_text.text == "ABG\nJNGNYW\na⳯⳰⳱"
-        assert home.ids.output_text.font_name == "Roboto"
-        assert "may not render with Latin text" in app.status
+        assert home.ids.output_text.font_name == app.font_for("Old Nubian (Coptic)")
+        assert "placement with Latin are not interpreted" in app.status
         app.open_picker("target")
         app.filter_languages("Old Nubian")
         assert any(
@@ -552,6 +552,10 @@ def start(app):
         app.open_old_nubian_studio()
         studio = app.root.get_screen("old_nubian_studio")
         assert studio.ids.reader_latin.text == "ABG\nJNGNYW\na⳯⳰⳱"
+        assert studio.ids.reader_latin.font_name == app.font_for("Old Nubian (Coptic)")
+        assert "U+2CEF COPTIC COMBINING NI ABOVE" in app.reader_mark_details
+        assert "code point 11" in app.reader_mark_details
+        assert studio.ids.reader_mark_details.height > 0
         studio.ids.alphabet_search.text = "2cdf"
         assert len(studio.ids.reader_alphabet.children) == 1
         studio.ids.reader_alphabet.children[0].trigger_action(duration=0)
