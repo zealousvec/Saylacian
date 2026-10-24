@@ -6,7 +6,7 @@ import os
 import threading
 import time
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 from kivy.clock import Clock
 from kivy.core.window import Window
@@ -322,6 +322,28 @@ def start(app):
         ), repr(chart_status)
         app.root.current = "home"
 
+        failed_download = Mock()
+        failed_download.result.side_effect = OSError("C:\\private\\pack.zip")
+        app.pack_busy = True
+        app.pack_cancel_event = threading.Event()
+        with patch.object(app, "refresh_pack_screen"):
+            app.finish_pack_download(failed_download, "somali")
+        assert app.pack_status == (
+            "Download failed. Check your connection and available storage, then try again."
+        )
+        failed_dialog = Mock()
+        with (
+            patch.object(
+                app.pack_manager, "remove", side_effect=OSError("C:\\private\\packs")
+            ),
+            patch.object(app, "refresh_pack_screen"),
+        ):
+            app.remove_pack(failed_dialog, "somali")
+        assert app.pack_status == (
+            "Could not remove the pack. Close Saylacian and try again."
+        )
+        assert failed_dialog.dismiss.called
+
         app.mode = "Convert writing system"
         app.source, app.target = "Old Nubian (Coptic)", "Old Nubian scholarly Latin"
         app.open_old_nubian_studio()
@@ -565,6 +587,7 @@ def start(app):
                     "plain Somali translation caution in the live status label",
                     "clear chart-image recovery guidance in the alphabet screen",
                     "limited-coverage wording in the Old Nubian Latin-reading picker",
+                    "safe recovery guidance for pack download and removal failures",
                 ]
                 (folder / "result.json").write_text(
                     json.dumps(

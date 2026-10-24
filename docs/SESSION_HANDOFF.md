@@ -1,10 +1,10 @@
 # Session handoff
 
-## Latest milestone — translation warning clarity (2026-10-24)
+## Latest milestone — route and pack status usability (2026-10-24)
 
 User-facing route warnings no longer expose internal terms such as “synthetic candidate,” “multilingual fallback,” or “human review pending.” Somali output retains a clear accuracy caution; Somali/French pivot warns meaning may change. Added unit and website regressions plus live Kivy assertion for the status label. Full suite: 127 passed, 2 skipped, 197 subtests. Ruff, format (105 files), compileall, `pip check`, release scan, `git diff --check`, and isolated Kivy self-test pass. Local UI acceptance output: `Bonjour, comment allez-vous ?`.
 
-Completed the visible chart and Old Nubian picker copy checks: users can distinguish a missing chart image from limited conversion, and the Latin-reading picker does not imply scholarly validation. Live Kivy self-test passed. Next ACTIVE: audit pack-download/removal failure messages for actionable, nontechnical wording. Short-input accuracy remains BLOCKED until a licensed, independently labelled natural short-phrase set or owner-approved review is available. DBMNT-derived expansion, Somali specialist quality review, screen-reader run, compact pixel capture, external-app clipboard and hosted workflow have their existing exact blockers in `docs/IMPLEMENTATION_PROGRESS.md`. Preserve owner changes to `docs/PROJECT_STATUS.md` and `docs/TECHNICAL_AUDIT.md`; no push.
+Completed visible chart and Old Nubian picker copy checks; users can distinguish missing artwork from limited conversion, and the Latin-reading picker does not imply scholarly validation. Pack download/removal errors now avoid local-path leakage, preserve integrity/security failures and give recovery steps. Unit and isolated live Kivy checks pass; failure cases used stubs only. Final full suite: 129 passed, 2 skipped, 197 subtests; Ruff/format, compileall, `pip check`, release scan and diff check pass. Short-input accuracy remains BLOCKED until a licensed, independently labelled natural short-phrase set or owner-approved review is available. DBMNT-derived expansion, Somali specialist quality review, screen-reader run, compact pixel capture, external-app clipboard and hosted workflow have their existing exact blockers in `docs/IMPLEMENTATION_PROGRESS.md`. Preserve owner changes to `docs/PROJECT_STATUS.md` and `docs/TECHNICAL_AUDIT.md`; no push.
 
 ## Resume point
 

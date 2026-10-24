@@ -7,6 +7,8 @@ import unittest
 from saylacian.core.capabilities import list_capabilities
 from saylacian.core.presentation import (
     display_name,
+    pack_download_error_message,
+    pack_removal_error_message,
     picker_choices,
     translation_error_message,
 )
@@ -25,6 +27,42 @@ class PresentationTests(unittest.TestCase):
         self.assertEqual(
             translation_error_message(RuntimeError()),
             "Could not translate. Check your connection or installed language packs.",
+        )
+
+    def test_pack_download_errors_preserve_integrity_and_guide_recovery(self):
+        self.assertEqual(
+            pack_download_error_message(
+                ValueError("Model file failed size/SHA-256 verification: model.bin")
+            ),
+            "The downloaded pack failed an integrity check. Try downloading it again.",
+        )
+        self.assertEqual(
+            pack_download_error_message(OSError("C:\\Users\\private\\pack.zip")),
+            "Download failed. Check your connection and available storage, then try again.",
+        )
+        self.assertEqual(
+            pack_download_error_message(
+                ValueError("Model pack manifest contains an untrusted download host.")
+            ),
+            "Model pack manifest contains an untrusted download host.",
+        )
+
+    def test_pack_removal_errors_are_safe_and_actionable(self):
+        self.assertEqual(
+            pack_removal_error_message(OSError("C:\\Users\\private\\packs")),
+            "Could not remove the pack. Close Saylacian and try again.",
+        )
+        self.assertEqual(
+            pack_removal_error_message(
+                ValueError(
+                    "Language pack path escaped the configured storage directory."
+                )
+            ),
+            "Pack files are outside the expected folder. Removal stopped for safety.",
+        )
+        self.assertEqual(
+            pack_removal_error_message(ValueError("Unknown language pack.")),
+            "This pack is no longer available. Refresh the pack list and try again.",
         )
 
     def test_concise_labels_keep_route_names_internal(self):

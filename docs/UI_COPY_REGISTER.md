@@ -28,6 +28,8 @@ Visible wording reviewed across the approved Kivy screens, dialogs, picker, hist
 | KivyMD warning | 1.2.0 startup deprecation notice | Document current pin and low-risk isolated 2.0.0 migration gate | No framework upgrade or UI redesign |
 | Translation status warnings | Internal candidate, fallback, and pending-review language | `Somali translation may be inaccurate; check important details.`; plain fallback reasons; explicit pivot note | Removes implementation jargon while keeping quality limits visible; unit, website, and live Kivy checks pass |
 
+| Pack download/removal errors | Raw OS exception text and local paths | Integrity/security failures stay explicit; network, storage and removal failures give recovery steps without machine paths | Unit and live Kivy failure-injection checks pass; no real pack operation performed |
+
 ## Remaining
 
-Review pack-download/removal failure messages for actionable wording and accidental local-path leakage. Audit new visible strings whenever UI functionality changes. Do not remove limitation statements; keep detailed explanation in focused docs. Repository description, topics and security settings remain owner-controlled.
+The audited route, chart, Old Nubian picker and pack error paths have direct regression or live UI checks. Revisit visible text whenever UI functionality changes. Do not remove limitation statements; keep detailed explanation in focused docs. Repository description, topics and security settings remain owner-controlled.

@@ -3,6 +3,8 @@
 
 from __future__ import annotations
 
+import zipfile
+
 DISPLAY_NAMES = {
     "Detect language/script": "Detect",
     "Somali Latin": "Somali",
@@ -54,6 +56,33 @@ def picker_choices(capabilities, mode: str) -> list[tuple[str, str]]:
             for name in ("Borama", "Kaddare")
         )
     return choices
+
+
+def pack_download_error_message(error: Exception) -> str:
+    """Show recovery guidance without exposing local paths or hiding integrity failures."""
+    if isinstance(error, ValueError):
+        details = str(error)
+        integrity_terms = ("sha-256", "checksum", "integrity", "unexpected size")
+        if any(term in details.casefold() for term in integrity_terms):
+            return "The downloaded pack failed an integrity check. Try downloading it again."
+        return details
+    if isinstance(error, zipfile.BadZipFile):
+        return "The downloaded pack is damaged or incomplete. Try downloading it again."
+    if isinstance(error, OSError):
+        return "Download failed. Check your connection and available storage, then try again."
+    return (
+        "Could not install the pack. Close other apps using its files, then try again."
+    )
+
+
+def pack_removal_error_message(error: Exception) -> str:
+    """Explain safe pack-removal failures without displaying machine-specific paths."""
+    details = str(error)
+    if isinstance(error, ValueError) and "escaped" in details.casefold():
+        return "Pack files are outside the expected folder. Removal stopped for safety."
+    if isinstance(error, ValueError) and "unknown language pack" in details.casefold():
+        return "This pack is no longer available. Refresh the pack list and try again."
+    return "Could not remove the pack. Close Saylacian and try again."
 
 
 def translation_error_message(error: Exception) -> str:

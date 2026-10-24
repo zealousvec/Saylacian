@@ -82,6 +82,8 @@ from saylacian.core.online_translation import (
 )
 from saylacian.core.presentation import (
     display_name,
+    pack_download_error_message,
+    pack_removal_error_message,
     picker_choices,
     translation_error_message,
 )
@@ -552,7 +554,7 @@ class SaylacianApp(MDApp):
         except InterruptedError:
             self.pack_status = "Download cancelled. No partial pack was installed."
         except (OSError, RuntimeError, ValueError, zipfile.BadZipFile) as error:
-            self.pack_status = f"Download stopped: {error}"
+            self.pack_status = pack_download_error_message(error)
         else:
             self.pack_progress = 100
             title = self.pack_manager.specs[pack_id]["title"]
@@ -600,7 +602,7 @@ class SaylacianApp(MDApp):
         try:
             self.pack_manager.remove(pack_id)
         except (OSError, ValueError) as error:
-            self.pack_status = f"Could not remove pack: {error}"
+            self.pack_status = pack_removal_error_message(error)
         else:
             self.pack_status = "Offline pack removed."
         self.refresh_pack_screen()

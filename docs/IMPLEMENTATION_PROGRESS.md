@@ -10,7 +10,7 @@ Move each task among these queues at every milestone. A blocker must name the ex
 
 ### ACTIVE
 
-Audit pack-download and removal error statuses for user-facing clarity while preserving useful recovery details; add focused regressions and live Kivy acceptance.
+Reconcile the master directive, roadmap, and acceptance gaps for the next independent READY task. Do not invent filler work if none is actionable.
 
 ### BLOCKED
 
@@ -28,14 +28,15 @@ Audit pack-download and removal error statuses for user-facing clarity while pre
 
 | Order | Task | Acceptance |
 |---|---|---|
-No separate READY item while the visible copy audit is ACTIVE. Once complete, reconcile product roadmap and acceptance gaps before selecting the next item. Do not move specialist/permission tasks into READY.
+None after verified route, chart, Old Nubian picker, and pack-error improvements. Reassess the roadmap when evidence, permissions, or resources change; do not move blocked work into READY.
 
 ### VERIFIED
 
 | Task | Evidence |
 |---|---|
-| Make translation status warnings understandable | Replaced internal model terms and review-workflow wording with short user-facing notices for synthetic Somali output, multilingual Somali/French pivots, fallback reasons, removed markers, and local English/French output. Translation and website tests assert wording; live Kivy self-test confirms the Somali caution appears in the status label. Full suite: 127 passed, 2 skipped, 197 subtests; Ruff, formatting, compileall, pip check, release-safety scan, and diff check passed. This improves clarity, not translation quality. |
-| Clarify script-reference and Old Nubian picker limits | Missing chart images now state users can still enter text for limited conversion; Old Nubian Latin route is labelled `Limited character readings`, matching its 34-entry coverage. Unit assertions and isolated live Kivy checks verify both user-visible labels. Full suite remains 127 passed, 2 skipped, 197 subtests; Ruff/format, compileall, `pip check`, release safety, and diff checks pass. |
+| Make translation status warnings understandable | Replaced internal model terms and review-workflow wording with short user-facing notices for synthetic Somali output, multilingual Somali/French pivots, fallback reasons, removed markers, and local English/French output. Translation and website tests assert wording; live Kivy self-test confirms the Somali caution appears in the status label. Full suite at first milestone: 127 passed, 2 skipped, 197 subtests; subsequent full suite after copy/error fixes: 129 passed, 2 skipped, 197 subtests. Ruff, formatting, compileall, pip check, release-safety scan, and diff check passed. This improves clarity, not translation quality. |
+| Clarify script-reference and Old Nubian picker limits | Missing chart images now state users can still enter text for limited conversion; Old Nubian Latin route is labelled `Limited character readings`, matching its 34-entry coverage. Unit assertions and isolated live Kivy checks verify both user-visible labels. Full suite: 129 passed, 2 skipped, 197 subtests; Ruff/format, compileall, `pip check`, release safety, and diff checks pass. |
+| Make offline-pack failure statuses actionable and private | Download/removal errors no longer expose raw OS exception paths. Integrity and manifest-host failures remain explicit; ordinary network/storage and removal errors offer recovery steps. Unit tests cover integrity, unsafe host/path, unknown pack and private-path cases; live Kivy acceptance injects failures through the UI handlers without deleting packs or downloading. Full suite: 129 passed, 2 skipped, 197 subtests; quality gates pass. |
 | Preserve saved history and provide safe recovery | JSON decode/schema errors are distinguished from unknown future versions. A confirmation defaults to KEEP; BACK UP & START FRESH writes a unique durable byte-for-byte backup before atomic reset. Tests prove backup, refusal for valid/future data, and preservation if reset fails. Live Kivy acceptance covers keep, recover, visible confirmation and re-opening Saved. Full suite: 112 passed, 188 subtests; Ruff, format, compileall, `pip check`, and diff checks pass. |
 | Keep SentencePiece unknown markers out of the synthetic Somali candidate route | Official SentencePiece docs identify U+2047 as the default decoded unknown-token surface. The pinned pre-guard EN→SO output contained it in 46/150 rows (81 occurrences). The route now sends candidate output containing U+2047 through the existing multilingual fallback, with an explicit warning. Fresh Python 3.12 dev install; pinned Somali pack hash verification; full 150-pair run with network denied: 47 marker fallbacks, zero markers in final EN→SO, BLEU 5.287 / chrF++ 25.282 (pre-guard: 7.057 / 28.996); SO→EN unchanged. Metric regression is disclosed; this removes a decode artifact, not a verified semantic improvement. Full suite: 114 passed; Ruff, format, compileall, `pip check`, and isolated Kivy launch pass. |
 | Keep model-pack pointers and manifest paths inside pack storage | Pack IDs/versions are restricted to safe single path components; `current.json`, version folders, `installed.json` and manifest-listed assets are resolved and checked against their expected parent before reads or inference. Pointer activation uses a unique exclusive temp file and atomic replacement. Tests reproduce POSIX/Windows traversal and reject unsafe install versions before network access. Full suite: 116 passed, 2 symlink tests skipped because Windows denied symlink creation; Ruff/format, compileall, `pip check`, release scan, isolated pinned-pack offline smoke and Kivy launch pass. |
@@ -90,13 +91,15 @@ No separate READY item while the visible copy audit is ACTIVE. Once complete, re
 | M6-1 | Packaging and updates | Document and enforce safe, versioned app/pack update architecture | `docs/UPDATE_ARCHITECTURE.md`; `saylacian/core/model_packs.py`; `tests/test_model_packs.py` | verified | Full suite 116 passed/2 symlink tests skipped because Windows denied symlink creation; pack hash verification and both offline Somali smoke directions passed; isolated Kivy launch, Ruff/format, compileall, `pip check` and release scan pass | Public app installer/update path not release-tested | Keep app updater disabled; continue only with approved release process |
 | M7-1 | Nubian research and maintenance | Check Unicode register and keep variety-specific research notes | `docs/NUBIAN_RESEARCH_REGISTER.md` | researching | Official register search on 2026-10-24 | No verified modern-variety routes | Recheck primary references before enabling a route |
 
-## 2026-10-24 — Plain translation-status warnings
+## 2026-10-24 — Translation, script and pack status clarity
 
 Replaced developer-facing model terminology and internal review-workflow phrases in translation warnings with direct language users can act on. Somali warnings still clearly advise checking important details; the Somali/French pivot still explains that meaning can change. The approved UI structure is unchanged. Added unit coverage for synthetic Somali and local English/French notices, updated website and route regressions, and added a live Kivy status-label assertion.
 
 Verification: `127 passed, 2 skipped, 197 subtests`; Ruff, formatting (105 files), compileall, `pip check`, release-safety scan, `git diff --check`, and isolated `main.py --self-test` passed. Live test output remains `Bonjour, comment allez-vous ?`. KivyMD 1.2.0 deprecation warnings remain.
 
-The short-text accuracy task is BLOCKED pending an independently labelled, licensed natural short-phrase set or owner-approved review. The route, chart and Old Nubian picker copy audit items are verified. Next ACTIVE: audit model-pack failure messages for actionable, nontechnical wording without hiding integrity errors.
+Additional copy fixes distinguish unavailable chart artwork from conversion support and describe the Old Nubian Latin route as limited character readings. Pack download/removal errors now hide raw OS paths, keep integrity/security failures visible, and offer retry or close-and-retry guidance. Live Kivy acceptance exercises both error handlers with stubs; no model was deleted or downloaded. Final full suite: `129 passed, 2 skipped, 197 subtests`; Ruff, format, compileall, `pip check`, release-safety scan and diff check passed.
+
+The short-text accuracy task is BLOCKED pending an independently labelled, licensed natural short-phrase set or owner-approved review. Translation, chart, Old Nubian picker, and model-pack error copy audit items are verified. Current roadmap/board review found no separate READY task that can proceed without external evidence, owner approval, a working display, or isolated resources. Keep those exact blockers in BLOCKED; resume with the next independently verifiable product task when one is available.
 
 ## Latest session test record
 
