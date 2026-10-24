@@ -77,10 +77,18 @@ class Conversion:
     alternatives: tuple[str, ...] = ()
 
 
+def is_private_use_character(char: str) -> bool:
+    codepoint = ord(char)
+    return (
+        0xE000 <= codepoint <= 0xF8FF
+        or 0xF0000 <= codepoint <= 0xFFFFD
+        or 0x100000 <= codepoint <= 0x10FFFD
+    )
+
+
 def _chart_transliterate(text: str, source: str, target: str) -> Conversion:
     warnings = [
-        "Experimental chart-label conversion; word-level spelling has not been reviewed.",
-        "Output uses private-use code points and displays correctly only with the bundled Saylacian font.",
+        "Limited conversion; word spelling is unreviewed. May need Saylacian font outside this app.",
     ]
     text = unicodedata.normalize("NFC", text)
     output = []
@@ -177,9 +185,8 @@ def _old_nubian_reverse_candidates(text: str, limit: int = 12) -> tuple[str, ...
     return paths[0]
 
 
-def detect_script(text):
-    letters = [c for c in text if c.isalpha()]
-    private = [c for c in text if 0xE000 <= ord(c) <= 0xE1FF]
+def detect_chart_script(text):
+    private = [c for c in text if is_private_use_character(c)]
     if private:
         for name, mapping in SCRIPT_PUA_TO_LATIN.items():
             if all(char in mapping for char in private):
@@ -187,6 +194,10 @@ def detect_script(text):
                     name,
                     f"{name} private-use chart glyphs detected; language is not inferred.",
                 )
+
+
+def detect_script(text):
+    letters = [c for c in text if c.isalpha()]
     if letters and all(0x2C80 <= ord(c) <= 0x2CFF for c in letters):
         return "Coptic script", "Coptic script detected; language is not inferred."
     if letters and all(0x10480 <= ord(c) <= 0x1049D for c in letters):

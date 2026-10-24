@@ -50,7 +50,7 @@
                 size_hint_y: None
                 height: dp(48) if root.width >= dp(360) else dp(156)
                 MDFillRoundFlatIconButton:
-                    text: app.source if len(app.source) <= 18 else app.source[:15] + "..."
+                    text: app.display_name(app.source) if len(app.display_name(app.source)) <= 18 else app.display_name(app.source)[:15] + "..."
                     icon: "chevron-down"
                     size_hint_x: 1
                     size_hint_y: None
@@ -60,7 +60,7 @@
                     on_release: app.open_picker("source")
                 ActionIcon:
                     icon: "swap-horizontal"
-                    tooltip_text: "Swap languages"
+                    tooltip_text: "Swap source and target"
                     size_hint: None, None
                     size: dp(48), dp(48)
                     md_bg_color: 1, 1, 1, 1
@@ -68,7 +68,7 @@
                     icon_color: 0, 0, 0, 1
                     on_release: app.swap()
                 MDFillRoundFlatIconButton:
-                    text: app.target if len(app.target) <= 18 else app.target[:15] + "..."
+                    text: app.display_name(app.target) if len(app.display_name(app.target)) <= 18 else app.display_name(app.target)[:15] + "..."
                     icon: "chevron-down"
                     size_hint_x: 1
                     size_hint_y: None
@@ -224,7 +224,7 @@
                 text: "Offline language packs"
                 font_style: "H6"
         MDLabel:
-            text: "Download once. Translate on this device with no account, quota or internet."
+            text: "Download packs once, then translate on this device without internet."
             size_hint_y: None
             height: dp(54)
             text_size: self.width, None
@@ -326,7 +326,7 @@
                 size_hint_y: None
                 height: self.minimum_height
         MDLabel:
-            text: "Reference: Unicode 16.0, section 19.2.1. Community validation pending."
+            text: "Source: Unicode 16.0. Somali-speaker review is still needed."
             size_hint_y: None
             height: dp(40)
             font_style: "Caption"

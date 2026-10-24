@@ -35,18 +35,10 @@ def start(app):
         module = app.__class__.__module__
         with patch(f"{module}.publish_windows_clipboard") as published:
             app.copy(borama)
-            text_data = dict(published.call_args.args[0])["CF_UNICODETEXT"]
-            assert text_data.decode("utf-16-le").rstrip("\0") == "dhag!"
-        assert "Somali Latin" in app.status
-        reported = ",     ,"
-        with patch(f"{module}.publish_windows_clipboard") as published:
-            app.copy(reported)
-            text_data = dict(published.call_args.args[0])["CF_UNICODETEXT"]
-            assert (
-                text_data.decode("utf-16-le").rstrip("\0")
-                == "hello, what is wrong with you,"
-            )
-        with patch("main.Clipboard.paste", return_value=borama):
+            published.assert_not_called()
+        assert "no script label" in app.status
+        package = encode_saylacian_text(borama, "Borama")
+        with patch("main.Clipboard.paste", return_value=package):
             app.source, app.target = "Somali Latin", "Osmanya"
             app.refresh_fonts()
             app.paste()
@@ -54,10 +46,20 @@ def start(app):
         assert home.ids.input_text.font_name == "SaylacianBorama"
         assert home.ids.output_text.text == "dhag!"
 
+        app.source, app.target = "Somali Latin", "Osmanya"
+        app.refresh_fonts()
+        home.ids.input_text.text = "plain text"
         home.ids.input_text.text = borama
-        assert home.ids.input_text.font_name == "SaylacianBorama"
-        assert home.ids.output_text.text == "dhag!"
-        package = encode_saylacian_text(borama, "Borama")
+        assert "no script label" in app.status
+        assert home.ids.output_text.text == ""
+        app.open_copy_menu(home.ids.input_copy_button, borama)
+        assert [item["text"] for item in app.copy_menu.items] == ["Copy text"]
+        app.copy_menu.dismiss()
+        app.target = "Borama"
+        app.refresh_fonts()
+        app.open_copy_menu(home.ids.input_copy_button, borama)
+        assert [item["text"] for item in app.copy_menu.items] == ["Copy text"]
+        app.copy_menu.dismiss()
         home.ids.input_text.text = package
         assert app.source == "Borama" and app.target == "Somali Latin"
         assert home.ids.input_text.text == borama
@@ -85,15 +87,28 @@ def start(app):
         with patch("kivy.core.clipboard.Clipboard.copy") as copied:
             home.ids.output_text.select_all()
             home.ids.output_text.copy()
+            assert copied.call_args is not None, (
+                home.ids.output_text.selection_text,
+                app.source,
+                app.target,
+                app.mode,
+                app.status,
+            )
             assert copied.call_args.args[0] == "shadh!"
         with patch("main.Clipboard.paste", return_value=kaddare):
             app.source, app.target = "Somali Latin", "Osmanya"
             app.refresh_fonts()
             app.paste()
+        assert (app.source, app.target) == ("Somali Latin", "Osmanya")
+        assert "no script label" in app.status
+        with patch(
+            "main.Clipboard.paste",
+            return_value=encode_saylacian_text(kaddare, "Kaddare"),
+        ):
+            app.paste()
         assert (app.source, app.target) == ("Kaddare", "Somali Latin")
         assert home.ids.input_text.font_name == "SaylacianKaddare"
         assert home.ids.output_text.text == "shadh!"
-        home.ids.input_text.text = kaddare
         assert home.ids.input_text.font_name == "SaylacianKaddare"
         assert home.ids.output_text.text == "shadh!"
         (folder / "pasted-kaddare.json").write_text(
@@ -109,7 +124,7 @@ def start(app):
             encoding="utf-8",
         )
         home.ids.input_text.text = "\ue999"
-        assert "Unrecognized private-use text" in app.status
+        assert "no script label" in app.status
 
         app.source, app.target = "Old Nubian scholarly Latin", "Old Nubian (Coptic)"
         app.refresh_fonts()
@@ -117,21 +132,32 @@ def start(app):
         assert home.ids.output_text.text == "ⳟ ϫ"
         assert "Other Coptic readings" in app.alternative_readings
         app.open_picker("target")
-        app.filter_languages("French")
+        app.filter_languages("Old Nubian")
         assert any(
-            item.text == "French"
+            "Old Nubian" in item.text
             for item in app.root.get_screen("picker").ids.options.children
         )
+        app.filter_languages("Nobiin")
+        assert not app.root.get_screen("picker").ids.options.children
         app.close_picker()
         app.source, app.target = "Somali Latin", "Borama"
         app.refresh_fonts()
         home.ids.input_text.text = "dhag!"
         app.open_copy_menu(home.ids.output_copy_button, home.ids.output_text.text)
         assert [item["text"] for item in app.copy_menu.items] == [
-            "Copy as Latin",
-            "Copy as Image",
-            "Copy as Saylacian Text",
+            "Copy text",
+            "Copy image",
+            "Copy Latin",
         ]
+        with patch(f"{module}.publish_windows_clipboard") as published:
+            app.copy_menu.items[0]["on_release"]()
+            assert [name for name, _ in published.call_args.args[0]] == [
+                "Saylacian Text v1",
+                "Rich Text Format",
+                "HTML Format",
+                "CF_UNICODETEXT",
+            ]
+        app.open_copy_menu(home.ids.output_copy_button, home.ids.output_text.text)
         with patch(f"{module}.publish_windows_clipboard") as published:
             app.copy_menu.items[1]["on_release"]()
             assert [name for name, _ in published.call_args.args[0]] == [
@@ -142,12 +168,12 @@ def start(app):
         app.open_copy_menu(home.ids.output_copy_button, home.ids.output_text.text)
         with patch(f"{module}.publish_windows_clipboard") as published:
             app.copy_menu.items[2]["on_release"]()
-            assert [name for name, _ in published.call_args.args[0]] == [
-                "Saylacian Text v1",
-                "Rich Text Format",
-                "HTML Format",
-                "CF_UNICODETEXT",
-            ]
+            assert (
+                dict(published.call_args.args[0])["CF_UNICODETEXT"]
+                .decode("utf-16-le")
+                .rstrip("\0")
+                == "dhag!"
+            )
     except Exception:
         import traceback
 
@@ -169,12 +195,25 @@ def start(app):
         def inspect(result_dt):
             result = home.ids.output_text.text
             if result:
+                app.open_copy_menu(home.ids.output_copy_button, result)
+                assert [item["text"] for item in app.copy_menu.items] == ["Copy text"]
+                with patch(f"{module}.publish_windows_clipboard") as published:
+                    app.copy_menu.items[0]["on_release"]()
+                    assert (
+                        dict(published.call_args.args[0])["CF_UNICODETEXT"]
+                        .decode("utf-16-le")
+                        .rstrip("\0")
+                        == result
+                    )
                 Window.screenshot(name=str(folder / "packaged-meaning.png"))
                 checks = [
                     "live Kivy UI",
+                    "mode-specific picker labels",
+                    "standard-text copy menu",
                     "Osmanya",
                     "Borama/Kaddare bundled font rendering",
-                    "Borama/Kaddare paste detection, font selection, and reverse conversion",
+                    "Borama/Kaddare tagged-package import, font selection, and reverse conversion",
+                    "three Borama/Kaddare copy actions",
                     "Old Nubian reverse alternatives",
                     "picker search",
                     "local meaning model",

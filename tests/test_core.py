@@ -5,7 +5,11 @@
 import unittest
 
 from saylacian.core.capabilities import get_capability, list_capabilities
-from saylacian.core.transliteration import detect_script, transliterate
+from saylacian.core.transliteration import (
+    detect_chart_script,
+    detect_script,
+    transliterate,
+)
 
 
 class CoreTests(unittest.TestCase):
@@ -87,6 +91,11 @@ class CoreTests(unittest.TestCase):
     def test_old_nubian_script_detection(self):
         self.assertEqual(detect_script("ⲁⲃⲅ")[0], "Coptic script")
 
+    def test_private_use_text_is_not_auto_identified_as_a_script(self):
+        chart_text = transliterate("dhag", "Somali Latin", "Borama").text
+        self.assertIsNone(detect_script(chart_text)[0])
+        self.assertEqual(detect_chart_script(chart_text)[0], "Borama")
+
     def test_old_nubian_documented_table_cases(self):
         cases = {
             "ⲁⲃⲅⲇ": "abgd",
@@ -110,6 +119,30 @@ class CoreTests(unittest.TestCase):
                     ).text,
                     expected,
                 )
+
+    def test_old_nubian_additions_use_assigned_unicode_letters(self):
+        expected = {"ⳝ": 0x2CDD, "ⳟ": 0x2CDF, "ⳡ": 0x2CE1, "ⳣ": 0x2CE3}
+        self.assertEqual({char: ord(char) for char in expected}, expected)
+        self.assertEqual(
+            transliterate(
+                "ⳝⳟⳡⳣ", "Old Nubian (Coptic)", "Old Nubian scholarly Latin"
+            ).text,
+            "jngnyw",
+        )
+
+    def test_old_nubian_capital_additions_and_editorial_marks_are_preserved(self):
+        capitals = "ⳜⳞⳠⳢ"
+        capital_result = transliterate(
+            capitals, "Old Nubian (Coptic)", "Old Nubian scholarly Latin"
+        )
+        self.assertEqual(capital_result.text, capitals)
+        self.assertTrue(capital_result.warnings)
+
+        marks = "⳹⳺⳻⳼⳯⳰⳱"
+        mark_result = transliterate(
+            marks, "Old Nubian (Coptic)", "Old Nubian scholarly Latin"
+        )
+        self.assertEqual(mark_result.text, marks)
 
     def test_old_nubian_reverse_and_ambiguity_notice(self):
         result = transliterate(

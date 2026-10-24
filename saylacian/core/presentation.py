@@ -1,0 +1,50 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+"""Small user-facing labels for the route picker; route IDs stay stable."""
+
+from __future__ import annotations
+
+DISPLAY_NAMES = {
+    "Somali Latin": "Somali",
+    "Old Nubian (Coptic)": "Old Nubian",
+    "Old Nubian scholarly Latin": "Latin reading",
+}
+
+CONTEXT_NOTES = {
+    "Somali Latin": "Latin script",
+    "Osmanya": "Somali script",
+    "Borama": "Limited conversion · needs Saylacian font",
+    "Kaddare": "Limited conversion · needs Saylacian font",
+    "Old Nubian (Coptic)": "Original Coptic-derived script",
+    "Old Nubian scholarly Latin": "Scholarly transliteration",
+}
+
+
+def display_name(route_name: str) -> str:
+    """Map an internal route name to concise UI copy without changing its ID."""
+    return DISPLAY_NAMES.get(route_name, route_name)
+
+
+def picker_choices(capabilities, mode: str) -> list[tuple[str, str]]:
+    """List implemented routes for one mode, plus script references when relevant."""
+    choices = [("Detect language/script", "English, French or Somali")]
+    route_names = dict.fromkeys(
+        name
+        for route in capabilities
+        if route["kind"] == "route" and route["mode"] == mode
+        for name in (route["source"], route["target"])
+    )
+    for name in route_names:
+        if mode == "transliteration":
+            note = CONTEXT_NOTES.get(name, "Writing system")
+        elif name == "Somali Latin":
+            note = "Latin script · needs fluent review"
+        else:
+            note = "Language"
+        choices.append((name, note))
+
+    if mode == "transliteration":
+        choices.extend(
+            (name + " alphabet chart", "Alphabet reference")
+            for name in ("Borama", "Kaddare")
+        )
+    return choices

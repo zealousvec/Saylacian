@@ -15,7 +15,12 @@ from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont
 
-from .transliteration import SCRIPT_PUA_TO_LATIN, detect_script, transliterate
+from .transliteration import (
+    SCRIPT_PUA_TO_LATIN,
+    detect_chart_script,
+    is_private_use_character,
+    transliterate,
+)
 
 MAGIC = "SAYLACIAN-TEXT/1\n"
 ENCODING = "saylacian-chart-pua-v1"
@@ -35,7 +40,8 @@ class SaylacianText:
 
 
 def identify_chart_text(text: str) -> str | None:
-    script, _ = detect_script(text)
+    detected = detect_chart_script(text)
+    script = detected[0] if detected else None
     return script if script in SCRIPT_FONTS else None
 
 
@@ -55,7 +61,7 @@ def _validate_script_text(text: str, script: str) -> None:
         )
     )
     for char in text:
-        if 0xE000 <= ord(char) <= 0xF8FF and char not in known:
+        if is_private_use_character(char) and char not in known:
             raise ValueError(f"Unrecognized private-use character U+{ord(char):04X}.")
         if char in other_chart:
             raise ValueError("Text mixes glyphs from different chart scripts.")

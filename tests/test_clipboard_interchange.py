@@ -19,6 +19,7 @@ from saylacian.core.interchange import (
     decode_saylacian_text,
     encode_saylacian_text,
     html_for_chart,
+    identify_chart_text,
     png_to_dib,
     render_chart_png,
     rtf_for_chart,
@@ -45,6 +46,15 @@ class ClipboardInterchangeTests(unittest.TestCase):
                     (decoded.script, decoded.text, decoded.latin),
                     (script, glyphs, latin),
                 )
+
+    def test_chart_detection_rejects_unknown_and_mixed_private_use_text(self):
+        self.assertEqual(identify_chart_text(self.borama), "Borama")
+        self.assertEqual(identify_chart_text(self.kaddare), "Kaddare")
+        self.assertIsNone(identify_chart_text(self.borama + self.kaddare))
+        self.assertIsNone(identify_chart_text(self.borama + "\ue999"))
+        self.assertIsNone(identify_chart_text(self.borama + "\U000f0000"))
+        with self.assertRaisesRegex(ValueError, "private-use character"):
+            encode_saylacian_text(self.borama + "\U000f0000", "Borama")
 
     def test_envelope_rejects_corruption_and_wrong_script(self):
         envelope = encode_saylacian_text(self.borama, "Borama")

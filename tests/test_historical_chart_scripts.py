@@ -9,7 +9,7 @@ from pathlib import Path
 from fontTools.ttLib import TTFont
 
 from saylacian.core.capabilities import get_capability
-from saylacian.core.transliteration import detect_script, transliterate
+from saylacian.core.transliteration import detect_chart_script, transliterate
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -41,7 +41,7 @@ class HistoricalChartScriptTests(unittest.TestCase):
         )
         decoded = transliterate(encoded.text, "Borama", "Somali Latin")
         self.assertEqual(decoded.text, "dhag! q")
-        self.assertEqual(detect_script(encoded.text)[0], "Borama")
+        self.assertEqual(detect_chart_script(encoded.text)[0], "Borama")
 
     def test_kaddare_longest_grapheme_and_round_trip(self):
         encoded = transliterate("shadh!", "Somali Latin", "Kaddare")
@@ -60,7 +60,9 @@ class HistoricalChartScriptTests(unittest.TestCase):
 
     def test_chart_pua_is_not_claimed_as_standard_unicode(self):
         result = transliterate("q", "Somali Latin", "Borama")
-        self.assertTrue(any("private-use" in warning for warning in result.warnings))
+        self.assertTrue(
+            any("Limited conversion" in warning for warning in result.warnings)
+        )
         self.assertTrue(any("no Q label" in warning for warning in result.warnings))
         with self.assertRaises(ValueError):
             transliterate("x", "Borama", "English")

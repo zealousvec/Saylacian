@@ -57,6 +57,7 @@ from saylacian.core.diagnostics import PrivateDiagnostics, install_exception_hoo
 from saylacian.core.history import History
 from saylacian.core.interchange import (
     decode_saylacian_text,
+    encode_saylacian_text,
     identify_chart_text,
 )
 from saylacian.core.language_detection import detect_language
@@ -65,9 +66,14 @@ from saylacian.core.online_translation import (
     online_provider_label,
     online_translation_enabled,
 )
+from saylacian.core.presentation import display_name, picker_choices
 from saylacian.core.script_info import osmanya_letters
 from saylacian.core.translation import model_directory, translate_meaning
-from saylacian.core.transliteration import detect_script, transliterate
+from saylacian.core.transliteration import (
+    detect_script,
+    is_private_use_character,
+    transliterate,
+)
 from saylacian.core.windows_clipboard import publish as publish_windows_clipboard
 
 
@@ -91,12 +97,14 @@ class PacksScreen(Screen):
     pass
 
 
-def clipboard_text(text):
-    """Use readable Latin for nonstandard chart glyphs copied outside the app."""
-    script, _ = detect_script(text)
-    if script in ("Borama", "Kaddare"):
+def clipboard_text(text, script=None):
+    """Return portable text without guessing the meaning of private-use characters."""
+    has_private_characters = any(is_private_use_character(char) for char in text)
+    if script in ("Borama", "Kaddare") and has_private_characters:
+        if identify_chart_text(text) != script:
+            return None, None
         return transliterate(text, script, "Somali Latin").text, script
-    if any(0xE000 <= ord(char) <= 0xF8FF for char in text):
+    if has_private_characters:
         return None, None
     return text, None
 
@@ -104,10 +112,22 @@ def clipboard_text(text):
 class SaylacianTextInput(TextInput):
     def copy(self, data=""):
         selected = data or self.selection_text
-        portable, _ = clipboard_text(selected)
+        app = MDApp.get_running_app()
+        selected_script = (
+            app.source
+            if app.mode == "Convert writing system"
+            and app.source in ("Borama", "Kaddare")
+            else None
+        )
+        if (
+            selected_script is None
+            and self.readonly
+            and app.target in ("Borama", "Kaddare")
+        ):
+            selected_script = app.target
+        portable, _ = clipboard_text(selected, selected_script)
         if portable is None:
-            app = MDApp.get_running_app()
-            app.status = "Unknown private-use text was not copied."
+            app.status = "This script text has no label and was not copied."
             return None
         return super().copy(portable)
 
@@ -189,6 +209,10 @@ class SaylacianApp(MDApp):
         self.filter_languages("")
         self.root.current = "picker"
 
+    @staticmethod
+    def display_name(route_name):
+        return display_name(route_name)
+
     def close_picker(self):
         self.root.current = "home"
 
@@ -268,7 +292,7 @@ class SaylacianApp(MDApp):
             return
         self.pack_busy = True
         self.pack_progress = 0
-        self.pack_status = "Preparing verified model download..."
+        self.pack_status = "Preparing download..."
         self.refresh_pack_screen()
         future = self.pack_worker.submit(
             self.pack_manager.install, pack_id, self._pack_download_progress
@@ -297,7 +321,7 @@ class SaylacianApp(MDApp):
             self.pack_status = f"Download stopped: {error}"
         else:
             self.pack_progress = 100
-            self.pack_status = f"Pack installed and checksum-verified: {installed.name}"
+            self.pack_status = f"Pack installed: {installed.name}"
         self.refresh_pack_screen()
 
     def confirm_remove_pack(self, pack_id):
@@ -331,32 +355,8 @@ class SaylacianApp(MDApp):
             return
         box = self.root.get_screen("picker").ids.options
         box.clear_widgets()
-        capabilities = list_capabilities()
-        route_names = list(
-            dict.fromkeys(
-                name
-                for route in capabilities
-                if route["kind"] == "route"
-                for name in (route["source"], route["target"])
-            )
-        )
-        choices = [("Detect language/script", "Detect English, French or Somali")]
-        online = online_translation_enabled()
-        for name in route_names:
-            routes = [
-                route
-                for route in capabilities
-                if route["kind"] == "route"
-                and name in (route["source"], route["target"])
-            ]
-            statuses = sorted({route["status"] for route in routes})
-            note = (online_provider_label() + ": ") if online else "Downloaded models: "
-            choices.append((name, note + ", ".join(statuses)))
-        choices += [
-            (item["source"] + " alphabet chart", item["selector_note"])
-            for item in capabilities
-            if item["kind"] == "script"
-        ]
+        mode = "translation" if self.mode == "Translate meaning" else "transliteration"
+        choices = picker_choices(list_capabilities(), mode)
         current = getattr(self, self.side)
         for name, note in choices:
             if self.side == "target" and name == "Detect language/script":
@@ -364,7 +364,7 @@ class SaylacianApp(MDApp):
             if query.casefold() not in (name + note).casefold():
                 continue
             button = TwoLineListItem(
-                text=("Selected: " if name == current else "") + name,
+                text=("Selected: " if name == current else "") + display_name(name),
                 secondary_text=note,
                 size_hint_x=1,
                 height=dp(72),
@@ -375,12 +375,6 @@ class SaylacianApp(MDApp):
     def choose(self, name):
         if name.endswith(" alphabet chart"):
             self.show_script_reference(name.removesuffix(" alphabet chart"))
-            return
-        unavailable = self._choice_note(name)
-        if unavailable:
-            self.root.get_screen("home").ids.output_text.text = ""
-            self.status = unavailable
-            self.close_picker()
             return
         other_side = "target" if self.side == "source" else "source"
         if name == getattr(self, other_side) and self.source != self.target:
@@ -409,12 +403,6 @@ class SaylacianApp(MDApp):
             ]
             if sources and self.source not in sources:
                 self.source = sources[0]
-
-    @staticmethod
-    def _choice_note(name):
-        if name.endswith(" (Nubian)"):
-            return f"{name[:-9]} conversion unavailable: variety-specific mapping not verified."
-        return ""
 
     def font_for(self, language_or_script):
         chart_fonts = {
@@ -493,7 +481,7 @@ class SaylacianApp(MDApp):
                 route = (
                     "Sending text to " + online_provider_label() + "..."
                     if online
-                    else "Translating with downloaded model..."
+                    else "Translating..."
                 )
                 self.status = detected + route
                 self.translate_trigger()
@@ -502,10 +490,6 @@ class SaylacianApp(MDApp):
             return
         source = self.source
         detection_note = ""
-        unavailable = self._choice_note(source) or self._choice_note(self.target)
-        if unavailable:
-            self.status = unavailable
-            return
         if source == "Detect language/script":
             source, message = detect_script(text)
             if source is None:
@@ -545,20 +529,30 @@ class SaylacianApp(MDApp):
                 self.alternative_readings = "\nOther Coptic readings: " + " / ".join(
                     result.alternatives[:3]
                 )
-            self.status = (
-                detection_note
-                + (warnings + " " if warnings else "")
-                + "Writing converted; meaning unchanged."
-            )
+            if source in ("Borama", "Kaddare") or self.target in (
+                "Borama",
+                "Kaddare",
+            ):
+                self.status = detection_note + warnings
+            else:
+                self.status = (
+                    detection_note
+                    + (warnings + " " if warnings else "")
+                    + "Writing converted; meaning unchanged."
+                )
         except ValueError as error:
             self.status = str(error)
 
     def on_input_text(self, text):
-        """Choose the matching chart font when chart glyphs arrive by paste."""
+        """Import tagged script text and reject unlabelled private-use text."""
+        if getattr(self, "_importing_package", False):
+            return
         if text:
             try:
                 package = decode_saylacian_text(text)
             except ValueError as error:
+                self.root.get_screen("home").ids.output_text.text = ""
+                self.alternative_readings = ""
                 self.status = str(error)
                 return
             if package:
@@ -566,25 +560,32 @@ class SaylacianApp(MDApp):
                 self.mode = "Convert writing system"
                 self.source, self.target = package.script, "Somali Latin"
                 self.refresh_fonts()
-                input_widget.text = package.text
-                self.status = (
-                    f"Imported Saylacian Text v1 ({package.script}); script preserved."
-                )
+                self._importing_package = True
+                try:
+                    input_widget.text = package.text
+                finally:
+                    self._importing_package = False
+                input_widget.font_name = self.input_font
+                input_widget._refresh_line_options()
+                self.convert(package.text)
+                self.status = f"Imported Saylacian Text v1 ({package.script}). Limited conversion; word spelling has not been reviewed."
                 return
-            detected, _ = detect_script(text)
-            if detected in ("Borama", "Kaddare"):
-                self.mode = "Convert writing system"
-                self.source = detected
-                self.target = "Somali Latin"
-                self.refresh_fonts()
-            elif any(0xE000 <= ord(char) <= 0xF8FF for char in text):
+            if any(is_private_use_character(char) for char in text):
+                detected_chart = identify_chart_text(text)
+                if (
+                    self.mode == "Convert writing system"
+                    and self.source in ("Borama", "Kaddare")
+                    and detected_chart == self.source
+                ):
+                    self.refresh_fonts()
+                    self.convert(text)
+                    return
                 input_widget = self.root.get_screen("home").ids.input_text
+                self.root.get_screen("home").ids.output_text.text = ""
+                self.alternative_readings = ""
                 input_widget.font_name = "Roboto"
                 input_widget._refresh_line_options()
-                self.status = (
-                    "Unrecognized private-use text. Clipboard does not carry its font; "
-                    "this text uses a different or unknown character mapping."
-                )
+                self.status = "This text has no script label. Paste a Saylacian Text package or choose Borama/Kaddare as source."
                 return
         self.convert(text)
 
@@ -670,7 +671,7 @@ class SaylacianApp(MDApp):
     def show_alphabet(self):
         screen = self.root.get_screen("alphabet")
         self.script_heading = "Osmanya alphabet"
-        self.script_note = "Somali writing system. The mapping is experimental; w/uu and y/ii share letters."
+        self.script_note = "Somali script. W/uu and y/ii share letters, so reverse readings can differ."
         grid = screen.ids.letters
         grid.cols = 3
         grid.clear_widgets()
@@ -707,11 +708,10 @@ class SaylacianApp(MDApp):
         self.status = script + " chart opened for reference."
         self.script_heading = script + " alphabet reference"
         self.script_note = (
-            "Chart-label converter is partial and experimental. Output uses private-use code points; "
-            "word spelling is unreviewed and text is not portable without the bundled font. "
-            "Chart by Jugydmort, CC BY-SA 4.0. Source/license: notices/HISTORICAL_SCRIPT_CHARTS.md"
+            "Limited letter conversion. Word spelling has not been reviewed. "
+            "Copied text may need the Saylacian font."
         )
-        screen.ids.chart_status.text = "Experimental chart-label conversion is available; no standard Unicode encoding exists."
+        screen.ids.chart_status.text = "Text may need the Saylacian font in other apps."
         grid = screen.ids.letters
         grid.clear_widgets()
         grid.cols = 1
@@ -747,7 +747,7 @@ class SaylacianApp(MDApp):
             self.status = "Nothing to copy."
             return
         if portable is None:
-            self.status = "Unknown private-use text was not copied."
+            self.status = "This text has no script label and was not copied."
             return
         try:
             if os.name == "nt":
@@ -766,11 +766,28 @@ class SaylacianApp(MDApp):
         if getattr(self, "copy_menu", None):
             self.copy_menu.dismiss()
         self._copy_menu_text = text
-        entries = (
-            ("Copy as Latin", "latin"),
-            ("Copy as Image", "image"),
-            ("Copy as Saylacian Text", "saylacian"),
+        chart_route = self.source in ("Borama", "Kaddare") or self.target in (
+            "Borama",
+            "Kaddare",
         )
+        input_contains_private = any(is_private_use_character(char) for char in text)
+        chart_copy = self.mode == "Convert writing system" and chart_route
+        if (
+            caller is self.root.get_screen("home").ids.input_copy_button
+            and self.source not in ("Borama", "Kaddare")
+            and input_contains_private
+        ):
+            chart_copy = False
+        self._copy_menu_from_output = (
+            caller is self.root.get_screen("home").ids.output_copy_button
+        )
+        if chart_copy:
+            entries = [("Copy text", "saylacian")]
+            if os.name == "nt":
+                entries.append(("Copy image", "image"))
+            entries.append(("Copy Latin", "latin"))
+        else:
+            entries = [("Copy text", "text")]
         self.copy_menu = MDDropdownMenu(
             caller=caller,
             width=dp(240),
@@ -785,15 +802,42 @@ class SaylacianApp(MDApp):
         self.copy_menu.open()
 
     def _chart_content_for_copy(self, text):
+        route_script = (
+            self.source
+            if self.source in ("Borama", "Kaddare")
+            else self.target
+            if self.target in ("Borama", "Kaddare")
+            else None
+        )
+        if route_script is None:
+            raise ValueError(
+                "Choose a Borama/Kaddare route before copying script artwork."
+            )
+
         script = identify_chart_text(text)
+        if script and script != route_script:
+            raise ValueError("Text does not match the selected Borama/Kaddare route.")
         if script:
             glyphs = text
         elif self.target in ("Borama", "Kaddare") and self.source == "Somali Latin":
+            if any(is_private_use_character(char) for char in text):
+                raise ValueError(
+                    "Paste a tagged package or select its script as source."
+                )
             script = self.target
             glyphs = transliterate(text, self.source, script).text
         elif self.source in ("Borama", "Kaddare") and self.target == "Somali Latin":
-            script = self.source
-            glyphs = transliterate(text, "Somali Latin", script).text
+            if self._copy_menu_from_output:
+                input_text = self.root.get_screen("home").ids.input_text.text
+                if identify_chart_text(input_text) == self.source:
+                    script = self.source
+                    glyphs = input_text
+                else:
+                    raise ValueError("The original script text is unavailable.")
+            else:
+                raise ValueError(
+                    "Paste a tagged package or select its script as source."
+                )
         else:
             raise ValueError(
                 "Choose a Borama/Kaddare route before copying script artwork."
@@ -804,22 +848,41 @@ class SaylacianApp(MDApp):
     def _copy_menu_action(self, mode):
         self.copy_menu.dismiss()
         text = self._copy_menu_text
+        if mode == "text" and os.name != "nt":
+            Clipboard.copy(text)
+            self.status = "Copied to clipboard."
+            return
+        if mode == "text":
+            try:
+                publish_windows_clipboard(formats_as_latin(text))
+            except (OSError, ValueError) as error:
+                self.status = "Clipboard copy failed: " + str(error)
+            else:
+                self.status = "Copied to clipboard."
+            return
         if mode == "latin":
-            return self.copy(text)
+            try:
+                _, _, latin = self._chart_content_for_copy(text)
+            except ValueError as error:
+                self.status = str(error)
+                return
+            return self.copy(latin)
         try:
             script, glyphs, latin = self._chart_content_for_copy(text)
-            if os.name != "nt":
-                raise OSError(
-                    "Rich clipboard formats are currently supported on Windows only."
-                )
+            if os.name != "nt" and mode == "image":
+                raise OSError("Image clipboard is currently supported on Windows only.")
             if mode == "image":
                 formats = formats_as_image(script, glyphs, latin)
                 publish_windows_clipboard(formats)
-                self.status = f"Copied {script} as an image; image works in apps that accept pasted pictures."
+                self.status = f"Copied {script} image."
             elif mode == "saylacian":
-                formats = formats_as_saylacian_text(script, glyphs, latin)
-                publish_windows_clipboard(formats)
-                self.status = f"Copied Saylacian Text v1 for {script}. Paste the package into Saylacian to restore its glyphs."
+                if os.name == "nt":
+                    publish_windows_clipboard(
+                        formats_as_saylacian_text(script, glyphs, latin)
+                    )
+                else:
+                    Clipboard.copy(encode_saylacian_text(glyphs, script))
+                self.status = f"Copied {script} text package. Paste it here to restore the script."
         except (OSError, ValueError) as error:
             self.status = "Clipboard copy failed: " + str(error)
 
