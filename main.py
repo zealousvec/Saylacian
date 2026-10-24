@@ -995,9 +995,7 @@ class SaylacianApp(MDApp):
         grid.cols = 1
         chart = PROJECT / "assets/research" / f"{script}_Alphabet_Chart.jpg"
         if not chart.is_file():
-            screen.ids.chart_status.text = (
-                "No chart image is available. Letter entry remains experimental."
-            )
+            screen.ids.chart_status.text = "Chart image unavailable. You can still enter text for limited conversion."
             self.root.get_screen("home").ids.input_text.focus = False
             self.root.current = "alphabet"
             return

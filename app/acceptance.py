@@ -313,6 +313,14 @@ def start(app):
         app.mode, app.source, app.target = saved_mode, saved_source, saved_target
         app.detected_language = saved_detected_language
         app.refresh_fonts()
+        with patch.object(Path, "is_file", return_value=False):
+            app.show_script_reference("Borama")
+        assert app.root.current == "alphabet"
+        chart_status = app.root.get_screen("alphabet").ids.chart_status.text
+        assert chart_status == (
+            "Chart image unavailable. You can still enter text for limited conversion."
+        ), repr(chart_status)
+        app.root.current = "home"
 
         app.mode = "Convert writing system"
         app.source, app.target = "Old Nubian (Coptic)", "Old Nubian scholarly Latin"
@@ -451,6 +459,11 @@ def start(app):
             "Old Nubian" in item.text
             for item in app.root.get_screen("picker").ids.options.children
         )
+        assert any(
+            item.text.endswith("Latin reading")
+            and item.secondary_text == "Limited character readings"
+            for item in app.root.get_screen("picker").ids.options.children
+        )
         app.filter_languages("Nobiin")
         assert not app.root.get_screen("picker").ids.options.children
         app.close_picker()
@@ -550,6 +563,8 @@ def start(app):
                     "local meaning model",
                     "short French detection route with visible confidence",
                     "plain Somali translation caution in the live status label",
+                    "clear chart-image recovery guidance in the alphabet screen",
+                    "limited-coverage wording in the Old Nubian Latin-reading picker",
                 ]
                 (folder / "result.json").write_text(
                     json.dumps(

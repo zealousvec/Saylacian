@@ -12,6 +12,7 @@ Visible wording reviewed across the approved Kivy screens, dialogs, picker, hist
 | Untagged private-use text | Guessed Borama/Kaddare from code point alone | `This text has no script label. Paste a Saylacian Text package or choose Borama/Kaddare as source.` | Prevent unrelated PUA mappings being silently misread |
 | Model progress | `Preparing verified model download...`; `Translating with downloaded model...`; checksum detail after success | `Preparing download...`; `Translating...`; `Pack installed: ...` | Keep routine progress natural; integrity errors remain explicit |
 | Chart reference | Repeated experimental/chart-label terminology and PUA explanation | `Limited letter conversion. Word spelling has not been reviewed. Copied text may need the Saylacian font.` | State material limitation in plain language |
+| Missing chart image | `No chart image is available. Letter entry remains experimental.` | `Chart image unavailable. You can still enter text for limited conversion.` | Distinguishes a missing reference image from the conversion capability; live Kivy screen check |
 | Chart conversion status | Two separate technical warnings plus “Writing converted; meaning unchanged.” | `Limited conversion; word spelling is unreviewed. May need Saylacian font outside this app.` plus any specific unmapped-character warning | Keep important limitation while avoiding clipped/repeated status copy |
 | Osmanya reference | “The mapping is experimental” and “Community validation pending” | “W/uu and y/ii share letters, so reverse readings can differ”; “Somali-speaker review is still needed.” | Explain concrete reversal limit and review status plainly |
 | Offline pack screen | `Download once. Translate on this device with no account, quota or internet.` | `Download packs once, then translate on this device without internet.` | Accurate offline behavior; no quota claim |
@@ -20,6 +21,7 @@ Visible wording reviewed across the approved Kivy screens, dialogs, picker, hist
 | History screen | `Local history / favourites` | `History & favourites` | Replace slash label with natural wording |
 | Saved confirmation | Technical `History > Clear saved` navigation | `Favourite saved on this device. Use Clear saved to remove it.` | Keep confirmation short and actionable |
 | Old Nubian detection | `Coptic script detected; language is not inferred.` | `Coptic-derived writing detected; language is unknown.` | State script/language distinction in plain language |
+| Old Nubian Latin-reading picker | `Scholarly transliteration` | `Limited character readings` | Avoids implying complete or specialist-validated transliteration; matches the 34-entry coverage |
 | Website result/alphabet copy | Fixed `Experimental.` prefix and `Current experimental mapping` | Show actual warnings; explain alternate readings and ask for Somali-speaker review | Avoid repeated label while keeping quality and review status visible |
 | Website coverage/privacy | Long unsupported/complete-support phrasing | Describe limited transliteration, experimental reverse, unimplemented modern varieties, and server handling directly | Keep genuine coverage and privacy limits visible |
 | GitHub status documents | Empty-repository and pre-publication wording after public source release | Updated to distinguish the published source alpha from owner-controlled settings and future releases | Remove stale public-repo state |
@@ -28,4 +30,4 @@ Visible wording reviewed across the approved Kivy screens, dialogs, picker, hist
 
 ## Remaining
 
-Finish the remaining visible status and picker audit against the current application. Audit new visible strings whenever UI functionality changes. Do not remove limitation statements; keep detailed explanation in focused docs. Repository description, topics and security settings remain owner-controlled.
+Review pack-download/removal failure messages for actionable wording and accidental local-path leakage. Audit new visible strings whenever UI functionality changes. Do not remove limitation statements; keep detailed explanation in focused docs. Repository description, topics and security settings remain owner-controlled.

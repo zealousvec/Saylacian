@@ -61,6 +61,9 @@ class PresentationTests(unittest.TestCase):
         )
         self.assertNotIn("Nobiin (Nubian)", names)
         self.assertNotIn("Dongolawi / Andaandi (Nubian)", names)
+        self.assertIn(
+            ("Old Nubian scholarly Latin", "Limited character readings"), choices
+        )
 
 
 if __name__ == "__main__":

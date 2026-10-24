@@ -10,7 +10,7 @@ Move each task among these queues at every milestone. A blocker must name the ex
 
 ### ACTIVE
 
-Complete the remaining visible status and picker copy audit against docs/UI_COPY_REGISTER.md. Preserve concrete limitations; add live Kivy assertions for any changed warnings.
+Audit pack-download and removal error statuses for user-facing clarity while preserving useful recovery details; add focused regressions and live Kivy acceptance.
 
 ### BLOCKED
 
@@ -35,6 +35,7 @@ No separate READY item while the visible copy audit is ACTIVE. Once complete, re
 | Task | Evidence |
 |---|---|
 | Make translation status warnings understandable | Replaced internal model terms and review-workflow wording with short user-facing notices for synthetic Somali output, multilingual Somali/French pivots, fallback reasons, removed markers, and local English/French output. Translation and website tests assert wording; live Kivy self-test confirms the Somali caution appears in the status label. Full suite: 127 passed, 2 skipped, 197 subtests; Ruff, formatting, compileall, pip check, release-safety scan, and diff check passed. This improves clarity, not translation quality. |
+| Clarify script-reference and Old Nubian picker limits | Missing chart images now state users can still enter text for limited conversion; Old Nubian Latin route is labelled `Limited character readings`, matching its 34-entry coverage. Unit assertions and isolated live Kivy checks verify both user-visible labels. Full suite remains 127 passed, 2 skipped, 197 subtests; Ruff/format, compileall, `pip check`, release safety, and diff checks pass. |
 | Preserve saved history and provide safe recovery | JSON decode/schema errors are distinguished from unknown future versions. A confirmation defaults to KEEP; BACK UP & START FRESH writes a unique durable byte-for-byte backup before atomic reset. Tests prove backup, refusal for valid/future data, and preservation if reset fails. Live Kivy acceptance covers keep, recover, visible confirmation and re-opening Saved. Full suite: 112 passed, 188 subtests; Ruff, format, compileall, `pip check`, and diff checks pass. |
 | Keep SentencePiece unknown markers out of the synthetic Somali candidate route | Official SentencePiece docs identify U+2047 as the default decoded unknown-token surface. The pinned pre-guard EN→SO output contained it in 46/150 rows (81 occurrences). The route now sends candidate output containing U+2047 through the existing multilingual fallback, with an explicit warning. Fresh Python 3.12 dev install; pinned Somali pack hash verification; full 150-pair run with network denied: 47 marker fallbacks, zero markers in final EN→SO, BLEU 5.287 / chrF++ 25.282 (pre-guard: 7.057 / 28.996); SO→EN unchanged. Metric regression is disclosed; this removes a decode artifact, not a verified semantic improvement. Full suite: 114 passed; Ruff, format, compileall, `pip check`, and isolated Kivy launch pass. |
 | Keep model-pack pointers and manifest paths inside pack storage | Pack IDs/versions are restricted to safe single path components; `current.json`, version folders, `installed.json` and manifest-listed assets are resolved and checked against their expected parent before reads or inference. Pointer activation uses a unique exclusive temp file and atomic replacement. Tests reproduce POSIX/Windows traversal and reject unsafe install versions before network access. Full suite: 116 passed, 2 symlink tests skipped because Windows denied symlink creation; Ruff/format, compileall, `pip check`, release scan, isolated pinned-pack offline smoke and Kivy launch pass. |
@@ -95,7 +96,7 @@ Replaced developer-facing model terminology and internal review-workflow phrases
 
 Verification: `127 passed, 2 skipped, 197 subtests`; Ruff, formatting (105 files), compileall, `pip check`, release-safety scan, `git diff --check`, and isolated `main.py --self-test` passed. Live test output remains `Bonjour, comment allez-vous ?`. KivyMD 1.2.0 deprecation warnings remain.
 
-The short-text accuracy task is BLOCKED pending an independently labelled, licensed natural short-phrase set or owner-approved review. Next ACTIVE: complete the remaining visible status/picker copy audit from `docs/UI_COPY_REGISTER.md`; keep actual linguistic and accessibility limitations explicit.
+The short-text accuracy task is BLOCKED pending an independently labelled, licensed natural short-phrase set or owner-approved review. The route, chart and Old Nubian picker copy audit items are verified. Next ACTIVE: audit model-pack failure messages for actionable, nontechnical wording without hiding integrity errors.
 
 ## Latest session test record
 

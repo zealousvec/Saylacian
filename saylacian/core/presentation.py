@@ -16,7 +16,7 @@ CONTEXT_NOTES = {
     "Borama": "Limited conversion · needs Saylacian font",
     "Kaddare": "Limited conversion · needs Saylacian font",
     "Old Nubian (Coptic)": "Original Coptic-derived script",
-    "Old Nubian scholarly Latin": "Scholarly transliteration",
+    "Old Nubian scholarly Latin": "Limited character readings",
 }
 
 
