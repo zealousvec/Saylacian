@@ -137,12 +137,14 @@ class ModelPackTests(unittest.TestCase):
         }
         with tempfile.TemporaryDirectory() as temporary:
             manager = ModelPackManager(Path(temporary), spec)
-            with patch(
-                "saylacian.core.model_packs.urllib.request.urlopen",
-                return_value=io.BytesIO(content),
+            with (
+                patch(
+                    "saylacian.core.model_packs.urllib.request.urlopen",
+                    return_value=io.BytesIO(content),
+                ),
+                self.assertRaisesRegex(ValueError, "SHA-256"),
             ):
-                with self.assertRaisesRegex(ValueError, "SHA-256"):
-                    manager.install("somali")
+                manager.install("somali")
             self.assertEqual(manager.active_model_roots(), [])
             self.assertEqual(list((Path(temporary) / "somali").glob("1-test")), [])
 

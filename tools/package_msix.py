@@ -149,7 +149,7 @@ def verify_package_checksums(root: Path) -> int:
 
 def run(command: list[str]) -> None:
     print("+", subprocess.list2cmdline(command), flush=True)
-    result = subprocess.run(command, text=True, capture_output=True)
+    result = subprocess.run(command, check=False, text=True, capture_output=True)
     if result.returncode:
         print((result.stdout + "\n" + result.stderr)[-12000:], file=sys.stderr)
         result.check_returncode()

@@ -36,7 +36,7 @@ class WebsiteTests(unittest.TestCase):
     def test_core_conversion(self):
         r = self.client.post(
             "/process",
-            json=dict(text="dhagax!", source="Somali Latin", target="Osmanya"),
+            json={"text": "dhagax!", "source": "Somali Latin", "target": "Osmanya"},
         )
         self.assertEqual(r.json["text"], "𐒊𐒖𐒌𐒖𐒄!")
 
@@ -48,12 +48,12 @@ class WebsiteTests(unittest.TestCase):
         with patch("socket.socket.connect", side_effect=AssertionError("Network")):
             response = self.client.post(
                 "/process",
-                json=dict(
-                    text="Salaan, sidee tahay?",
-                    source="Somali Latin",
-                    target="English",
-                    mode="meaning",
-                ),
+                json={
+                    "text": "Salaan, sidee tahay?",
+                    "source": "Somali Latin",
+                    "target": "English",
+                    "mode": "meaning",
+                },
             )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json["text"], "How are you?")
@@ -66,12 +66,12 @@ class WebsiteTests(unittest.TestCase):
         with patch("socket.socket.connect", side_effect=AssertionError("Network")):
             response = self.client.post(
                 "/process",
-                json=dict(
-                    text="Salaan, sidee tahay?",
-                    source="Detect language/script",
-                    target="English",
-                    mode="meaning",
-                ),
+                json={
+                    "text": "Salaan, sidee tahay?",
+                    "source": "Detect language/script",
+                    "target": "English",
+                    "mode": "meaning",
+                },
             )
         self.assertEqual(response.status_code, 200)
         self.assertIn("How are you?", response.json["text"])
@@ -85,12 +85,12 @@ class WebsiteTests(unittest.TestCase):
         with patch("socket.socket.connect", side_effect=AssertionError("Network")):
             response = self.client.post(
                 "/process",
-                json=dict(
-                    text="Salaan, sidee tahay?",
-                    source="Somali Latin",
-                    target="French",
-                    mode="meaning",
-                ),
+                json={
+                    "text": "Salaan, sidee tahay?",
+                    "source": "Somali Latin",
+                    "target": "French",
+                    "mode": "meaning",
+                },
             )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json["text"], "Comment allez-vous ?")
@@ -100,29 +100,29 @@ class WebsiteTests(unittest.TestCase):
 
     def test_unsupported(self):
         r = self.client.post(
-            "/process", json=dict(text="text", source="English", target="Osmanya")
+            "/process", json={"text": "text", "source": "English", "target": "Osmanya"}
         )
         self.assertEqual(r.status_code, 422)
         self.assertIn("error", r.json)
 
     def test_limit(self):
         self.assertEqual(
-            self.client.post("/process", json=dict(text="a" * 4001)).status_code, 422
+            self.client.post("/process", json={"text": "a" * 4001}).status_code, 422
         )
 
     def test_invalid_type(self):
         self.assertEqual(
-            self.client.post("/process", json=dict(text=[1])).status_code, 422
+            self.client.post("/process", json={"text": [1]}).status_code, 422
         )
 
     def test_escape(self):
         r = self.client.post(
             "/process",
-            data=dict(
-                text="<script>alert(1)</script>",
-                source="Somali Latin",
-                target="Osmanya",
-            ),
+            data={
+                "text": "<script>alert(1)</script>",
+                "source": "Somali Latin",
+                "target": "Osmanya",
+            },
         )
         self.assertNotIn(b"<script>", r.data)
 

@@ -6,6 +6,7 @@ import unittest
 
 from saylacian.core.capabilities import get_capability, list_capabilities
 from saylacian.core.transliteration import (
+    OLD_NUBIAN_TO_LATIN,
     detect_chart_script,
     detect_script,
     transliterate,
@@ -79,9 +80,11 @@ class CoreTests(unittest.TestCase):
 
     def test_unsupported_modern_nubian_routes_stay_explicit(self):
         for source in ("Dongolawi / Andaandi (Nubian)",):
-            with self.subTest(source=source):
-                with self.assertRaisesRegex(ValueError, "no validated mapping"):
-                    transliterate("text", source, "Somali Latin")
+            with (
+                self.subTest(source=source),
+                self.assertRaisesRegex(ValueError, "no validated mapping"),
+            ):
+                transliterate("text", source, "Somali Latin")
 
     def test_script_not_language_detection(self):
         self.assertEqual(detect_script("𐒁! ")[0], "Osmanya")
@@ -130,13 +133,76 @@ class CoreTests(unittest.TestCase):
             "jngnyw",
         )
 
-    def test_old_nubian_capital_additions_and_editorial_marks_are_preserved(self):
-        capitals = "ⳜⳞⳠⳢ"
-        capital_result = transliterate(
-            capitals, "Old Nubian (Coptic)", "Old Nubian scholarly Latin"
+    def test_old_nubian_capitals_follow_unicode_pairs_and_preserve_latin_case(self):
+        cases = {
+            "ⲀⲂⲄ": "ABG",
+            "ⲀⲃⲄ": "AbG",
+            "ⳜⳞⳠⳢ": "JNGNYW",
+            "ϢϤϨϪϬϮ": "SHFHDJKYTI",
+        }
+        for source, expected in cases.items():
+            with self.subTest(source=source):
+                self.assertEqual(
+                    transliterate(
+                        source,
+                        "Old Nubian (Coptic)",
+                        "Old Nubian scholarly Latin",
+                    ).text,
+                    expected,
+                )
+        for character, reading in OLD_NUBIAN_TO_LATIN.items():
+            uppercase = character.upper()
+            if uppercase != character:
+                with self.subTest(character=uppercase):
+                    self.assertEqual(
+                        transliterate(
+                            uppercase,
+                            "Old Nubian (Coptic)",
+                            "Old Nubian scholarly Latin",
+                        ).text,
+                        reading.upper(),
+                    )
+
+        reverse_cases = {
+            "ABG": "ⲀⲂⲄ",
+            "AbG": "ⲀⲃⲄ",
+            "NG": "Ⳟ",
+        }
+        for source, expected in reverse_cases.items():
+            with self.subTest(source=source):
+                self.assertEqual(
+                    transliterate(
+                        source,
+                        "Old Nubian scholarly Latin",
+                        "Old Nubian (Coptic)",
+                    ).text,
+                    expected,
+                )
+
+        uppercase_ng = transliterate(
+            "NG", "Old Nubian scholarly Latin", "Old Nubian (Coptic)"
         )
-        self.assertEqual(capital_result.text, capitals)
-        self.assertTrue(capital_result.warnings)
+        self.assertIn("ⲚⲄ", uppercase_ng.alternatives)
+        self.assertTrue(uppercase_ng.warnings)
+
+    def test_old_nubian_combining_marks_and_line_breaks_are_preserved(self):
+        text = "ⲁ⳯⳰⳱\nⲃ⳹⳺⳻⳼"
+        result = transliterate(
+            text, "Old Nubian (Coptic)", "Old Nubian scholarly Latin"
+        )
+        self.assertEqual(result.text, "a⳯⳰⳱\nb⳹⳺⳻⳼")
+        self.assertTrue(
+            any("Combining marks" in warning for warning in result.warnings)
+        )
+
+        punctuation = "⳹⳺⳻⳼"
+        punctuation_result = transliterate(
+            punctuation, "Old Nubian (Coptic)", "Old Nubian scholarly Latin"
+        )
+        self.assertEqual(punctuation_result.text, punctuation)
+        self.assertTrue(
+            any("punctuation" in warning for warning in punctuation_result.warnings)
+        )
 
         marks = "⳹⳺⳻⳼⳯⳰⳱"
         mark_result = transliterate(

@@ -7,7 +7,7 @@ import unittest
 from pathlib import Path
 
 from saylacian.core.script_info import osmanya_letters
-from saylacian.core.transliteration import OLD_NUBIAN_TO_LATIN, transliterate
+from saylacian.core.transliteration import OLD_NUBIAN_CASED_TO_LATIN, transliterate
 
 
 class ScriptInfoTests(unittest.TestCase):
@@ -64,9 +64,12 @@ class ScriptInfoTests(unittest.TestCase):
                         glyph = (char_code + delta) & 0xFFFF
                     if glyph:
                         codepoints.add(char_code)
-        for character in OLD_NUBIAN_TO_LATIN:
+        for character in OLD_NUBIAN_CASED_TO_LATIN:
             with self.subTest(character=character):
                 self.assertIn(ord(character), codepoints)
+        for codepoint in (*range(0x2CEF, 0x2CF2), *range(0x2CF9, 0x2CFD)):
+            with self.subTest(codepoint=hex(codepoint)):
+                self.assertIn(codepoint, codepoints)
 
     def test_old_nubian_conversion_uses_bundled_fonted_script(self):
         self.assertTrue(

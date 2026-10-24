@@ -8,7 +8,7 @@ Primary mapping reference: Database of Medieval Nubian Texts, [transliteration t
 
 Unicode NamesList evidence: [Coptic block names list, Unicode 18.0](https://www.unicode.org/Public/18.0.0/charts/nameslist/2c80/). The names list identifies the Old Nubian additions at U+2CDD, U+2CDF, U+2CE1 and U+2CE3. Standard character names establish code-point identity, not the correct language-specific reading.
 
-Every implemented entry below is source-linked but **not independently reviewed**. The reviewer field is intentionally explicit. The table is generated from the checked-in code mapping, so changes to that mapping must update this ledger and its tests together.
+Every lowercase entry below is source-linked but **not independently reviewed**. The implementation derives uppercase entries mechanically from Unicode's paired uppercase characters and uppercases the corresponding Latin reading; this is a software case-preservation convention, not a claim about capitalization in Old Nubian manuscripts. The bundled Coptic font is checked against every generated converter glyph. The reviewer field is intentionally explicit. Changes to the lowercase mapping must update this ledger and its tests together.
 
 | Character | Code point | Unicode name | Current Latin reading | Evidence/convention | Confidence | Reviewer |
 |---|---|---|---|---|---|---|
@@ -51,7 +51,8 @@ Every implemented entry below is source-linked but **not independently reviewed*
 
 - The route has no source-linked manuscript fixture set and no independent Old Nubian specialist review.
 - Reverse transliteration is ambiguous. The code reports candidate strings, but the candidate generator is experimental and does not reconstruct a manuscript spelling.
-- Only the 34 lowercase entries listed above are mapped. Unlisted alphabetic characters, including Old Nubian capital letters, are preserved with a warning. Old Nubian punctuation and combining marks currently pass through unchanged, without transliteration rules; tests cover the encoded punctuation/marks. Numerals, spacing, case policy and editorial conventions still need scholarly review.
+- The 34 lowercase entries listed above are the only linguistic readings implemented. Their Unicode uppercase partners are accepted using Python Unicode case pairs and an uppercase Latin rendering; this adds no new source reading. Unlisted alphabetic characters are preserved with a warning. Coptic combining marks and punctuation pass through unchanged and now produce a notice that Saylacian applies no reading or interpretation rule to them. The live Latin output may not visibly render combining Coptic marks; the original input retains them. Numerals, manuscript capitalization, spacing and editorial conventions still need scholarly review.
+- Unicode NamesList identifies uppercase/lowercase pairs for the Old Nubian additions: U+2CDC/U+2CDD (shima), U+2CDE/U+2CDF (ngi), U+2CE0/U+2CE1 (nyi), and U+2CE2/U+2CE3 (wau). Saylacian preserves case mechanically across these pairs but does not infer manuscript capitalization. Unicode also lists Coptic combining marks and Old Nubian punctuation; their code-point names establish identity, not reading or interpretation.
 - Unicode includes additional Coptic/Old Nubian characters and punctuation. Presence in Unicode does not itself license a transliteration rule; audit them against scholarly references before mapping.
 - Do not add word definitions, translation claims, manuscript excerpts, or canonical orthographic rules based on this table alone.
 

@@ -94,8 +94,7 @@ def extract_argos(pair: str, archive: Path, download: bool) -> int:
             )
         for member, relative in files.items():
             target = MODEL_ROOT / pair / relative
-            info = package.getinfo(member)
-            item = {"bytes": info.file_size}
+            package.getinfo(member)
             with package.open(member) as src:
                 h = hashlib.sha256()
                 size = 0

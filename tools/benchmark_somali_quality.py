@@ -276,9 +276,7 @@ def main() -> int:
     else:
         samples = sorted(
             all_samples,
-            key=lambda row: hashlib.sha256(
-                f"20261023:{row['id']}".encode("utf-8")
-            ).digest(),
+            key=lambda row: hashlib.sha256(f"20261023:{row['id']}".encode()).digest(),
         )[: args.limit]
 
     if args.system == "baseline":

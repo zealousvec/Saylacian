@@ -99,7 +99,7 @@ class TranslationHandler(BaseHTTPRequestHandler):
             )
         except ValueError as error:
             self._send_json(422, {"error": str(error)})
-        except Exception:
+        except (ImportError, OSError, RuntimeError):
             self._send_json(500, {"error": "translation failed"})
         finally:
             _translation_slots.release()

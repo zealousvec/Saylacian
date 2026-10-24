@@ -23,4 +23,6 @@ Help readers inspect original Old Nubian text alongside a documented scholarly t
 
 ## Current state
 
-Only the limited character table in `saylacian/core/transliteration.py` exists. The app does not yet have an aligned reader, searchable lexicon, manuscript corpus, source-linked examples or specialist review. These are backlog tasks; the current UI must describe the feature as limited transliteration.
+The approved translator screen already shows source text and its reading in paired input/output panels, preserving line breaks. The limited 34-entry table now applies Unicode uppercase/lowercase pairs mechanically and preserves unsupported letters, combining marks, punctuation and line breaks. It reports unverified letters, warns when Coptic combining marks may not render beside Latin, and makes reverse alternatives visible. This is a reading aid for character-level transliteration, not an aligned scholarly edition.
+
+There is no searchable lexicon, manuscript corpus, source-linked passage set, OCR, meaning translation or specialist review. Word-level alignment and additional character readings remain backlog tasks until cited sources and a reviewer support them. The current UI and README must continue to describe this as limited transliteration.

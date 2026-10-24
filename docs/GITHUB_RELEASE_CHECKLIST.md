@@ -1,35 +1,26 @@
-# GitHub source alpha checklist
+# GitHub source alpha status
 
-Scope: source-only experimental alpha. The verified public repository exists and `origin` is configured. No source push, tag, release, deployment, or account-setting change has occurred.
+**Checked:** 2026-10-24
+**Repository:** [zealousvec/Saylacian](https://github.com/zealousvec/Saylacian)
+**Scope:** public source repository only. No release, tag, installer or mobile package is published.
 
-## Completed locally
+## Published and verified
 
-- [x] Audited all 518 initial staged candidates. Historical/generated captures, obsolete reports, unused UI experiment, duplicate notice and other clutter were unstaged without deleting local data. Approved Kivy interface and two clean screenshots remain. Final index: 149 files / 1,298,779 bytes.
-- [x] README labels Somali translation and partial Borama/Kaddare conversion experimental; setup and contribution guidance retained.
-- [x] Root `LICENSE` is byte-identical to official GNU AGPLv3 text. Owner approved AGPL-3.0-or-later only for Saylacian-authored code they own or can license. Project source/config files carry SPDX identifiers; independently licensed assets and data remain separately noticed.
-- [x] Audited all 62 AGPL-marked code/config files for copyright/licence headers, source URLs, and copied/adapted-from markers. No third-party implementation or known outside contributor was found. Git history is empty, so the scan cannot prove per-line provenance; no specific exception requiring separate permission was identified. AGPL remains limited to original code the owner has rights to license.
-- [x] Reviewed chart/font/model/dataset/dependency notices and recorded file-level scope in `docs/LICENSING.md` and `docs/THIRD_PARTY_NOTICES.md`.
-- [x] Clean Windows clone installed dependencies, fetched/checksummed Somali and French packs, tested offline translations and a Kaddare round-trip, and launched the Kivy event loop. Full local suite and static checks are documented in `docs/SOURCE_RELEASE_READINESS.md`.
-- [x] Secret/path scan found no recognized credentials or local profile paths; staged Markdown local links resolve. No installer/DLL/EXE/model weights are staged.
-- [x] Authenticated owner `zealousvec` verified. Public repo [zealousvec/Saylacian](https://github.com/zealousvec/Saylacian) is public, has default branch `main`, and is empty (size 0, no remote refs). Local `origin` matches the expected HTTPS URL. The current GitHub description differs from the approved copy and mentions “non-profit”; correct it before publication.
+- The initial experimental-alpha source snapshot was published on `main`; its reviewed snapshot contained 149 files.
+- The repository contains the approved GNU AGPLv3-or-later licence for Saylacian-authored code the owner can license. Third-party works retain separate notices and licences.
+- Somali translation and partial Borama/Kaddare conversion remain experimental. Old Nubian support remains limited to cited character transliteration; reverse conversion is experimental. Modern Nubian varieties are not implemented.
+- The most recent public `main` commit before this local session is `c4f2f87270c22a05e772816ce98e57a99b871b18`. CI run `40087020450` passed on that commit.
+- At this session's start, this checkout had five local commits ahead of public `main`. One additional implementation commit is prepared locally and is not published. The two pre-existing local edits in `docs/PROJECT_STATUS.md` and `docs/TECHNICAL_AUDIT.md` are not part of that commit.
 
-## Remaining before publication
+## Owner-controlled settings not verified here
 
-- [ ] In Settings → General → Description, set `Open-source, offline-first translation and language-preservation software.` and save. The current text is different and calls the project “non-profit,” which conflicts with the project credits.
-- [ ] In Settings → Security → Advanced Security, enable Private vulnerability reporting, Dependabot alerts, Dependabot security updates, Secret scanning, and Push protection wherever GitHub offers the toggle. Verify each control after enabling; current connector only reads public repository data, so none are claimed enabled.
-- [ ] Watch → Custom → Security alerts (or All activity), then check GitHub Settings → Notifications → Watching and enable email delivery if desired. Verify the repository notification subscription.
-- [ ] The 149-file source tree begins at root commit `594b4807e32a3feb9da6a3c943845b423d8e9a29`; subsequent local commits document release checks. Local `main` and `codex/release-prep` point to the same history, and `origin` points to the empty public repo.
-- [ ] Owner must separately approve the initial public push. Proposed command: `git push -u origin main`. It publishes only the local `main` history, no tags, and does not force-push. No source or release has been published.
+- GitHub repository description and topics.
+- Private vulnerability reporting, Dependabot, secret scanning, push protection, and maintainer notification settings.
 
-See [GitHub security settings](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/enabling-features-for-your-repository/managing-security-and-analysis-settings-for-your-repository) and [private vulnerability reporting](https://docs.github.com/en/code-security/how-tos/report-and-fix-vulnerabilities/configure-vulnerability-reporting/configure-for-a-repository) for the controls above.
+These account settings are not changed or claimed enabled by this code audit. Verify them in GitHub settings if needed.
 
-## Separate binary/mobile checks (not source-alpha blockers)
+## Separate future release work
 
-- [ ] Inspect exact packaged KivyMD MDI font and native Windows DLLs; include required notices.
-- [ ] Rebuild/test Windows installer and address signing/Smart App Control reputation without weakening security settings.
-- [ ] Build and test Android/iOS packages on real devices.
-
-## Optional after source alpha
-
-- Fluent-speaker Somali review, expanded translation evaluation, and broader historical-script validation.
-- Mobile runtime and device performance work.
+- Windows installer and native DLL licence audit, signing, Smart App Control reputation, and clean-device install tests.
+- Android/iOS builds and real-device tests.
+- A GitHub Release or tag requires separate owner approval.

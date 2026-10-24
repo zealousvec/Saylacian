@@ -5,7 +5,6 @@ import socket
 import sys
 from pathlib import Path
 
-from kivy.app import App
 from kivy.clock import Clock
 from kivy.core.window import Window
 

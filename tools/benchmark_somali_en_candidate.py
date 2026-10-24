@@ -14,7 +14,6 @@ import argparse
 import hashlib
 import importlib.metadata
 import json
-import os
 import socket
 import sys
 import time
@@ -80,7 +79,6 @@ def main() -> int:
     import ctranslate2
     import sentencepiece
 
-    from saylacian.core.translation import translate_meaning
     from tools.benchmark_somali_quality import diagnostic_flags, score
 
     samples = [

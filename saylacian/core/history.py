@@ -29,14 +29,14 @@ class History:
         items = self.read()
         items.insert(
             0,
-            dict(
-                source=source,
-                target=target,
-                text=text,
-                result=result,
-                favourite=favourite,
-                mode=mode,
-            ),
+            {
+                "source": source,
+                "target": target,
+                "text": text,
+                "result": result,
+                "favourite": favourite,
+                "mode": mode,
+            },
         )
         self.path.parent.mkdir(parents=True, exist_ok=True)
         temp = self.path.with_suffix(".tmp")

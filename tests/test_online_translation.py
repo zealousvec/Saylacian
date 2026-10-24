@@ -166,17 +166,17 @@ class OnlineTranslationTests(unittest.TestCase):
                 "saylacian.core.translation.model_directory",
                 side_effect=ValueError("No local model installed."),
             ),
+            self.assertRaisesRegex(ValueError, "Downloaded-model fallback unavailable"),
         ):
-            with self.assertRaisesRegex(
-                ValueError, "Downloaded-model fallback unavailable"
-            ):
-                translate_meaning("Hello", "English", "French", model_root="missing")
+            translate_meaning("Hello", "English", "French", model_root="missing")
 
     def test_offline_setting_skips_cloud_provider(self):
         os.environ[PROVIDER_ENV] = "offline"
-        with patch("saylacian.core.translation.translate_cloudflare") as cloud:
-            with self.assertRaises(ValueError):
-                translate_meaning("Hello", "English", "French", model_root="missing")
+        with (
+            patch("saylacian.core.translation.translate_cloudflare") as cloud,
+            self.assertRaises(ValueError),
+        ):
+            translate_meaning("Hello", "English", "French", model_root="missing")
         cloud.assert_not_called()
 
     def test_invalid_language_and_oversized_input_are_rejected(self):

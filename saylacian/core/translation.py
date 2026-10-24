@@ -50,14 +50,12 @@ def _synthetic_candidate_is_degenerate(source, output):
     if len(segments) != len(set(segments)):
         return True
     words = normalize(output).split()
-    if (
+    return bool(
         len(words) > 1
         and len(words[0]) >= 3
         and words[0] in words[1]
         and words[0] != words[1]
-    ):
-        return True
-    return False
+    )
 
 
 def _clean_model_markers(text):

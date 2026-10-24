@@ -131,6 +131,13 @@ def start(app):
         home.ids.input_text.text = "ng dj"
         assert home.ids.output_text.text == "ⳟ ϫ"
         assert "Other Coptic readings" in app.alternative_readings
+
+        app.source, app.target = "Old Nubian (Coptic)", "Old Nubian scholarly Latin"
+        app.refresh_fonts()
+        home.ids.input_text.text = "ⲀⲂⲄ\nⳜⳞⳠⳢ\nⲁ⳯⳰⳱"
+        assert home.ids.output_text.text == "ABG\nJNGNYW\na⳯⳰⳱"
+        assert home.ids.output_text.font_name == "Roboto"
+        assert "may not render with Latin text" in app.status
         app.open_picker("target")
         app.filter_languages("Old Nubian")
         assert any(
@@ -174,7 +181,17 @@ def start(app):
                 .rstrip("\0")
                 == "dhag!"
             )
-    except Exception:
+    except (
+        AssertionError,
+        AttributeError,
+        IndexError,
+        ImportError,
+        KeyError,
+        OSError,
+        RuntimeError,
+        TypeError,
+        ValueError,
+    ):
         import traceback
 
         (folder / "result.json").write_text(
@@ -215,6 +232,7 @@ def start(app):
                     "Borama/Kaddare tagged-package import, font selection, and reverse conversion",
                     "three Borama/Kaddare copy actions",
                     "Old Nubian reverse alternatives",
+                    "Old Nubian paired reading with case and line-break preservation",
                     "picker search",
                     "local meaning model",
                 ]
@@ -241,6 +259,19 @@ def start(app):
 
         Clock.schedule_interval(inspect, 0.2)
 
+    def capture_old_nubian_reader(dt):
+        Window.screenshot(name=str(folder / "old-nubian-reading.png"))
+        app.source, app.target = "Somali Latin", "Borama"
+        app.refresh_fonts()
+        home.ids.input_text.text = "dhag!"
+
+    def show_old_nubian_reader(dt):
+        app.source, app.target = "Old Nubian (Coptic)", "Old Nubian scholarly Latin"
+        app.refresh_fonts()
+        home.ids.output_text.cancel_selection()
+        home.ids.input_text.text = "ⲀⲂⲄ\nⳜⳞⳠⳢ\nⲁ⳯⳰⳱"
+        Clock.schedule_once(capture_old_nubian_reader, 0.2)
+
     def capture_kaddare(dt):
         home.ids.output_text.cancel_selection()
         Window.screenshot(name=str(folder / "chart-kaddare.png"))
@@ -258,4 +289,5 @@ def start(app):
     app.source, app.target = "Somali Latin", "Borama"
     app.refresh_fonts()
     home.ids.input_text.text = "dhag!"
+    Clock.schedule_once(show_old_nubian_reader, 0.1)
     Clock.schedule_once(capture_borama, 0.7)

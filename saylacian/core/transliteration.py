@@ -21,7 +21,7 @@ SCRIPT_DATA = {
 }
 SCRIPT_LATIN_TO_PUA = {
     name: {
-        record["grapheme"]: chr(int(record["pua"][2:], 16))
+        record["grapheme"]: chr(int("0x" + record["pua"][2:], 0))
         for record in data["records"]
     }
     for name, data in SCRIPT_DATA.items()
@@ -68,6 +68,31 @@ OLD_NUBIAN_TO_LATIN = {
     "ⳣ": "w",
     "ⳝ": "j",
 }
+OLD_NUBIAN_CASED_TO_LATIN = dict(OLD_NUBIAN_TO_LATIN)
+for character, reading in OLD_NUBIAN_TO_LATIN.items():
+    uppercase = character.upper()
+    if len(uppercase) == 1 and uppercase != character:
+        OLD_NUBIAN_CASED_TO_LATIN[uppercase] = reading.upper()
+
+OLD_NUBIAN_REVERSE = {
+    reading: character for character, reading in OLD_NUBIAN_TO_LATIN.items()
+}
+OLD_NUBIAN_REVERSE["ou"] = "ⳣ"
+OLD_NUBIAN_REVERSE_VARIANTS = {
+    "ou": ("ⲟⲩ",),
+    "ng": ("ⲛⲅ",),
+    "dj": ("ⲇⳝ",),
+    "sh": ("ⲥϩ",),
+    "th": ("ⲧϩ",),
+    "ph": ("ⲡϩ",),
+    "ps": ("ⲡⲥ",),
+    "ti": ("ⲧⲓ",),
+}
+OLD_NUBIAN_REVERSE_TOKENS = tuple(sorted(OLD_NUBIAN_REVERSE, key=len, reverse=True))
+OLD_NUBIAN_AMBIGUOUS_TOKENS = frozenset(
+    {"dj", "ky", "ng", "ny", "sh", "th", "ch", "ph", "ps", "ti", "ou"}
+)
+SOMALI_FORWARD_TOKENS = tuple(sorted(SOMALI_TO_OSMANYA, key=len, reverse=True))
 
 
 @dataclass(frozen=True)
@@ -75,6 +100,16 @@ class Conversion:
     text: str
     warnings: tuple[str, ...] = ()
     alternatives: tuple[str, ...] = ()
+
+
+def _match_case(pattern: str, value: str) -> str:
+    if pattern.isupper():
+        return value.upper()
+    if pattern.istitle():
+        return value[:1].upper() + value[1:].lower()
+    if pattern.islower():
+        return value.lower()
+    return value
 
 
 def is_private_use_character(char: str) -> bool:
@@ -144,26 +179,12 @@ def _chart_transliterate(text: str, source: str, target: str) -> Conversion:
 
 def _old_nubian_reverse_candidates(text: str, limit: int = 12) -> tuple[str, ...]:
     """Enumerate distinct letter-boundary readings of scholarly Latin input."""
-    reverse = {value: key for key, value in OLD_NUBIAN_TO_LATIN.items()}
-    reverse["ou"] = "ⳣ"
-    variants = {
-        "ou": ("ⲟⲩ",),
-        "ng": ("ⲛⲅ",),
-        "dj": ("ⲇⳝ",),
-        "sh": ("ⲥϩ",),
-        "th": ("ⲧϩ",),
-        "ph": ("ⲡϩ",),
-        "ps": ("ⲡⲥ",),
-        "ti": ("ⲧⲓ",),
-    }
-    tokens = sorted(reverse, key=len, reverse=True)
-
     paths = [()] * (len(text) + 1)
     paths[len(text)] = ("",)
     for index in range(len(text) - 1, -1, -1):
         matches = [
             token
-            for token in tokens
+            for token in OLD_NUBIAN_REVERSE_TOKENS
             if text[index : index + len(token)].casefold() == token
         ]
         if not matches:
@@ -173,7 +194,14 @@ def _old_nubian_reverse_candidates(text: str, limit: int = 12) -> tuple[str, ...
             continue
         outputs = []
         for token in matches:
-            readings = (reverse[token], *variants.get(token, ()))
+            source_token = text[index : index + len(token)]
+            readings = tuple(
+                _match_case(source_token, reading)
+                for reading in (
+                    OLD_NUBIAN_REVERSE[token],
+                    *OLD_NUBIAN_REVERSE_VARIANTS.get(token, ()),
+                )
+            )
             for reading in readings:
                 outputs.extend(reading + tail for tail in paths[index + len(token)])
                 if len(outputs) >= limit * 2:
@@ -220,32 +248,43 @@ def transliterate(text: str, source: str, target: str) -> Conversion:
     if (source, target) == ("Old Nubian (Coptic)", "Old Nubian scholarly Latin"):
         output = []
         warnings = []
+        preserved_marks = False
+        preserved_punctuation = False
         for char in unicodedata.normalize("NFC", text):
-            if char in OLD_NUBIAN_TO_LATIN:
-                output.append(OLD_NUBIAN_TO_LATIN[char])
+            if char in OLD_NUBIAN_CASED_TO_LATIN:
+                output.append(OLD_NUBIAN_CASED_TO_LATIN[char])
             else:
                 output.append(char)
                 if char.isalpha() and 0x2C80 <= ord(char) <= 0x2CFF:
                     warnings.append(f"No verified table entry for {char}; preserved.")
+                elif 0x2C80 <= ord(char) <= 0x2CFF:
+                    category = unicodedata.category(char)
+                    preserved_marks |= category.startswith("M")
+                    preserved_punctuation |= category.startswith("P")
+        if preserved_marks:
+            warnings.append(
+                "Combining marks are preserved but may not render with Latin text; no reading rule is applied."
+            )
+        if preserved_punctuation:
+            warnings.append("Coptic punctuation is preserved without interpretation.")
         return Conversion("".join(output), tuple(warnings))
     if (source, target) == ("Old Nubian scholarly Latin", "Old Nubian (Coptic)"):
-        reverse = {value: key for key, value in OLD_NUBIAN_TO_LATIN.items()}
-        reverse["ou"] = "ⳣ"
         output = []
         index = 0
-        ambiguities = {"dj", "ky", "ng", "ny", "sh", "th", "ch", "ph", "ps", "ti"}
-        keys = sorted(reverse, key=len, reverse=True)
+        matched_tokens = []
         while index < len(text):
             token = next(
                 (
                     key
-                    for key in keys
+                    for key in OLD_NUBIAN_REVERSE_TOKENS
                     if text[index : index + len(key)].casefold() == key
                 ),
                 None,
             )
             if token:
-                output.append(reverse[token])
+                source_token = text[index : index + len(token)]
+                output.append(_match_case(source_token, OLD_NUBIAN_REVERSE[token]))
+                matched_tokens.append(token)
                 index += len(token)
                 continue
             output.append(text[index])
@@ -256,7 +295,7 @@ def transliterate(text: str, source: str, target: str) -> Conversion:
             candidate for candidate in candidates if candidate != primary
         )
         warnings = []
-        if any(token in text.casefold() for token in (*ambiguities, "ou")):
+        if any(token in OLD_NUBIAN_AMBIGUOUS_TOKENS for token in matched_tokens):
             warnings.append(
                 "Latin-to-script conversion follows cited scholarly table; letter boundaries can be ambiguous."
             )
@@ -279,7 +318,7 @@ def transliterate(text: str, source: str, target: str) -> Conversion:
             token = next(
                 (
                     t
-                    for t in sorted(SOMALI_TO_OSMANYA, key=len, reverse=True)
+                    for t in SOMALI_FORWARD_TOKENS
                     if text[index : index + len(t)].lower() == t
                 ),
                 None,

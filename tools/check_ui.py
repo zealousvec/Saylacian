@@ -12,7 +12,6 @@ PROJECT = Path(__file__).resolve().parents[1]
 os.environ.setdefault("SAYLACIAN_TRANSLATION_PROVIDER", "offline")
 sys.path.insert(0, str(PROJECT))
 from kivy.clock import Clock
-from kivy.core.clipboard import Clipboard
 from kivy.core.window import Window
 
 from main import SaylacianApp

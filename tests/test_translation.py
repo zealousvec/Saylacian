@@ -4,7 +4,6 @@
 
 import os
 import unittest
-from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest.mock import patch
 
@@ -34,9 +33,9 @@ class TranslationTests(unittest.TestCase):
         with (
             TemporaryDirectory() as folder,
             patch("socket.socket.connect", side_effect=AssertionError("Network")),
+            self.assertRaisesRegex(ValueError, "No local model"),
         ):
-            with self.assertRaisesRegex(ValueError, "No local model"):
-                translate_meaning("hello", "English", "French", folder)
+            translate_meaning("hello", "English", "French", folder)
 
     def test_script_not_meaning_language(self):
         with self.assertRaises(ValueError):

@@ -40,14 +40,14 @@
     <label for="output">Result</label><textarea id="output" readonly rows="6">{{result.text if result else ''}}</textarea>
     <button id="copy" type="button">Copy result</button>
   </section>
-  <div id="status" role="status" aria-live="polite">{% if error %}{{error}}{% elif result %}Experimental. {{result.warnings|join(' ')}}{% else %}Choose writing-system conversion or meaning translation.{% endif %}</div>
+  <div id="status" role="status" aria-live="polite">{% if error %}{{error}}{% elif result %}{{result.warnings|join(' ') or 'Done.'}}{% else %}Choose writing-system conversion or meaning translation.{% endif %}</div>
   <details><summary>Osmanya alphabet and input aid</summary>
-    <p>Current experimental mapping. Letters can share readings. Select Osmanya as source before inserting a letter.</p>
+    <p>Some letters have more than one reading. Select Osmanya as source to add a character.</p>
     <div class="alphabet">{% for letter in alphabet %}
       <button type="button" class="letter" data-glyph="{{letter.glyph}}" title="{{letter.name}}" aria-label="Insert {{letter.name}}, {{letter.readings}}"><span>{{letter.glyph}}</span><small>{{letter.readings}} · {{letter.codepoint}}</small></button>
     {% endfor %}</div>
-    <p>Reference: <a href="https://www.unicode.org/versions/Unicode16.0.0/core-spec/chapter-19/">Unicode 16.0, section 19.2.1</a>. Community validation pending.</p>
+    <p>Reference: <a href="https://www.unicode.org/versions/Unicode16.0.0/core-spec/chapter-19/">Unicode 16.0, section 19.2.1</a>. Somali-speaker review is still needed.</p>
   </details>
-  <section><h2>Support and privacy</h2><p>Somali Latin / Osmanya conversion is experimental. English ↔ French and English ↔ Somali meaning models run locally; Somali ↔ French uses an experimental two-step route through English. Somali output needs fluent human review, and two-step errors may compound. Borama and Kaddare are not offered by this website. The shared application core has a limited Old Nubian Coptic-to-scholarly-Latin transliteration table and an experimental reverse route; these do not translate Old Nubian meaning or establish complete support. Modern Nubian varieties are unsupported.</p><p>Text is processed by this server when you choose Convert. This development site stores no translation history. Public deployment has not been configured.</p></section>
+  <section><h2>Support and privacy</h2><p>Somali Latin / Osmanya conversion is experimental. English ↔ French and English ↔ Somali meaning models run locally. Somali output needs fluent review. Somali ↔ French uses English as an intermediate step, so errors can compound. This website does not offer Borama or Kaddare. Old Nubian support is limited to character transliteration from Coptic-derived writing to scholarly Latin; reverse conversion is experimental. Neither route translates Old Nubian meaning or covers every convention. Modern Nubian varieties are not implemented.</p><p>The server processes text only when you choose Convert and does not save translation history on this development site. Public hosting is not set up.</p></section>
   <noscript><p>JavaScript is off. Form conversion still works; copy/paste and swap helpers require JavaScript.</p></noscript>
 </main></body></html>

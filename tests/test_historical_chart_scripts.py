@@ -75,7 +75,7 @@ class HistoricalChartScriptTests(unittest.TestCase):
                 ).read_text(encoding="utf-8")
             )
             cmap = TTFont(ROOT / "assets" / f"{script}Chart-Regular.ttf").getBestCmap()
-            expected = {int(record["pua"][2:], 16) for record in data["records"]}
+            expected = {int("0x" + record["pua"][2:], 0) for record in data["records"]}
             self.assertTrue(expected <= set(cmap))
 
     def test_partial_chart_routes_are_registered_both_ways(self):

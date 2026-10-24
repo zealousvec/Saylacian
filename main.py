@@ -3,6 +3,7 @@
 
 import os
 import sys
+import zipfile
 from pathlib import Path
 
 PROJECT = Path(__file__).resolve().parent
@@ -14,6 +15,10 @@ os.environ.setdefault(
     "KIVY_HOME",
     str(runtime_home if getattr(sys, "frozen", False) else PROJECT / ".kivy"),
 )
+from kivy.config import Config
+
+Config.set("graphics", "minimum_width", "320")
+Config.set("graphics", "minimum_height", "360")
 if "--self-test" in sys.argv:
     import socket
 
@@ -151,7 +156,7 @@ class SaylacianApp(MDApp):
     picker_heading = StringProperty("Choose source")
     script_heading = StringProperty("Osmanya alphabet")
     script_note = StringProperty("Select Osmanya as source to insert letters.")
-    pack_status = StringProperty("Offline packs keep translating on this device.")
+    pack_status = StringProperty("Installed packs work offline.")
     pack_progress = NumericProperty(0)
     pack_storage = StringProperty("")
     pack_busy = BooleanProperty(False)
@@ -163,7 +168,6 @@ class SaylacianApp(MDApp):
         self.font = str(PROJECT / "assets/NotoSansOsmanya.ttf")
         self.output_font = self.font
         self.side = "source"
-        Window.minimum_width, Window.minimum_height = 320, 360
         Window.bind(on_resize=self.update_layout)
         self.update_layout(Window, *Window.size)
         self.worker = ThreadPoolExecutor(
@@ -243,7 +247,7 @@ class SaylacianApp(MDApp):
                 valign="middle",
             )
             if pack["installed"]:
-                note = f"Installed v{pack['installed_version']} · {self._format_bytes(pack['installed_bytes'])} on device"
+                note = f"Installed · {self._format_bytes(pack['installed_bytes'])} on device"
             else:
                 note = f"Download {self._format_bytes(pack['download_bytes'])} · works offline"
             subtitle = MDLabel(
@@ -285,7 +289,9 @@ class SaylacianApp(MDApp):
             row.add_widget(button)
             rows.add_widget(row)
         total_storage = sum(pack["storage_bytes"] for pack in packs)
-        self.pack_storage = f"Offline models use {self._format_bytes(total_storage)}. Older pack versions are kept until you remove the pack."
+        self.pack_storage = (
+            f"Using {self._format_bytes(total_storage)}. Remove a pack to free storage."
+        )
 
     def start_pack_download(self, pack_id):
         if self.pack_busy:
@@ -299,7 +305,7 @@ class SaylacianApp(MDApp):
         )
         future.add_done_callback(
             lambda completed: Clock.schedule_once(
-                lambda _dt: self.finish_pack_download(completed), 0
+                lambda _dt: self.finish_pack_download(completed, pack_id), 0
             )
         )
 
@@ -313,22 +319,23 @@ class SaylacianApp(MDApp):
         self.pack_progress = max(0, min(100, percent))
         self.pack_status = message
 
-    def finish_pack_download(self, future):
+    def finish_pack_download(self, future, pack_id):
         self.pack_busy = False
         try:
-            installed = future.result()
-        except Exception as error:
+            future.result()
+        except (OSError, RuntimeError, ValueError, zipfile.BadZipFile) as error:
             self.pack_status = f"Download stopped: {error}"
         else:
             self.pack_progress = 100
-            self.pack_status = f"Pack installed: {installed.name}"
+            title = self.pack_manager.specs[pack_id]["title"]
+            self.pack_status = f"{title} is ready to use offline."
         self.refresh_pack_screen()
 
     def confirm_remove_pack(self, pack_id):
         title = self.pack_manager.specs[pack_id]["title"]
         dialog = MDDialog(
             title="Remove offline pack?",
-            text=f"Remove {title} and all its saved versions to free storage? This does not affect your app or backups.",
+            text=f"Remove {title} and its downloaded files?",
             buttons=[
                 MDFlatButton(text="KEEP", on_release=lambda *_: dialog.dismiss()),
                 MDFlatButton(
@@ -503,7 +510,7 @@ class SaylacianApp(MDApp):
                 if coptic_script:
                     source = "Old Nubian (Coptic)"
                     detection_note = (
-                        "Coptic script detected; language is not inferred. "
+                        "Coptic-derived writing detected; language is unknown. "
                     )
                 self.input_font = self.font_for(source)
                 input_widget = self.root.get_screen("home").ids.input_text
@@ -511,7 +518,7 @@ class SaylacianApp(MDApp):
                 input_widget._refresh_line_options()
                 if get_capability(source, self.target, "transliteration") is None:
                     self.status = (
-                        "Coptic script detected; language is not inferred. Choose Old Nubian scholarly Latin for its table."
+                        "Coptic-derived writing found; language is unknown. Choose Latin reading to use the Old Nubian table."
                         if coptic_script
                         else f"Detected {source}, but no verified writing conversion is available for the selected target."
                     )
@@ -607,13 +614,13 @@ class SaylacianApp(MDApp):
                 Clock.schedule_once(
                     lambda dt, r=result: self.show_translation(generation, r, None)
                 )
-            except Exception as error:
+            except (ImportError, OSError, RuntimeError, ValueError) as error:
                 if self.diagnostics:
                     self.diagnostics.record_exception("translation-worker", error)
                 message = (
                     str(error)
                     if isinstance(error, ValueError)
-                    else "Translation could not complete. Check provider setup and local diagnostics."
+                    else "Could not translate. Check your connection or installed language packs."
                 )
                 Clock.schedule_once(
                     lambda dt, message=message: self.show_translation(
@@ -901,7 +908,7 @@ class SaylacianApp(MDApp):
                 mode=self.mode,
             )
             self.status = (
-                "Saved as favourite on this device. History > Clear saved removes it."
+                "Favourite saved on this device. Use Clear saved to remove it."
             )
         except (OSError, ValueError) as error:
             self.status = "Could not save: " + str(error)
