@@ -3,8 +3,19 @@
 """Tests language and script detection."""
 
 import unittest
+from unittest.mock import patch
 
+from saylacian.core import language_detection
 from saylacian.core.language_detection import detect_language
+
+
+class FakeIdentifier:
+    def __init__(self, code, confidence):
+        self.code = code
+        self.confidence = confidence
+
+    def classify(self, _text):
+        return self.code, self.confidence
 
 
 class LanguageDetectionTests(unittest.TestCase):
@@ -48,6 +59,29 @@ class LanguageDetectionTests(unittest.TestCase):
     def test_abstains_on_low_confidence_short_text(self):
         language, _, message = detect_language("Bonjour mon ami")
         self.assertIsNone(language)
+        self.assertIn("Short text is uncertain", message)
+
+    def test_short_text_uses_evidence_backed_confidence_boundary(self):
+        with patch.object(
+            language_detection,
+            "_identifier",
+            return_value=FakeIdentifier("en", 0.75),
+        ):
+            language, confidence, message = detect_language("Where is my phone?")
+
+        self.assertEqual(language, "English")
+        self.assertEqual(confidence, 0.75)
+        self.assertEqual(message, "")
+
+        with patch.object(
+            language_detection,
+            "_identifier",
+            return_value=FakeIdentifier("en", 0.749),
+        ):
+            language, confidence, message = detect_language("Where is my phone?")
+
+        self.assertIsNone(language)
+        self.assertEqual(confidence, 0.749)
         self.assertIn("Short text is uncertain", message)
 
     def test_short_high_confidence_unsupported_language_stays_unsupported(self):
