@@ -8,4 +8,4 @@ From the project root in PowerShell:
 
 No activation or execution-policy change is needed. See the root `RUN.md` for original UI mode and optional website launch. The website is separate; Flask is not required to start the Kivy app.
 
-Startup diagnostics are written locally to `<Kivy user data directory>/logs/diagnostics.log`. The log stores version/runtime metadata and exception type/code locations; it does not store translation text or exception messages. Translation failures show a generic message in the app. See [`EXECUTION_BASELINE.md`](EXECUTION_BASELINE.md) for verification results.
+Startup diagnostics are written locally to `<Kivy user data directory>/logs/diagnostics.log`. The log stores version/runtime metadata and exception type/code locations (filename, line and function only; no directory paths); it does not store translation text or exception messages. Translation failures show a generic message in the app. Review logs before sharing them. See [`EXECUTION_BASELINE.md`](EXECUTION_BASELINE.md) for verification results.

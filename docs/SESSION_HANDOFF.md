@@ -1,6 +1,12 @@
 # Session handoff
 
-## Latest milestone — clipboard setup failure cleanup (2026-10-24)
+## Latest milestone — diagnostic log path privacy (2026-10-24)
+
+Source review found that `PrivateDiagnostics.record_exception()` stored full traceback filenames. This could disclose an account name or installation directory if a user shared a diagnostic log. It now stores only each filename's basename, line number and function name; exception messages and translation text remain excluded. `docs/RUN.md` explains the fields and says to review logs before sharing. Regression verifies that an actual traceback still includes `test_diagnostics.py` but omits its parent directory and private exception text.
+
+Focused diagnostic test: `1 passed`. Full suite: `143 passed, 2 skipped, 197 subtests`; Ruff check, format (`112 files`), compileall, `pip check`, and diff checks pass. No user diagnostic file was read or changed. **ACTIVE:** none after this fix. **BLOCKED:** same external reviewer/rights/isolated-resource tasks remain in the progress board. **READY:** none currently; re-evaluate without inventing filler work. No push.
+
+## Previous milestone — clipboard setup failure cleanup (2026-10-24)
 
 Audited the Windows clipboard publisher's error paths after the HWND ownership fix. If allocation of a later format failed, earlier movable global-memory blocks escaped cleanup. Allocation and publish now share the existing `finally` cleanup; each handle is tracked immediately after allocation, so lock/allocation failures free all untransferred blocks. The regression forces the second allocation to fail and verifies the first is freed, no blocks remain, and `OpenClipboard` is never called.
 

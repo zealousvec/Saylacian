@@ -10,7 +10,7 @@ Move each task among these queues at every milestone. A blocker must name the ex
 
 ### ACTIVE
 
-No ACTIVE implementation item remains after fixing Windows clipboard ownership and allocation-failure cleanup. Reconcile the next product milestone against the master directive and roadmap; do not promote source-locale checks into accuracy claims or invent filler work.
+No ACTIVE implementation item remains after fixing Windows clipboard ownership/allocation cleanup and removing directory paths from diagnostic logs. Reconcile the next product milestone against the master directive and roadmap; do not promote source-locale checks into accuracy claims or invent filler work.
 
 ### BLOCKED
 
@@ -28,12 +28,13 @@ No ACTIVE implementation item remains after fixing Windows clipboard ownership a
 
 | Order | Task | Acceptance |
 |---|---|---|
-No separate task is READY after the Windows clipboard-owner and allocation-cleanup fixes. Reconcile the roadmap when new evidence, permission, reviewer input or a validated isolated resource becomes available. Continue independent READY work in future sessions; keep unresolved independent-label accuracy and external clipboard validation BLOCKED.
+No separate task is READY after the Windows clipboard, diagnostic-privacy, and detector-threshold milestones. Reconcile the roadmap when new evidence, permission, reviewer input or a validated isolated resource becomes available. Continue independent READY work in future sessions; keep unresolved independent-label accuracy and external clipboard validation BLOCKED.
 
 ### VERIFIED
 
 | Task | Evidence |
 |---|---|
+| Keep machine directory paths out of local diagnostic logs | `PrivateDiagnostics.record_exception()` previously logged complete traceback filenames, which can include a Windows account name and install path. It now records basename, line and function. Regression confirms the actual traceback filename remains available while the source directory and exception text are absent. `docs/RUN.md` documents the fields and advises review before sharing. Full suite: 143 passed, 2 skipped, 197 subtests; Ruff, format (112 files), compileall, `pip check` and diff checks pass. No app diagnostics or personal data were changed. |
 | Free clipboard buffers when format preparation fails | A later `GlobalAlloc` failure previously bypassed cleanup for earlier allocated handles. Cleanup now encloses allocation and publication, freeing every untransferred handle. A regression forces the second allocation to fail and verifies the first handle is freed, memory tracking is empty, and clipboard opening never occurs. Focused tests: 3 passed; full suite: 143 passed, 2 skipped, 197 subtests. Ruff, format (112 files), compileall, `pip check`, and diff checks pass. Committed locally at the current HEAD. No OS clipboard access. |
 | Make translation status warnings understandable | Replaced internal model terms and review-workflow wording with short user-facing notices for synthetic Somali output, multilingual Somali/French pivots, fallback reasons, removed markers, and local English/French output. Translation and website tests assert wording; live Kivy self-test confirms the Somali caution appears in the status label. Full suite at first milestone: 127 passed, 2 skipped, 197 subtests; subsequent full suite after copy/error fixes: 129 passed, 2 skipped, 197 subtests. Ruff, formatting, compileall, pip check, release-safety scan, and diff check passed. This improves clarity, not translation quality. |
 | Clarify script-reference and Old Nubian picker limits | Missing chart images now state users can still enter text for limited conversion; Old Nubian Latin route is labelled `Limited character readings`, matching its 34-entry coverage. Unit assertions and isolated live Kivy checks verify both user-visible labels. Full suite: 129 passed, 2 skipped, 197 subtests; Ruff/format, compileall, `pip check`, release safety, and diff checks pass. |

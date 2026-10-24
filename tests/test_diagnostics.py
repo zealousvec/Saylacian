@@ -25,6 +25,10 @@ class PrivateDiagnosticsTests(unittest.TestCase):
             self.assertIn("context=translation-worker type=RuntimeError", contents)
             self.assertIn("test_diagnostics.py", contents)
             self.assertNotIn("PRIVATE TRANSLATION INPUT", contents)
+            self.assertNotIn(
+                str(Path(__file__).resolve().parent).replace("\\", "/"),
+                contents.replace("\\", "/"),
+            )
 
 
 if __name__ == "__main__":
