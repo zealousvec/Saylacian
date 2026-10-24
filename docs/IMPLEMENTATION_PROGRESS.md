@@ -12,7 +12,7 @@ Move each task among these queues at every milestone. A blocker must name the ex
 
 | Task | Acceptance | Current evidence / next step |
 |---|---|---|
-| Reproduce application startup from the latest clean checkout | Fresh source tree and isolated user-data/model-pack locations; six Kivy screens start without network or implicit downloads | Passed on `274d566`; rerun after the current pack-keyboard milestone is committed. |
+| Verify clean pinned runtime dependency install | Disposable venv installs `requirements-runtime-lock.txt`; actual Kivy app starts with isolated user data and networking denied, no model packs downloaded | Next READY item selected after clean source startup passed on latest `55b3736`. |
 
 ### BLOCKED
 
@@ -26,7 +26,7 @@ Move each task among these queues at every milestone. A blocker must name the ex
 | Order | Task | Acceptance |
 |---|---|---|
 | 1 | Continue keyboard/focus audit for remaining controls and dialogs | Check history, remove-pack confirmation and Old Nubian reader controls; fix only reproduced barriers and make no full-conformance claim. |
-| 2 | Verify clean runtime dependency installation in a disposable venv | Use pinned lockfile and a fresh interpreter without system Python changes or model downloads. |
+| 2 | Profile desktop responsiveness after pack/menu changes | Measure startup and picker latency on a pinned, isolated run before changing performance code. |
 
 ### VERIFIED
 
@@ -35,6 +35,7 @@ Move each task among these queues at every milestone. A blocker must name the ex
 | Make saved-history clearing atomic and failure-safe | Same-directory unique temp file and atomic replace. Failure injection confirms old history is byte-identical and temp files are cleaned; local commit `66581de`. |
 | Add practical keyboard access for core translation and pack flows | Ctrl+Shift+M mode; Ctrl+P packs; Ctrl+K target and Ctrl+Shift+K source; arrows/Enter choose picker and pack; Ctrl+L editor; Esc back/cancel. Live Kivy acceptance selected a changed route, invoked a pack action through a stub, and requested cancellation; shortcuts are in `RUN.md`. |
 | Add a visible cancellation action for offline pack downloads | `main.py`, `app/main.kv`, `app/acceptance.py`; live `main.py --self-test` asserted the Cancel button is visible/enabled while busy, signals cancellation, disables itself and reports stopping. A streamed partial-download cancellation regression confirms no active pack or staging data remains. |
+| Reproduce startup from a clean checkout | Local clone of `55b3736` started all six Kivy screens under a temporary source checkout, isolated APPDATA/LOCALAPPDATA/Kivy/pack paths, blocked socket connects and a two-second stop. It used the existing venv interpreter; dependency installation remains next. |
 
 | ID | Milestone | Task | Evidence/source | Status | Tests | Blocker | Next action |
 |---|---|---|---|---|---|---|---|
@@ -66,6 +67,9 @@ Permanent mission initialization and Somali benchmark (2026-10-24): created a 12
 Autonomous milestone workflow and pack-download cancellation (2026-10-24): added separate ACTIVE/BLOCKED/READY queues. The offline-pack screen now exposes Cancel while a pack downloads, disables repeat requests after cancellation, and reports that no partial pack was installed. A live Kivy self-test confirmed the widget state and event; an installer regression cancels after a received chunk and verifies no active version or temporary staging remains. Also fixed and tested atomic saved-history clearing; that independent change is the next in-progress checkpoint. Full suite: `96 passed, 148 subtests`; Ruff, compileall, `pip check`, `git diff --check` passed. KivyMD 1.2.0 upstream deprecation warnings remain. No UI redesign, mouse/keyboard automation, system clipboard interaction, or network download was performed.
 
 Keyboard usability milestone (2026-10-24): added Ctrl+Shift+M mode switch, Ctrl+P packs, Ctrl+K / Ctrl+Shift+K target/source pickers, Up/Down and Enter selection on picker and packs, Ctrl+L editor focus, and Esc return/cancel. Live Kivy acceptance changed mode/target, focused editor, selected an offline pack with the downloader stubbed, and requested cancellation. It used no physical mouse/keyboard and no download. Full suite: `96 passed, 148 subtests`; Ruff, formatting (101 files), compileall, `pip check`, and `git diff --check` pass. These controls improve keyboard access but do not establish screen-reader or full accessibility conformance. Latest clean-checkout run on `274d566` started all six screens with networking denied and isolated APPDATA/pack storage; repeat after this commit. Next READY: test remaining dialogs and verify a fresh locked runtime environment.
+Keyboard usability milestone (2026-10-24): added Ctrl+Shift+M mode switch, Ctrl+P packs, Ctrl+K / Ctrl+Shift+K target/source pickers, Up/Down and Enter selection on picker and packs, Ctrl+L editor focus, and Esc return/cancel. Live Kivy acceptance changed mode/target, focused editor, selected an offline pack with the downloader stubbed, and requested cancellation. It used no physical mouse/keyboard and no download. Full suite: `96 passed, 148 subtests`; Ruff, formatting (101 files), compileall, `pip check`, and `git diff --check` pass. These controls improve keyboard access but do not establish screen-reader or full accessibility conformance.
+
+Clean source startup (2026-10-24): a temporary local clone at `55b3736` launched all six Kivy screens for two seconds, with socket connections replaced by a hard failure and APPDATA, LOCALAPPDATA, Kivy home and model-pack storage redirected into the temporary state directory. The app started, verified each data path was isolated, and the checkout stayed clean. It used the existing pinned `.venv` interpreter; a fresh dependency install has not yet been tested and is now ACTIVE.
 
 - Full suite: `88 passed, 148 subtests passed`.
 - Full repository Ruff: `ruff check .` and `ruff format --check .` pass; all 30 previous findings were addressed without suppressions. Ruff's automatic `U+` integer rewrite was corrected after tests exposed the format mismatch.
