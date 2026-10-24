@@ -6,10 +6,10 @@ This roadmap is ordered by correctness and evidence dependencies. Complexity des
 
 | Priority | Work | Complexity | Depends on / acceptance evidence |
 |---|---|---:|---|
-| P0 | Align README, support matrix, website copy and capabilities on Nubian: Old Nubian transliteration exists; modern Nubian varieties do not. | Small | Cross-check exact routes and warnings in `transliteration.py`, `capabilities.py`, and app behavior. |
-| P0 | Review the local Windows model-pack path normalization diff, then run CI on it after owner-authorized push. | Small | Regression test now passes locally; public workflow has not rerun on the fix. |
+| P0 | Keep README, support matrix, website copy and capabilities aligned on Nubian: Old Nubian transliteration exists; modern Nubian varieties do not. | Small | Source review on 2026-10-24 found the user-facing claims aligned; repeat when route behavior changes. |
+| P0 | Windows model-pack path normalization and strict test correction. | Small | Completed on public `main` at `c4f2f87270c22a05e772816ce98e57a99b871b18`; Windows CI run `40087020450` passed. |
 | P0 | Correct public GitHub About description that says “non-profit” while project records say it is not a registered nonprofit. | Small | Repository admin action; no source code change. |
-| P1 | Decide treatment of the 35 broad Ruff findings: narrow, safe cleanup grouped by file, with tests. | Small–medium | Do not mass-fix or mix with behavior changes. |
+| P1 | Continue narrow cleanup of the 30 remaining repository-wide Ruff findings. | Small–medium | Five findings were removed in local clipboard/pack changes; changed modules pass targeted checks. Do not mass-fix or mix with behavior changes. |
 | P1 | Add a manual/scheduled integration workflow that downloads manifest-pinned packs and runs model smoke checks. | Medium | Keep normal CI fast; record pack revision/hash and cache/timeout policy. |
 
 ## Translation evaluation and Somali improvement
