@@ -28,27 +28,39 @@
             padding: dp(16), dp(20)
             spacing: dp(12)
             BoxLayout:
+                id: app_header
+                orientation: "vertical" if root.width < dp(420) else "horizontal"
                 size_hint_y: None
-                height: dp(44)
+                height: self.minimum_height
                 MDLabel:
+                    id: brand_title
                     text: "Saylacian"
                     font_style: "H6"
                     bold: True
-                MDFlatButton:
-                    text: "Transliterate" if app.mode == "Convert writing system" else "Translate"
-                    on_release: app.switch_mode()
-                MDFlatButton:
-                    text: "Read"
-                    size_hint_x: None
-                    width: dp(48) if app.mode == "Convert writing system" and ("Old Nubian" in app.source or "Old Nubian" in app.target) else 0
-                    disabled: not (app.mode == "Convert writing system" and ("Old Nubian" in app.source or "Old Nubian" in app.target))
-                    on_release: app.open_old_nubian_studio()
-                ActionIcon:
-                    icon: "download"
-                    tooltip_text: "Offline language packs"
-                    size_hint: None, None
-                    size: dp(44), dp(44)
-                    on_release: app.open_packs()
+                    size_hint_y: None
+                    height: max(dp(44), self.texture_size[1] + dp(4))
+                BoxLayout:
+                    orientation: "horizontal"
+                    size_hint_x: None if root.width >= dp(420) else 1
+                    size_hint_y: None
+                    width: self.minimum_width
+                    height: dp(44)
+                    spacing: dp(4)
+                    MDFlatButton:
+                        text: "Transliterate" if app.mode == "Convert writing system" else "Translate"
+                        on_release: app.switch_mode()
+                    MDFlatButton:
+                        text: "Read"
+                        size_hint_x: None
+                        width: dp(48) if app.mode == "Convert writing system" and ("Old Nubian" in app.source or "Old Nubian" in app.target) else 0
+                        disabled: not (app.mode == "Convert writing system" and ("Old Nubian" in app.source or "Old Nubian" in app.target))
+                        on_release: app.open_old_nubian_studio()
+                    ActionIcon:
+                        icon: "download"
+                        tooltip_text: "Offline language packs"
+                        size_hint: None, None
+                        size: dp(44), dp(44)
+                        on_release: app.open_packs()
             BoxLayout:
                 id: language_controls
                 orientation: "horizontal" if root.width >= dp(360) else "vertical"
@@ -172,7 +184,7 @@
                 text: app.status + app.alternative_readings
                 font_style: "Caption"
                 size_hint_y: None
-                height: dp(64) if app.alternative_readings else dp(36)
+                height: max(dp(64) if app.alternative_readings else dp(36), self.texture_size[1] + dp(8))
                 text_size: self.width, None
 <PickerScreen>:
     name: "picker"
