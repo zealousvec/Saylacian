@@ -17,6 +17,7 @@ Model repository, exact revision, file size, SHA-256, licence, and runtime pins 
 - Each file's byte count and SHA-256 are checked before it becomes active. Argos archives are additionally checked against their pinned archive hash before extracting only required files.
 - Files are staged under a temporary version directory; a `current.json` pointer is switched only after installation succeeds. An interrupted or invalid download cannot become the active pack.
 - Progress and cancellation are supported in the app. Cancel signals the installer to stop at the next data chunk and discard its staging directory; the active pack pointer is not changed. The app also offers removal; no pack is fetched automatically at startup.
+- On desktop, keyboard users can open this screen with Ctrl+P, select an uninstalled pack with Up/Down, start it with Enter, and cancel an active download with Esc.
 - Installing a newer manifest version creates a new version directory and switches the active pointer. Old versions remain until the user removes that pack, so an update may temporarily need extra free space.
 - Pack content is outside the Git repository; the regular source checkout contains manifests, downloader, tests and small configuration only.
 

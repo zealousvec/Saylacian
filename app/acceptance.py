@@ -39,6 +39,9 @@ def start(app):
         assert app.keyboard(Window, 108, None, 108, ["ctrl"])
         assert app.root.current == "home"
         assert home.ids.input_text.focus
+        app.pack_busy = False
+        app.pack_cancel_event = None
+        app.pack_cancel_requested = False
         app.mode = "Translate meaning"
         app.source, app.target = "English", "Somali Latin"
         app.open_picker("target")
@@ -55,13 +58,47 @@ def start(app):
         current_mode = app.mode
         assert app.keyboard(Window, 109, None, 109, ["ctrl", "shift"])
         assert app.mode != current_mode
-        assert app.keyboard(Window, 112, None, 112, ["ctrl"])
-        assert app.root.current == "packs"
+        pack_rows = [
+            {
+                "id": "somali",
+                "title": "Somali / English",
+                "installed": False,
+                "installed_bytes": 0,
+                "download_bytes": 300,
+                "storage_bytes": 0,
+            },
+            {
+                "id": "french",
+                "title": "French / English",
+                "installed": False,
+                "installed_bytes": 0,
+                "download_bytes": 166,
+                "storage_bytes": 0,
+            },
+        ]
+        with (
+            patch.object(app.pack_manager, "list_packs", return_value=pack_rows),
+            patch.object(app, "start_pack_download") as start_download,
+        ):
+            assert app.keyboard(Window, 112, None, 112, ["ctrl"])
+            assert app.root.current == "packs"
+            assert app.keyboard(Window, 274, None, None, ["down"])
+            assert app.keyboard(Window, 274, None, None, ["down"])
+            assert app.pack_index == 1
+            assert app.pack_options[1]["title"].text.startswith("› ")
+            assert app.keyboard(Window, 13, None, 13, [])
+            start_download.assert_called_once_with("french")
+        app.pack_busy = True
+        app.pack_cancel_event = threading.Event()
+        app.pack_cancel_requested = False
         assert app.keyboard(Window, 27)
-        assert app.root.current == "home"
+        assert app.pack_cancel_event.is_set()
+        assert app.root.current == "packs"
         app.pack_busy = False
         app.pack_cancel_event = None
         app.pack_cancel_requested = False
+        assert app.keyboard(Window, 27)
+        assert app.root.current == "home"
         home.ids.input_text.focus = False
 
         app.mode = "Convert writing system"
@@ -276,7 +313,7 @@ def start(app):
                     "Borama/Kaddare tagged-package import, font selection, and reverse conversion",
                     "three Borama/Kaddare copy actions",
                     "offline pack cancellation control and request state",
-                    "keyboard-only mode switch, pack screen, and language picker navigation",
+                    "keyboard-only mode, language, and offline-pack actions",
                     "Old Nubian reverse alternatives",
                     "Old Nubian paired reading with case and line-break preservation",
                     "Old Nubian searchable alphabet and reading studio",

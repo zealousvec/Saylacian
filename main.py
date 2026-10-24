@@ -192,6 +192,8 @@ class SaylacianApp(MDApp):
             max_workers=1, thread_name_prefix="saylacian-model-packs"
         )
         self.pack_manager = ModelPackManager()
+        self.pack_options = []
+        self.pack_index = -1
         self.pending = None
         self.generation = 0
         self.translate_trigger = Clock.create_trigger(self.begin_translation, 0.45)
@@ -244,7 +246,12 @@ class SaylacianApp(MDApp):
             if not self.picker_options:
                 return False
             offset = 1 if key_name == "down" else -1
-            self.picker_index = (self.picker_index + offset) % len(self.picker_options)
+            if self.picker_index < 0:
+                self.picker_index = 0 if offset > 0 else len(self.picker_options) - 1
+            else:
+                self.picker_index = (self.picker_index + offset) % len(
+                    self.picker_options
+                )
             self._update_picker_cursor()
             picker = self.root.get_screen("picker")
             button = self.picker_options[self.picker_index][1]
@@ -256,7 +263,31 @@ class SaylacianApp(MDApp):
             self.picker_index = max(self.picker_index, 0)
             self.choose(self.picker_options[self.picker_index][0])
             return True
+        if self.root.current == "packs" and key_name in {"up", "down"}:
+            if not self.pack_options:
+                return False
+            offset = 1 if key_name == "down" else -1
+            if self.pack_index < 0:
+                self.pack_index = 0 if offset > 0 else len(self.pack_options) - 1
+            else:
+                self.pack_index = (self.pack_index + offset) % len(self.pack_options)
+            self._update_pack_cursor()
+            return True
+        if self.root.current == "packs" and key_name in {"enter", "numpadenter"}:
+            if not self.pack_options:
+                return False
+            option = self.pack_options[max(self.pack_index, 0)]
+            if self.pack_busy:
+                self.pack_status = "Wait for the current download to finish."
+            elif option["installed"]:
+                self.pack_status = "This pack is installed. Use Remove to free space."
+            else:
+                self.start_pack_download(option["id"])
+            return True
         if key == 27 and self.root.current != "home":
+            if self.root.current == "packs" and self.pack_busy:
+                self.cancel_pack_download()
+                return True
             self.close_picker()
             return True
 
@@ -289,6 +320,8 @@ class SaylacianApp(MDApp):
             return
         rows = self.root.get_screen("packs").ids.pack_rows
         rows.clear_widgets()
+        self.pack_options = []
+        self.pack_index = -1
         packs = self.pack_manager.list_packs()
         for pack in packs:
             row = BoxLayout(
@@ -344,10 +377,18 @@ class SaylacianApp(MDApp):
                 )
             row.add_widget(button)
             rows.add_widget(row)
+            self.pack_options.append(
+                {"id": pack["id"], "title": title, "installed": pack["installed"]}
+            )
         total_storage = sum(pack["storage_bytes"] for pack in packs)
         self.pack_storage = (
             f"Using {self._format_bytes(total_storage)}. Remove a pack to free storage."
         )
+
+    def _update_pack_cursor(self):
+        for index, option in enumerate(self.pack_options):
+            pointer = "› " if index == self.pack_index else ""
+            option["title"].text = pointer + option["title"].text.removeprefix("› ")
 
     def start_pack_download(self, pack_id):
         if self.pack_busy:
