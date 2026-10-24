@@ -1,6 +1,6 @@
 # GitHub source alpha checklist
 
-Scope: source-only experimental alpha. No remote, public repository, commit, push, tag, release, deployment, or account-setting change has occurred.
+Scope: source-only experimental alpha. One local initial commit has been prepared; no remote, public repository, push, tag, release, deployment, or account-setting change exists.
 
 ## Completed locally
 
@@ -16,7 +16,7 @@ Scope: source-only experimental alpha. No remote, public repository, commit, pus
 ## Remaining before publication
 
 - [ ] Create the already-authorized public `zealousvec/Saylacian` repository. The authenticated account and currently visible repositories were checked; no repository with this name is present. The available GitHub connector has no create-repository or repository-security-settings operation, and GitHub CLI is absent, so creation cannot be completed from this session.
-- [ ] Configure repository-local Git identity `zealous` with the owner-provided GitHub noreply address; local commit is prepared on `codex/release-prep`, with a local `main` branch pointing at the same commit. GitHub account email-privacy settings are not exposed to the connected tools, so they remain unverified.
+- [ ] Repository-local author identity is `zealous` with the owner-provided GitHub noreply address. Commit `594b4807e32a3feb9da6a3c943845b423d8e9a29` contains 149 files on `codex/release-prep`; local `main` points at this commit. GitHub account email-privacy settings are not exposed to the connected tools, so they remain unverified.
 - [ ] After repository creation and initial push approval, enable and verify Private vulnerability reporting, Dependabot alerts/updates, secret scanning/push protection where available, and maintainer security notifications. The connector has no repository security-settings operation; none of these are claimed enabled.
 - [ ] Owner must separately approve the initial public push. No source or release has been published.
 

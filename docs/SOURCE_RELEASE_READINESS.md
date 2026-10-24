@@ -2,7 +2,7 @@
 
 **Audit date:** 2026-10-24
 
-**Scope:** source-only experimental GitHub alpha. Local checkout/index and authenticated-profile read only; no repository, account setting, publication, or UI changes.
+**Scope:** source-only experimental GitHub alpha. Read-only account/repository inspection and local release preparation; no GitHub repository, account setting, publication, or UI changes.
 
 ## Result
 
@@ -10,11 +10,11 @@ The candidate is prepared for final owner review. The owner approved GNU AGPL-3.
 
 The authenticated GitHub profile has display name `zealous` and login `zealousvec`; the owner selected `zealous` for public attribution. The connector does not expose the account's privacy toggle or generated noreply address, and GitHub CLI is not installed. No email was configured. No accessible `zealousvec/Saylacian` repository was found; GitHub 404 cannot establish name availability because private or inaccessible repositories can return the same response.
 
-The local folder is named `Saylacian`; branch is `codex/release-prep`. A local initial commit and `main` branch are prepared. No remote is configured. No mouse or keyboard control was used. The authenticated account is `zealousvec`; its visible repository list contains no `Saylacian` repository. Repository creation and security settings are unavailable through the connected GitHub tools, and GitHub CLI is absent. The owner-provided noreply identity is set locally; account-level private-email settings could not be verified.
+The local folder is named `Saylacian`; `codex/release-prep` contains root commit `594b4807e32a3feb9da6a3c943845b423d8e9a29`, and `main` points at the same commit. No remote is configured. No mouse or keyboard control was used. The authenticated account is `zealousvec`; its visible repository list contains no `Saylacian` repository. Repository creation and security settings are unavailable through the connected GitHub tools, and GitHub CLI is absent. The owner-provided noreply identity is set locally; account-level private-email settings could not be verified.
 
 ## Staged-file audit
 
-All 518 initial staged candidates were reviewed. Final index: 149 files, 1,298,779 bytes, largest file 99,746 bytes. 373 original candidates remain unstaged but preserved. Exclusions include historical preview captures, generated test output, obsolete reports/inventories, unused UI experiment and preview utility, and a duplicate notice. No local data was deleted. The two real app screenshots and approved Kivy UI remain.
+All 518 initial staged candidates were reviewed. Initial commit: 149 files. Largest file: 99,746 bytes. 373 original candidates remain unstaged but preserved. Exclusions include historical preview captures, generated test output, obsolete reports/inventories, unused UI experiment and preview utility, and a duplicate notice. No local data was deleted. The two real app screenshots and approved Kivy UI remain.
 
 No staged file exceeds 1 MB. No installer, DLL, EXE, wheel, archive, or model weights are staged. There are 0 unstaged changes.
 
@@ -43,7 +43,7 @@ Final source formatting preserved the Kivy interface. The current-worktree suite
 
 ## Remaining blockers / approvals
 
-1. Source scan found no specific ownership exception or copied third-party implementation. With no Git history or contributor registry, per-line provenance cannot be proven; the owner licence grant remains limited to code they own or have the right to license.
+1. Source scan found no specific ownership exception or copied third-party implementation. With no pre-existing Git history or contributor registry at audit time, per-line provenance cannot be proven; the owner licence grant remains limited to code they own or have the right to license.
 2. The owner-authorized public repository still needs creation. The authenticated account is verified and no `Saylacian` repository appears in its visible repository list. The installed GitHub connector has no create-repository operation and GitHub CLI is absent.
 3. Local branch `codex/release-prep` contains the initial commit; local `main` points to the same commit. The confirmed noreply identity is configured per-repository. GitHub profile privacy settings are not exposed to current tools.
 4. Private vulnerability reporting, Dependabot, secret scanning/push protection and notification settings remain unverified/unconfigured because the repository is not created and the connector exposes no repository-settings operations.
