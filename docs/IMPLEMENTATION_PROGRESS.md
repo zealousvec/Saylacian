@@ -2,7 +2,7 @@
 
 Live task board for `SAYLACIAN_MASTER_DEVELOPMENT_DIRECTIVE.md`. This board records evidence, not aspirations. `verified` means the stated check passed; it does not establish linguistic acceptance.
 
-Baseline: branch `main`, public `origin/main` at `c4f2f87270c22a05e772816ce98e57a99b871b18`. Public CI run `40087020450` passed on that commit. At this session's start, five local commits were ahead and none were pushed; latest public `main` remains `c4f2f87270c22a05e772816ce98e57a99b871b18`. Existing uncommitted edits in `docs/PROJECT_STATUS.md` and `docs/TECHNICAL_AUDIT.md` predate this work and remain separate.
+Baseline: branch `main`, public `origin/main` at `c4f2f87270c22a05e772816ce98e57a99b871b18`. Public CI run `40087020450` passed on that commit. At this session's start, five local commits were ahead. Implementation milestone `5a5b54f` is committed locally and unpushed; public `main` remains `c4f2f87270c22a05e772816ce98e57a99b871b18`. Existing uncommitted edits in `docs/PROJECT_STATUS.md` and `docs/TECHNICAL_AUDIT.md` predate this work and remain separate.
 
 | ID | Milestone | Task | Evidence/source | Status | Tests | Blocker | Next action |
 |---|---|---|---|---|---|---|---|

@@ -8,8 +8,8 @@ Repository: the current checkout of `zealousvec/Saylacian`
 Branch: `main`
 Public `origin/main`: `c4f2f87270c22a05e772816ce98e57a99b871b18`
 Public CI: run `40087020450` passed on that commit.
-Five implementation/progress commits were ahead of public main at session start; see `git log` for exact local chain. This session's work remains local and will be committed separately after final verification.
-No push has occurred. At session start, the only pre-existing user edits were `docs/PROJECT_STATUS.md` and `docs/TECHNICAL_AUDIT.md`; preserve both. The current milestone changes are separate and being committed locally.
+Five implementation/progress commits were ahead of public main at session start. This session's implementation is committed locally as `5a5b54f` (`fix: improve readings and reliability`); it is unpushed. Public `main` remains `c4f2f87270c22a05e772816ce98e57a99b871b18`.
+No push has occurred. The only pre-existing user edits were `docs/PROJECT_STATUS.md` and `docs/TECHNICAL_AUDIT.md`; both remain unstaged and outside this commit. Preserve them.
 
 ## Latest session milestone
 

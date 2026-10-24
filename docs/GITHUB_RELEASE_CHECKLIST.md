@@ -10,7 +10,7 @@
 - The repository contains the approved GNU AGPLv3-or-later licence for Saylacian-authored code the owner can license. Third-party works retain separate notices and licences.
 - Somali translation and partial Borama/Kaddare conversion remain experimental. Old Nubian support remains limited to cited character transliteration; reverse conversion is experimental. Modern Nubian varieties are not implemented.
 - The most recent public `main` commit before this local session is `c4f2f87270c22a05e772816ce98e57a99b871b18`. CI run `40087020450` passed on that commit.
-- At this session's start, this checkout had five local commits ahead of public `main`. One additional implementation commit is prepared locally and is not published. The two pre-existing local edits in `docs/PROJECT_STATUS.md` and `docs/TECHNICAL_AUDIT.md` are not part of that commit.
+- At this session's start, this checkout had five local commits ahead of public main. The implementation commit `5a5b54f` is local and unpushed. The two pre-existing local edits in `docs/PROJECT_STATUS.md` and `docs/TECHNICAL_AUDIT.md` are not part of it.
 
 ## Owner-controlled settings not verified here
 
