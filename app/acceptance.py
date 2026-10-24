@@ -3,6 +3,7 @@
 
 import json
 import os
+import threading
 import time
 from pathlib import Path
 from unittest.mock import patch
@@ -24,6 +25,22 @@ def start(app):
     folder.mkdir(parents=True, exist_ok=True)
     home = app.root.get_screen("home")
     try:
+        pack_screen = app.root.get_screen("packs")
+        app.root.current = "packs"
+        app.pack_busy = True
+        app.pack_cancel_event = threading.Event()
+        app.pack_cancel_requested = False
+        cancel_button = pack_screen.ids.pack_cancel_button
+        assert cancel_button.height > 0 and not cancel_button.disabled
+        app.cancel_pack_download()
+        assert app.pack_cancel_event.is_set()
+        assert cancel_button.disabled
+        assert app.pack_status == "Stopping download..."
+        app.pack_busy = False
+        app.pack_cancel_event = None
+        app.pack_cancel_requested = False
+        app.root.current = "home"
+
         app.mode = "Convert writing system"
         app.source, app.target = "Somali Latin", "Osmanya"
         app.refresh_fonts()
@@ -235,6 +252,7 @@ def start(app):
                     "Borama/Kaddare bundled font rendering",
                     "Borama/Kaddare tagged-package import, font selection, and reverse conversion",
                     "three Borama/Kaddare copy actions",
+                    "offline pack cancellation control and request state",
                     "Old Nubian reverse alternatives",
                     "Old Nubian paired reading with case and line-break preservation",
                     "Old Nubian searchable alphabet and reading studio",

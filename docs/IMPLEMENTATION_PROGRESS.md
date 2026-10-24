@@ -2,7 +2,37 @@
 
 Live task board for `SAYLACIAN_MASTER_DEVELOPMENT_DIRECTIVE.md`. This board records evidence, not aspirations. `verified` means the stated check passed; it does not establish linguistic acceptance.
 
-Baseline: branch `main`, public `origin/main` at `c4f2f87270c22a05e772816ce98e57a99b871b18`. Public CI run `40087020450` passed on that commit. At this session's start, seven local commits were ahead. The Phase 2 Reading Studio is committed locally as `603c79e` and unpushed; following the documentation checkpoint, local `main` is nine commits ahead. Public `main` remains `c4f2f87270c22a05e772816ce98e57a99b871b18`. Existing uncommitted edits in `docs/PROJECT_STATUS.md` and `docs/TECHNICAL_AUDIT.md` predate this work and remain separate.
+Baseline at start of this session: branch `main`, local HEAD `41090b93d6ab0992fced466f1af2e843c2b98408`, and public `origin/main` at `c4f2f87270c22a05e772816ce98e57a99b871b18` (12 local commits ahead). Existing uncommitted edits in `docs/PROJECT_STATUS.md` and `docs/TECHNICAL_AUDIT.md` predate this session and remain separate. No push.
+
+## Autonomous execution queues
+
+Move each task among these queues at every milestone. A blocker must name the exact decision, permission, resource or evidence needed. If a task is blocked, keep it in `BLOCKED`, select the highest-impact independent `READY` task, and continue. Do not invent filler tasks or bypass approval boundaries.
+
+### ACTIVE
+
+| Task | Acceptance | Current evidence / next step |
+|---|---|---|
+| Make history clearing atomic and failure-safe | On write/replace failure, old history remains byte-for-byte intact and temporary files are removed; successful clear still empties records | Core implementation and failure-injection test are in place; full suite passes. Finish milestone update and focused local commit. |
+
+### BLOCKED
+
+| Task | Exact blocker | Resolution action |
+|---|---|---|
+| Extend or redistribute DBMNT-derived Old Nubian readings | DBMNT General Guidelines provide no reuse grant and there is no qualified Old Nubian review | Obtain written reuse terms from the rights holder and qualified specialist review. Owner approval is required before outreach. Until then, do not expand or redistribute the derived table. |
+| Upgrade Somali linguistic-quality status | No fluent Somali human review or approved reviewer recruitment | Obtain owner-approved, consent-based fluent review and an appropriate reviewed sample. Keep automatic metrics as engineering evidence only. |
+
+### READY
+
+| Order | Task | Acceptance |
+|---|---|---|
+| 1 | Audit keyboard/focus accessibility in the existing Kivy flows | Verify practical keyboard access for translator and offline pack screen; implement only reproducible, design-preserving fixes. |
+| 2 | Reproduce actual app startup in a clean project environment | Use locked dependencies and a fresh user-data folder; launch without changing system Python or downloading models. |
+
+### VERIFIED
+
+| Task | Evidence |
+|---|---|
+| Add a visible cancellation action for offline pack downloads | `main.py`, `app/main.kv`, `app/acceptance.py`; live `main.py --self-test` asserted the Cancel button is visible/enabled while busy, signals cancellation, disables itself and reports stopping. A streamed partial-download cancellation regression confirms no active pack or staging data remains. |
 
 | ID | Milestone | Task | Evidence/source | Status | Tests | Blocker | Next action |
 |---|---|---|---|---|---|---|---|
@@ -29,7 +59,9 @@ Baseline: branch `main`, public `origin/main` at `c4f2f87270c22a05e772816ce98e57
 
 Phase 2 Reading Studio addition (2026-10-24): 4 focused regression tests added. Full local suite: `92 passed, 148 subtests passed` after final code edits. Live Kivy `main.py --self-test` returned pass and checked studio route, line-paired reading, alphabet search, letter detail, both copy actions, record import through a controlled clipboard fixture, plus existing script and translation paths. Formatting/Ruff, `compileall`, `pip check`, release-safety scan and `git diff --check` passed. The final inspected studio screenshot is `%TEMP%\Saylacian-phase2-reader-acceptance\old-nubian-reading-studio0001.png`. An earlier black capture was resolved by allowing the screen to render before capture and delaying navigation until afterward. No ordinary OS clipboard was read or written by this feature.
 
-Permanent mission initialization and Somali benchmark (2026-10-24): created a 12-note Saylacian-only section in the owner-specified Obsidian vault; all internal links resolve and no unrelated notes were read or changed. Reproduced the full 150-pair EN↔SO offline benchmark with network blocked, exactly matching documented BLEU/chrF++. Output and checkpoint used a fresh `%TEMP%` directory. Added an explicit `--output` option and atomic output tests. Full suite after this task: `94 passed, 148 subtests`; `ruff check .`, `ruff format --check .` (101 files), compile, dependency and release-safety checks passed. No quality status changed and no human review was performed. Local commits: `3d59e05` (benchmark output isolation), `d4804d4` (Old Nubian data-rights clarification), `6b8dd84` (progress/handoff checkpoint). Branch is 12 commits ahead of origin; no push.
+Permanent mission initialization and Somali benchmark (2026-10-24): created a 12-note Saylacian-only section in the owner-specified Obsidian vault; all internal links resolve and no unrelated notes were read or changed. Reproduced the full 150-pair EN↔SO offline benchmark with network blocked, exactly matching documented BLEU/chrF++. Output and checkpoint used a fresh `%TEMP%` directory. Added an explicit `--output` option and atomic output tests. Full suite after this task: `94 passed, 148 subtests`; `ruff check .`, `ruff format --check .` (101 files), compile, dependency and release-safety checks passed. No quality status changed and no human review was performed. Local commits: `3d59e05` (benchmark output isolation), `d4804d4` (Old Nubian data-rights clarification), `41090b9` (progress/handoff checkpoint). Branch is 12 commits ahead of origin; no push.
+
+Autonomous milestone workflow and pack-download cancellation (2026-10-24): added separate ACTIVE/BLOCKED/READY queues. The offline-pack screen now exposes Cancel while a pack downloads, disables repeat requests after cancellation, and reports that no partial pack was installed. A live Kivy self-test confirmed the widget state and event; an installer regression cancels after a received chunk and verifies no active version or temporary staging remains. Also fixed and tested atomic saved-history clearing; that independent change is the next in-progress checkpoint. Full suite: `96 passed, 148 subtests`; Ruff, compileall, `pip check`, `git diff --check` passed. KivyMD 1.2.0 upstream deprecation warnings remain. No UI redesign, mouse/keyboard automation, system clipboard interaction, or network download was performed.
 
 - Full suite: `88 passed, 148 subtests passed`.
 - Full repository Ruff: `ruff check .` and `ruff format --check .` pass; all 30 previous findings were addressed without suppressions. Ruff's automatic `U+` integer rewrite was corrected after tests exposed the format mismatch.

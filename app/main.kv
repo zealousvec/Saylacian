@@ -245,6 +245,14 @@
             size_hint_y: None
             height: dp(44)
             text_size: self.width, None
+        MDFlatButton:
+            id: pack_cancel_button
+            text: "Cancel download"
+            size_hint_y: None
+            height: dp(44) if app.pack_busy else 0
+            opacity: 1 if app.pack_busy else 0
+            disabled: not app.pack_busy or app.pack_cancel_requested
+            on_release: app.cancel_pack_download()
         ScrollView:
             do_scroll_x: False
             BoxLayout:

@@ -6,6 +6,7 @@ import hashlib
 import io
 import json
 import tempfile
+import threading
 import unittest
 from pathlib import Path
 from unittest.mock import patch
@@ -147,6 +148,61 @@ class ModelPackTests(unittest.TestCase):
                 manager.install("somali")
             self.assertEqual(manager.active_model_roots(), [])
             self.assertEqual(list((Path(temporary) / "somali").glob("1-test")), [])
+
+    def test_cancelled_install_removes_staging_without_activating_pack(self):
+        content = b"ab"
+        item = {
+            "kind": "file",
+            "url": "https://huggingface.co/test/model.bin",
+            "bytes": len(content),
+            "sha256": hashlib.sha256(content).hexdigest(),
+            "destination": "somali/en_so/model.bin",
+        }
+        spec = {
+            "somali": {
+                "id": "somali",
+                "title": "Somali",
+                "version": "1-cancel",
+                "license": "Apache-2.0",
+                "runtimes": {"ctranslate2": "4.8.3"},
+                "model_repositories": ["test/model"],
+                "download_bytes": len(content),
+                "assets": [item],
+            }
+        }
+        with tempfile.TemporaryDirectory() as temporary:
+            manager = ModelPackManager(Path(temporary), spec)
+            cancel_event = threading.Event()
+
+            class CancellingResponse:
+                def __init__(self):
+                    self.read_count = 0
+
+                def __enter__(self):
+                    return self
+
+                def __exit__(self, *args):
+                    return False
+
+                def read(self, _size):
+                    self.read_count += 1
+                    if self.read_count == 1:
+                        return b"a"
+                    cancel_event.set()
+                    return b"b"
+
+            with (
+                patch(
+                    "saylacian.core.model_packs.urllib.request.urlopen",
+                    return_value=CancellingResponse(),
+                ),
+                self.assertRaisesRegex(InterruptedError, "cancelled"),
+            ):
+                manager.install("somali", cancel_event=cancel_event)
+
+            self.assertEqual(manager.active_model_roots(), [])
+            self.assertFalse(manager.list_packs()[0]["installed"])
+            self.assertEqual(list((Path(temporary) / "somali").iterdir()), [])
 
     def test_installed_pack_is_used_by_offline_route_and_removal_is_scoped(self):
         with tempfile.TemporaryDirectory() as temporary:

@@ -3,6 +3,7 @@
 
 import os
 import sys
+import threading
 import zipfile
 from pathlib import Path
 
@@ -173,6 +174,7 @@ class SaylacianApp(MDApp):
     pack_progress = NumericProperty(0)
     pack_storage = StringProperty("")
     pack_busy = BooleanProperty(False)
+    pack_cancel_requested = BooleanProperty(False)
 
     def build(self):
         self.title = "Saylacian"
@@ -310,11 +312,16 @@ class SaylacianApp(MDApp):
         if self.pack_busy:
             return
         self.pack_busy = True
+        self.pack_cancel_event = threading.Event()
+        self.pack_cancel_requested = False
         self.pack_progress = 0
         self.pack_status = "Preparing download..."
         self.refresh_pack_screen()
         future = self.pack_worker.submit(
-            self.pack_manager.install, pack_id, self._pack_download_progress
+            self.pack_manager.install,
+            pack_id,
+            self._pack_download_progress,
+            self.pack_cancel_event,
         )
         future.add_done_callback(
             lambda completed: Clock.schedule_once(
@@ -322,7 +329,17 @@ class SaylacianApp(MDApp):
             )
         )
 
+    def cancel_pack_download(self):
+        """Request cancellation; the installer removes its temporary staging tree."""
+        if not self.pack_busy or self.pack_cancel_event is None:
+            return
+        self.pack_cancel_event.set()
+        self.pack_cancel_requested = True
+        self.pack_status = "Stopping download..."
+
     def _pack_download_progress(self, completed, total, message):
+        if self.pack_cancel_requested:
+            return
         percent = completed * 100 / total if total else 100
         Clock.schedule_once(
             lambda _dt, p=percent, m=message: self.update_pack_progress(p, m), 0
@@ -336,12 +353,17 @@ class SaylacianApp(MDApp):
         self.pack_busy = False
         try:
             future.result()
+        except InterruptedError:
+            self.pack_status = "Download cancelled. No partial pack was installed."
         except (OSError, RuntimeError, ValueError, zipfile.BadZipFile) as error:
             self.pack_status = f"Download stopped: {error}"
         else:
             self.pack_progress = 100
             title = self.pack_manager.specs[pack_id]["title"]
             self.pack_status = f"{title} is ready to use offline."
+        finally:
+            self.pack_cancel_event = None
+            self.pack_cancel_requested = False
         self.refresh_pack_screen()
 
     def confirm_remove_pack(self, pack_id):
