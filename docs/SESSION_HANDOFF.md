@@ -251,4 +251,4 @@ Queue reconciliation against `docs/DEVELOPMENT_ROADMAP.md`: ACTIVE none; READY n
 
 BLOCKED, exact resolution: Old Nubian DBMNT-derived expansion needs written reuse terms plus qualified specialist review; owner approval before outreach. Somali quality needs owner-approved consent-based fluent-speaker review. Screen-reader claims need manual Windows Narrator/NVDA interaction and observed announcements. Compact pixels need a validated isolated virtual display/OpenGL/SDL capture. Hosted pack integration needs owner approval to push the workflow commit, then manually dispatch and inspect Actions.
 
-Current HEAD `3bdc380`, branch `main`. No remote writes/push. User edits in `docs/PROJECT_STATUS.md` and `docs/TECHNICAL_AUDIT.md` remain untouched and uncommitted. The active Codex goal remains active for future READY work.
+Current HEAD `1a07540` (progress-board sync), latest code checkpoint `3bdc380`, branch `main`. No remote writes/push. User edits in `docs/PROJECT_STATUS.md` and `docs/TECHNICAL_AUDIT.md` remain untouched and uncommitted. The active Codex goal remains active for future READY work.
