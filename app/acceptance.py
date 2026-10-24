@@ -52,7 +52,11 @@ def start(app):
         assert app.target == selected_target
         assert selected_target == "French"
         assert app.root.current == "home"
-        app.root.current = "packs"
+        current_mode = app.mode
+        assert app.keyboard(Window, 109, None, 109, ["ctrl", "shift"])
+        assert app.mode != current_mode
+        assert app.keyboard(Window, 112, None, 112, ["ctrl"])
+        assert app.root.current == "packs"
         assert app.keyboard(Window, 27)
         assert app.root.current == "home"
         app.pack_busy = False
@@ -272,7 +276,7 @@ def start(app):
                     "Borama/Kaddare tagged-package import, font selection, and reverse conversion",
                     "three Borama/Kaddare copy actions",
                     "offline pack cancellation control and request state",
-                    "keyboard-only editor focus and language picker navigation",
+                    "keyboard-only mode switch, pack screen, and language picker navigation",
                     "Old Nubian reverse alternatives",
                     "Old Nubian paired reading with case and line-break preservation",
                     "Old Nubian searchable alphabet and reading studio",

@@ -225,6 +225,12 @@ class SaylacianApp(MDApp):
             (name for name, code in Keyboard.keycodes.items() if code == key),
             str(key),
         ).lower()
+        if key_name == "m" and {"ctrl", "shift"}.issubset(modifiers):
+            self.switch_mode()
+            return True
+        if key_name == "p" and "ctrl" in modifiers:
+            self.open_packs()
+            return True
         if key_name == "k" and "ctrl" in modifiers:
             side = "source" if "shift" in modifiers else "target"
             self.open_picker(side)

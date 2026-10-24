@@ -91,7 +91,7 @@ Full tests: `96 passed, 148 subtests`. Ruff and formatting pass for the touched 
 
 ## Keyboard usability milestone and next queue (2026-10-24)
 
-Added Ctrl+K to open target selection, Ctrl+Shift+K to open source selection, Up/Down to traverse filtered results, Enter to choose, Ctrl+L to return to the editor and Esc to go back. `RUN.md` documents these keys. Live Kivy acceptance verified that keyboard events select a changed target, focus the editor and return from the pack screen. The first run found an SDL key-name API mismatch; using `Keyboard.keycodes` fixed it and the rerun passed. This provides useful keyboard access but is not a full screen-reader/accessibility audit.
+Added Ctrl+Shift+M to switch mode, Ctrl+P to open packs, Ctrl+K to open target selection, Ctrl+Shift+K to open source selection, Up/Down to traverse filtered results, Enter to choose, Ctrl+L to return to the editor and Esc to go back. `RUN.md` documents these keys. Live Kivy acceptance verified a mode change, pack navigation, changed target selection, editor focus and return from the pack screen. The first run found an SDL key-name API mismatch; using `Keyboard.keycodes` fixed it and the rerun passed. This provides useful keyboard access but is not a full screen-reader/accessibility audit.
 
 Saved-history `save` and `clear` now share a same-directory temporary JSON write plus atomic replace. Failure injection verifies the old history bytes survive failed replace and no temp file remains. Local commit `66581de`.
 

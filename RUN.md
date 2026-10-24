@@ -38,7 +38,7 @@ The app verifies each downloaded asset against its manifest size and SHA-256, st
 
 The Somali pack uses multilingual OPUS translation checkpoints in both directions. The experimental synthetic English-to-Somali checkpoint is not offered as a download because a pinned preconverted artifact is unavailable. Existing source installs can continue to use that model if it is present locally. Somali quality remains machine-generated and needs fluent-speaker evaluation.
 
-On desktop, press **Ctrl+L** to return to the translator and focus the text editor. Press **Ctrl+K** to search/select a target language or script, and **Ctrl+Shift+K** to choose a source. Use **Up/Down** to move through matches, **Enter** to select and **Esc** to return.
+On desktop, press **Ctrl+Shift+M** to switch between translation and script conversion, and **Ctrl+P** to open offline packs. Press **Ctrl+L** to return to the translator and focus the text editor. Press **Ctrl+K** to search/select a target language or script, and **Ctrl+Shift+K** to choose a source. Use **Up/Down** to move through matches, **Enter** to select and **Esc** to return.
 
 Developers can download the pinned source model assets with `tools\prepare_models.py --download` or verify installed assets without network access with `tools\prepare_models.py --verify-only`. The Windows package excludes model weights; packs are downloaded on demand. See [third-party notices](docs/THIRD_PARTY_NOTICES.md) for licensing notes and [backup and restore](docs/BACKUP_AND_RESTORE.md) to recover preserved source copies.
 
