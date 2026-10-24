@@ -4,7 +4,7 @@
 The data and predictions are local. Candidate inference uses CPU-only llama.cpp.
 Run once per system so peak memory and cold-start time stay interpretable:
 
-  python tools/benchmark_somali_quality.py --system baseline
+  python tools/benchmark_somali_quality.py --system baseline --output PATH
   python tools/benchmark_somali_quality.py --system afrislm --candidate-model PATH
   python tools/benchmark_somali_en_candidate.py --model-dir PATH
 """
@@ -19,6 +19,7 @@ import json
 import os
 import socket
 import sys
+import tempfile
 import time
 from ctypes import wintypes
 from pathlib import Path
@@ -251,6 +252,22 @@ def score(references: list[str], predictions: list[str]) -> dict:
     }
 
 
+def save_result(path: Path, result: dict) -> None:
+    """Write benchmark output atomically to the caller-selected path."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary_path = None
+    try:
+        with tempfile.NamedTemporaryFile(
+            mode="w", encoding="utf-8", dir=path.parent, suffix=".tmp", delete=False
+        ) as temporary_file:
+            temporary_path = Path(temporary_file.name)
+            json.dump(result, temporary_file, ensure_ascii=False, indent=2)
+        temporary_path.replace(path)
+    finally:
+        if temporary_path is not None:
+            temporary_path.unlink(missing_ok=True)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--system", choices=("baseline", "afrislm"), required=True)
@@ -261,7 +278,14 @@ def main() -> int:
         default=150,
         help="number of test pairs; subset is selected deterministically",
     )
+    parser.add_argument(
+        "--output",
+        type=Path,
+        default=OUTPUT,
+        help="result JSON path (default: ignored local report under docs/)",
+    )
     args = parser.parse_args()
+    output_path = args.output.expanduser().resolve()
     if not DATA.is_file():
         raise SystemExit(f"Missing benchmark data: {DATA}")
     all_samples = [
@@ -518,7 +542,7 @@ def main() -> int:
         }
 
         baseline = (
-            json.loads(OUTPUT.read_text(encoding="utf-8"))
+            json.loads(output_path.read_text(encoding="utf-8"))
             .get("systems", {})
             .get("baseline")
         )
@@ -544,7 +568,11 @@ def main() -> int:
                 ),
             }
 
-    prior = json.loads(OUTPUT.read_text(encoding="utf-8")) if OUTPUT.exists() else {}
+    prior = (
+        json.loads(output_path.read_text(encoding="utf-8"))
+        if output_path.exists()
+        else {}
+    )
     prior.setdefault(
         "benchmark",
         {
@@ -557,13 +585,9 @@ def main() -> int:
         },
     )
     prior.setdefault("systems", {})[args.system] = system
-    temporary_output = OUTPUT.with_suffix(".tmp")
-    temporary_output.write_text(
-        json.dumps(prior, ensure_ascii=False, indent=2), encoding="utf-8"
-    )
-    temporary_output.replace(OUTPUT)
+    save_result(output_path, prior)
     CHECKPOINT.unlink(missing_ok=True)
-    print(f"Saved {args.system} results: {OUTPUT}")
+    print(f"Saved {args.system} results: {output_path}")
     for direction, metric in system["metrics"].items():
         print(
             f"{args.system} {direction}: BLEU={metric['bleu']} chrF++={metric['chrf_plus_plus']}"

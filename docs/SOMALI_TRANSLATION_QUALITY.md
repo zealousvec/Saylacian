@@ -6,6 +6,10 @@ Saylacian's current English-to-Somali synthetic checkpoint can loop and produce 
 
 The rule was evaluated on a deterministic, length-stratified 150-example sample from TICO-19's English/Somali **dev** split, separate from the 150-example test sample. On dev, BLEU changed from 6.138 to 7.299 and chrF++ from 27.577 to 28.509; only 5 of 150 examples used rescue. On the held-out test sample, BLEU changed from 6.245 to 7.057 and chrF++ from 28.608 to 28.996; 7 of 150 examples used rescue. The full test run still produced the same Somali-to-English scores (BLEU 6.300, chrF++ 24.680). Automatic metrics do not establish semantic correctness; fluent Somali review is still needed.
 
+### Reproduction on 2026-10-24
+
+The full 150-pair baseline was rerun locally with network connections blocked and a fresh temporary result/checkpoint location. Dataset SHA-256: `be58b2d350badb7e03b73906471453311a8843534e4a2a572a772c60c394c7f7`. It reproduced EN→SO BLEU 7.057 / chrF++ 28.996 and SO→EN BLEU 6.300 / chrF++ 24.680 exactly. The current EN→SO route selected the synthetic candidate 143 times and used multilingual fallback 7 times; all 7 were length-guard fallbacks. Heuristic cues marked 43 numeric-token and 19 possible-negation mismatches in EN→SO, and 40/23 in SO→EN; these are review cues, not verified errors. On this Windows host, median latency was 171.1 ms EN→SO and 182.5 ms SO→EN, with 548,802,560-byte peak working set. Timings/memory are machine-specific; the output was kept in `%TEMP%`, not committed.
+
 The experiment rejected broad repeated-ngram blocking: it reduced some loops but caused errors such as replacing “cough” with unrelated words, and hurt chrF++ on dev. Only the length guard is enabled.
 
 ## Candidate model results
@@ -20,7 +24,7 @@ TICO-19 focuses on health/COVID-19 communication, and the current sample is only
 ## Reproduce
 
 ```powershell
-.\.venv\Scripts\python.exe tools\benchmark_somali_quality.py --system baseline
+.\.venv\Scripts\python.exe tools\benchmark_somali_quality.py --system baseline --output PATH_TO_NEW_RESULT.json
 .\.venv\Scripts\python.exe tools\evaluate_somali_repetition_fallback.py --parquet PATH_TO_TICO19_EN_SO_VALIDATION_PARQUET --limit 150
 ```
 
