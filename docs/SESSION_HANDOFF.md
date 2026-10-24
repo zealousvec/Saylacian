@@ -146,3 +146,10 @@ ACTIVE: verify compact/wide/short-landscape breakpoints programmatically. BLOCKE
 ## Responsive breakpoint check (2026-10-24)
 
 Live Kivy harness verified `wide_layout` policy for 320×700 dp compact, 800×700 dp wide, and 500×500 dp short-landscape inputs, then restored the real window size. This checks policy branches; not physical resize or device-level layout. Full suite 96 passed/148 subtests; live acceptance, Ruff/format, compileall, `pip check`, release scan and diff check pass. Next ACTIVE: clean local clone startup with network blocked and isolated user data, checking all six screens and pack manifest. Screen-reader test is blocked until manual Narrator/NVDA session can be performed; exact resolution action is recorded above.
+
+
+## Clean clone and responsive UI limits (2026-10-24)
+
+A fresh local clone of `044cbf2` launched the app with socket connects denied and app/Kivy data isolated inside the clone. All six screens loaded and `ModelPackManager` listed two pack definitions; no pack/model was downloaded. Source checkout stayed clean; only the intentionally isolated `.test-state` runtime directory is untracked.
+
+Live Kivy acceptance verifies panel orientation: vertical at compact 320×700 dp; horizontal at wide 800×700 and short-landscape 500×500 dp. A separate 360×640 `Window.screenshot` capture was black/warped at launch and after resize; treat pixel-level compact rendering as unresolved. Next ACTIVE: get valid compact rendering evidence in a suitable isolated viewport. BLOCKED: screen-reader behavior requires manual Narrator/NVDA acceptance; Old Nubian rights/review and Somali fluent review blockers unchanged. Full tests 96/148; Ruff, format, compileall, `pip check`, release scan and live acceptance pass.

@@ -29,10 +29,13 @@ def start(app):
     assert list(home.ids.output_text.hint_text_color) == [0.35, 0.35, 0.35, 1]
     app.update_layout(Window, dp(320), dp(700))
     assert not app.wide_layout
+    assert home.ids.translation_panels.orientation == "vertical"
     app.update_layout(Window, dp(800), dp(700))
     assert app.wide_layout
+    assert home.ids.translation_panels.orientation == "horizontal"
     app.update_layout(Window, dp(500), dp(500))
     assert app.wide_layout
+    assert home.ids.translation_panels.orientation == "horizontal"
     app.update_layout(Window, *Window.size)
     try:
         pack_screen = app.root.get_screen("packs")
