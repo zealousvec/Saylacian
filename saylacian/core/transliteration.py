@@ -325,6 +325,10 @@ def transliterate(text: str, source: str, target: str) -> Conversion:
             )
             if token:
                 result.append(SOMALI_TO_OSMANYA[token])
+                if token in {"ii", "uu"}:
+                    warnings.append(
+                        "Long-vowel ii/uu use the same Osmanya letters as y/w; reverse conversion may read them as y/w."
+                    )
                 index += len(token)
             else:
                 char = text[index]

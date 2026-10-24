@@ -273,6 +273,9 @@ def start(app):
         app.refresh_fonts()
         home.ids.input_text.text = "dhagax!"
         assert home.ids.output_text.text == "𐒊𐒖𐒌𐒖𐒄!"
+        home.ids.input_text.text = "ii uu"
+        assert home.ids.output_text.text == "𐒕 𐒓"
+        assert "reverse conversion may read" in app.status
 
         app.source, app.target = "Somali Latin", "Borama"
         app.refresh_fonts()

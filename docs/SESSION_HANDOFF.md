@@ -213,3 +213,15 @@ Tests: `107 passed, 154 subtests`; Ruff check and format pass (103 files); `comp
 - BLOCKED: Old Nubian DBMNT-derived data requires written reuse terms and qualified review; owner approval before outreach. Somali quality needs owner-approved consent-based fluent-speaker review. Screen-reader claims need manual Narrator/NVDA observation. Compact screenshot needs a validated display because current 360×640 SDL capture was black. Hosted pack workflow needs explicit push approval before dispatch.
 
 Previous user changes in `docs/PROJECT_STATUS.md` and `docs/TECHNICAL_AUDIT.md` remain untouched and excluded from staging. Current committed HEAD before this milestone: `f6a604f`; public origin was last verified at `c4f2f87270c22a05e772816ce98e57a99b871b18`. No remote action taken. KivyMD 1.2.0 and its `padding_x` deprecation warnings remain.
+
+## 2026-10-24 — Osmanya conversion warns about irreversible vowel ambiguity
+
+`docs/DEVELOPMENT_ROADMAP.md` and the Unicode 16.0 Core Specification §19.2.1 show that long `ii` and `uu` use Osmanya YA and WAW, which the reverse converter also reads as `y` and `w`. Forward conversion now keeps the existing Unicode output and adds an explicit warning that reverse conversion may read `ii`/`uu` as `y`/`w`. No orthography or mapping changed; no linguistic quality claim made.
+
+Regression tests cover each digraph's unchanged code point plus warning. Live Kivy self-test confirms the warning reaches the visible status. Full suite: 108 passed, 156 subtests; Ruff check/format (103 files), compileall, `pip check`, isolated self-test and diff checks pass. Evidence source: https://www.unicode.org/versions/Unicode16.0.0/core-spec/chapter-19/ .
+
+- ACTIVE: stage reviewed Osmanya files and focused local commit; then validate clean checkout.
+- READY: fresh disposable source checkout with isolated app/Kivy paths; run `main.py --self-test`, check history recovery + ambiguity warning, and verify source checkout remains clean.
+- BLOCKED: Old Nubian DBMNT reuse needs written terms and specialist review (owner approval before outreach); Somali linguistic quality needs owner-approved consent-based fluent-speaker review; screen-reader claims need manual Narrator/NVDA observation; compact pixel review needs validated isolated OpenGL/SDL capture; hosted pack workflow needs explicit push approval before dispatch.
+
+History resilience remains in local commit `b86bdb1`. Current pre-commit branch checkpoint was `b86bdb1`; no push/publish occurred. Preserve owner edits in `docs/PROJECT_STATUS.md` and `docs/TECHNICAL_AUDIT.md`. No OS clipboard or physical input used.

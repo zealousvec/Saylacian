@@ -59,6 +59,15 @@ class CoreTests(unittest.TestCase):
         self.assertEqual(r.text, "wy")
         self.assertTrue(r.warnings)
 
+    def test_forward_long_vowels_warn_about_reverse_ambiguity(self):
+        for latin, glyph in (("ii", "𐒕"), ("uu", "𐒓")):
+            with self.subTest(latin=latin):
+                result = transliterate(latin, "Somali Latin", "Osmanya")
+                self.assertEqual(result.text, glyph)
+                self.assertTrue(
+                    any("reverse conversion may read" in w for w in result.warnings)
+                )
+
     def test_round_trip_unambiguous(self):
         t = "dhagax!"
         self.assertEqual(
