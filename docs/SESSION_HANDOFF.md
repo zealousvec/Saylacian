@@ -8,7 +8,7 @@ Repository: the current checkout of `zealousvec/Saylacian`
 Branch: `main`
 Public `origin/main`: `c4f2f87270c22a05e772816ce98e57a99b871b18`
 Public CI: run `40087020450` passed on that commit.
-Latest committed source checkpoint: `1397cbf` (`test: cover pack recovery and token limits`); public `main` remains `c4f2f87270c22a05e772816ce98e57a99b871b18`. No push has occurred.
+Latest committed source checkpoint: `7ebccd3` (`feat: verify offline model packs manually`); public `main` remains `c4f2f87270c22a05e772816ce98e57a99b871b18`. No push has occurred.
 Preserve the pre-existing user edits in `docs/PROJECT_STATUS.md` and `docs/TECHNICAL_AUDIT.md`; do not stage or rewrite them. Current uncommitted work adds a manual pack-integration workflow, verifier, tests and this handoff; stage only reviewed project files.
 
 ## Current milestone — memory recovery and rendering blocker (2026-10-24)
