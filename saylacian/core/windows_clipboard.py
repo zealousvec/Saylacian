@@ -61,25 +61,24 @@ def publish(formats: Formats, *, owner: int | None = None) -> None:
 
     format_ids = [_format_id(user32, name) for name, _ in formats]
     prepared = []
-    for (name, data), format_id in zip(formats, format_ids):
-        if not isinstance(data, bytes):
-            raise TypeError(f"Clipboard data for {name} must be bytes.")
-        handle = kernel32.GlobalAlloc(GMEM_MOVEABLE, len(data))
-        if not handle:
-            raise ctypes.WinError(ctypes.get_last_error())
-        pointer = kernel32.GlobalLock(handle)
-        if not pointer:
-            kernel32.GlobalFree(handle)
-            raise ctypes.WinError(ctypes.get_last_error())
-        try:
-            ctypes.memmove(pointer, data, len(data))
-        finally:
-            kernel32.GlobalUnlock(handle)
-        prepared.append((format_id, handle))
-
     opened = False
     transferred = set()
     try:
+        for (name, data), format_id in zip(formats, format_ids):
+            if not isinstance(data, bytes):
+                raise TypeError(f"Clipboard data for {name} must be bytes.")
+            handle = kernel32.GlobalAlloc(GMEM_MOVEABLE, len(data))
+            if not handle:
+                raise ctypes.WinError(ctypes.get_last_error())
+            prepared.append((format_id, handle))
+            pointer = kernel32.GlobalLock(handle)
+            if not pointer:
+                raise ctypes.WinError(ctypes.get_last_error())
+            try:
+                ctypes.memmove(pointer, data, len(data))
+            finally:
+                kernel32.GlobalUnlock(handle)
+
         for attempt in range(12):
             if user32.OpenClipboard(owner):
                 opened = True

@@ -1,6 +1,12 @@
 # Session handoff
 
-## Latest milestone — Windows clipboard publishing owner fix (2026-10-24)
+## Latest milestone — clipboard setup failure cleanup (2026-10-24)
+
+Audited the Windows clipboard publisher's error paths after the HWND ownership fix. If allocation of a later format failed, earlier movable global-memory blocks escaped cleanup. Allocation and publish now share the existing `finally` cleanup; each handle is tracked immediately after allocation, so lock/allocation failures free all untransferred blocks. The regression forces the second allocation to fail and verifies the first is freed, no blocks remain, and `OpenClipboard` is never called.
+
+Focused tests: `3 passed`. Full suite: `143 passed, 2 skipped, 197 subtests`; Ruff check, format (`112 files`), compileall, `pip check`, and diff checks pass. No real OS clipboard was touched. The fix is committed locally; no push. **ACTIVE:** none after this fix. **BLOCKED:** real clipboard delivery still needs a disposable Windows VM with host clipboard sharing disabled and a font-compatible external app. **READY:** none currently; reconcile roadmap without inventing filler work.
+
+## Previous milestone — Windows clipboard publishing owner fix (2026-10-24)
 
 Found a real Windows clipboard failure: Saylacian called `OpenClipboard(NULL)`, then `EmptyClipboard`; Microsoft documents that this sets clipboard ownership to NULL and makes subsequent `SetClipboardData` fail. See [OpenClipboard](https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-openclipboard) and [EmptyClipboard](https://learn.microsoft.com/en-us/windows/win32/api/Winuser/nf-winuser-emptyclipboard). `main.py` now obtains Kivy's native `Window.get_window_info().window` handle and passes it as the owner. The publisher rejects a missing owner before allocating clipboard memory. Tests use isolated fake Win32 APIs to verify owner propagation, standard/custom format IDs, handle transfer and null-owner rejection; no OS clipboard was read or changed.
 

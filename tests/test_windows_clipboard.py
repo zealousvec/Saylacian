@@ -56,6 +56,13 @@ class FakeKernel32:
         return 0
 
 
+class FailingKernel32(FakeKernel32):
+    def GlobalAlloc(self, flags, size):
+        if self.blocks:
+            return 0
+        return super().GlobalAlloc(flags, size)
+
+
 class WindowsClipboardTests(unittest.TestCase):
     def test_publishes_all_formats_with_valid_owner_and_transfers_handles(self):
         user32 = FakeUser32()
@@ -86,6 +93,25 @@ class WindowsClipboardTests(unittest.TestCase):
             publish([("CF_UNICODETEXT", b"text\0\0")])
 
         load_dlls.assert_not_called()
+
+    def test_frees_prepared_buffers_when_later_allocation_fails(self):
+        user32 = FakeUser32()
+        kernel32 = FailingKernel32()
+        with (
+            patch(
+                "saylacian.core.windows_clipboard._dlls",
+                return_value=(user32, kernel32),
+            ),
+            self.assertRaises(OSError),
+        ):
+            publish(
+                [("CF_UNICODETEXT", b"text\0\0"), ("Saylacian Text v1", b"tag")],
+                owner=0x1234,
+            )
+
+        self.assertEqual(len(kernel32.freed), 1)
+        self.assertEqual(kernel32.blocks, {})
+        self.assertEqual(user32.owner, None)
 
 
 if __name__ == "__main__":
