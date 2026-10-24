@@ -2,7 +2,7 @@
 
 Live task board for `SAYLACIAN_MASTER_DEVELOPMENT_DIRECTIVE.md`. This board records evidence, not aspirations. `verified` means the stated check passed; it does not establish linguistic acceptance.
 
-Current checkpoint: branch `main`, latest committed code checkpoint `1f97472`; this local milestone adds a Somali unknown-token fallback guard, a regression test, and the missing benchmark-only development dependency. The last recorded public `origin/main` is `c4f2f87270c22a05e772816ce98e57a99b871b18`; no remote mutation occurred. Existing edits in `docs/PROJECT_STATUS.md` and `docs/TECHNICAL_AUDIT.md` remain unstaged and untouched.
+Current checkpoint: branch `main`, latest committed code checkpoint `5030cd0`; model-pack pointer/path containment is verified. The last recorded public `origin/main` is `c4f2f87270c22a05e772816ce98e57a99b871b18`; no remote mutation occurred. Existing edits in `docs/PROJECT_STATUS.md` and `docs/TECHNICAL_AUDIT.md` remain unstaged and untouched.
 
 ## Autonomous execution queues
 
@@ -20,6 +20,7 @@ Investigate Old Nubian mark visibility in Reading Studio. Preserve the exact inp
 | Upgrade Somali linguistic-quality status | No fluent Somali human review or approved reviewer recruitment | Obtain owner-approved, consent-based fluent review and an appropriate reviewed sample. Keep automatic metrics as engineering evidence only. |
 | Verify screen-reader behavior | No assistive-technology session was run; speech output and semantics cannot be inferred from source alone | Perform a manual Windows Narrator/NVDA run through keyboard flows and record actual announcements, selection and focus. Do not claim conformance before testing. |
 | Obtain compact-layout pixel evidence | SDL2 `Window.screenshot` returned an all-black frame at a 360×640 dp viewport; widget geometry is verified but pixels are not | Use a validated isolated virtual display or a known-good OpenGL/SDL screenshot path, then capture and inspect the 360×640 dp view. Do not claim visual acceptance until that works. |
+| Verify portable Borama/Kaddare clipboard use in an external application | Real Windows clipboard acceptance is restricted to a disposable VM; host clipboard must remain untouched | Provision/use a disposable Windows VM with host clipboard sharing disabled, then run the guarded harness and import into a font-compatible external app. Record OS Unicode/RTF/bitmap/custom-format support separately. |
 | Run the hosted model-pack integration workflow | Workflow is local and tested; no hosted run occurred because the user prohibited pushes without approval | Obtain owner approval to push the reviewed workflow commit, then manually dispatch the French or Somali job and inspect its logs. Do not run before approval. |
 
 ### READY

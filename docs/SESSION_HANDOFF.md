@@ -8,8 +8,8 @@ Repository: the current checkout of `zealousvec/Saylacian`
 Branch: `main`
 Public `origin/main`: `c4f2f87270c22a05e772816ce98e57a99b871b18`
 Public CI: run `40087020450` passed on that commit.
-Latest committed source checkpoint: `1f97472` (`fix: fall back on Somali unknown tokens`); public `main` remains at `c4f2f87270c22a05e772816ce98e57a99b871b18`. No push has occurred.
-Preserve the pre-existing user edits in `docs/PROJECT_STATUS.md` and `docs/TECHNICAL_AUDIT.md`; do not stage or rewrite them. Current milestone changes cover the SentencePiece unknown-token fallback, its regression, developer benchmark dependency and project handoff; stage only those reviewed files.
+Latest committed source checkpoint: `5030cd0` (`fix: contain model pack paths`); public `main` remains at `c4f2f87270c22a05e772816ce98e57a99b871b18`. No push has occurred.
+Preserve the pre-existing user edits in `docs/PROJECT_STATUS.md` and `docs/TECHNICAL_AUDIT.md`; do not stage or rewrite them. Latest verified milestone confines pack pointers/versions/assets and records exact external clipboard test blocker; next ACTIVE is Old Nubian mark visibility.
 
 ## Current milestone — memory recovery and rendering blocker (2026-10-24)
 
