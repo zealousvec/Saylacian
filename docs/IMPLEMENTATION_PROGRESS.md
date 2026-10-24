@@ -12,7 +12,7 @@ Move each task among these queues at every milestone. A blocker must name the ex
 
 | Task | Acceptance | Current evidence / next step |
 |---|---|---|
-| Verify clean pinned runtime dependency install | Disposable venv installs `requirements-runtime-lock.txt`; actual Kivy app starts with isolated user data and networking denied, no model packs downloaded | Next READY item selected after clean source startup passed on latest `55b3736`. |
+| Continue keyboard/focus audit for history and Old Nubian reader | Enter reads passage; Esc returns; installed pack removal uses safe keyboard confirmation; live Kivy checks cover these actions. Remaining controls need evidence-based review. |
 
 ### BLOCKED
 
@@ -25,8 +25,8 @@ Move each task among these queues at every milestone. A blocker must name the ex
 
 | Order | Task | Acceptance |
 |---|---|---|
-| 1 | Continue keyboard/focus audit for remaining controls and dialogs | Check history, remove-pack confirmation and Old Nubian reader controls; fix only reproduced barriers and make no full-conformance claim. |
-| 2 | Profile desktop responsiveness after pack/menu changes | Measure startup and picker latency on a pinned, isolated run before changing performance code. |
+| 1 | Profile desktop responsiveness after pack/menu changes | Measure startup and picker latency in an isolated run before changing performance code. |
+| 2 | Inspect user-facing contrast and screen-reader affordances | Use an appropriate setup; document unavailable assertions and do not claim conformance. |
 
 ### VERIFIED
 
@@ -36,6 +36,9 @@ Move each task among these queues at every milestone. A blocker must name the ex
 | Add practical keyboard access for core translation and pack flows | Ctrl+Shift+M mode; Ctrl+P packs; Ctrl+K target and Ctrl+Shift+K source; arrows/Enter choose picker and pack; Ctrl+L editor; Esc back/cancel. Live Kivy acceptance selected a changed route, invoked a pack action through a stub, and requested cancellation; shortcuts are in `RUN.md`. |
 | Add a visible cancellation action for offline pack downloads | `main.py`, `app/main.kv`, `app/acceptance.py`; live `main.py --self-test` asserted the Cancel button is visible/enabled while busy, signals cancellation, disables itself and reports stopping. A streamed partial-download cancellation regression confirms no active pack or staging data remains. |
 | Reproduce startup from a clean checkout | Local clone of `55b3736` started all six Kivy screens under a temporary source checkout, isolated APPDATA/LOCALAPPDATA/Kivy/pack paths, blocked socket connects and a two-second stop. It used the existing venv interpreter; dependency installation remains next. |
+| Install pinned runtime and start the app from a clean checkout | Installed all 21 locked packages into a disposable Python 3.12 venv; `pip check` passed. From a clean clone, the actual app started all six screens with network denied and isolated data paths. No model pack was downloaded. |
+| Operate installed-pack removal from keyboard | Live Kivy acceptance opens existing dialog, verifies Enter defaults KEEP, Right selects REMOVE and Enter calls only test stub; Esc keeps. No real pack removed. |
+| Operate Old Nubian reader core flow from keyboard | Live Kivy acceptance verifies Enter recomputes line-preserving reading (Coptic alpha/beta to Latin a/b) and Escape returns. |
 
 | ID | Milestone | Task | Evidence/source | Status | Tests | Blocker | Next action |
 |---|---|---|---|---|---|---|---|
@@ -69,7 +72,9 @@ Autonomous milestone workflow and pack-download cancellation (2026-10-24): added
 Keyboard usability milestone (2026-10-24): added Ctrl+Shift+M mode switch, Ctrl+P packs, Ctrl+K / Ctrl+Shift+K target/source pickers, Up/Down and Enter selection on picker and packs, Ctrl+L editor focus, and Esc return/cancel. Live Kivy acceptance changed mode/target, focused editor, selected an offline pack with the downloader stubbed, and requested cancellation. It used no physical mouse/keyboard and no download. Full suite: `96 passed, 148 subtests`; Ruff, formatting (101 files), compileall, `pip check`, and `git diff --check` pass. These controls improve keyboard access but do not establish screen-reader or full accessibility conformance. Latest clean-checkout run on `274d566` started all six screens with networking denied and isolated APPDATA/pack storage; repeat after this commit. Next READY: test remaining dialogs and verify a fresh locked runtime environment.
 Keyboard usability milestone (2026-10-24): added Ctrl+Shift+M mode switch, Ctrl+P packs, Ctrl+K / Ctrl+Shift+K target/source pickers, Up/Down and Enter selection on picker and packs, Ctrl+L editor focus, and Esc return/cancel. Live Kivy acceptance changed mode/target, focused editor, selected an offline pack with the downloader stubbed, and requested cancellation. It used no physical mouse/keyboard and no download. Full suite: `96 passed, 148 subtests`; Ruff, formatting (101 files), compileall, `pip check`, and `git diff --check` pass. These controls improve keyboard access but do not establish screen-reader or full accessibility conformance.
 
-Clean source startup (2026-10-24): a temporary local clone at `55b3736` launched all six Kivy screens for two seconds, with socket connections replaced by a hard failure and APPDATA, LOCALAPPDATA, Kivy home and model-pack storage redirected into the temporary state directory. The app started, verified each data path was isolated, and the checkout stayed clean. It used the existing pinned `.venv` interpreter; a fresh dependency install has not yet been tested and is now ACTIVE.
+Clean source/runtime startup (2026-10-24): installed all `requirements-runtime-lock.txt` packages into a disposable Python 3.12 venv; `pip check` passed. A local clone of source commit `55b3736` launched all six Kivy screens under that venv for two seconds, with socket connections replaced by a hard failure and APPDATA, LOCALAPPDATA, Kivy home and pack storage redirected to temporary state. No model packs were installed or downloaded.
+
+Keyboard pack removal milestone (2026-10-24): installed packs now open the existing removal confirmation with Enter. Keyboard navigation defaults to KEEP, Right/Tab selects REMOVE, Enter confirms that choice, and Esc keeps the pack. Live Kivy acceptance used a mocked pack listing and a stubbed remover, proving no real pack was deleted. Full suite remains `96 passed, 148 subtests`; Ruff, formatting, compilation, `pip check`, safety scan, and live Kivy acceptance passed. Next ACTIVE task: check history and Old Nubian reader keyboard paths. KivyMD 1.2.0 upstream deprecation warning remains.
 
 - Full suite: `88 passed, 148 subtests passed`.
 - Full repository Ruff: `ruff check .` and `ruff format --check .` pass; all 30 previous findings were addressed without suppressions. Ruff's automatic `U+` integer rewrite was corrected after tests exposed the format mismatch.
@@ -77,3 +82,10 @@ Clean source startup (2026-10-24): a temporary local clone at `55b3736` launched
 - `compileall`, `pip check`, release-safety scan, `git diff --check`, and PowerShell parser passed. Setting both window minimums before Kivy Window initialization removed its size warning.
 - KivyMD 1.2.0 package deprecation and internal `padding_x` warnings remain; `docs/KIVYMD_MIGRATION.md` records a safe isolated 2.0.0 path.
 - Real Windows clipboard test is now gated to a disposable VM, refuses a non-empty clipboard, and never clears/restores data. Syntax checked only; no VM was available and no system clipboard was changed.
+## Keyboard usability milestone: pack removal and Old Nubian reading (2026-10-24)
+
+Installed-pack removal now works from the keyboard through the existing confirmation: Enter opens it; KEEP is the default; Right/Tab selects REMOVE; Enter confirms; Esc keeps. Live Kivy acceptance uses an installed-pack fixture and stubbed remover, so no model pack was deleted. Old Nubian Reading Studio now accepts Enter to recompute the character-level reading and Escape to return; acceptance verified `ⲁ\nⲃ` produces `a\nb`. This is limited keyboard access, not a screen-reader or full accessibility claim.
+
+Verification: full suite `96 passed, 148 subtests`; live `main.py --self-test` passed with local English-to-French output `Bonjour, comment allez-vous ?`; Ruff check and format passed; compileall, `pip check`, release-safety scan and `git diff --check` passed. KivyMD 1.2.0 deprecation warnings remain. No clipboard interaction, physical input, network model download or real pack removal.
+
+Queue update: ACTIVE is remaining keyboard/focus audit on history and reader. BLOCKED remains Old Nubian data reuse pending written rights and qualified review (owner approval before outreach), and Somali quality pending owner-approved consent-based fluent-speaker review. READY: isolated startup/picker performance measurement, then contrast/screen-reader affordance inspection with appropriate test setup. Continue only with evidence-backed useful work.

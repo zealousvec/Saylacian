@@ -227,6 +227,18 @@ class SaylacianApp(MDApp):
             (name for name, code in Keyboard.keycodes.items() if code == key),
             str(key),
         ).lower()
+        if getattr(self, "pack_dialog", None) is not None:
+            if key_name in {"left", "right", "tab"}:
+                self.pack_dialog_index = 1 - self.pack_dialog_index
+                self._update_pack_dialog_cursor()
+            elif key_name in {"enter", "numpadenter"}:
+                if self.pack_dialog_index == 0:
+                    self.dismiss_pack_dialog(self.pack_dialog)
+                else:
+                    self.remove_pack(self.pack_dialog, self.pack_dialog_pack_id)
+            elif key_name == "escape":
+                self.dismiss_pack_dialog(self.pack_dialog)
+            return True
         if key_name == "m" and {"ctrl", "shift"}.issubset(modifiers):
             self.switch_mode()
             return True
@@ -241,6 +253,12 @@ class SaylacianApp(MDApp):
             home = self.root.get_screen("home")
             self.root.current = "home"
             home.ids.input_text.focus = True
+            return True
+        if self.root.current == "old_nubian_studio" and key_name in {
+            "enter",
+            "numpadenter",
+        }:
+            self.read_old_nubian_passage()
             return True
         if self.root.current == "picker" and key_name in {"up", "down"}:
             if not self.picker_options:
@@ -280,7 +298,7 @@ class SaylacianApp(MDApp):
             if self.pack_busy:
                 self.pack_status = "Wait for the current download to finish."
             elif option["installed"]:
-                self.pack_status = "This pack is installed. Use Remove to free space."
+                self.confirm_remove_pack(option["id"])
             else:
                 self.start_pack_download(option["id"])
             return True
@@ -450,22 +468,39 @@ class SaylacianApp(MDApp):
 
     def confirm_remove_pack(self, pack_id):
         title = self.pack_manager.specs[pack_id]["title"]
+        keep_button = MDFlatButton(
+            text="KEEP", on_release=lambda *_: self.dismiss_pack_dialog(dialog)
+        )
+        remove_button = MDFlatButton(
+            text="REMOVE",
+            on_release=lambda *_: self.remove_pack(dialog, pack_id),
+        )
         dialog = MDDialog(
             title="Remove offline pack?",
             text=f"Remove {title} and its downloaded files?",
-            buttons=[
-                MDFlatButton(text="KEEP", on_release=lambda *_: dialog.dismiss()),
-                MDFlatButton(
-                    text="REMOVE",
-                    on_release=lambda *_: self.remove_pack(dialog, pack_id),
-                ),
-            ],
+            buttons=[keep_button, remove_button],
         )
         self.pack_dialog = dialog
+        self.pack_dialog_pack_id = pack_id
+        self.pack_dialog_index = 0
+        self.pack_dialog_buttons = (keep_button, remove_button)
+        self._update_pack_dialog_cursor()
         dialog.open()
 
-    def remove_pack(self, dialog, pack_id):
+    def _update_pack_dialog_cursor(self):
+        for index, button in enumerate(self.pack_dialog_buttons):
+            label = "KEEP" if index == 0 else "REMOVE"
+            button.text = ("› " if index == self.pack_dialog_index else "") + label
+
+    def dismiss_pack_dialog(self, dialog):
         dialog.dismiss()
+        self.pack_dialog = None
+        self.pack_dialog_pack_id = None
+        self.pack_dialog_buttons = ()
+        self.pack_dialog_index = 0
+
+    def remove_pack(self, dialog, pack_id):
+        self.dismiss_pack_dialog(dialog)
         try:
             self.pack_manager.remove(pack_id)
         except (OSError, ValueError) as error:

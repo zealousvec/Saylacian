@@ -88,6 +88,39 @@ def start(app):
             assert app.pack_options[1]["title"].text.startswith("› ")
             assert app.keyboard(Window, 13, None, 13, [])
             start_download.assert_called_once_with("french")
+        installed_pack = [
+            {
+                "id": "somali",
+                "title": "Somali / English",
+                "installed": True,
+                "installed_bytes": 300,
+                "download_bytes": 300,
+                "storage_bytes": 300,
+            }
+        ]
+        with (
+            patch.object(app.pack_manager, "list_packs", return_value=installed_pack),
+            patch.object(app, "remove_pack") as remove_pack,
+        ):
+            app.open_packs()
+            assert app.keyboard(Window, 274, None, None, ["down"])
+            assert app.keyboard(Window, 13, None, 13, [])
+            keep_dialog = app.pack_dialog
+            assert keep_dialog is not None
+            assert app.pack_dialog_index == 0
+            assert app.pack_dialog_buttons[0].text.startswith("› ")
+            assert app.keyboard(Window, 13, None, 13, [])
+            assert app.pack_dialog is None
+            remove_pack.assert_not_called()
+            assert app.keyboard(Window, 13, None, 13, [])
+            dialog = app.pack_dialog
+            assert dialog is not None
+            assert app.keyboard(Window, 275, None, None, [])
+            assert app.pack_dialog_index == 1
+            assert app.pack_dialog_buttons[1].text.startswith("› ")
+            assert app.keyboard(Window, 13, None, 13, [])
+            remove_pack.assert_called_once_with(dialog, "somali")
+            app.dismiss_pack_dialog(dialog)
         app.pack_busy = True
         app.pack_cancel_event = threading.Event()
         app.pack_cancel_requested = False
@@ -100,6 +133,16 @@ def start(app):
         assert app.keyboard(Window, 27)
         assert app.root.current == "home"
         home.ids.input_text.focus = False
+
+        app.mode = "Convert writing system"
+        app.source, app.target = "Old Nubian (Coptic)", "Old Nubian scholarly Latin"
+        app.open_old_nubian_studio()
+        studio = app.root.get_screen("old_nubian_studio")
+        studio.ids.reader_original.text = "ⲁ\nⲃ"
+        assert app.keyboard(Window, 13, None, 13, [])
+        assert studio.ids.reader_latin.text == "a\nb"
+        assert app.keyboard(Window, 27)
+        assert app.root.current == "home"
 
         app.mode = "Convert writing system"
         app.source, app.target = "Somali Latin", "Osmanya"
@@ -313,7 +356,7 @@ def start(app):
                     "Borama/Kaddare tagged-package import, font selection, and reverse conversion",
                     "three Borama/Kaddare copy actions",
                     "offline pack cancellation control and request state",
-                    "keyboard-only mode, language, and offline-pack actions",
+                    "keyboard-only mode, language, offline-pack, and safe removal actions",
                     "Old Nubian reverse alternatives",
                     "Old Nubian paired reading with case and line-break preservation",
                     "Old Nubian searchable alphabet and reading studio",
