@@ -2,7 +2,7 @@
 
 Live task board for `SAYLACIAN_MASTER_DEVELOPMENT_DIRECTIVE.md`. This board records evidence, not aspirations. `verified` means the stated check passed; it does not establish linguistic acceptance.
 
-Baseline at start of this session: branch `main`, local HEAD `41090b93d6ab0992fced466f1af2e843c2b98408`, and public `origin/main` at `c4f2f87270c22a05e772816ce98e57a99b871b18` (12 local commits ahead). Existing uncommitted edits in `docs/PROJECT_STATUS.md` and `docs/TECHNICAL_AUDIT.md` predate this session and remain separate. No push.
+Baseline at start of this session: branch `main`, local HEAD `41090b93d6ab0992fced466f1af2e843c2b98408`, and public `origin/main` at `c4f2f87270c22a05e772816ce98e57a99b871b18` (12 local commits ahead). Local commits this session: `f8415c3`, `b309ec3`, `09d4894`; no push. Existing uncommitted edits in `docs/PROJECT_STATUS.md` and `docs/TECHNICAL_AUDIT.md` predate this session and remain separate. No push.
 
 ## Autonomous execution queues
 
@@ -12,7 +12,7 @@ Move each task among these queues at every milestone. A blocker must name the ex
 
 | Task | Acceptance | Current evidence / next step |
 |---|---|---|
-| Continue keyboard/focus audit for history and Old Nubian reader | Enter reads passage; Esc returns; installed pack removal uses safe keyboard confirmation; live Kivy checks cover these actions. Remaining controls need evidence-based review. |
+| Audit color contrast in approved UI | Calculate contrast ratios for explicit foreground/background pairs and repair only confirmed failures without changing brand palette. Screen-reader checks remain distinct. |
 
 ### BLOCKED
 
@@ -25,8 +25,8 @@ Move each task among these queues at every milestone. A blocker must name the ex
 
 | Order | Task | Acceptance |
 |---|---|---|
-| 1 | Profile desktop responsiveness after pack/menu changes | Measure startup and picker latency in an isolated run before changing performance code. |
-| 2 | Inspect user-facing contrast and screen-reader affordances | Use an appropriate setup; document unavailable assertions and do not claim conformance. |
+| 1 | Inspect assistive-technology behavior | Requires supported screen-reader setup; record tested platform and concrete results. |
+| 2 | Review KivyMD 1.2.0 deprecation path | Assess isolated migration only; do not change framework without approval. |
 
 ### VERIFIED
 
@@ -39,8 +39,7 @@ Move each task among these queues at every milestone. A blocker must name the ex
 | Install pinned runtime and start the app from a clean checkout | Installed all 21 locked packages into a disposable Python 3.12 venv; `pip check` passed. From a clean clone, the actual app started all six screens with network denied and isolated data paths. No model pack was downloaded. |
 | Operate installed-pack removal from keyboard | Live Kivy acceptance opens existing dialog, verifies Enter defaults KEEP, Right selects REMOVE and Enter calls only test stub; Esc keeps. No real pack removed. |
 | Operate Old Nubian reader core flow from keyboard | Live Kivy acceptance verifies Enter recomputes line-preserving reading and Escape returns. |
-| Operate Old Nubian reader core flow from keyboard | Live Kivy acceptance verifies Enter recomputes line-preserving reading and Escape returns. |
-| Operate Old Nubian reader core flow from keyboard | Live Kivy acceptance verifies Enter recomputes line-preserving reading (Coptic alpha/beta to Latin a/b) and Escape returns. |
+| Navigate saved history without pointer | Up/Down updates visible cursor and scrolls selected row into view; Enter dispatches restore. Live Kivy acceptance used mocked rows and stub restore; commits b309ec3, 09d4894. |
 
 | ID | Milestone | Task | Evidence/source | Status | Tests | Blocker | Next action |
 |---|---|---|---|---|---|---|---|
@@ -91,3 +90,5 @@ Installed-pack removal now works from the keyboard through the existing confirma
 Verification: full suite `96 passed, 148 subtests`; live `main.py --self-test` passed with local English-to-French output `Bonjour, comment allez-vous ?`; Ruff check and format passed; compileall, `pip check`, release-safety scan and `git diff --check` passed. KivyMD 1.2.0 deprecation warnings remain. No clipboard interaction, physical input, network model download or real pack removal.
 
 Queue update: ACTIVE is remaining keyboard/focus audit on history and reader. BLOCKED remains Old Nubian data reuse pending written rights and qualified review (owner approval before outreach), and Somali quality pending owner-approved consent-based fluent-speaker review. READY: isolated startup/picker performance measurement, then contrast/screen-reader affordance inspection with appropriate test setup. Continue only with evidence-backed useful work.
+
+Performance baseline (2026-10-24): isolated Python subprocess import plus Kivy `build()` produced six screens in 1.32–1.46 s (median 1.39 s, n=3); this is not first-frame latency. Picker filter rebuild measured 25 alternations: median 10.7 ms, with a few 49–99 ms widget/render spikes. No stable bottleneck established, so no performance code changed. Raw measurements are in `%TEMP%\saylacian_perf_baseline_20261024.json`; repeat on target devices before optimizing.

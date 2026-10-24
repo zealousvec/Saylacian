@@ -121,3 +121,7 @@ Queue update: ACTIVE is remaining keyboard/focus audit on history and reader. BL
 ## Keyboard navigation for history (2026-10-24)
 
 Saved-history screen now supports Up/Down selection and Enter restore. The selected row has a visible `›` cursor. Live Kivy acceptance used two mocked history entries and a stub restore handler; it verified selection and dispatch without writing history. Full suite: `96 passed, 148 subtests`; Ruff check/format, compileall, `pip check`, release-safety and `git diff --check` pass. Next ACTIVE task is measured startup/picker responsiveness; remaining contrast/screen-reader checks require suitable tooling. Blockers and owner edits unchanged.
+
+## Isolated responsiveness baseline (2026-10-24)
+
+Three subprocess runs measured import plus Kivy `build()` at 1.32–1.46 s (median 1.39 s) and confirmed all six screens; this does not include main-loop first frame. Twenty-five language-picker filter rebuilds had 10.7 ms median with occasional 49–99 ms outliers, likely coupled to widget/render initialization; repeat before attributing cause. No code optimization made because measurements do not show a stable bottleneck. Raw data: `%TEMP%\saylacian_perf_baseline_20261024.json`. Full tests 96/148; Ruff and format (101 files), compileall, `pip check`, release scan, live UI and diff checks pass. Next ACTIVE: inspect contrast ratios from source color pairs; screen-reader claims still need an appropriate assistive-technology setup.
