@@ -237,3 +237,18 @@ Full suite: 109 passed, 188 subtests. Ruff check/format (103 files), compileall,
 - BLOCKED: Old Nubian DBMNT reuse needs written terms and specialist review (owner approval before outreach); Somali linguistic quality needs owner-approved consent-based fluent-speaker review; screen-reader claims need manual Narrator/NVDA observation; compact pixel review needs validated isolated OpenGL/SDL capture; hosted pack workflow needs explicit push approval before dispatch.
 
 Local commits: `b86bdb1` (damaged saved-history safety), `be0e422` (Osmanya reverse-ambiguity warning). Existing user edits in `docs/PROJECT_STATUS.md` and `docs/TECHNICAL_AUDIT.md` remain untouched and excluded. No remote writes.
+
+## Final checkpoint — 2026-10-24
+
+Committed and verified locally:
+- `b86bdb1` — preserve malformed saved-history bytes and report schema errors safely.
+- `be0e422` — warn that Osmanya long `ii`/`uu` shares letters with `y`/`w` and cannot be reversed with certainty.
+- `3bdc380` — guard all 32 Osmanya mapping outputs as assigned Unicode letters; recognize Osmanya digit-only text without inferring ASCII/mixed scripts.
+
+Verification: `109 passed, 188 subtests`; `ruff check .`; `ruff format --check .` (103 files); compileall; `pip check`; `git diff --check`; isolated live Kivy self-test. Clean clone at `3bdc380` launched six screens with network denied, listed French/Somali manifests as not installed, and passed history/Osmanya checks; clone remained clean. Existing pinned venv reused; no model weights downloaded.
+
+Queue reconciliation against `docs/DEVELOPMENT_ROADMAP.md`: ACTIVE none; READY none currently meets acceptance without an external permission, specialist evidence, or validated isolated graphics capture resource. This is after completing independent code tasks while blockers remained; do not treat the blocker itself as a reason to stop when a suitable READY task exists.
+
+BLOCKED, exact resolution: Old Nubian DBMNT-derived expansion needs written reuse terms plus qualified specialist review; owner approval before outreach. Somali quality needs owner-approved consent-based fluent-speaker review. Screen-reader claims need manual Windows Narrator/NVDA interaction and observed announcements. Compact pixels need a validated isolated virtual display/OpenGL/SDL capture. Hosted pack integration needs owner approval to push the workflow commit, then manually dispatch and inspect Actions.
+
+Current HEAD `3bdc380`, branch `main`. No remote writes/push. User edits in `docs/PROJECT_STATUS.md` and `docs/TECHNICAL_AUDIT.md` remain untouched and uncommitted. The active Codex goal remains active for future READY work.

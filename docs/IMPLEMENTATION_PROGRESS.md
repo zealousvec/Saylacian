@@ -2,7 +2,7 @@
 
 Live task board for `SAYLACIAN_MASTER_DEVELOPMENT_DIRECTIVE.md`. This board records evidence, not aspirations. `verified` means the stated check passed; it does not establish linguistic acceptance.
 
-Current checkpoint: branch `main`, local HEAD `be0e422` before the current Osmanya verification fixes. The last recorded public `origin/main` is `c4f2f87270c22a05e772816ce98e57a99b871b18`; no remote mutation occurred. Existing edits in `docs/PROJECT_STATUS.md` and `docs/TECHNICAL_AUDIT.md` remain unstaged and untouched.
+Current checkpoint: branch `main`, local HEAD `3bdc380`. The last recorded public `origin/main` is `c4f2f87270c22a05e772816ce98e57a99b871b18`; no remote mutation occurred. Existing edits in `docs/PROJECT_STATUS.md` and `docs/TECHNICAL_AUDIT.md` remain unstaged and untouched.
 
 ## Autonomous execution queues
 
@@ -10,7 +10,7 @@ Move each task among these queues at every milestone. A blocker must name the ex
 
 ### ACTIVE
 
-Commit verified Osmanya code-point checks and digit-only script detection, then run the READY clean-checkout acceptance.
+Current implementation milestones are committed and validated. Roadmap recheck found no additional independent code task with safe evidence and resources currently available; keep blocked items separate and resume when a READY item becomes actionable.
 
 ### BLOCKED
 
@@ -26,7 +26,7 @@ Commit verified Osmanya code-point checks and digit-only script detection, then 
 
 | Order | Task | Acceptance |
 |---|---|---|
-| 1 | Recheck clean source setup after saved-history and Osmanya fixes | Use a disposable checkout and isolated app data; load all six screens, verify both pack manifests, damaged-history recovery and digit-only Osmanya detection, then confirm checkout remains clean. |
+No additional code task currently meets acceptance criteria without external permission, specialist evidence, or a validated capture resource. Reconcile roadmap at the next session; do not duplicate BLOCKED tasks here.
 
 ### VERIFIED
 
@@ -35,6 +35,7 @@ Commit verified Osmanya code-point checks and digit-only script detection, then 
 | Preserve saved history and report malformed content safely | JSON decode errors and invalid top-level/entry schemas raise actionable `ValueError`; read, save and clear preserve original bytes. Live Kivy self-test checks the Saved screen reports damaged history without changing the file or navigating away. Full suite: 107 passed, 154 subtests; Ruff, format, compileall, `pip check`, and diff checks pass. |
 | Warn on forward Osmanya long-vowel ambiguity | Somali `ii`/`uu` still produce U+10495/U+10493, with a warning that reverse conversion may read them as `y`/`w`. Unit tests assert both code points/warnings; live Kivy self-test verifies warning appears in app status. Based on Unicode Standard 16.0 §19.2.1. Full suite: 108 passed, 156 subtests; Ruff, format, compileall, `pip check`, live Kivy and diff checks pass. |
 | Validate Osmanya mapping assignments and detect number-only text | All 32 supported spellings map to Unicode characters named `OSMANYA LETTER`; Osmanya-only digits U+104A0–U+104A9 are detected as the script, while ASCII digits and mixed scripts abstain. Tests and live app acceptance pass; this verifies Unicode assignment/detection, not Somali orthography. Full suite: 109 passed, 188 subtests; Ruff/format, compileall, `pip check`, live Kivy and diff checks pass. |
+| Verify committed source in a clean checkout | Commit `3bdc380` cloned to an isolated temp path; all six Kivy screens started with network blocked; pack manifest listed French and Somali as not installed; saved-history corruption stayed byte-identical; Osmanya mapping names, digit-only detection, mixed-script abstention and ambiguity warnings passed. Checkout remained clean. Reused the pinned venv (not a fresh dependency installation); no pack weights downloaded. |
 | Make saved-history clearing atomic and failure-safe | Same-directory unique temp file and atomic replace. Failure injection confirms old history is byte-identical and temp files are cleaned; local commit `66581de`. |
 | Add practical keyboard access for core translation and pack flows | Ctrl+Shift+M mode; Ctrl+P packs; Ctrl+K target and Ctrl+Shift+K source; arrows/Enter choose picker and pack; Ctrl+L editor; Esc back/cancel. Live Kivy checks passed. |
 | Add a visible cancellation action for offline pack downloads | Live Kivy acceptance checked visible/enabled Cancel, event signaling, disabled repeat request and status; streamed cancellation regression confirms no active pack or staging remains. |
