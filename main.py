@@ -67,6 +67,12 @@ from saylacian.core.interchange import (
 )
 from saylacian.core.language_detection import detect_language
 from saylacian.core.model_packs import ModelPackManager
+from saylacian.core.old_nubian_reader import (
+    alphabet_entries,
+    export_reading_record,
+    import_reading_record,
+    make_reading_record,
+)
 from saylacian.core.online_translation import (
     online_provider_label,
     online_translation_enabled,
@@ -95,6 +101,10 @@ class SavedScreen(Screen):
 
 
 class ScriptInfoScreen(Screen):
+    pass
+
+
+class OldNubianStudioScreen(Screen):
     pass
 
 
@@ -156,6 +166,9 @@ class SaylacianApp(MDApp):
     picker_heading = StringProperty("Choose source")
     script_heading = StringProperty("Osmanya alphabet")
     script_note = StringProperty("Select Osmanya as source to insert letters.")
+    reader_status = StringProperty("Choose a cited letter or enter a passage to read.")
+    reader_detail = StringProperty("Select a letter to see its code point and source.")
+    reader_selected_glyph = StringProperty("")
     pack_status = StringProperty("Installed packs work offline.")
     pack_progress = NumericProperty(0)
     pack_storage = StringProperty("")
@@ -733,6 +746,125 @@ class SaylacianApp(MDApp):
         )
         self.root.get_screen("home").ids.input_text.focus = False
         self.root.current = "alphabet"
+
+    def open_old_nubian_studio(self):
+        if self.mode != "Convert writing system" or not {
+            self.source,
+            self.target,
+        }.issuperset({"Old Nubian (Coptic)", "Old Nubian scholarly Latin"}):
+            self.status = (
+                "Choose Old Nubian and Latin reading to open the reading studio."
+            )
+            return
+        home = self.root.get_screen("home")
+        studio = self.root.get_screen("old_nubian_studio")
+        studio.ids.reader_original.text = home.ids.input_text.text
+        self.read_old_nubian_passage()
+        studio.ids.alphabet_search.text = ""
+        self.filter_old_nubian_alphabet("")
+        home.ids.input_text.focus = False
+        self.root.current = "old_nubian_studio"
+
+    def read_old_nubian_passage(self):
+        studio = self.root.get_screen("old_nubian_studio")
+        try:
+            record = make_reading_record(studio.ids.reader_original.text)
+        except ValueError as error:
+            studio.ids.reader_latin.text = ""
+            self.reader_status = str(error)
+            return
+        studio.ids.reader_latin.text = record.latin
+        self.reader_status = (
+            "Limited character reading · "
+            + record.convention
+            + (" · " + " ".join(record.warnings) if record.warnings else "")
+        )
+
+    def filter_old_nubian_alphabet(self, query):
+        if not self.root:
+            return
+        grid = self.root.get_screen("old_nubian_studio").ids.reader_alphabet
+        grid.clear_widgets()
+        for entry in alphabet_entries(query):
+            button = Button(
+                text=f"{entry['glyph']}  {entry['reading']}",
+                size_hint_y=None,
+                height=dp(52),
+                font_name=self.font_for("Old Nubian (Coptic)"),
+                font_size="18sp",
+                background_normal="",
+                background_color=(0.95, 0.95, 0.95, 1),
+                color=(0.08, 0.08, 0.08, 1),
+                on_release=lambda _button, row=entry: self.show_old_nubian_letter(row),
+            )
+            grid.add_widget(button)
+
+    def show_old_nubian_letter(self, entry):
+        self.reader_selected_glyph = str(entry["glyph"])
+        ambiguity = " · reverse reading may be ambiguous" if entry["ambiguous"] else ""
+        self.reader_detail = (
+            f"{entry['glyph']} · {entry['reading']} · {entry['codepoint']}\n"
+            f"{entry['name']}{ambiguity}\n"
+            f"{entry['confidence']} · {entry['convention']}"
+        )
+
+    def insert_old_nubian_letter(self):
+        if not self.reader_selected_glyph:
+            self.reader_status = "Choose a letter first."
+            return
+        field = self.root.get_screen("old_nubian_studio").ids.reader_original
+        field.insert_text(self.reader_selected_glyph)
+
+    def export_old_nubian_reading(self):
+        from datetime import UTC, datetime
+
+        studio = self.root.get_screen("old_nubian_studio")
+        try:
+            record = make_reading_record(studio.ids.reader_original.text)
+            payload = export_reading_record(record)
+            folder = Path(self.user_data_dir) / "old-nubian-readings"
+            folder.mkdir(parents=True, exist_ok=True)
+            stamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%S%fZ")
+            destination = folder / f"reading-{stamp}.json"
+            destination.write_text(payload, encoding="utf-8")
+        except (OSError, ValueError) as error:
+            self.reader_status = f"Could not export reading: {error}"
+            return
+        self.reader_status = f"Reading record saved: {destination}"
+
+    def copy_old_nubian_reading(self, field_name):
+        studio = self.root.get_screen("old_nubian_studio")
+        fields = {
+            "original": studio.ids.reader_original.text,
+            "latin": studio.ids.reader_latin.text,
+        }
+        if field_name not in fields:
+            self.reader_status = "Choose the original or Latin reading to copy."
+            return
+        text = fields[field_name]
+        if not text:
+            self.reader_status = "There is no reading to copy."
+            return
+        Clipboard.copy(text)
+        self.reader_status = (
+            "Original script copied."
+            if field_name == "original"
+            else "Latin reading copied."
+        )
+
+    def import_old_nubian_reading(self):
+        payload = Clipboard.paste()
+        studio = self.root.get_screen("old_nubian_studio")
+        try:
+            record = import_reading_record(payload)
+        except (TypeError, ValueError) as error:
+            self.reader_status = f"Could not import reading record: {error}"
+            return
+        studio.ids.reader_original.text = record.original
+        studio.ids.reader_latin.text = record.latin
+        self.reader_status = (
+            "Imported and checked reading record · " + record.convention
+        )
 
     def insert_letter(self, glyph):
         if self.source != "Osmanya":

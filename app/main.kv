@@ -37,6 +37,12 @@
                 MDFlatButton:
                     text: "Transliterate" if app.mode == "Convert writing system" else "Translate"
                     on_release: app.switch_mode()
+                MDFlatButton:
+                    text: "Read"
+                    size_hint_x: None
+                    width: dp(48) if app.mode == "Convert writing system" and ("Old Nubian" in app.source or "Old Nubian" in app.target) else 0
+                    disabled: not (app.mode == "Convert writing system" and ("Old Nubian" in app.source or "Old Nubian" in app.target))
+                    on_release: app.open_old_nubian_studio()
                 ActionIcon:
                     icon: "download"
                     tooltip_text: "Offline language packs"
@@ -331,10 +337,114 @@
             height: dp(40)
             font_style: "Caption"
             text_size: self.width, None
+<OldNubianStudioScreen>:
+    name: "old_nubian_studio"
+    BoxLayout:
+        orientation: "vertical"
+        padding: dp(16)
+        spacing: dp(8)
+        canvas.before:
+            Color:
+                rgba: 0, 0, 0, 1
+            Rectangle:
+                pos: self.pos
+                size: self.size
+        BoxLayout:
+            size_hint_y: None
+            height: dp(44)
+            ActionIcon:
+                icon: "arrow-left"
+                tooltip_text: "Back to translator"
+                on_release: app.close_picker()
+            MDLabel:
+                text: "Old Nubian reading"
+                font_style: "H6"
+        ScrollView:
+            do_scroll_x: False
+            BoxLayout:
+                orientation: "vertical"
+                size_hint_y: None
+                height: self.minimum_height
+                spacing: dp(8)
+                MDLabel:
+                    text: "Enter a passage. This gives a limited character reading, not a translation."
+                    size_hint_y: None
+                    height: dp(42)
+                    text_size: self.width, None
+                MDTextField:
+                    id: reader_original
+                    hint_text: "Old Nubian text"
+                    multiline: True
+                    size_hint_y: None
+                    height: dp(110)
+                    font_name: app.font_for("Old Nubian (Coptic)")
+                    font_size: "20sp"
+                GridLayout:
+                    size_hint_y: None
+                    height: dp(132)
+                    cols: 2
+                    MDFlatButton:
+                        text: "Read passage"
+                        on_release: app.read_old_nubian_passage()
+                    MDFlatButton:
+                        text: "Import record"
+                        on_release: app.import_old_nubian_reading()
+                    MDFlatButton:
+                        text: "Copy original"
+                        on_release: app.copy_old_nubian_reading("original")
+                    MDFlatButton:
+                        text: "Copy Latin"
+                        on_release: app.copy_old_nubian_reading("latin")
+                    MDFlatButton:
+                        text: "Export record"
+                        on_release: app.export_old_nubian_reading()
+                MDTextField:
+                    id: reader_latin
+                    hint_text: "Scholarly Latin reading"
+                    multiline: True
+                    readonly: True
+                    size_hint_y: None
+                    height: dp(110)
+                    font_size: "18sp"
+                MDLabel:
+                    text: app.reader_status
+                    size_hint_y: None
+                    height: dp(70)
+                    font_style: "Caption"
+                    text_size: self.width, None
+                MDLabel:
+                    text: "Letter reference"
+                    size_hint_y: None
+                    height: dp(32)
+                    font_style: "Subtitle1"
+                MDTextField:
+                    id: alphabet_search
+                    hint_text: "Search letter, reading or code point"
+                    size_hint_y: None
+                    height: dp(52)
+                    on_text: app.filter_old_nubian_alphabet(self.text)
+                MDLabel:
+                    text: app.reader_detail
+                    size_hint_y: None
+                    height: dp(82)
+                    font_style: "Caption"
+                    text_size: self.width, None
+                MDFlatButton:
+                    text: "Insert selected letter"
+                    size_hint_y: None
+                    height: dp(44)
+                    on_release: app.insert_old_nubian_letter()
+                GridLayout:
+                    id: reader_alphabet
+                    cols: 3
+                    spacing: dp(6)
+                    size_hint_y: None
+                    height: self.minimum_height
 ScreenManager:
     transition: NoTransition()
     HomeScreen:
     PickerScreen:
     SavedScreen:
     ScriptInfoScreen:
+    OldNubianStudioScreen:
     PacksScreen:

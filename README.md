@@ -44,6 +44,8 @@ Current download sizes:
 
 An offline pack contains two directional models. The Somali pack uses the smaller multilingual models; the higher-scoring synthetic English→Somali candidate is not currently part of that download. English↔Somali quality is experimental. Model licence and runtime metadata are recorded in the manifests and installed pack record. Full setup and troubleshooting: [RUN.md](RUN.md) and [offline packs](docs/OFFLINE_PACKS.md).
 
+For Old Nubian, select the script and Latin reading, then choose **Read** to open the Reading Studio. It provides a searchable reference for the 34 character readings in the cited DBMNT table, a line-preserving reading panel, copy actions for each side, and a versioned JSON record that can be exported and imported back from the clipboard. It does not translate meaning or provide manuscript interpretation; the table has not been independently reviewed, and reverse readings can be ambiguous. See the [reader scope and sources](docs/OLD_NUBIAN_READER_PLAN.md).
+
 ![Offline language pack screen](assets/screenshots/offline-language-packs.png)
 
 ## Development

@@ -11,6 +11,10 @@ from kivy.clock import Clock
 from kivy.core.window import Window
 
 from saylacian.core.interchange import encode_saylacian_text
+from saylacian.core.old_nubian_reader import (
+    export_reading_record,
+    make_reading_record,
+)
 
 
 def start(app):
@@ -233,6 +237,8 @@ def start(app):
                     "three Borama/Kaddare copy actions",
                     "Old Nubian reverse alternatives",
                     "Old Nubian paired reading with case and line-break preservation",
+                    "Old Nubian searchable alphabet and reading studio",
+                    "Old Nubian copy actions and versioned record import/export",
                     "picker search",
                     "local meaning model",
                 ]
@@ -260,10 +266,42 @@ def start(app):
         Clock.schedule_interval(inspect, 0.2)
 
     def capture_old_nubian_reader(dt):
+        app.root.get_screen("home").ids.input_text.focus = False
         Window.screenshot(name=str(folder / "old-nubian-reading.png"))
-        app.source, app.target = "Somali Latin", "Borama"
-        app.refresh_fonts()
-        home.ids.input_text.text = "dhag!"
+        app.open_old_nubian_studio()
+        studio = app.root.get_screen("old_nubian_studio")
+        assert studio.ids.reader_latin.text == "ABG\nJNGNYW\na⳯⳰⳱"
+        studio.ids.alphabet_search.text = "2cdf"
+        assert len(studio.ids.reader_alphabet.children) == 1
+        studio.ids.reader_alphabet.children[0].trigger_action(duration=0)
+        assert "U+2CDF" in app.reader_detail
+        saved_record = export_reading_record(make_reading_record("ⲁ\nⲃ"))
+        with patch("main.Clipboard.paste", return_value=saved_record):
+            app.import_old_nubian_reading()
+        assert studio.ids.reader_original.text == "ⲁ\nⲃ"
+        assert studio.ids.reader_latin.text == "a\nb"
+        with patch("main.Clipboard.copy") as copied:
+            app.copy_old_nubian_reading("original")
+            copied.assert_called_once_with("ⲁ\nⲃ")
+        with patch("main.Clipboard.copy") as copied:
+            app.copy_old_nubian_reading("latin")
+            copied.assert_called_once_with("a\nb")
+        studio.ids.reader_original.text = home.ids.input_text.text
+        app.read_old_nubian_passage()
+
+        def capture_studio(result_dt):
+            Window.screenshot(name=str(folder / "old-nubian-reading-studio.png"))
+
+            def leave_studio(after_capture_dt):
+                app.close_picker()
+                app.source, app.target = "Somali Latin", "Borama"
+                app.refresh_fonts()
+                home.ids.input_text.text = "dhag!"
+                Clock.schedule_once(capture_borama, 0.7)
+
+            Clock.schedule_once(leave_studio, 0.3)
+
+        Clock.schedule_once(capture_studio, 1.0)
 
     def show_old_nubian_reader(dt):
         app.source, app.target = "Old Nubian (Coptic)", "Old Nubian scholarly Latin"
@@ -290,4 +328,3 @@ def start(app):
     app.refresh_fonts()
     home.ids.input_text.text = "dhag!"
     Clock.schedule_once(show_old_nubian_reader, 0.1)
-    Clock.schedule_once(capture_borama, 0.7)
