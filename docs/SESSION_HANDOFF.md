@@ -1,5 +1,11 @@
 # Session handoff
 
+## Latest milestone — translation warning clarity (2026-10-24)
+
+User-facing route warnings no longer expose internal terms such as “synthetic candidate,” “multilingual fallback,” or “human review pending.” Somali output retains a clear accuracy caution; Somali/French pivot warns meaning may change. Added unit and website regressions plus live Kivy assertion for the status label. Full suite: 127 passed, 2 skipped, 197 subtests. Ruff, format (105 files), compileall, `pip check`, release scan, `git diff --check`, and isolated Kivy self-test pass. Local UI acceptance output: `Bonjour, comment allez-vous ?`.
+
+Next ACTIVE: finish remaining status/picker copy audit against `docs/UI_COPY_REGISTER.md`. Short-input accuracy remains BLOCKED until a licensed, independently labelled natural short-phrase set or owner-approved review is available. DBMNT-derived expansion, Somali specialist quality review, screen-reader run, compact pixel capture, external-app clipboard and hosted workflow have their existing exact blockers in `docs/IMPLEMENTATION_PROGRESS.md`. Preserve owner changes to `docs/PROJECT_STATUS.md` and `docs/TECHNICAL_AUDIT.md`; no push.
+
 ## Resume point
 
 Read the owner's `SAYLACIAN_MASTER_DEVELOPMENT_DIRECTIVE.md`, `docs/IMPLEMENTATION_PROGRESS.md`, and this file first. Keep the approved black-and-white Kivy interface, prioritize verified functionality, and preserve unrelated user edits. Do not use mouse/keyboard control. Do not push, publish, tag, or release.

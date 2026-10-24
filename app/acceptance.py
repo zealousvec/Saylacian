@@ -19,6 +19,7 @@ from saylacian.core.old_nubian_reader import (
     export_reading_record,
     make_reading_record,
 )
+from saylacian.core.transliteration import Conversion
 
 
 def start(app):
@@ -289,6 +290,7 @@ def start(app):
         app.refresh_fonts()
 
         saved_mode, saved_source, saved_target = app.mode, app.source, app.target
+        saved_detected_language = app.detected_language
         app.mode = "Translate meaning"
         app.source, app.target = "Detect language/script", "English"
         with patch("main.model_directory"):
@@ -301,7 +303,15 @@ def start(app):
         assert app.detected_language[0] == "French"
         assert "Detected French (82% confidence)" in app.status
         app.translate_trigger.cancel()
+        app.detected_language = None
+        caution = "Somali translation may be inaccurate; check important details."
+        app.show_translation(
+            app.generation, Conversion("Somali output", (caution,)), None
+        )
+        assert app.status == caution
+        assert home.ids.status_label.text == caution
         app.mode, app.source, app.target = saved_mode, saved_source, saved_target
+        app.detected_language = saved_detected_language
         app.refresh_fonts()
 
         app.mode = "Convert writing system"
@@ -539,6 +549,7 @@ def start(app):
                     "picker search",
                     "local meaning model",
                     "short French detection route with visible confidence",
+                    "plain Somali translation caution in the live status label",
                 ]
                 (folder / "result.json").write_text(
                     json.dumps(

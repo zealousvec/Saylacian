@@ -24,7 +24,8 @@ Visible wording reviewed across the approved Kivy screens, dialogs, picker, hist
 | Website coverage/privacy | Long unsupported/complete-support phrasing | Describe limited transliteration, experimental reverse, unimplemented modern varieties, and server handling directly | Keep genuine coverage and privacy limits visible |
 | GitHub status documents | Empty-repository and pre-publication wording after public source release | Updated to distinguish the published source alpha from owner-controlled settings and future releases | Remove stale public-repo state |
 | KivyMD warning | 1.2.0 startup deprecation notice | Document current pin and low-risk isolated 2.0.0 migration gate | No framework upgrade or UI redesign |
+| Translation status warnings | Internal candidate, fallback, and pending-review language | `Somali translation may be inaccurate; check important details.`; plain fallback reasons; explicit pivot note | Removes implementation jargon while keeping quality limits visible; unit, website, and live Kivy checks pass |
 
 ## Remaining
 
-Audit new visible strings whenever UI functionality changes. Do not remove limitation statements; keep detailed explanation in focused docs. Repository description, topics and security settings remain owner-controlled.
+Finish the remaining visible status and picker audit against the current application. Audit new visible strings whenever UI functionality changes. Do not remove limitation statements; keep detailed explanation in focused docs. Repository description, topics and security settings remain owner-controlled.

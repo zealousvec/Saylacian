@@ -95,7 +95,7 @@ class WebsiteTests(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json["text"], "Comment allez-vous ?")
         self.assertTrue(
-            any("errors may compound" in w for w in response.json["warnings"])
+            any("some meaning may change" in w for w in response.json["warnings"])
         )
 
     def test_unsupported(self):

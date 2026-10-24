@@ -10,7 +10,7 @@ Move each task among these queues at every milestone. A blocker must name the ex
 
 ### ACTIVE
 
-Assess an independent, clearly licensed language-identification benchmark with natural phrase-length examples. Retain 0.80 and abstention; do not claim detection accuracy from source-label data.
+Complete the remaining visible status and picker copy audit against docs/UI_COPY_REGISTER.md. Preserve concrete limitations; add live Kivy assertions for any changed warnings.
 
 ### BLOCKED
 
@@ -28,12 +28,13 @@ Assess an independent, clearly licensed language-identification benchmark with n
 
 | Order | Task | Acceptance |
 |---|---|---|
-No further independent product task is READY after the short-input UI acceptance and benchmark-source screening. Reassess when a suitable independently labelled short-text corpus or another concrete, safe acceptance task becomes available. Do not move specialist/permission tasks into READY.
+No separate READY item while the visible copy audit is ACTIVE. Once complete, reconcile product roadmap and acceptance gaps before selecting the next item. Do not move specialist/permission tasks into READY.
 
 ### VERIFIED
 
 | Task | Evidence |
 |---|---|
+| Make translation status warnings understandable | Replaced internal model terms and review-workflow wording with short user-facing notices for synthetic Somali output, multilingual Somali/French pivots, fallback reasons, removed markers, and local English/French output. Translation and website tests assert wording; live Kivy self-test confirms the Somali caution appears in the status label. Full suite: 127 passed, 2 skipped, 197 subtests; Ruff, formatting, compileall, pip check, release-safety scan, and diff check passed. This improves clarity, not translation quality. |
 | Preserve saved history and provide safe recovery | JSON decode/schema errors are distinguished from unknown future versions. A confirmation defaults to KEEP; BACK UP & START FRESH writes a unique durable byte-for-byte backup before atomic reset. Tests prove backup, refusal for valid/future data, and preservation if reset fails. Live Kivy acceptance covers keep, recover, visible confirmation and re-opening Saved. Full suite: 112 passed, 188 subtests; Ruff, format, compileall, `pip check`, and diff checks pass. |
 | Keep SentencePiece unknown markers out of the synthetic Somali candidate route | Official SentencePiece docs identify U+2047 as the default decoded unknown-token surface. The pinned pre-guard EN→SO output contained it in 46/150 rows (81 occurrences). The route now sends candidate output containing U+2047 through the existing multilingual fallback, with an explicit warning. Fresh Python 3.12 dev install; pinned Somali pack hash verification; full 150-pair run with network denied: 47 marker fallbacks, zero markers in final EN→SO, BLEU 5.287 / chrF++ 25.282 (pre-guard: 7.057 / 28.996); SO→EN unchanged. Metric regression is disclosed; this removes a decode artifact, not a verified semantic improvement. Full suite: 114 passed; Ruff, format, compileall, `pip check`, and isolated Kivy launch pass. |
 | Keep model-pack pointers and manifest paths inside pack storage | Pack IDs/versions are restricted to safe single path components; `current.json`, version folders, `installed.json` and manifest-listed assets are resolved and checked against their expected parent before reads or inference. Pointer activation uses a unique exclusive temp file and atomic replacement. Tests reproduce POSIX/Windows traversal and reject unsafe install versions before network access. Full suite: 116 passed, 2 symlink tests skipped because Windows denied symlink creation; Ruff/format, compileall, `pip check`, release scan, isolated pinned-pack offline smoke and Kivy launch pass. |
@@ -87,6 +88,14 @@ No further independent product task is READY after the short-input UI acceptance
 | M5-2 | Translation quality | Reproduce the pinned 150-pair Somali benchmark without overwriting prior results | `tools/benchmark_somali_quality.py`; TICO-19 fixture SHA-256 `be58b2d350badb7e03b73906471453311a8843534e4a2a572a772c60c394c7f7` | verified | Full EN↔SO run with networking blocked reproduced recorded BLEU/chrF++ exactly; custom output and isolated checkpoint used | Metrics and flag cues are automatic only; no fluent-speaker review | Preserve as a reproducible engineering baseline; do not promote quality status |
 | M6-1 | Packaging and updates | Document and enforce safe, versioned app/pack update architecture | `docs/UPDATE_ARCHITECTURE.md`; `saylacian/core/model_packs.py`; `tests/test_model_packs.py` | verified | Full suite 116 passed/2 symlink tests skipped because Windows denied symlink creation; pack hash verification and both offline Somali smoke directions passed; isolated Kivy launch, Ruff/format, compileall, `pip check` and release scan pass | Public app installer/update path not release-tested | Keep app updater disabled; continue only with approved release process |
 | M7-1 | Nubian research and maintenance | Check Unicode register and keep variety-specific research notes | `docs/NUBIAN_RESEARCH_REGISTER.md` | researching | Official register search on 2026-10-24 | No verified modern-variety routes | Recheck primary references before enabling a route |
+
+## 2026-10-24 — Plain translation-status warnings
+
+Replaced developer-facing model terminology and internal review-workflow phrases in translation warnings with direct language users can act on. Somali warnings still clearly advise checking important details; the Somali/French pivot still explains that meaning can change. The approved UI structure is unchanged. Added unit coverage for synthetic Somali and local English/French notices, updated website and route regressions, and added a live Kivy status-label assertion.
+
+Verification: `127 passed, 2 skipped, 197 subtests`; Ruff, formatting (105 files), compileall, `pip check`, release-safety scan, `git diff --check`, and isolated `main.py --self-test` passed. Live test output remains `Bonjour, comment allez-vous ?`. KivyMD 1.2.0 deprecation warnings remain.
+
+The short-text accuracy task is BLOCKED pending an independently labelled, licensed natural short-phrase set or owner-approved review. Next ACTIVE: complete the remaining visible status/picker copy audit from `docs/UI_COPY_REGISTER.md`; keep actual linguistic and accessibility limitations explicit.
 
 ## Latest session test record
 

@@ -84,9 +84,81 @@ class TranslationTests(unittest.TestCase):
 
         self.assertEqual(result.text, "Qoraal tijaabo")
         self.assertTrue(
-            any("unknown-token marker" in warning for warning in result.warnings)
+            any("unreadable symbol" in warning for warning in result.warnings)
         )
         fallback_engine.translate_batch.assert_called_once()
+
+    def test_synthetic_candidate_warning_hides_internal_model_details(self):
+        with TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            base_model = root / "somali" / "en_so"
+            base_model.mkdir(parents=True)
+            for filename in (
+                "model.bin",
+                "config.json",
+                "shared_vocabulary.json",
+                "source.spm",
+                "target.spm",
+            ):
+                (base_model / filename).touch()
+            (root / "somali" / "en_so_synthetic").mkdir()
+            (root / "somali" / "en_so_synthetic" / "model.bin").touch()
+            source_tokenizer = Mock()
+            source_tokenizer.encode.return_value = ["token"]
+            target_tokenizer = Mock()
+            target_tokenizer.decode.return_value = "Waad ku mahadsan tahay."
+            engine = Mock()
+            engine.translate_batch.return_value = [Mock(hypotheses=[["output"]])]
+
+            with patch(
+                "saylacian.core.translation.load_model",
+                return_value=((source_tokenizer, target_tokenizer), engine),
+            ):
+                result = translate_meaning(
+                    "Thank you.", "English", "Somali Latin", root
+                )
+
+        self.assertEqual(
+            result.warnings,
+            ("Somali translation may be inaccurate; check important details.",),
+        )
+        self.assertFalse(
+            any(
+                internal in warning.lower()
+                for warning in result.warnings
+                for internal in ("candidate", "experimental", "human review pending")
+            )
+        )
+
+    def test_offline_english_french_uses_plain_quality_note(self):
+        with TemporaryDirectory() as temporary:
+            model = Path(temporary) / "en_fr"
+            (model / "model").mkdir(parents=True)
+            (model / "model" / "model.bin").touch()
+            (model / "sentencepiece.model").touch()
+            tokenizer = Mock()
+            tokenizer.encode.return_value = ["token"]
+            tokenizer.decode.return_value = "Bonjour."
+            engine = Mock()
+            engine.translate_batch.return_value = [Mock(hypotheses=[["output"]])]
+
+            with patch(
+                "saylacian.core.translation.load_model",
+                return_value=(tokenizer, engine),
+            ):
+                result = translate_meaning("Hello.", "English", "French", temporary)
+
+        self.assertEqual(
+            result.warnings, ("Machine translation; check important details.",)
+        )
+        self.assertFalse(
+            any("experimental" in warning.lower() for warning in result.warnings)
+        )
+        self.assertFalse(
+            any(
+                "human review pending" in warning.lower() for warning in result.warnings
+            )
+        )
 
     def test_no_hidden_download(self):
         with (
@@ -218,7 +290,12 @@ class TranslationTests(unittest.TestCase):
                 "The child is reading a book.", "English", "Somali Latin"
             )
         self.assertTrue(result.text)
-        self.assertTrue(any("review" in warning for warning in result.warnings))
+        self.assertTrue(
+            any(
+                "Somali translation may be inaccurate" in warning
+                for warning in result.warnings
+            )
+        )
 
     @unittest.skipUnless(
         (MODEL_ROOT / "somali/en_so_synthetic/model.bin").exists(),
@@ -230,7 +307,12 @@ class TranslationTests(unittest.TestCase):
             morning = translate_meaning("Good morning.", "English", "Somali Latin")
         self.assertEqual(thank_you.text, "Waad ku mahadsan tahay.")
         self.assertEqual(morning.text, "Subax wanaagsan.")
-        self.assertTrue(any("synthetic" in warning for warning in thank_you.warnings))
+        self.assertTrue(
+            any(
+                "Somali translation may be inaccurate" in warning
+                for warning in thank_you.warnings
+            )
+        )
 
     @unittest.skipUnless(
         (MODEL_ROOT / "somali/en_so_synthetic/model.bin").exists(),
@@ -240,7 +322,7 @@ class TranslationTests(unittest.TestCase):
         with patch("socket.socket.connect", side_effect=AssertionError("Network")):
             result = translate_meaning("How are you?", "English", "Somali Latin")
         self.assertTrue(result.text)
-        self.assertTrue(any("used multilingual fallback" in w for w in result.warnings))
+        self.assertTrue(any("an alternative was used" in w for w in result.warnings))
 
     @unittest.skipUnless(
         (MODEL_ROOT / "somali/en_so_synthetic/model.bin").exists(),
@@ -252,7 +334,7 @@ class TranslationTests(unittest.TestCase):
                 "and i have a cough too", "English", "Somali Latin"
             )
         self.assertTrue(result.text)
-        self.assertTrue(any("used multilingual fallback" in w for w in result.warnings))
+        self.assertTrue(any("an alternative was used" in w for w in result.warnings))
 
     @unittest.skipUnless(
         (MODEL_ROOT / "somali/so_en/model.bin").exists(), "Somali model not installed"
@@ -273,7 +355,7 @@ class TranslationTests(unittest.TestCase):
         with patch("socket.socket.connect", side_effect=AssertionError("Network")):
             result = translate_meaning("Salaan, sidee tahay?", "Somali Latin", "French")
         self.assertEqual(result.text, "Comment allez-vous ?")
-        self.assertTrue(any("errors may compound" in w for w in result.warnings))
+        self.assertTrue(any("some meaning may change" in w for w in result.warnings))
 
     @unittest.skipUnless(
         (MODEL_ROOT / "fr_en/model/model.bin").exists()
@@ -286,5 +368,7 @@ class TranslationTests(unittest.TestCase):
                 "Bonjour, comment allez-vous ?", "French", "Somali Latin"
             )
         self.assertEqual(result.text, "Hello, sidee baad u tahay?")
-        self.assertTrue(any("human review" in w for w in result.warnings))
-        self.assertTrue(any("errors may compound" in w for w in result.warnings))
+        self.assertTrue(
+            any("Somali translation may be inaccurate" in w for w in result.warnings)
+        )
+        self.assertTrue(any("some meaning may change" in w for w in result.warnings))
