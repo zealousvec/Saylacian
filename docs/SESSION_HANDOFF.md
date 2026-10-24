@@ -117,3 +117,7 @@ Installed-pack removal now works from the keyboard through the existing confirma
 Verification: full suite `96 passed, 148 subtests`; live `main.py --self-test` passed with local English-to-French output `Bonjour, comment allez-vous ?`; Ruff check and format passed; compileall, `pip check`, release-safety scan and `git diff --check` passed. KivyMD 1.2.0 deprecation warnings remain. No clipboard interaction, physical input, network model download or real pack removal.
 
 Queue update: ACTIVE is remaining keyboard/focus audit on history and reader. BLOCKED remains Old Nubian data reuse pending written rights and qualified review (owner approval before outreach), and Somali quality pending owner-approved consent-based fluent-speaker review. READY: isolated startup/picker performance measurement, then contrast/screen-reader affordance inspection with appropriate test setup. Continue only with evidence-backed useful work.
+
+## Keyboard navigation for history (2026-10-24)
+
+Saved-history screen now supports Up/Down selection and Enter restore. The selected row has a visible `›` cursor. Live Kivy acceptance used two mocked history entries and a stub restore handler; it verified selection and dispatch without writing history. Full suite: `96 passed, 148 subtests`; Ruff check/format, compileall, `pip check`, release-safety and `git diff --check` pass. Next ACTIVE task is measured startup/picker responsiveness; remaining contrast/screen-reader checks require suitable tooling. Blockers and owner edits unchanged.

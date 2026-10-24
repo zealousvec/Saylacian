@@ -254,6 +254,21 @@ class SaylacianApp(MDApp):
             self.root.current = "home"
             home.ids.input_text.focus = True
             return True
+        if self.root.current == "saved" and key_name in {"up", "down"}:
+            if not self.saved_options:
+                return False
+            offset = 1 if key_name == "down" else -1
+            if self.saved_index < 0:
+                self.saved_index = 0 if offset > 0 else len(self.saved_options) - 1
+            else:
+                self.saved_index = (self.saved_index + offset) % len(self.saved_options)
+            self._update_saved_cursor()
+            return True
+        if self.root.current == "saved" and key_name in {"enter", "numpadenter"}:
+            if not self.saved_options:
+                return False
+            self.restore_saved(self.saved_options[max(self.saved_index, 0)])
+            return True
         if self.root.current == "old_nubian_studio" and key_name in {
             "enter",
             "numpadenter",
@@ -1197,6 +1212,8 @@ class SaylacianApp(MDApp):
     def show_history(self):
         screen = self.root.get_screen("saved")
         screen.ids.saved_items.clear_widgets()
+        self.saved_options = []
+        self.saved_index = -1
         try:
             items = self.history.read()
         except (OSError, ValueError) as error:
@@ -1210,7 +1227,17 @@ class SaylacianApp(MDApp):
                 on_release=lambda b, i=item: self.restore_saved(i),
             )
             screen.ids.saved_items.add_widget(button)
+            self.saved_options.append(item)
+        self._update_saved_cursor()
         self.root.current = "saved"
+
+    def _update_saved_cursor(self):
+        screen = self.root.get_screen("saved")
+        for index, (item, button) in enumerate(
+            zip(self.saved_options, screen.ids.saved_items.children[::-1])
+        ):
+            label = ("Favourite: " if item["favourite"] else "") + item["text"][:42]
+            button.text = ("› " if index == self.saved_index else "") + label
 
     def restore_saved(self, item):
         self.mode = item.get("mode", "Convert writing system")

@@ -38,6 +38,8 @@ Move each task among these queues at every milestone. A blocker must name the ex
 | Reproduce startup from a clean checkout | Local clone of `55b3736` started all six Kivy screens under a temporary source checkout, isolated APPDATA/LOCALAPPDATA/Kivy/pack paths, blocked socket connects and a two-second stop. It used the existing venv interpreter; dependency installation remains next. |
 | Install pinned runtime and start the app from a clean checkout | Installed all 21 locked packages into a disposable Python 3.12 venv; `pip check` passed. From a clean clone, the actual app started all six screens with network denied and isolated data paths. No model pack was downloaded. |
 | Operate installed-pack removal from keyboard | Live Kivy acceptance opens existing dialog, verifies Enter defaults KEEP, Right selects REMOVE and Enter calls only test stub; Esc keeps. No real pack removed. |
+| Operate Old Nubian reader core flow from keyboard | Live Kivy acceptance verifies Enter recomputes line-preserving reading and Escape returns. |
+| Operate Old Nubian reader core flow from keyboard | Live Kivy acceptance verifies Enter recomputes line-preserving reading and Escape returns. |
 | Operate Old Nubian reader core flow from keyboard | Live Kivy acceptance verifies Enter recomputes line-preserving reading (Coptic alpha/beta to Latin a/b) and Escape returns. |
 
 | ID | Milestone | Task | Evidence/source | Status | Tests | Blocker | Next action |

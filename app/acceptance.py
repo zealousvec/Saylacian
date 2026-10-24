@@ -134,6 +134,42 @@ def start(app):
         assert app.root.current == "home"
         home.ids.input_text.focus = False
 
+        saved_items = [
+            {
+                "favourite": False,
+                "text": "first saved text",
+                "source": "English",
+                "target": "French",
+                "mode": "Translate meaning",
+            },
+            {
+                "favourite": True,
+                "text": "second saved text",
+                "source": "English",
+                "target": "French",
+                "mode": "Translate meaning",
+            },
+        ]
+        with (
+            patch.object(app.history, "read", return_value=saved_items),
+            patch.object(app, "restore_saved") as restore_saved,
+        ):
+            app.show_history()
+            assert app.root.current == "saved"
+            assert app.keyboard(Window, 274, None, None, ["down"])
+            assert app.saved_index == 0
+            assert app.keyboard(Window, 274, None, None, ["down"])
+            assert app.saved_index == 1
+            assert (
+                app.root.get_screen("saved")
+                .ids.saved_items.children[0]
+                .text.startswith("› ")
+            )
+            assert app.keyboard(Window, 13, None, 13, [])
+            restore_saved.assert_called_once_with(saved_items[1])
+            app.close_picker()
+        app.history.read = list
+
         app.mode = "Convert writing system"
         app.source, app.target = "Old Nubian (Coptic)", "Old Nubian scholarly Latin"
         app.open_old_nubian_studio()
