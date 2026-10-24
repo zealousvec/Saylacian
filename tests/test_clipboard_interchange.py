@@ -79,6 +79,9 @@ class ClipboardInterchangeTests(unittest.TestCase):
         self.assertIn(b"\\fonttbl", values["Rich Text Format"])
         self.assertIn(b"Saylacian Borama Chart", values["Rich Text Format"])
         self.assertIn(b"hello!", values["Rich Text Format"])
+        rtf = rtf_for_chart(self.borama, "Borama", "hello!")
+        signed_first_glyph = ord(self.borama[0]) - 0x10000
+        self.assertIn(f"\\u{signed_first_glyph}?".encode(), rtf)
         html_value = values["HTML Format"]
         header, body = html_value.split(b"<html>", 1)
         fields = {

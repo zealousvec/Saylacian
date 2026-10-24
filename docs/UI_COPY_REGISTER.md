@@ -5,6 +5,7 @@ This register tracks visible wording reviewed against the master directive. The 
 | Surface | Previous wording/state | Current wording/state | Reason/status |
 |---|---|---|---|
 | Home route selector | Internal route labels such as `Somali Latin`, `Old Nubian (Coptic)` and `Old Nubian scholarly Latin` | `Somali`, `Old Nubian`, `Latin reading`; internal route IDs unchanged | Shorter display labels; implementing, live-tested |
+| Detection picker | `Detect language/script` with the same language-only note in both modes | `Detect`; note changes by mode (`English, French or Somali` / `Languages and writing systems`) | Shorter and accurate for the active route; verified in picker tests and live Kivy acceptance |
 | Translation picker | Mixed script, language and research-only varieties in one list | Only routes for active mode; modern Nubian unavailable routes hidden | Avoid unsupported or nonsensical choices; live-tested |
 | Script picker note | `Downloaded models: ...` / internal status strings | Short notes such as `Latin script`, `Somali script`, `Limited conversion` | Avoid implementation jargon in primary flow; needs full copy audit |
 | Borama/Kaddare copy menu | `Copy as Latin`, `Copy as Image`, `Copy as Saylacian Text` | `Copy text`, `Copy image`, `Copy Latin` | Matches owner's three requested actions; live Kivy acceptance checked payloads |

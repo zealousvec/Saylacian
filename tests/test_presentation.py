@@ -10,6 +10,7 @@ from saylacian.core.presentation import display_name, picker_choices
 
 class PresentationTests(unittest.TestCase):
     def test_concise_labels_keep_route_names_internal(self):
+        self.assertEqual(display_name("Detect language/script"), "Detect")
         self.assertEqual(display_name("Somali Latin"), "Somali")
         self.assertEqual(display_name("Old Nubian (Coptic)"), "Old Nubian")
         self.assertEqual(display_name("Old Nubian scholarly Latin"), "Latin reading")
@@ -18,6 +19,8 @@ class PresentationTests(unittest.TestCase):
     def test_translation_picker_contains_only_meaning_routes(self):
         choices = picker_choices(list_capabilities(), "translation")
         names = {name for name, _ in choices}
+        self.assertEqual(display_name(choices[0][0]), "Detect")
+        self.assertEqual(choices[0][1], "English, French or Somali")
         self.assertTrue({"English", "French", "Somali Latin"}.issubset(names))
         self.assertNotIn("Osmanya", names)
         self.assertNotIn("Nobiin (Nubian)", names)
@@ -26,6 +29,8 @@ class PresentationTests(unittest.TestCase):
     def test_script_picker_keeps_old_nubian_separate_and_hides_modern_research(self):
         choices = picker_choices(list_capabilities(), "transliteration")
         names = {name for name, _ in choices}
+        self.assertEqual(display_name(choices[0][0]), "Detect")
+        self.assertEqual(choices[0][1], "Languages and writing systems")
         self.assertTrue(
             {
                 "Somali Latin",

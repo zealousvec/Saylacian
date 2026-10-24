@@ -3,7 +3,6 @@
 
 from __future__ import annotations
 
-import base64
 import hashlib
 import html
 import json
@@ -71,7 +70,7 @@ def encode_saylacian_text(text: str, script: str) -> str:
     """Return an ASCII-only, integrity-checked text envelope for sharing/import."""
     _validate_script_text(text, script)
     latin = transliterate(text, script, "Somali Latin").text
-    digest = hashlib.sha256(f"{ENCODING}\0{script}\0{text}".encode("utf-8")).hexdigest()
+    digest = hashlib.sha256(f"{ENCODING}\0{script}\0{text}".encode()).hexdigest()
     payload = {
         "format": "Saylacian Text",
         "version": 1,
@@ -102,9 +101,7 @@ def decode_saylacian_text(value: str) -> SaylacianText | None:
         )
     script, text = payload.get("script"), payload.get("text")
     _validate_script_text(text, script)
-    expected = hashlib.sha256(
-        f"{ENCODING}\0{script}\0{text}".encode("utf-8")
-    ).hexdigest()
+    expected = hashlib.sha256(f"{ENCODING}\0{script}\0{text}".encode()).hexdigest()
     if payload.get("sha256") != expected:
         raise ValueError(
             "Saylacian Text package checksum does not match; paste was changed."

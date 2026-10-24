@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 DISPLAY_NAMES = {
+    "Detect language/script": "Detect",
     "Somali Latin": "Somali",
     "Old Nubian (Coptic)": "Old Nubian",
     "Old Nubian scholarly Latin": "Latin reading",
@@ -26,7 +27,12 @@ def display_name(route_name: str) -> str:
 
 def picker_choices(capabilities, mode: str) -> list[tuple[str, str]]:
     """List implemented routes for one mode, plus script references when relevant."""
-    choices = [("Detect language/script", "English, French or Somali")]
+    detection_note = (
+        "English, French or Somali"
+        if mode == "translation"
+        else "Languages and writing systems"
+    )
+    choices = [("Detect language/script", detection_note)]
     route_names = dict.fromkeys(
         name
         for route in capabilities
