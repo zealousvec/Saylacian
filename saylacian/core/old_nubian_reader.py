@@ -60,7 +60,7 @@ def alphabet_entries(query: str = "") -> tuple[dict[str, object], ...]:
 
 
 def describe_combining_marks(text: str, limit: int = 6) -> str:
-    """Describe preserved marks for display without assigning reading rules."""
+    """Describe preserved marks and the optional supralinear-stroke reading."""
     if not isinstance(text, str):
         raise TypeError("Old Nubian text must be a string.")
     if not isinstance(limit, int) or isinstance(limit, bool) or limit < 1:
@@ -72,15 +72,21 @@ def describe_combining_marks(text: str, limit: int = 6) -> str:
     ]
     if not marks:
         return ""
-    details = [
-        f"U+{ord(character):04X} {unicodedata.name(character, 'UNNAMED MARK')} "
-        f"(code point {index})"
-        for index, character in marks[:limit]
-    ]
+    details = []
+    for index, character in marks[:limit]:
+        detail = (
+            f"U+{ord(character):04X} {unicodedata.name(character, 'UNNAMED MARK')} "
+            f"(code point {index})"
+        )
+        if character == "\u0304":
+            detail += "; an i-based alternative reading is available"
+        else:
+            detail += "; preserved without interpretation"
+        details.append(detail)
     omitted = len(marks) - len(details)
     if omitted:
         details.append(f"and {omitted} more")
-    return "Display note only; no reading rule applied. " + "; ".join(details)
+    return "Combining-mark details: " + "; ".join(details)
 
 
 def make_reading_record(original: str) -> ReadingRecord:

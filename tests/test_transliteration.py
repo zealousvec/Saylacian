@@ -2,6 +2,7 @@ import unittest
 
 from saylacian.core.old_nubian_reader import (
     alphabet_entries,
+    describe_combining_marks,
     export_reading_record,
     import_reading_record,
     make_reading_record,
@@ -138,11 +139,70 @@ class TransliterationTests(unittest.TestCase):
             any("Combining marks are preserved" in item for item in reading.warnings)
         )
 
+    def test_old_nubian_supralinear_stroke_offers_i_reading(self):
+        source = "ⲧⲗ\u0304ⲗⲛ\u0304"
+
+        reading = transliterate(
+            source,
+            "Old Nubian (Coptic)",
+            "Old Nubian scholarly Latin",
+        )
+
+        self.assertEqual(reading.text, "tl\u0304ln\u0304")
+        self.assertIn("tillin", reading.alternatives)
+        self.assertTrue(
+            any("another scholarly convention" in w for w in reading.warnings)
+        )
+
+    def test_old_nubian_dot_mark_is_preserved_without_an_i_reading(self):
+        reading = transliterate(
+            "ⲁ\u0307",
+            "Old Nubian (Coptic)",
+            "Old Nubian scholarly Latin",
+        )
+
+        self.assertEqual(reading.text, "a\u0307")
+        self.assertFalse(reading.alternatives)
+        self.assertTrue(
+            any("Combining marks are preserved" in w for w in reading.warnings)
+        )
+
+    def test_old_nubian_mark_description_distinguishes_stroke_and_dot(self):
+        details = describe_combining_marks("ⲁ\u0304 ⲃ\u0307")
+
+        self.assertIn("i-based alternative reading is available", details)
+        self.assertIn("preserved without interpretation", details)
+
+    def test_old_nubian_stroke_readings_are_bounded_and_report_truncation(self):
+        source = "ⲁ\u0304" * 8
+
+        reading = transliterate(
+            source,
+            "Old Nubian (Coptic)",
+            "Old Nubian scholarly Latin",
+        )
+
+        self.assertLessEqual(len(reading.alternatives), 12)
+        self.assertTrue(
+            any(
+                "Only some alternative readings are shown" in w
+                for w in reading.warnings
+            )
+        )
+
     def test_old_nubian_reader_keeps_alternative_after_record_round_trip(self):
         record = make_reading_record("ⳣ")
         self.assertIn("ou", record.alternatives)
         restored = import_reading_record(export_reading_record(record))
         self.assertIn("ou", restored.alternatives)
+
+    def test_old_nubian_reader_exposes_stroke_reading_alternative(self):
+        record = make_reading_record("ⲧⲗ\u0304ⲗⲛ\u0304")
+
+        self.assertEqual(record.latin, "tl\u0304ln\u0304")
+        self.assertIn("tillin", record.alternatives)
+        restored = import_reading_record(export_reading_record(record))
+        self.assertIn("tillin", restored.alternatives)
 
     def test_old_nubian_only_warns_for_sequences_with_a_real_alternative(self):
         unique_sequences = ("ch", "ky", "ny")

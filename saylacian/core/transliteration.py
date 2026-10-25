@@ -80,6 +80,7 @@ for character, reading in OLD_NUBIAN_TO_LATIN.items():
         OLD_NUBIAN_CASED_TO_LATIN[uppercase] = reading.upper()
 
 OLD_NUBIAN_FORWARD_VARIANTS = {"ⳣ": ("ou",)}
+OLD_NUBIAN_SUPRALINEAR_STROKE = "\u0304"
 OLD_NUBIAN_REVERSE = {
     reading: character for character, reading in OLD_NUBIAN_TO_LATIN.items()
 }
@@ -280,6 +281,8 @@ def transliterate(text: str, source: str, target: str) -> Conversion:
         warnings = []
         preserved_marks = False
         preserved_punctuation = False
+        supralinear_stroke_seen = False
+        previous_source_char = None
         for char in text:
             if char in OLD_NUBIAN_CASED_TO_LATIN:
                 reading = OLD_NUBIAN_CASED_TO_LATIN[char]
@@ -295,6 +298,21 @@ def transliterate(text: str, source: str, target: str) -> Conversion:
                         ),
                     )
                 )
+            elif (
+                char == OLD_NUBIAN_SUPRALINEAR_STROKE
+                and readings
+                and previous_source_char in OLD_NUBIAN_CASED_TO_LATIN
+            ):
+                output.append(char)
+                previous_readings = readings[-1]
+                readings[-1] = (
+                    *(reading + char for reading in previous_readings),
+                    *(
+                        ("I" if previous_source_char.isupper() else "i") + reading
+                        for reading in previous_readings
+                    ),
+                )
+                supralinear_stroke_seen = True
             else:
                 output.append(char)
                 readings.append((char,))
@@ -304,20 +322,28 @@ def transliterate(text: str, source: str, target: str) -> Conversion:
                 elif 0x2C80 <= ord(char) <= 0x2CFF:
                     category = unicodedata.category(char)
                     preserved_punctuation |= category.startswith("P")
+            previous_source_char = char
         if preserved_marks:
             warnings.append(
                 "Combining marks are preserved; their reading and placement with Latin are not interpreted."
             )
         if preserved_punctuation:
             warnings.append("Coptic punctuation is preserved without interpretation.")
-        primary = "".join(output)
-        alternatives = tuple(
-            candidate
-            for candidate in (
-                "".join(reading) for reading in islice(product(*readings), 12)
+        if supralinear_stroke_seen:
+            warnings.append(
+                "Supralinear stroke may be read as i in another scholarly convention; see alternatives."
             )
-            if candidate != primary
+        primary = "".join(output)
+        candidates = tuple(
+            "".join(reading) for reading in islice(product(*readings), 13)
         )
+        alternatives = tuple(
+            candidate for candidate in candidates if candidate != primary
+        )[:12]
+        if len(candidates) > 12:
+            warnings.append(
+                "Only some alternative readings are shown; other combinations may exist."
+            )
         if alternatives:
             warnings.append("Other scholarly readings are available; see alternatives.")
         return Conversion(primary, tuple(warnings), alternatives)

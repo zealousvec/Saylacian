@@ -18,7 +18,8 @@ This is an experimental-alpha source snapshot, not a numbered app release. Chang
 ### Script reading and writing
 
 - Old Nubian Latin-to-script conversion keeps letters outside the table and warns when they are not mapped. Ambiguous Latin spellings can show more than one reading; long lists say when some alternatives are hidden.
-- Old Nubian `ⳣ` now shows both table readings, `w` and `ou`. Combining marks remain in the text, with a warning that Saylacian does not interpret their reading or placement.
+- Old Nubian `ⳣ` now shows both table readings, `w` and `ou`. The combining macron used as a supralinear stroke now has an `i`-based alternative reading; other marks stay in the text and are not interpreted.
+- Old Nubian `ⲧⲗ̄ⲗⲛ̄` now offers `tillin` as an alternative to the mark-preserving `tl̄ln̄`, following a published scholarly convention. The guide explains the limits and source.
 - Osmanya reverse conversion shows alternatives for the shared `w`/`uu` and `y`/`ii` letters. The original spelling cannot always be recovered.
 - Borama and Kaddare chart glyphs outside the known mapping are kept and flagged. Their private-use characters need Saylacian's matching font and mapping to display as editable text in another app.
 - Repeated unmapped Borama or Kaddare letters and glyphs are listed once in the warning; the input text is preserved.
