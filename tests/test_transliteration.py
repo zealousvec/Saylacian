@@ -54,6 +54,19 @@ class TransliterationTests(unittest.TestCase):
                     reading = transliterate(glyph, script, "Somali Latin")
                     self.assertEqual(reading.text, grapheme)
 
+    def test_unmapped_private_use_glyphs_are_preserved_and_flagged(self):
+        glyphs = "".join(chr(codepoint) for codepoint in (0xE200, 0xF0000, 0x100000))
+        for script in ("Borama", "Kaddare"):
+            result = transliterate(glyphs, script, "Somali Latin")
+            with self.subTest(script=script):
+                self.assertEqual(result.text, glyphs)
+            for codepoint in (0xE200, 0xF0000, 0x100000):
+                with self.subTest(script=script, codepoint=f"U+{codepoint:04X}"):
+                    self.assertIn(
+                        f"No {script} chart entry for U+{codepoint:04X}; preserved.",
+                        result.warnings,
+                    )
+
     def test_every_old_nubian_table_reading_keeps_its_source_as_an_option(self):
         for character, expected in OLD_NUBIAN_TO_LATIN.items():
             with self.subTest(character=character):

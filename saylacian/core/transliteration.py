@@ -174,7 +174,7 @@ def _chart_transliterate(text: str, source: str, target: str) -> Conversion:
             output.append(mapping[char])
         else:
             output.append(char)
-            if 0xE000 <= ord(char) <= 0xE1FF:
+            if is_private_use_character(char):
                 warnings.append(
                     f"No {source} chart entry for U+{ord(char):04X}; preserved."
                 )

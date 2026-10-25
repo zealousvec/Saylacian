@@ -1,6 +1,6 @@
 # Script letter mapping guide
 
-This page describes the mappings currently present in Saylacian's source tables. A listed pair means the app has a character-level conversion entry; it is not a claim that the scripts are historically equivalent or that the resulting spelling has been linguistically reviewed. Letters outside a table are preserved as typed and may be reported as unmapped.
+This page describes the mappings currently present in Saylacian's source tables. A listed pair means the app has a character-level conversion entry; it is not a claim that the scripts are historically equivalent or that the resulting spelling has been linguistically reviewed. Letters outside a table are preserved as typed and may be reported as unmapped. Unknown Borama and Kaddare private-use glyphs are also preserved and flagged throughout the Unicode private-use ranges.
 
 ## Osmanya
 
