@@ -181,7 +181,9 @@ def _chart_transliterate(text: str, source: str, target: str) -> Conversion:
     return Conversion("".join(output), tuple(dict.fromkeys(warnings)))
 
 
-def _old_nubian_reverse_candidates(text: str, limit: int = 12) -> tuple[str, ...]:
+def _old_nubian_reverse_candidates(
+    text: str, limit: int = 12
+) -> tuple[tuple[str, ...], bool]:
     """Return table-listed alternatives while leaving unmatched text unchanged."""
     readings = []
     index = 0
@@ -209,10 +211,15 @@ def _old_nubian_reverse_candidates(text: str, limit: int = 12) -> tuple[str, ...
             )
         )
         index += len(token)
-    return tuple("".join(candidate) for candidate in islice(product(*readings), limit))
+    candidates = tuple(
+        "".join(candidate) for candidate in islice(product(*readings), limit + 1)
+    )
+    return candidates[:limit], len(candidates) > limit
 
 
-def _osmanya_reverse_candidates(text: str, limit: int = 12) -> tuple[str, ...]:
+def _osmanya_reverse_candidates(
+    text: str, limit: int = 12
+) -> tuple[tuple[str, ...], bool]:
     """Return bounded readings for Osmanya glyphs shared by short and long vowels."""
     readings = tuple(
         (
@@ -221,7 +228,10 @@ def _osmanya_reverse_candidates(text: str, limit: int = 12) -> tuple[str, ...]:
         )
         for character in text
     )
-    return tuple("".join(candidate) for candidate in islice(product(*readings), limit))
+    candidates = tuple(
+        "".join(candidate) for candidate in islice(product(*readings), limit + 1)
+    )
+    return candidates[:limit], len(candidates) > limit
 
 
 def detect_chart_script(text):
@@ -332,7 +342,7 @@ def transliterate(text: str, source: str, target: str) -> Conversion:
                 unmapped_letters.append(text[index])
             index += 1
         primary = "".join(output)
-        candidates = _old_nubian_reverse_candidates(text)
+        candidates, alternatives_truncated = _old_nubian_reverse_candidates(text)
         alternatives = tuple(
             candidate for candidate in candidates if candidate != primary
         )
@@ -343,6 +353,10 @@ def transliterate(text: str, source: str, target: str) -> Conversion:
             )
         if alternatives:
             warnings.append("Other script readings are available; see alternatives.")
+        if alternatives_truncated:
+            warnings.append(
+                "Only some alternative readings are shown; other combinations may exist."
+            )
         if unmapped_letters:
             letters = " ".join(dict.fromkeys(unmapped_letters))
             warnings.append(f"Unmapped Latin letters preserved: {letters}.")
@@ -391,11 +405,14 @@ def transliterate(text: str, source: str, target: str) -> Conversion:
     alternatives = ()
     if source == "Osmanya":
         primary = "".join(result)
+        candidates, alternatives_truncated = _osmanya_reverse_candidates(text)
         alternatives = tuple(
-            candidate
-            for candidate in _osmanya_reverse_candidates(text)
-            if candidate != primary
+            candidate for candidate in candidates if candidate != primary
         )
+        if alternatives_truncated:
+            warnings.append(
+                "Only some alternative readings are shown; other combinations may exist."
+            )
     return Conversion("".join(result), tuple(dict.fromkeys(warnings)), alternatives)
 
 

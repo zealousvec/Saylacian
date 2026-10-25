@@ -44,6 +44,12 @@ class TransliterationTests(unittest.TestCase):
         self.assertTrue(
             all(4000 <= len(option) <= 8000 for option in reading.alternatives)
         )
+        self.assertTrue(
+            any(
+                "Only some alternative readings are shown" in item
+                for item in reading.warnings
+            )
+        )
 
     def test_every_chart_entry_round_trips_in_its_table_subset(self):
         for script, data in SCRIPT_DATA.items():
@@ -140,6 +146,21 @@ class TransliterationTests(unittest.TestCase):
         self.assertTrue(
             any(
                 "Unmapped Latin letters preserved: v." in item
+                for item in result.warnings
+            )
+        )
+
+    def test_old_nubian_flags_truncated_alternative_lists(self):
+        result = transliterate(
+            "ng ng ng ng ng",
+            "Old Nubian scholarly Latin",
+            "Old Nubian (Coptic)",
+        )
+
+        self.assertEqual(len(result.alternatives), 11)
+        self.assertTrue(
+            any(
+                "Only some alternative readings are shown" in item
                 for item in result.warnings
             )
         )
