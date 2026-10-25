@@ -3,6 +3,7 @@
 
 import json
 import os
+import socket
 import threading
 import unittest
 from unittest.mock import patch
@@ -63,6 +64,27 @@ class CloudTranslationServiceTests(unittest.TestCase):
         self.assertEqual(response.exception.code, 401)
         translate.assert_not_called()
 
+    def test_idle_connection_times_out_and_releases_request_capacity(self):
+        with patch.object(service, "REQUEST_TIMEOUT_SECONDS", 0.1):
+            client = socket.create_connection(
+                ("127.0.0.1", self.server.server_port), timeout=2
+            )
+            client.settimeout(2)
+            try:
+                self.assertEqual(client.recv(1), b"")
+            finally:
+                client.close()
+
+        available_slots = []
+        try:
+            for _ in range(16):
+                available_slots.append(self.server.request_slots.acquire(timeout=2))
+            self.assertTrue(all(available_slots))
+        finally:
+            for acquired in available_slots:
+                if acquired:
+                    self.server.request_slots.release()
+
     def test_memory_failure_returns_retryable_response_and_releases_slot(self):
         with (
             patch.dict(
@@ -80,7 +102,7 @@ class CloudTranslationServiceTests(unittest.TestCase):
         acquired = []
         try:
             for _ in range(service.MAX_CONCURRENT_TRANSLATIONS):
-                acquired.append(service._translation_slots.acquire(blocking=False))
+                acquired.append(service._translation_slots.acquire(timeout=2))
             self.assertTrue(all(acquired))
         finally:
             for success in acquired:

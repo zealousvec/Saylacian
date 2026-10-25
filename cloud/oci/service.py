@@ -19,6 +19,7 @@ PORT = int(os.environ.get("PORT", "8080"))
 SERVICE_TOKEN = os.environ.get("SAYLACIAN_SERVICE_TOKEN", "")
 MAX_BODY_BYTES = 20_000
 MAX_CONCURRENT_TRANSLATIONS = 2
+REQUEST_TIMEOUT_SECONDS = 15
 _translation_slots = threading.BoundedSemaphore(MAX_CONCURRENT_TRANSLATIONS)
 
 
@@ -118,6 +119,11 @@ class TranslationServer(ThreadingHTTPServer):
     def __init__(self, *args, **kwargs):
         self.request_slots = threading.BoundedSemaphore(16)
         super().__init__(*args, **kwargs)
+
+    def get_request(self):
+        request, client_address = super().get_request()
+        request.settimeout(REQUEST_TIMEOUT_SECONDS)
+        return request, client_address
 
     def process_request(self, request, client_address):
         if not self.request_slots.acquire(blocking=False):
