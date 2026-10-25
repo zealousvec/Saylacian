@@ -3,9 +3,12 @@
 
 import json
 import os
+import shutil
 import tempfile
 import time
 from pathlib import Path
+
+MAX_HISTORY_BYTES = 16 * 1024 * 1024
 
 
 class DamagedHistoryError(ValueError):
@@ -20,7 +23,13 @@ class History:
         if not self.path.exists():
             return []
         try:
-            data = json.loads(self.path.read_text(encoding="utf-8"))
+            with self.path.open("rb") as history_file:
+                content = history_file.read(MAX_HISTORY_BYTES + 1)
+            if len(content) > MAX_HISTORY_BYTES:
+                raise DamagedHistoryError(
+                    "Saved history is too large; file left untouched."
+                )
+            data = json.loads(content.decode("utf-8"))
         except (json.JSONDecodeError, UnicodeDecodeError) as error:
             raise DamagedHistoryError(
                 "Saved history is damaged; file left untouched."
@@ -47,19 +56,24 @@ class History:
         else:
             raise ValueError("Saved history is readable; recovery was not needed.")
 
-        original = self.path.read_bytes()
         for attempt in range(10):
             backup_path = self.path.with_name(
                 f"{self.path.name}.backup-{time.time_ns()}-{attempt}"
             )
             try:
-                with backup_path.open("xb") as backup_file:
-                    backup_file.write(original)
+                with (
+                    self.path.open("rb") as source,
+                    backup_path.open("xb") as backup_file,
+                ):
+                    shutil.copyfileobj(source, backup_file, length=1024 * 1024)
                     backup_file.flush()
                     os.fsync(backup_file.fileno())
                 break
             except FileExistsError:
                 continue
+            except OSError:
+                backup_path.unlink(missing_ok=True)
+                raise
         else:
             raise FileExistsError("Could not create a unique saved-history backup.")
 
@@ -128,6 +142,8 @@ class History:
                     ensure_ascii=False,
                     indent=2,
                 )
+            if temporary_path.stat().st_size > MAX_HISTORY_BYTES:
+                raise ValueError("Saved history exceeds its size limit.")
             temporary_path.replace(self.path)
         finally:
             if temporary_path is not None:

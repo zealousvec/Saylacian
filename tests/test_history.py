@@ -8,7 +8,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from saylacian.core.history import DamagedHistoryError, History
+from saylacian.core.history import MAX_HISTORY_BYTES, DamagedHistoryError, History
 
 
 class HistoryTests(unittest.TestCase):
@@ -41,6 +41,44 @@ class HistoryTests(unittest.TestCase):
                 History(path).read()
 
             self.assertEqual(path.read_bytes(), original)
+
+    def test_oversized_history_is_rejected_before_reading_full_file(self):
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder) / "history.json"
+            original = b"x" * (MAX_HISTORY_BYTES + 1)
+            path.write_bytes(original)
+
+            with (
+                patch.object(Path, "read_bytes", side_effect=AssertionError),
+                self.assertRaisesRegex(DamagedHistoryError, "too large"),
+            ):
+                History(path).read()
+
+            self.assertEqual(path.stat().st_size, len(original))
+
+    def test_oversized_history_can_be_backed_up_and_reset(self):
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder) / "history.json"
+            original = b"invalid history " * (MAX_HISTORY_BYTES // 16 + 1)
+            path.write_bytes(original)
+
+            backup = History(path).backup_and_reset()
+
+            self.assertEqual(backup.read_bytes(), original)
+            self.assertEqual(History(path).read(), [])
+
+    def test_oversized_save_keeps_existing_history_and_removes_temporary_file(self):
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder) / "history.json"
+            history = History(path)
+            history.save("English", "French", "hello", "bonjour")
+            original = path.read_bytes()
+
+            with self.assertRaisesRegex(ValueError, "exceeds its size limit"):
+                history.save("English", "French", "hello", "x" * MAX_HISTORY_BYTES)
+
+            self.assertEqual(path.read_bytes(), original)
+            self.assertEqual(list(Path(folder).iterdir()), [path])
 
     def test_save_and_clear_leave_damaged_history_untouched(self):
         with tempfile.TemporaryDirectory() as folder:
