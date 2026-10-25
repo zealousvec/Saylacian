@@ -18,6 +18,7 @@ The earlier UI/acceptance campaign began at local `main` commit `c80f4e1`, 56 co
 - **Clipboard accuracy:** corrected the support matrix to distinguish implemented payload formats and guarded harnesses from actual clipboard delivery. The current HWND-owning Windows publisher has not been exercised against an external application.
 - **Release workflow:** kept the app and test setup isolated for live acceptance; no host clipboard or physical input was used.
 - **Model-pack path safety:** reject Windows backslashes and drive paths in manifest destinations before creating or downloading into a destination; regression proves traversal is rejected before network access.
+- **Model-pack integrity recovery:** recheck installed model hashes before routes load them, cache verified hashes by file metadata, and identify changed files in the Packs screen with a confirmed removal path.
 
 ## 4. Important changed files
 
@@ -31,6 +32,7 @@ The earlier UI/acceptance campaign began at local `main` commit `c80f4e1`, 56 co
 - `tools/benchmark_somali_quality.py` and `tests/test_somali_benchmark_output.py` — current fallback-warning accounting and regression coverage.
 - `requirements-dev.txt` — pytest 9.1.1 replaces the advisory-affected 8.4.2 pin.
 - `saylacian/core/model_packs.py` and `tests/test_model_packs.py` — reject Windows-specific asset path escapes before download.
+- `main.py` and `app/acceptance.py` — show changed-pack recovery and verify keyboard/button removal flows without deleting a real pack.
 
 ## 5. Translation and detection evidence
 
@@ -63,8 +65,9 @@ Environment: project `.venv`, Windows, Python project test suite, Kivy live self
 - `.\.venv\Scripts\python.exe tools\check_release_safety.py` — passed; no recognized credential patterns found.
 - PowerShell parser — both clipboard scripts parsed successfully.
 - `pytest -q tests/test_somali_benchmark_output.py` — 3 passed, including current fallback-warning audit coverage.
-- `pytest -q tests/test_model_packs.py` — 10 passed, 2 Windows symlink-permission skips, 8 subtests; regression rejects backslash traversal, absolute drive, and drive-relative destinations before download.
-- Latest full suite after the path fix: **145 passed, 2 skipped, 200 subtests passed**. The two skips are existing Windows symlink-privilege skips.
+- `pytest -q tests/test_model_packs.py` — 11 passed, 2 Windows symlink-permission skips, 8 subtests; coverage includes Windows path traversal rejection and same-size post-install corruption detection/recovery after a prior hash-cache hit.
+- Latest full suite after the integrity recovery change: **146 passed, 2 skipped, 200 subtests passed**. The two skips are existing Windows symlink-privilege skips.
+- Live Kivy `main.py --self-test` passed from isolated app/Kivy/pack/evidence directories after installing the pinned French pack; both offline French directions passed with network blocked. Pack corruption UI checks passed; no physical input or real clipboard was used.
 - Somali benchmark — 150 pairs reproduced in 134.91 s using the verified temporary pack; socket connections were denied during inference; raw result/checkpoint remained in temp.
 - `pip-audit` — audited every `requirements*.txt` file. Initial run identified pytest 8.4.2 (PYSEC-2026-1845); updated the development pin to 9.1.1. Re-scan found no known vulnerabilities in the pinned requirements.
 - Fresh temporary Python 3.12 Windows environment installed `requirements-dev.txt`; `pip check` passed and pytest 9.1.1 passed the full suite: 144 passed, 2 Windows symlink-permission skips, 197 subtests.
@@ -77,7 +80,7 @@ The two skipped tests require Windows symlink privileges. Somali linguistic qual
 
 ## 11. Git branch and unpublished commits
 
-Branch: `main`, recovery commit `72a3e5ee8554401fd36d9901722bd64bcf1ed66b` contains the benchmark, route-audit, development dependency and campaign report files. Follow-up commit `6f294db2bf8be75bfba88334325635784fd9631a` contains only Windows pack-path validation and its regression test. Public `origin/main` remains at the last verified `c4f2f87270c22a05e772816ce98e57a99b871b18`. All commits are local and unpublished. No force operation is authorized.
+Branch: `main`, recovery commit `72a3e5ee8554401fd36d9901722bd64bcf1ed66b` contains the benchmark, route-audit, development dependency and campaign report files. Follow-up commit `6f294db2bf8be75bfba88334325635784fd9631a` contains only Windows pack-path validation and its regression test. Integrity recovery commit `b4904be9643dee1f8dfb2a5e484b4e731a8f06d6` contains only `saylacian/core/model_packs.py`, `tests/test_model_packs.py`, `main.py` and `app/acceptance.py`. Public `origin/main` remains at the last verified `c4f2f87270c22a05e772816ce98e57a99b871b18`. All commits are local and unpublished. No force operation is authorized.
 
 ## 12. Owner edits and publication
 
@@ -91,8 +94,8 @@ The pre-existing edits in `docs/PROJECT_STATUS.md` and `docs/TECHNICAL_AUDIT.md`
 
 **Owner/reviewer actions:** obtain DBMNT reuse terms and qualified Old Nubian review; arrange fluent Somali review; authorize any push needed for hosted workflows; provide an isolated Windows VM and appropriate clean-host/signing plan if pursuing binary distribution.
 
-**Completed developer actions:** fresh Somali benchmark reproduction with verified pack, network-blocked inference and temp-only outputs; corrected and regression-tested stale route-audit accounting; fixed the vulnerable development pytest pin and audited all requirement files; closed a Windows-specific pack destination traversal gap with a pre-download regression. Changes are committed locally at `72a3e5ee8554401fd36d9901722bd64bcf1ed66b` and `6f294db2bf8be75bfba88334325635784fd9631a`. No other safe, evidence-backed task is currently READY; reassess if required people, permissions, or isolated environments become available.
+**Completed developer actions:** fresh Somali benchmark reproduction with verified pack, network-blocked inference and temp-only outputs; corrected and regression-tested stale route-audit accounting; fixed the vulnerable development pytest pin and audited all requirement files; closed a Windows-specific pack destination traversal gap; detect same-size post-install model corruption and give users a confirmed recovery path. Changes are committed locally at `72a3e5ee8554401fd36d9901722bd64bcf1ed66b`, `6f294db2bf8be75bfba88334325635784fd9631a`, and `b4904be9643dee1f8dfb2a5e484b4e731a8f06d6`. No other safe, evidence-backed task is currently READY; reassess if required people, permissions, or isolated environments become available.
 
 ## 15. Final phase status
 
-**PARTIALLY COMPLETE — NOT FINISHED.** The toolbar fix, clean-clone pack workflow, Somali benchmark reproduction and route-audit correction, dependency advisory remediation, and Windows-specific pack-path containment are verified. This does not complete the project or release readiness: linguistic review, historical-data rights, accessibility observation, real clipboard validation, and clean-host/signing checks remain open. The previous report's “complete” label was premature. Local commits `72a3e5ee8554401fd36d9901722bd64bcf1ed66b` and `6f294db2bf8be75bfba88334325635784fd9631a` were not pushed; no files were released.
+**PARTIALLY COMPLETE — NOT FINISHED.** The toolbar fix, clean-clone pack workflow, Somali benchmark reproduction and route-audit correction, dependency advisory remediation, Windows-specific pack-path containment, and post-install integrity recovery are verified. This does not complete the project or release readiness: linguistic review, historical-data rights, accessibility observation, real clipboard validation, and clean-host/signing checks remain open. The previous report's “complete” label was premature. Nothing was pushed; no files were released.
