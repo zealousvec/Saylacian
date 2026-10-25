@@ -10,10 +10,12 @@ The root [LICENSE](LICENSE) applies only to Saylacian-authored code that the pro
 
 ## Translation models
 
-Model weights are downloaded by user choice and are not included here. The app's model manifests record upstream projects, revisions, checksums and licences. The current French/English model is MIT-licensed; the downloadable Somali/English model is Apache-2.0. Read [offline packs](docs/OFFLINE_PACKS.md) before downloading. The included notice texts are in `notices/`.
+Model weights are downloaded by user choice and are not included here. The app's model manifests record upstream projects, revisions, checksums and licences. The current French/English model is MIT-licensed; the downloadable Somali/English model is Apache-2.0. The optional Somali language detector uses an ONNX model whose upstream card lists MIT, trained on `hac541309/open-lid-dataset`, whose dataset card lists GPL-3.0. The model is fetched from its upstream Hugging Face revision only after the user selects its pack. See [`notices/OPENLID_LANGUAGE_DETECTION.md`](notices/OPENLID_LANGUAGE_DETECTION.md) and [offline packs](docs/OFFLINE_PACKS.md). Included licence notices are in `notices/`.
 
 ## Old Nubian data
 
 The limited 34-entry Old Nubian reading table is based on the DBMNT transliteration table. Its public guidelines permit downloading but do not state a reuse licence or grant. Permission for redistribution of these table-derived readings remains unresolved. This app's Old Nubian feature is limited and should not be treated as a licensed scholarly corpus; see [Old Nubian scope](docs/OLD_NUBIAN_SCOPE.md).
 
 Python dependencies are installed from their respective package publishers and are not vendored in this source snapshot. Their own licence terms apply.
+
+The optional detector's pinned runtime uses ONNX Runtime (MIT) and Hugging Face Tokenizers (Apache-2.0); package notices remain with their respective distributions.

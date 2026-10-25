@@ -18,6 +18,7 @@ PowerShell activation is not required. Flask is not required for the Kivy app. T
 
 - English ↔ French offline translation after the French/English pack is installed.
 - Experimental Somali translation using the Somali/English pack; fluent-speaker review is still needed.
+- Optional experimental Somali input detection pack; it adds an on-device detector and does not change translation quality.
 - Experimental Somali Latin and Osmanya conversion.
 - Partial Borama and Kaddare chart mappings. Their app glyphs use private-use code points, so other apps need Saylacian-compatible font support for editable script text.
 - Limited Old Nubian character transliteration. It is not meaning translation or complete manuscript coverage. See [Old Nubian scope](docs/OLD_NUBIAN_SCOPE.md).

@@ -91,6 +91,9 @@ def get_pack_specs() -> dict[str, dict]:
     somali = json.loads(
         (DATA_ROOT / "somali_model_manifest.json").read_text(encoding="utf-8")
     )
+    detection = json.loads(
+        (DATA_ROOT / "somali_detection_manifest.json").read_text(encoding="utf-8")
+    )
 
     somali_assets = []
     for item in somali:
@@ -143,6 +146,25 @@ def get_pack_specs() -> dict[str, dict]:
             }
         )
 
+    detection_assets = []
+    for item in detection["files"]:
+        filename = item["file"]
+        detection_assets.append(
+            {
+                "kind": "file",
+                "url": _huggingface_url(
+                    detection["repository"], detection["revision"], filename
+                ),
+                "bytes": item["bytes"],
+                "sha256": item["sha256"],
+                "destination": f"openlid/{Path(filename).name}",
+                "license": detection["license"],
+                "repository": detection["repository"],
+                "revision": detection["revision"],
+                "runtimes": detection["runtimes"],
+            }
+        )
+
     somali_manifest_item = somali[0]
     french_manifest_items = [
         item for item in argos if item.get("pair") in {"en_fr", "fr_en"}
@@ -163,6 +185,13 @@ def get_pack_specs() -> dict[str, dict]:
             ),
             "runtimes": french_manifest_items[0]["runtimes"],
             "assets": french_assets,
+        },
+        "somali_detection_openlid": {
+            "title": "Somali detection (experimental)",
+            "license": detection["license"],
+            "model_repositories": [detection["repository"]],
+            "runtimes": detection["runtimes"],
+            "assets": detection_assets,
         },
     }
     for pack_id, spec in specs.items():
@@ -321,9 +350,14 @@ class ModelPackManager:
             return 0
         return sum(path.stat().st_size for path in folder.rglob("*") if path.is_file())
 
-    def active_model_roots(self) -> list[Path]:
+    def active_model_roots(self, pack_ids: set[str] | None = None) -> list[Path]:
         roots = []
-        for pack_id in self.specs:
+        selected_pack_ids = (
+            self.specs
+            if pack_ids is None
+            else (pack_id for pack_id in self.specs if pack_id in pack_ids)
+        )
+        for pack_id in selected_pack_ids:
             try:
                 _, home = _pack_home(self.store_root, pack_id)
             except ValueError:

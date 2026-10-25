@@ -1,0 +1,26 @@
+{
+  "repository": "onnx-community/language_detection-ONNX",
+  "revision": "859bc93be10a6f8ad4a070911a4caaa092cdcd2e",
+  "license": "MIT (model); GPL-3.0 (training dataset)",
+  "runtimes": {
+    "onnxruntime": "1.31.0",
+    "tokenizers": "0.23.3"
+  },
+  "files": [
+    {
+      "file": "onnx/model_quantized.onnx",
+      "bytes": 24714523,
+      "sha256": "ee8599c721d24f678ef10cee403f4deda3a40e7e237e9983b3df11bf3f34ec2e"
+    },
+    {
+      "file": "tokenizer.json",
+      "bytes": 1109464,
+      "sha256": "ad313cb966420a8b21180d04071e84e49ab4c48005866131b7fec0672dfac935"
+    },
+    {
+      "file": "config.json",
+      "bytes": 9415,
+      "sha256": "eb8da40fd3e28f487ff3cfa65b180f1b78aadbc09b488d1ba580097b62b886a2"
+    }
+  ]
+}
