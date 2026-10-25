@@ -73,6 +73,23 @@ class TransliterationTests(unittest.TestCase):
                         result.warnings,
                     )
 
+    def test_repeated_unknown_chart_glyph_has_one_warning(self):
+        glyph = chr(0xE200)
+        result = transliterate(glyph * 20_000, "Borama", "Somali Latin")
+
+        self.assertEqual(result.text, glyph * 20_000)
+        self.assertEqual(
+            result.warnings.count("No Borama chart entry for U+E200; preserved."),
+            1,
+        )
+
+    def test_repeated_unmapped_chart_letter_is_collected_once(self):
+        result = transliterate("p" * 20_000, "Somali Latin", "Kaddare")
+
+        self.assertEqual(len(result.text), 20_000)
+        self.assertTrue(result.text.isalpha())
+        self.assertIn("Unmapped letters preserved: p.", result.warnings)
+
     def test_every_old_nubian_table_reading_keeps_its_source_as_an_option(self):
         for character, expected in OLD_NUBIAN_TO_LATIN.items():
             with self.subTest(character=character):

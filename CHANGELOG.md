@@ -19,6 +19,7 @@ This is an experimental-alpha source snapshot, not a numbered app release. Chang
 - Old Nubian `ⳣ` now shows both table readings, `w` and `ou`. Combining marks remain in the text, with a warning that Saylacian does not interpret their reading or placement.
 - Osmanya reverse conversion shows alternatives for the shared `w`/`uu` and `y`/`ii` letters. The original spelling cannot always be recovered.
 - Borama and Kaddare chart glyphs outside the known mapping are kept and flagged. Their private-use characters need Saylacian's matching font and mapping to display as editable text in another app.
+- Repeated unmapped Borama or Kaddare letters and glyphs are listed once in the warning; the input text is preserved.
 
 ### Language packs and app checks
 

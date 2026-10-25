@@ -137,6 +137,7 @@ def _chart_transliterate(text: str, source: str, target: str) -> Conversion:
         index = 0
         upper_seen = False
         missing = []
+        missing_seen = set()
         while index < len(text):
             token = next(
                 (
@@ -154,7 +155,8 @@ def _chart_transliterate(text: str, source: str, target: str) -> Conversion:
             char = text[index]
             output.append(char)
             index += 1
-            if char.isalpha():
+            if char.isalpha() and char not in missing_seen:
+                missing_seen.add(char)
                 missing.append(char)
         if upper_seen:
             warnings.append("Capitalization is not represented in the chart glyphs.")
@@ -169,12 +171,14 @@ def _chart_transliterate(text: str, source: str, target: str) -> Conversion:
         return Conversion("".join(output), tuple(w for w in warnings if w))
 
     mapping = SCRIPT_PUA_TO_LATIN[source]
+    unknown_glyphs = set()
     for char in text:
         if char in mapping:
             output.append(mapping[char])
         else:
             output.append(char)
-            if is_private_use_character(char):
+            if is_private_use_character(char) and char not in unknown_glyphs:
+                unknown_glyphs.add(char)
                 warnings.append(
                     f"No {source} chart entry for U+{ord(char):04X}; preserved."
                 )
