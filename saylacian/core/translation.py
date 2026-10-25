@@ -20,6 +20,7 @@ LANGUAGE_CODES = {"English": "en", "French": "fr", "Somali Latin": "so"}
 MODEL_ROOT = Path(__file__).resolve().parents[2] / "models"
 MULTILINGUAL_PAIRS = {"en_so", "so_en"}
 MODEL_CACHE_SIZE = 3
+SOMALI_NO_REPEAT_NGRAM_SIZE = 3
 
 PIVOT_ROUTES = {
     ("Somali Latin", "French"): "English",
@@ -225,6 +226,7 @@ def translate_meaning(text, source, target, model_root=None, *, provider_overrid
             candidate_result = candidate_engine.translate_batch(
                 [candidate_tokens],
                 beam_size=4,
+                no_repeat_ngram_size=SOMALI_NO_REPEAT_NGRAM_SIZE,
                 max_input_length=0,
                 max_decoding_length=512,
             )[0]
@@ -260,7 +262,11 @@ def translate_meaning(text, source, target, model_root=None, *, provider_overrid
                 "Input exceeds this model's 400-token limit; split it into shorter passages."
             )
         result = engine.translate_batch(
-            [tokens], beam_size=4, max_input_length=0, max_decoding_length=512
+            [tokens],
+            beam_size=4,
+            no_repeat_ngram_size=SOMALI_NO_REPEAT_NGRAM_SIZE,
+            max_input_length=0,
+            max_decoding_length=512,
         )[0]
         decoded = target_tokenizer.decode(result.hypotheses[0])
         cleaned = _clean_model_markers(decoded)

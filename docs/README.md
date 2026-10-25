@@ -2,6 +2,7 @@
 
 - [User guide](USER_GUIDE.md): choose modes and scripts, and copy Borama or Kaddare writing.
 - [Offline packs](OFFLINE_PACKS.md): download, update and remove translation packs.
+- [Somali translation quality](TRANSLATION_QUALITY.md): measured model checks and limits.
 - [Support matrix](SUPPORT_MATRIX.md): supported routes and their limits.
 - [Script letter guide](SCRIPT_LETTER_GUIDE.md): current mappings and unmatched letters.
 - [Script interoperability](SOMALI_SCRIPT_INTEROPERABILITY.md): Unicode, fonts and sharing.
