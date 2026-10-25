@@ -1,5 +1,13 @@
 # Session handoff
 
+## Final autonomous completion campaign — 2026-10-25
+
+Final local quality gates passed: `pytest -q -rs` reports 143 passed, 2 Windows symlink-permission skips, and 197 subtests; Ruff check/format, compileall, `pip check`, release-safety scan, diff checks, and PowerShell clipboard-script parsing pass. Isolated live Kivy acceptance passed. The Old Nubian `Read` toolbar action is now 72 dp with 12 dp sibling spacing; live acceptance asserts at least 8 dp separation, and the captured Read Studio route was inspected. `docs/SUPPORT_MATRIX.md` now accurately says current Windows clipboard publishing has not been tested in a real external app. No clipboard, physical input or network call was made by the self-test.
+
+Implementation/report commit: `f7f27ed508343f2d3c9b0a21034810d56c52afc1`. A separate follow-up commit records this handoff and final commit status. Branch is `main`; public `origin/main` remains `c4f2f87270c22a05e772816ce98e57a99b871b18`, with no push. Owner edits in `docs/PROJECT_STATUS.md` and `docs/TECHNICAL_AUDIT.md` remain untouched and unstaged. Somali model files are absent from the checked-in `models/somali` folder, so no fresh Somali benchmark was claimed; prior aggregate results and caveats are in `docs/FINAL_DEVELOPMENT_REPORT.md`.
+
+**ACTIVE:** none; final local acceptance is complete. **READY:** none without inventing work. **BLOCKED:** fluent Somali review/model-backed reproduction, DBMNT reuse terms plus Old Nubian specialist review, Narrator/NVDA session, valid compact screenshot capture, real clipboard test in disposable VM, hosted workflow approval, and signed clean-host Windows release. Exact actions are in `docs/IMPLEMENTATION_PROGRESS.md` and the final report. Stop here unless new owner authorization or external evidence arrives.
+
 ## Latest milestone — diagnostic log path privacy (2026-10-24)
 
 Source review found that `PrivateDiagnostics.record_exception()` stored full traceback filenames. This could disclose an account name or installation directory if a user shared a diagnostic log. It now stores only each filename's basename, line number and function name; exception messages and translation text remain excluded. `docs/RUN.md` explains the fields and says to review logs before sharing. Regression verifies that an actual traceback still includes `test_diagnostics.py` but omits its parent directory and private exception text.

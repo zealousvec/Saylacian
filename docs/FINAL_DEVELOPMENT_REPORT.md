@@ -1,7 +1,7 @@
 # Saylacian final development report
 
-**Date:** 2026-10-25  
-**Status:** COMPLETE WITH DOCUMENTED EXTERNAL BLOCKERS  
+**Date:** 2026-10-25
+**Status:** COMPLETE WITH DOCUMENTED EXTERNAL BLOCKERS
 **Release readiness:** READY FOR OWNER REVIEW — EXPERIMENTAL SOURCE ALPHA
 
 ## 1. Executive summary
@@ -66,7 +66,7 @@ The two skipped tests require Windows symlink privileges. Somali quality review 
 
 ## 11. Git branch and unpublished commits
 
-Branch: `main`. Before this campaign, HEAD was `c80f4e1` and 56 commits ahead of public `origin/main` at `c4f2f87270c22a05e772816ce98e57a99b871b18`. The campaign changes are not yet committed at the time this report is drafted; the final local commit hash will be added to the session handoff after commit. No force operation is authorized.
+Branch: `main`. Before this campaign, HEAD was `c80f4e1` and 56 commits ahead of public `origin/main` at `c4f2f87270c22a05e772816ce98e57a99b871b18`. The verified implementation and campaign report are committed locally as `f7f27ed508343f2d3c9b0a21034810d56c52afc1`; final handoff synchronization follows in a separate local documentation commit. No force operation is authorized.
 
 ## 12. Owner edits and publication
 
