@@ -218,6 +218,7 @@ def get_pack_specs() -> dict[str, dict]:
         },
         "somali_synthetic_en_so": {
             "title": "Somali translation (experimental)",
+            "requires": ["somali"],
             "license": synthetic["license"],
             "model_repositories": [synthetic["repository"]],
             "runtimes": synthetic["runtimes"],
@@ -359,6 +360,7 @@ class ModelPackManager:
                 {
                     "id": pack_id,
                     "title": spec["title"],
+                    "requires": list(spec.get("requires", [])),
                     "version": spec["version"],
                     "installed": current_version == spec["version"]
                     and installed_bytes > 0

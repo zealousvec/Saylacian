@@ -111,6 +111,7 @@ class LanguageDetectionTests(unittest.TestCase):
     def test_synthetic_somali_pack_is_optional_and_separately_licensed(self):
         pack = get_pack_specs()["somali_synthetic_en_so"]
         self.assertEqual(pack["license"], "CC-BY-4.0")
+        self.assertEqual(pack["requires"], ["somali"])
         self.assertEqual(
             pack["model_repositories"],
             ["WindyWord/translate-synthetic-en-so"],

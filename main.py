@@ -407,6 +407,8 @@ class SaylacianApp(MDApp):
                 note = f"Update available · {self._format_bytes(pack['download_bytes'])} download"
             else:
                 note = f"Download {self._format_bytes(pack['download_bytes'])} · works offline"
+            if pack.get("requires"):
+                note += " · Needs Somali / English pack for fallback"
             subtitle = MDLabel(
                 text=note,
                 theme_text_color="Custom",
@@ -927,9 +929,7 @@ class SaylacianApp(MDApp):
             language, confidence = self.detected_language
             warnings = f"Detected {language} ({confidence:.0%} confidence). " + warnings
         self.status = warnings
-        self.save_session(
-            self.root.get_screen("home").ids.input_text.text, result.text
-        )
+        self.save_session(self.root.get_screen("home").ids.input_text.text, result.text)
 
     def save_session(self, input_text=None, output_text=None):
         """Keep the last visible conversion so reopening the app restores it."""
@@ -988,9 +988,7 @@ class SaylacianApp(MDApp):
                 home.ids.input_text.text = input_text
                 home.ids.output_text.text = output_text
                 self.status = str(snapshot.get("status", self.status))[:1000]
-                self.alternative_readings = str(snapshot.get("alternatives", ""))[
-                    :2000
-                ]
+                self.alternative_readings = str(snapshot.get("alternatives", ""))[:2000]
             finally:
                 self._restoring_session = False
         except (OSError, ValueError, TypeError, AttributeError):
