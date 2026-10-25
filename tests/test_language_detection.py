@@ -1,8 +1,11 @@
+import hashlib
+import json
 import unittest
+from tempfile import TemporaryDirectory
 from unittest.mock import patch
 
 from saylacian.core import language_detection
-from saylacian.core.model_packs import get_pack_specs
+from saylacian.core.model_packs import ModelPackManager, get_pack_specs
 
 
 class FakeIdentifier:
@@ -125,6 +128,51 @@ class LanguageDetectionTests(unittest.TestCase):
         )
         self.assertIn("11427877b7864afad1b5e93e10d1e89661d8b0c0", model["url"])
         self.assertIn("somali/en_so_synthetic/NOTICE.md", assets)
+
+    def test_pack_manager_enforces_required_packs_for_install_and_removal(self):
+        content = {"ready": True}
+        payload = json.dumps(content, ensure_ascii=False).encode("utf-8")
+        asset = {
+            "kind": "generated-json",
+            "content": content,
+            "bytes": len(payload),
+            "sha256": hashlib.sha256(payload).hexdigest(),
+            "destination": "model.json",
+        }
+        base_spec = {
+            "title": "Somali / English",
+            "license": "MIT",
+            "runtimes": {},
+            "assets": [asset],
+            "version": "1-base",
+            "download_bytes": 0,
+        }
+        addon_spec = {
+            **base_spec,
+            "title": "Somali translation (experimental)",
+            "requires": ["base"],
+            "version": "1-addon",
+        }
+
+        with TemporaryDirectory() as temporary:
+            manager = ModelPackManager(
+                temporary,
+                specs={"base": base_spec, "addon": addon_spec},
+            )
+            with self.assertRaisesRegex(
+                ValueError, "Install Somali / English before this pack"
+            ):
+                manager.install("addon")
+
+            manager.install("base")
+            manager.install("addon")
+            with self.assertRaisesRegex(ValueError, "Remove that pack first"):
+                manager.remove("base")
+            self.assertTrue(manager.list_packs()[0]["installed"])
+
+            manager.remove("addon")
+            manager.remove("base")
+            self.assertFalse(any(pack["installed"] for pack in manager.list_packs()))
 
 
 if __name__ == "__main__":

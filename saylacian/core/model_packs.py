@@ -424,6 +424,7 @@ class ModelPackManager:
     def install(self, pack_id: str, progress=None, cancel_event=None) -> Path:
         if pack_id not in self.specs:
             raise ValueError("Unknown language pack.")
+        self._check_requirements(pack_id)
         with _lock_for(pack_id):
             spec = self.specs[pack_id]
             _, home = _pack_home(self.store_root, pack_id)
@@ -677,6 +678,31 @@ class ModelPackManager:
         if pack_id not in self.specs:
             raise ValueError("Unknown language pack.")
         with _lock_for(pack_id):
+            dependent = self._installed_dependent(pack_id)
+            if dependent is not None:
+                raise ValueError(
+                    f"Required by {dependent['title']}. Remove that pack first."
+                )
             _, home = _pack_home(self.store_root, pack_id)
             if home.exists():
                 shutil.rmtree(home)
+
+    def _check_requirements(self, pack_id: str) -> None:
+        installed = {pack["id"] for pack in self.list_packs() if pack["installed"]}
+        for requirement in self.specs[pack_id].get("requires", []):
+            if requirement not in self.specs:
+                raise ValueError("A required language pack is unavailable.")
+            if requirement not in installed:
+                title = self.specs[requirement]["title"]
+                raise ValueError(f"Install {title} before this pack.")
+
+    def _installed_dependent(self, pack_id: str) -> dict | None:
+        installed = {pack["id"] for pack in self.list_packs() if pack["installed"]}
+        return next(
+            (
+                spec
+                for dependent_id, spec in self.specs.items()
+                if pack_id in spec.get("requires", []) and dependent_id in installed
+            ),
+            None,
+        )

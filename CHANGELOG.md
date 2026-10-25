@@ -6,6 +6,7 @@ This source snapshot has no numbered application release, so unreleased work sta
 
 - Added an optional English-to-Somali model download. Saylacian checks its output and falls back to the standard Somali pack when a result looks incomplete or repetitive. The model is experimental and carries its own CC BY 4.0 terms.
 - The pack screen now says the experimental Somali add-on needs the standard Somali / English pack for fallback.
+- The pack manager enforces that dependency: install the standard pack first and remove the add-on before removing its fallback.
 - Tightened the experimental Somali model's fallback for overlong and repeated-word output. On a 37-example TICO-19 sample, the guarded route scored higher than the standard pack, but took longer and still produced awkward Somali.
 - Added an optional offline Somali detector. It helps identify some short Somali input; it does not improve translation quality.
 - Reverse Osmanya conversion now shows alternate readings where `w`/`uu` or `y`/`ii` share a glyph.

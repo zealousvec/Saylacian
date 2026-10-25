@@ -58,6 +58,8 @@ def pack_removal_error_message(error: Exception) -> str:
         return "Pack files are outside the expected folder. Removal stopped for safety."
     if isinstance(error, ValueError) and "unknown language pack" in details.casefold():
         return "This pack is no longer available. Refresh the pack list and try again."
+    if isinstance(error, ValueError) and "required by" in details.casefold():
+        return details
     return "Could not remove the pack. Close Saylacian and try again."
 
 

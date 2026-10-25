@@ -13,7 +13,7 @@ Installed packs are stored in the user's application-data folder, outside the pr
 
 The Somali detection pack is optional. After download, it can recover Somali input that the existing detector leaves uncertain. It does not translate text, and the existing English/French results take precedence. Detection runs on device; its model and runtime dependencies are pinned and work offline after installation.
 
-The optional English-to-Somali pack uses a separate CTranslate2 model. If installed, Saylacian tries it first for English-to-Somali and falls back to the standard Somali/English pack when its output appears copied, unreadable or repetitive. Keep the standard Somali/English pack installed as the fallback. This model has no published score in its model card and still needs fluent-speaker review.
+The optional English-to-Somali pack uses a separate CTranslate2 model. Install the standard Somali/English pack first: Saylacian will not install the add-on without it, and will not remove the standard pack while the add-on is installed. The app tries the add-on first for English-to-Somali and falls back to the standard pack when its output appears copied, unreadable or repetitive. This model has no published score in its model card and still needs fluent-speaker review.
 
 On a verified, licensed Qor sample of 67 short Somali texts, the integrated detector identified 45; the existing short-text route identified 33. At the selected 0.90 Somali score threshold, the candidate produced no Somali predictions among 24,815 sampled MASSIVE test texts from other labeled locales. These dataset labels are proxies, not specialist-verified language judgments, and these samples do not establish general accuracy.
 
