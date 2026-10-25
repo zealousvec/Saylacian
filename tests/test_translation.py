@@ -3,6 +3,8 @@
 """Tests local translation, route selection, and experimental Somali behavior."""
 
 import os
+import sys
+import types
 import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -12,6 +14,7 @@ from saylacian.core.translation import (
     MODEL_ROOT,
     _clean_model_markers,
     _synthetic_candidate_is_degenerate,
+    load_model,
     translate_meaning,
 )
 
@@ -175,6 +178,38 @@ class TranslationTests(unittest.TestCase):
     def test_length_limit(self):
         with self.assertRaises(ValueError):
             translate_meaning("a" * 4001, "English", "French")
+
+    def test_model_cache_evicts_least_recent_route_after_three_models(self):
+        load_model.cache_clear()
+        self.addCleanup(load_model.cache_clear)
+        with TemporaryDirectory() as temporary:
+            folders = []
+            for index in range(4):
+                folder = Path(temporary) / f"route-{index}"
+                (folder / "model").mkdir(parents=True)
+                (folder / "model" / "model.bin").touch()
+                (folder / "sentencepiece.model").touch()
+                folders.append(folder)
+
+            fake_sentencepiece = types.ModuleType("sentencepiece")
+            fake_sentencepiece.SentencePieceProcessor = Mock()
+            fake_ctranslate2 = types.ModuleType("ctranslate2")
+            fake_ctranslate2.Translator = Mock()
+
+            with patch.dict(
+                sys.modules,
+                {
+                    "sentencepiece": fake_sentencepiece,
+                    "ctranslate2": fake_ctranslate2,
+                },
+            ):
+                for folder in folders:
+                    load_model(str(folder))
+
+                self.assertEqual(load_model.cache_info().currsize, 3)
+                load_model(str(folders[0]))
+
+            self.assertEqual(fake_ctranslate2.Translator.call_count, 5)
 
     def test_token_limit_rejects_without_model_inference(self):
         with TemporaryDirectory() as temporary:

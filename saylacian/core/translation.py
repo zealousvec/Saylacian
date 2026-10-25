@@ -19,6 +19,7 @@ from .transliteration import Conversion
 LANGUAGE_CODES = {"English": "en", "French": "fr", "Somali Latin": "so"}
 MODEL_ROOT = Path(__file__).resolve().parents[2] / "models"
 MULTILINGUAL_PAIRS = {"en_so", "so_en"}
+MODEL_CACHE_SIZE = 3
 
 PIVOT_ROUTES = {
     ("Somali Latin", "French"): "English",
@@ -110,7 +111,7 @@ def model_directory(source, target, root=None):
     )
 
 
-@lru_cache(maxsize=4)
+@lru_cache(maxsize=MODEL_CACHE_SIZE)
 def load_model(folder):
     try:
         import ctranslate2
