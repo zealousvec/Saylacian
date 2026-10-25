@@ -169,3 +169,9 @@ Verification: focused tests `2 passed`; full suite `157 passed, 2 skipped, 208 s
 Accepted sockets in the optional self-hosted translation server now time out after 15 seconds of inactivity. This stops an idle client from retaining one of the bounded request workers indefinitely. A loopback regression confirms the connection closes and all 16 request slots become available. The memory-exhaustion semaphore test now synchronizes with handler cleanup rather than relying on response scheduling.
 
 Verification: focused service tests `3 passed`; full suite `158 passed, 2 skipped, 208 subtests`; Ruff, format, compileall, `pip check`, release-safety and diff checks passed. Local code commit `889dfc1ff15d6362d883c8963f87a6ba39092e59`; no push. Goal remains ACTIVE — NOT FINISHED.
+
+## 21. Reject nested JSON parser exhaustion — 2026-10-25
+
+A valid-size, deeply nested JSON array could raise `RecursionError` in the self-hosted API's decoder, escaping its malformed-request handling. The service now returns HTTP 400 for parser recursion failures. A localhost integration test confirms the request is rejected before translation runs.
+
+Verification: focused service tests `4 passed`; full suite `159 passed, 2 skipped, 208 subtests`; Ruff, format, compileall, `pip check`, release-safety and diff checks passed. Local code commit `d4c406e516dc056d2c38a090a110b2c598a88a0c`; no push. Goal remains ACTIVE — NOT FINISHED.

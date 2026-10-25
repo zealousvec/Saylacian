@@ -488,3 +488,7 @@ Validation: `157 passed, 2 skipped, 208 subtests`; Ruff check and format, compil
 ## 2026-10-25 continuation — idle service client timeout
 
 Latest service code commit: `889dfc1ff15d6362d883c8963f87a6ba39092e59`. Each accepted connection now has a 15-second inactivity timeout so idle clients cannot occupy the bounded request workers indefinitely. The loopback test confirms socket closure and return of all request slots. The prior `MemoryError` → HTTP 503 behavior remains covered end-to-end; its semaphore test now waits for handler cleanup to avoid a scheduling race. Full suite: `158 passed, 2 skipped, 208 subtests`; Ruff, format, compileall, dependency, release-safety and diff checks passed. No external connections or OS clipboard access. Goal stays ACTIVE — NOT FINISHED; preserve existing owner edits and do not push.
+
+## 2026-10-25 continuation — malformed nested request recovery
+
+Latest service code commit: `d4c406e516dc056d2c38a090a110b2c598a88a0c`. A well-formed but deeply nested JSON array under the 20,000-byte body cap raised `RecursionError`; the API now returns HTTP 400, with a loopback test proving inference is not invoked. Full suite: `159 passed, 2 skipped, 208 subtests`; Ruff, format, compileall, dependency, release-safety and diff checks passed. Existing owner changes remain untouched; keep all work local and unpublished.
