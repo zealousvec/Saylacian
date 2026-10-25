@@ -107,6 +107,20 @@ class TransliterationTests(unittest.TestCase):
         self.assertEqual(reading.text, "A w, TI!")
         self.assertIn("A ou, TI!", reading.alternatives)
 
+    def test_old_nubian_preserves_and_flags_combining_diacritics(self):
+        source = "ⲁ\u0301"
+
+        reading = transliterate(
+            source,
+            "Old Nubian (Coptic)",
+            "Old Nubian scholarly Latin",
+        )
+
+        self.assertEqual(reading.text, "a\u0301")
+        self.assertTrue(
+            any("Combining marks are preserved" in item for item in reading.warnings)
+        )
+
     def test_old_nubian_reader_keeps_alternative_after_record_round_trip(self):
         record = make_reading_record("ⳣ")
         self.assertIn("ou", record.alternatives)

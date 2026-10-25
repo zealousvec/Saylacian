@@ -1,8 +1,8 @@
 # Saylacian
 
-Saylacian is a Python and Kivy app for translation and Somali script conversion. English–French translation works offline after you download its language packs. Somali translation is experimental and still needs fluent-speaker review. Offline packs need no account or per-translation fee.
+Saylacian is a Python and Kivy app for translating text and converting it between Somali and selected writing systems. It runs on Windows and can translate offline after you install the language packs you need.
 
-## Run on Windows
+## Get started on Windows
 
 Install 64-bit Python 3.12, open this folder in PowerShell, then run:
 
@@ -12,26 +12,26 @@ py -3.12 -m venv .venv
 .\.venv\Scripts\python.exe main.py
 ```
 
-PowerShell activation is not required. Flask is not required for the Kivy app. The app asks before downloading language packs; see [offline packs](docs/OFFLINE_PACKS.md) for sizes, storage and model details.
+You do not need to activate the virtual environment. The app asks before downloading language packs. See [Offline language packs](docs/OFFLINE_PACKS.md) for download sizes and storage details.
 
-## What it supports
+## What you can do
 
-- English ↔ French offline translation after the French/English pack is installed.
-- Experimental Somali translation using the Somali/English pack; fluent-speaker review is still needed.
-- Optional 62 MiB experimental English-to-Somali model pack, with output checks and fallback to the standard pack. It is separately CC BY 4.0 licensed and also needs fluent-speaker review.
-- Optional experimental Somali input detection pack; it adds an on-device detector and does not change translation quality.
-- Experimental Somali Latin and Osmanya conversion.
-- Partial Borama and Kaddare chart mappings. Their app glyphs use private-use code points, so other apps need Saylacian-compatible font support for editable script text.
-- Limited Old Nubian character transliteration. It is not meaning translation or complete manuscript coverage. See [Old Nubian scope](docs/OLD_NUBIAN_SCOPE.md).
+- Translate between English and French offline after installing the French/English pack.
+- Translate English and Somali with the Somali/English pack. Somali results are experimental and need review by fluent speakers.
+- Try an optional English-to-Somali model pack. Saylacian checks its output and uses the standard Somali pack when the result appears incomplete or repetitive. This add-on is experimental, takes more time, and has separate CC BY 4.0 terms.
+- Identify English, French or Somali in longer Latin text. Short text may need a manual language choice.
+- Convert Somali Latin text to and from Osmanya.
+- Convert some Somali letters to Borama or Kaddare using chart-based mappings. These mappings are incomplete; editable script text needs a compatible Saylacian font.
+- Read selected Old Nubian letters using a published character table. This is transliteration, not translation, and does not cover every manuscript convention.
 
-The app does not support modern Nubian varieties. See the [support matrix](docs/SUPPORT_MATRIX.md) for route-by-route limits and the [script letter guide](docs/SCRIPT_LETTER_GUIDE.md) for mapped and unmatched letters.
+Modern Nubian varieties are not supported. See the [support matrix](docs/SUPPORT_MATRIX.md) for available routes and their limits, and the [script letter guide](docs/SCRIPT_LETTER_GUIDE.md) for mapped and unmatched letters.
 
-## Help and privacy
+## Help and version history
 
-The [user guide](docs/USER_GUIDE.md) explains modes, scripts and clipboard choices. [Script interoperability](docs/SOMALI_SCRIPT_INTEROPERABILITY.md) explains what other apps can display. Translation defaults to installed local packs; optional online providers send text to the configured service and may have their own limits, privacy terms or costs.
+The [user guide](docs/USER_GUIDE.md) explains language selection and copy options. [Sharing Borama and Kaddare](docs/SOMALI_SCRIPT_INTEROPERABILITY.md) explains why copied script may look different in other apps. Translation uses installed local packs by default. Optional online services send text to the selected provider; check that provider's privacy terms and any limits or costs.
 
-See the [version history](CHANGELOG.md) for changes made to the app.
+The [version history](CHANGELOG.md) describes changes and what they mean for app users. This repository is an experimental alpha; no numbered release has been published.
 
 ## Licence
 
-Saylacian-authored code the project licensor owns or may license is offered under [GNU AGPL-3.0-or-later](LICENSE). Fonts, chart-derived assets and models retain their own terms; see [third-party notices](THIRD_PARTY_NOTICES.md). Android and iOS builds are not verified.
+Original Saylacian code is offered under [GNU AGPL-3.0-or-later](LICENSE). Fonts, chart images and model packs have separate licences; see [third-party notices](THIRD_PARTY_NOTICES.md). Windows is the only platform checked so far; Android and iOS builds have not been tested.

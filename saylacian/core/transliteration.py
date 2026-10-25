@@ -294,11 +294,11 @@ def transliterate(text: str, source: str, target: str) -> Conversion:
             else:
                 output.append(char)
                 readings.append((char,))
+                preserved_marks |= unicodedata.category(char).startswith("M")
                 if char.isalpha() and 0x2C80 <= ord(char) <= 0x2CFF:
                     warnings.append(f"No verified table entry for {char}; preserved.")
                 elif 0x2C80 <= ord(char) <= 0x2CFF:
                     category = unicodedata.category(char)
-                    preserved_marks |= category.startswith("M")
                     preserved_punctuation |= category.startswith("P")
         if preserved_marks:
             warnings.append(

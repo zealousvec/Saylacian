@@ -52,3 +52,17 @@ I also screened [`maanka2/opus-mt-en-so-finetuned`](https://huggingface.co/maank
 On the same 37 TICO-19 rows, the Transformers checkpoint scored BLEU 5.898 / chrF++ 36.656 at 537 ms per sentence. After conversion to CTranslate2 INT8 and running through Saylacian's actual route, it scored 3.673 / 30.691, fell back on 26 of 37 inputs and averaged 1,013 ms. The selected optional CTranslate2 pack scored 4.332 / 35.376 with 15 fallbacks at 770 ms on that sample. Because the converted candidate performed worse in the app runtime and its training data terms remain unchecked, it is not wired into the app or download list. These results are still small-sample automatic metrics, not fluent-speaker review.
 
 Other model candidates remain experimental until their outputs, dataset overlap, licence terms and runtime costs have been checked against the shipped pack.
+
+## Held-out test-split check
+
+To check whether the dev-split result carried over, I evaluated a deterministic sample of 120 rows from the English–Somali TICO-19 **test** split at the same dataset revision. The TSV has 2,100 rows and SHA-256 `f42bf20622626e7b510bb8244dc503310df08f8b093260c2f231626410860e57`. Rows were ranked by SHA-256 of `saylacian-tico19-test-v1:` followed by each row ID. Scores use the same SacreBLEU settings as the earlier comparison.
+
+| Route | BLEU | chrF++ | Mean time per sentence | Fallbacks |
+|---|---:|---:|---:|---:|
+| Standard Somali pack | 2.496 | 21.632 | 611 ms | — |
+| Optional model with Saylacian's output guard | 4.369 | 24.765 | 646 ms | 58 of 120 |
+| Optional model, guard bypassed for measurement only | 6.298 | 28.728 | 321 ms | Not applicable |
+
+On this sample, the optional model scored higher than the standard pack even with fallback. The guard also removed many candidate outputs that scored better on automatic metrics; that does not prove those Somali sentences are clearer or correct. A raw-output screen found repeated-content indicators in 12 of 120 results, so disabling the guard would risk returning visibly broken text. The result points to a tuning and human-review task, not a safe reason to loosen the checks. No guard behavior was changed from this measurement.
+
+This is one small medical-domain sample, not a general translation score. It does not assess fluency, meaning preservation or medical safety, and the candidate model's training/test overlap has not been independently audited. Somali remains experimental and needs fluent-speaker review.
