@@ -1,5 +1,11 @@
 import unittest
 
+from saylacian.core.old_nubian_reader import (
+    alphabet_entries,
+    export_reading_record,
+    import_reading_record,
+    make_reading_record,
+)
 from saylacian.core.transliteration import (
     OLD_NUBIAN_TO_LATIN,
     SCRIPT_DATA,
@@ -63,6 +69,44 @@ class TransliterationTests(unittest.TestCase):
                     "Old Nubian (Coptic)",
                 )
                 self.assertIn(character, (reverse.text, *reverse.alternatives))
+
+    def test_old_nubian_w_glyph_shows_both_cited_readings(self):
+        reading = transliterate(
+            "ⳣ", "Old Nubian (Coptic)", "Old Nubian scholarly Latin"
+        )
+        self.assertEqual(reading.text, "w")
+        self.assertIn("ou", reading.alternatives)
+        entry = next(item for item in alphabet_entries() if item["glyph"] == "ⳣ")
+        self.assertEqual(entry["alternative_readings"], ("ou",))
+
+    def test_old_nubian_reader_keeps_alternative_after_record_round_trip(self):
+        record = make_reading_record("ⳣ")
+        self.assertIn("ou", record.alternatives)
+        restored = import_reading_record(export_reading_record(record))
+        self.assertIn("ou", restored.alternatives)
+
+    def test_old_nubian_only_warns_for_sequences_with_a_real_alternative(self):
+        unique_sequences = ("ch", "ky", "ny")
+        for text in unique_sequences:
+            with self.subTest(text=text):
+                result = transliterate(
+                    text, "Old Nubian scholarly Latin", "Old Nubian (Coptic)"
+                )
+                self.assertFalse(result.alternatives)
+                self.assertFalse(
+                    any(
+                        "letter boundaries can be ambiguous" in w
+                        for w in result.warnings
+                    )
+                )
+
+        ambiguous = transliterate(
+            "ng", "Old Nubian scholarly Latin", "Old Nubian (Coptic)"
+        )
+        self.assertTrue(ambiguous.alternatives)
+        self.assertTrue(
+            any("letter boundaries can be ambiguous" in w for w in ambiguous.warnings)
+        )
 
     def test_every_unique_osmanya_mapping_can_be_read_back(self):
         for grapheme, glyph in SOMALI_TO_OSMANYA.items():

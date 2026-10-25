@@ -9,6 +9,7 @@ from dataclasses import dataclass
 
 from saylacian.core.transliteration import (
     OLD_NUBIAN_AMBIGUOUS_TOKENS,
+    OLD_NUBIAN_FORWARD_VARIANTS,
     OLD_NUBIAN_TO_LATIN,
     transliterate,
 )
@@ -26,6 +27,7 @@ class ReadingRecord:
     latin: str
     lines: tuple[tuple[str, str], ...]
     warnings: tuple[str, ...]
+    alternatives: tuple[str, ...] = ()
     convention: str = CONVENTION
     source_url: str = SOURCE_URL
 
@@ -49,6 +51,7 @@ def alphabet_entries(query: str = "") -> tuple[dict[str, object], ...]:
             "source_url": SOURCE_URL,
             "confidence": "Listed in cited table; not independently reviewed",
             "ambiguous": reverse_ambiguous,
+            "alternative_readings": OLD_NUBIAN_FORWARD_VARIANTS.get(glyph, ()),
         }
         searchable = f"{glyph} {reading} {codepoint} {name}".casefold()
         if not needle or needle in searchable:
@@ -99,6 +102,7 @@ def make_reading_record(original: str) -> ReadingRecord:
         latin=converted.text,
         lines=lines,
         warnings=converted.warnings,
+        alternatives=converted.alternatives,
     )
 
 

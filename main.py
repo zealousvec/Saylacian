@@ -1126,7 +1126,13 @@ class SaylacianApp(MDApp):
             self.reader_status = str(error)
             return
         studio.ids.reader_latin.text = record.latin
-        self.reader_mark_details = describe_combining_marks(record.original)
+        details = []
+        if record.alternatives:
+            details.append("Other readings: " + " / ".join(record.alternatives[:3]))
+        mark_details = describe_combining_marks(record.original)
+        if mark_details:
+            details.append(mark_details)
+        self.reader_mark_details = "\n".join(details)
         self.reader_status = (
             "Limited character reading · "
             + record.convention
@@ -1155,9 +1161,15 @@ class SaylacianApp(MDApp):
     def show_old_nubian_letter(self, entry):
         self.reader_selected_glyph = str(entry["glyph"])
         ambiguity = " · reverse reading may be ambiguous" if entry["ambiguous"] else ""
+        alternatives = entry.get("alternative_readings", ())
+        other_readings = (
+            " · other Latin reading: " + " / ".join(alternatives)
+            if alternatives
+            else ""
+        )
         self.reader_detail = (
             f"{entry['glyph']} · {entry['reading']} · {entry['codepoint']}\n"
-            f"{entry['name']}{ambiguity}\n"
+            f"{entry['name']}{ambiguity}{other_readings}\n"
             f"{entry['confidence']} · {entry['convention']}"
         )
 

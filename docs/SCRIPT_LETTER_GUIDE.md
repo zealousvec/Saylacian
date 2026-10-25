@@ -65,7 +65,7 @@ Old Nubian is different: Saylacian has a 34-entry character-to-scholarly-reading
 | `ⳣ` | `w` |
 | `ⳝ` | `j` |
 
-So there is no single `v` reading in this current table; that does not mean a modern Latin alphabet maps directly to Old Nubian. For example, `c` is not a standalone table entry, while `ch` is the reading assigned to `ⲭ`. `dj`, `ky`, `ng`, `ny`, `sh`, `th`, `ch`, `ph`, `ps`, `ti` and `ou` can be ambiguous as Latin sequences; reverse conversion can show alternatives or preserve the sequence rather than prove one original spelling. Characters absent from the table are kept, not guessed. Source reuse permission and specialist review remain unresolved; see the [Old Nubian scope](OLD_NUBIAN_SCOPE.md).
+The DBMNT table gives `ⳣ` two Latin readings, `w` and `ou`; Saylacian shows `w` as the main reading and `ou` as an alternative. This does not mean a modern Latin alphabet maps directly to Old Nubian. For example, `c` is not a standalone table entry, while `ch` is the reading assigned to `ⲭ`. Latin-to-script sequences can still be ambiguous where multiple table entries line up; alternatives do not establish the original spelling. Characters absent from the table are kept, not guessed. Source reuse permission and specialist review remain unresolved; see the [Old Nubian scope](OLD_NUBIAN_SCOPE.md).
 
 ## Sharing and limits
 

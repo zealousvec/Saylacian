@@ -79,6 +79,7 @@ for character, reading in OLD_NUBIAN_TO_LATIN.items():
     if len(uppercase) == 1 and uppercase != character:
         OLD_NUBIAN_CASED_TO_LATIN[uppercase] = reading.upper()
 
+OLD_NUBIAN_FORWARD_VARIANTS = {"ⳣ": ("ou",)}
 OLD_NUBIAN_REVERSE = {
     reading: character for character, reading in OLD_NUBIAN_TO_LATIN.items()
 }
@@ -94,9 +95,7 @@ OLD_NUBIAN_REVERSE_VARIANTS = {
     "ti": ("ⲧⲓ",),
 }
 OLD_NUBIAN_REVERSE_TOKENS = tuple(sorted(OLD_NUBIAN_REVERSE, key=len, reverse=True))
-OLD_NUBIAN_AMBIGUOUS_TOKENS = frozenset(
-    {"dj", "ky", "ng", "ny", "sh", "th", "ch", "ph", "ps", "ti", "ou"}
-)
+OLD_NUBIAN_AMBIGUOUS_TOKENS = frozenset(OLD_NUBIAN_REVERSE_VARIANTS)
 SOMALI_FORWARD_TOKENS = tuple(sorted(SOMALI_TO_OSMANYA, key=len, reverse=True))
 
 
@@ -193,9 +192,11 @@ def _old_nubian_reverse_candidates(text: str, limit: int = 12) -> tuple[str, ...
             if text[index : index + len(token)].casefold() == token
         ]
         if not matches:
-            paths[index] = tuple(text[index] + tail for tail in paths[index + 1])[
-                :limit
-            ]
+            paths[index] = (
+                ()
+                if text[index].isalpha()
+                else tuple(text[index] + tail for tail in paths[index + 1])[:limit]
+            )
             continue
         outputs = []
         for token in matches:
@@ -268,14 +269,28 @@ def transliterate(text: str, source: str, target: str) -> Conversion:
         return _chart_transliterate(text, source, target)
     if (source, target) == ("Old Nubian (Coptic)", "Old Nubian scholarly Latin"):
         output = []
+        readings = []
         warnings = []
         preserved_marks = False
         preserved_punctuation = False
         for char in text:
             if char in OLD_NUBIAN_CASED_TO_LATIN:
-                output.append(OLD_NUBIAN_CASED_TO_LATIN[char])
+                reading = OLD_NUBIAN_CASED_TO_LATIN[char]
+                output.append(reading)
+                readings.append(
+                    (
+                        reading,
+                        *(
+                            variant.upper() if char.isupper() else variant
+                            for variant in OLD_NUBIAN_FORWARD_VARIANTS.get(
+                                char.lower(), ()
+                            )
+                        ),
+                    )
+                )
             else:
                 output.append(char)
+                readings.append((char,))
                 if char.isalpha() and 0x2C80 <= ord(char) <= 0x2CFF:
                     warnings.append(f"No verified table entry for {char}; preserved.")
                 elif 0x2C80 <= ord(char) <= 0x2CFF:
@@ -288,7 +303,17 @@ def transliterate(text: str, source: str, target: str) -> Conversion:
             )
         if preserved_punctuation:
             warnings.append("Coptic punctuation is preserved without interpretation.")
-        return Conversion("".join(output), tuple(warnings))
+        primary = "".join(output)
+        alternatives = tuple(
+            candidate
+            for candidate in (
+                "".join(reading) for reading in islice(product(*readings), 12)
+            )
+            if candidate != primary
+        )
+        if alternatives:
+            warnings.append("Other scholarly readings are available; see alternatives.")
+        return Conversion(primary, tuple(warnings), alternatives)
     if (source, target) == ("Old Nubian scholarly Latin", "Old Nubian (Coptic)"):
         output = []
         index = 0
@@ -321,7 +346,7 @@ def transliterate(text: str, source: str, target: str) -> Conversion:
                 "Latin-to-script conversion follows cited scholarly table; letter boundaries can be ambiguous."
             )
         if alternatives:
-            warnings.append("Other Coptic readings are available; see alternatives.")
+            warnings.append("Other script readings are available; see alternatives.")
         return Conversion(primary, tuple(warnings), alternatives)
     if (source, target) not in {
         ("Somali Latin", "Osmanya"),

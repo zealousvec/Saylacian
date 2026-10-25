@@ -23,7 +23,7 @@ Changing mode does not change the positions of the language controls or text pan
 
 Use the left dropdown for the source and the right dropdown for the target. `[x]` marks the current choice. Search accepts the displayed name, such as `Somali`, `Latin reading`, or `Borama alphabet chart`.
 
-For Old Nubian, choose **Old Nubian** and **Latin reading**, then use **Read** to open the reading reference. This is limited character transliteration, not translation or a complete reading of every manuscript convention. Modern Nubian varieties are not implemented. See [Old Nubian scope](OLD_NUBIAN_SCOPE.md).
+For Old Nubian, choose **Old Nubian** and **Latin reading**, then use **Read** to open the reading reference. Where the cited table lists another Latin reading for a character, it appears below the main reading. This is limited character transliteration, not translation or a complete reading of every manuscript convention. Modern Nubian varieties are not implemented. See [Old Nubian scope](OLD_NUBIAN_SCOPE.md).
 
 For Borama or Kaddare, choose a script route to convert the available chart-mapped letters. The mappings are partial and experimental; spelling and word-level use have not been reviewed. Capitalization is lost. Letters without a chart mapping stay in Latin and are reported; the Borama chart has no `q` entry. See [script interoperability](SOMALI_SCRIPT_INTEROPERABILITY.md).
 
