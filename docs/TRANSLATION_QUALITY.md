@@ -106,3 +106,18 @@ I compared the standard pack with the optional synthetic model using the app's n
 | Optional model with standard fallback | 10.755 | 40.069 | 14 of 120 |
 
 These automatic scores favor the optional route on this sample, but they do not establish that the Somali is fluent or meaning-preserving. The guard rejected 14 candidate outputs containing the unreadable SentencePiece marker `⁇`; the raw route left this marker inside words such as `New ⁇ ealand's`. Fallback avoids returning that marker, even though those replacement translations scored slightly lower automatically. The optional route's example for “Each temple had an open temple courtyard and then an inner sanctuary that only the priests could enter” was “Mid kasta oo macbud ah wuxuu lahaa barxad furan oo macbad ah ka dibna waxaa jiray hoy gudaha ah oo kaliya wadaadadu ay gali karaan.” It appears more complete than the standard route's output for that sentence, but it still needs fluent-speaker review. Training/test overlap has not been audited.
+
+## Somali-to-English repetition setting check
+
+After removing the unknown language tag, I compared CTranslate2 no-repeat sizes on two independently ranked 120-pair samples from the same FLORES-200 `devtest` archive. Both used beam size 4 and the current Somali-to-English model input. “Repeated trigrams” counts repeated word-level three-word sequences in the English output; CTranslate2 applies its restriction to model tokens, so the counts are not expected to be zero in every run.
+
+| Sample | No-repeat size | BLEU | chrF++ | Outputs with a repeated word trigram |
+|---|---:|---:|---:|---:|
+| `saylacian-flores-devtest-v1` | 0 | 11.098 | 33.702 | 11 of 120 |
+| `saylacian-flores-devtest-v1` | 2 | 10.681 | 33.481 | 0 of 120 |
+| `saylacian-flores-devtest-v1` | 3 (current) | 10.598 | 33.460 | 1 of 120 |
+| `saylacian-flores-devtest-v1` | 4 | 11.059 | 33.731 | 10 of 120 |
+| `saylacian-flores-devtest-v2` | 2 | 10.831 | 31.985 | 0 of 120 |
+| `saylacian-flores-devtest-v2` | 3 (current) | 10.956 | 31.765 | 1 of 120 |
+
+There is no clear winner: size 2 has slightly higher chrF++ on both samples and no repeated trigrams, but it changes decoding more aggressively and BLEU results are mixed. Size 4 allows many more repeated phrases. Size 3 had one repeated trigram in each sample and the higher BLEU on the second sample. I kept the current setting; a change needs broader output review, not just another metric comparison.
