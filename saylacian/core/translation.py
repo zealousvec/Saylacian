@@ -20,6 +20,8 @@ LANGUAGE_CODES = {"English": "en", "French": "fr", "Somali Latin": "so"}
 MODEL_ROOT = Path(__file__).resolve().parents[2] / "models"
 MULTILINGUAL_PAIRS = {"en_so", "so_en"}
 MODEL_CACHE_SIZE = 3
+MODEL_TOKEN_LIMIT = 400
+MODEL_CHUNK_TOKEN_TARGET = 380
 
 PIVOT_ROUTES = {
     ("Somali Latin", "French"): "English",
@@ -65,6 +67,60 @@ def _synthetic_candidate_is_degenerate(source, output):
 
 def _clean_model_markers(text):
     return _MODEL_LEADING_MARKERS.sub("", text)
+
+
+def _model_token_segments(text, tokenizer):
+    """Keep model inputs within context while splitting only at whitespace."""
+    tokens = tokenizer.encode(text, out_type=str)
+    if len(tokens) <= MODEL_TOKEN_LIMIT:
+        return (tokens,), (), "", "", False
+
+    words = list(re.finditer(r"\S+", text))
+    if not words:
+        return (tokens,), (), "", "", False
+
+    prefix = text[: words[0].start()]
+    suffix = text[words[-1].end() :]
+    chunks = []
+    separators = []
+    current = words[0].group()
+    previous = words[0]
+
+    for word in words[1:]:
+        separator = text[previous.end() : word.start()]
+        candidate = current + separator + word.group()
+        candidate_tokens = tokenizer.encode(candidate, out_type=str)
+        if len(candidate_tokens) <= MODEL_CHUNK_TOKEN_TARGET:
+            current = candidate
+        else:
+            current_tokens = tokenizer.encode(current, out_type=str)
+            if len(current_tokens) > MODEL_TOKEN_LIMIT:
+                raise ValueError(
+                    "A single unbroken input segment exceeds this model's 400-token limit; split it manually."
+                )
+            chunks.append(current_tokens)
+            separators.append(separator or " ")
+            current = word.group()
+        previous = word
+
+    current_tokens = tokenizer.encode(current, out_type=str)
+    if len(current_tokens) > MODEL_TOKEN_LIMIT:
+        raise ValueError(
+            "A single unbroken input segment exceeds this model's 400-token limit; split it manually."
+        )
+    chunks.append(current_tokens)
+    return tuple(chunks), tuple(separators), prefix, suffix, True
+
+
+def _join_model_segments(outputs, separators, prefix="", suffix=""):
+    """Join translated chunks with the exact source whitespace at split points."""
+    if not outputs:
+        return prefix + suffix
+    joined = [prefix, outputs[0]]
+    for separator, output in zip(separators, outputs[1:], strict=True):
+        joined.extend((separator, output))
+    joined.append(suffix)
+    return "".join(joined)
 
 
 def _model_roots(root=None):
@@ -217,18 +273,24 @@ def translate_meaning(text, source, target, model_root=None, *, provider_overrid
         if candidate is not None:
             candidate_tokenizer, candidate_engine = load_model(str(candidate))
             candidate_source, candidate_target = candidate_tokenizer
-            candidate_tokens = candidate_source.encode(text, out_type=str)
-            if len(candidate_tokens) > 400:
-                raise ValueError(
-                    "Input exceeds this model's 400-token limit; split it into shorter passages."
-                )
-            candidate_result = candidate_engine.translate_batch(
-                [candidate_tokens],
+            candidate_tokens, candidate_separators, leading, trailing, chunked = (
+                _model_token_segments(text, candidate_source)
+            )
+            candidate_results = candidate_engine.translate_batch(
+                list(candidate_tokens),
                 beam_size=4,
                 max_input_length=0,
                 max_decoding_length=512,
-            )[0]
-            candidate_text = candidate_target.decode(candidate_result.hypotheses[0])
+            )
+            candidate_text = _join_model_segments(
+                [
+                    candidate_target.decode(result.hypotheses[0])
+                    for result in candidate_results
+                ],
+                candidate_separators,
+                leading,
+                trailing,
+            )
             if _synthetic_candidate_is_degenerate(text, candidate_text):
                 candidate_fallback = True
                 word_count = lambda value: len(
@@ -245,41 +307,66 @@ def translate_meaning(text, source, target, model_root=None, *, provider_overrid
                 else:
                     candidate_fallback_reason = "The first result repeated or copied the input; an alternative was used."
             else:
+                warnings = [
+                    "Somali translation may be inaccurate; check important details."
+                ]
+                if chunked:
+                    warnings.append(
+                        "Long text was split into independent segments; context may change at the joins."
+                    )
                 return Conversion(
                     candidate_text,
-                    ("Somali translation may be inaccurate; check important details.",),
+                    tuple(warnings),
                 )
     tokenizer, engine = load_model(str(folder))
     if folder.name in MULTILINGUAL_PAIRS:
         source_tokenizer, target_tokenizer = tokenizer
-        tokens = source_tokenizer.encode(text, out_type=str)
-
-        tokens = [">>som<<", *tokens, "</s>"]
-        if len(tokens) > 400:
+        segments, separators, leading, trailing, chunked = _model_token_segments(
+            text, source_tokenizer
+        )
+        token_batch = [[">>som<<", *segment, "</s>"] for segment in segments]
+        if any(len(segment) > MODEL_TOKEN_LIMIT for segment in token_batch):
             raise ValueError(
-                "Input exceeds this model's 400-token limit; split it into shorter passages."
+                "A segmented input still exceeds this model's 400-token limit; split it manually."
             )
-        result = engine.translate_batch(
-            [tokens], beam_size=4, max_input_length=0, max_decoding_length=512
-        )[0]
-        decoded = target_tokenizer.decode(result.hypotheses[0])
+        results = engine.translate_batch(
+            token_batch, beam_size=4, max_input_length=0, max_decoding_length=512
+        )
+        decoded = _join_model_segments(
+            [target_tokenizer.decode(result.hypotheses[0]) for result in results],
+            separators,
+            leading,
+            trailing,
+        )
         cleaned = _clean_model_markers(decoded)
         warnings = ["Somali translation may be inaccurate; check important details."]
         if candidate_fallback:
             warnings.append(candidate_fallback_reason)
         if cleaned != decoded:
             warnings.append("An extra symbol was removed from the output.")
+        if chunked:
+            warnings.append(
+                "Long text was split into independent segments; context may change at the joins."
+            )
         return Conversion(cleaned, tuple(warnings))
-    tokens = tokenizer.encode(text, out_type=str)
-
-    if len(tokens) > 400:
-        raise ValueError(
-            "Input exceeds this model's 400-token limit; split it into shorter passages."
+    segments, separators, leading, trailing, chunked = _model_token_segments(
+        text, tokenizer
+    )
+    results = engine.translate_batch(
+        list(segments), max_input_length=0, max_decoding_length=512
+    )
+    translated = _join_model_segments(
+        [tokenizer.decode(result.hypotheses[0]) for result in results],
+        separators,
+        leading,
+        trailing,
+    )
+    warnings = ["Machine translation; check important details."]
+    if chunked:
+        warnings.append(
+            "Long text was split into independent segments; context may change at the joins."
         )
-    result = engine.translate_batch(
-        [tokens], max_input_length=0, max_decoding_length=512
-    )[0]
     return Conversion(
-        tokenizer.decode(result.hypotheses[0]),
-        ("Machine translation; check important details.",),
+        translated,
+        tuple(warnings),
     )

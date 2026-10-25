@@ -13,6 +13,8 @@ from unittest.mock import Mock, patch
 from saylacian.core.translation import (
     MODEL_ROOT,
     _clean_model_markers,
+    _join_model_segments,
+    _model_token_segments,
     _synthetic_candidate_is_degenerate,
     clear_model_cache,
     load_model,
@@ -34,6 +36,30 @@ class TranslationTests(unittest.TestCase):
             "A child will read a book.",
         )
         self.assertEqual(_clean_model_markers("Text ○ remains."), "Text ○ remains.")
+
+    def test_long_model_input_splits_at_words_and_keeps_source_whitespace(self):
+        class WordTokenizer:
+            @staticmethod
+            def encode(text, out_type=str):
+                return text.split()
+
+        with (
+            patch("saylacian.core.translation.MODEL_TOKEN_LIMIT", 2),
+            patch("saylacian.core.translation.MODEL_CHUNK_TOKEN_TARGET", 2),
+        ):
+            segments, separators, leading, trailing, chunked = _model_token_segments(
+                "  alpha  beta\tgamma\n  ", WordTokenizer()
+            )
+
+        self.assertEqual([len(segment) for segment in segments], [2, 1])
+        self.assertEqual(separators, ("\t",))
+        self.assertEqual(leading, "  ")
+        self.assertEqual(trailing, "\n  ")
+        self.assertTrue(chunked)
+        translated = _join_model_segments(
+            ["ALPHA  BETA", "GAMMA"], separators, leading, trailing
+        )
+        self.assertEqual(translated, "  ALPHA  BETA\tGAMMA\n  ")
 
     def test_synthetic_candidate_unknown_token_marker_is_degenerate(self):
         self.assertTrue(

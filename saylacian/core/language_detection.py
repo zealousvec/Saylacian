@@ -7,6 +7,7 @@ SUPPORTED = {"en": "English", "fr": "French", "so": "Somali Latin"}
 MIN_CHARACTERS = 20
 MIN_SHORT_CHARACTERS = 12
 MIN_WORDS = 3
+MIN_LETTERS = 5
 MIN_CONFIDENCE = 0.70
 MIN_SHORT_CONFIDENCE = 0.75
 
@@ -23,11 +24,15 @@ def _identifier():
 def detect_language(text):
     """Return (display name, confidence, message); abstain on short/uncertain text."""
     text = text.strip()
-    if len(text) < MIN_SHORT_CHARACTERS or len(text.split()) < MIN_WORDS:
+    if (
+        len(text) < MIN_SHORT_CHARACTERS
+        or len(text.split()) < MIN_WORDS
+        or sum(character.isalpha() for character in text) < MIN_LETTERS
+    ):
         return (
             None,
             0.0,
-            "Add at least 12 characters and three words for language detection.",
+            "Add at least 12 characters, three words and five letters for language detection.",
         )
 
     code, confidence = _identifier().classify(text)

@@ -43,6 +43,15 @@ class LanguageDetectionTests(unittest.TestCase):
         self.assertEqual(confidence, 0.0)
         self.assertIn("three words", message)
 
+    def test_abstains_on_punctuation_masquerading_as_three_words(self):
+        with patch.object(language_detection, "_identifier") as identifier:
+            language, confidence, message = detect_language("!!! ??? ... !!!")
+
+        self.assertIsNone(language)
+        self.assertEqual(confidence, 0.0)
+        self.assertIn("five letters", message)
+        identifier.assert_not_called()
+
     def test_detects_high_confidence_short_text_in_supported_languages(self):
         samples = (
             ("Where is my phone?", "English"),
