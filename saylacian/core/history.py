@@ -105,18 +105,18 @@ class History:
         favourite=False,
         mode="Convert writing system",
     ):
+        item = {
+            "source": source,
+            "target": target,
+            "text": text,
+            "result": result,
+            "favourite": favourite,
+            "mode": mode,
+        }
+        if not History._is_valid_item(item):
+            raise ValueError("Saved history entry has invalid field types.")
         items = self.read()
-        items.insert(
-            0,
-            {
-                "source": source,
-                "target": target,
-                "text": text,
-                "result": result,
-                "favourite": favourite,
-                "mode": mode,
-            },
-        )
+        items.insert(0, item)
         self._write(items[:100])
 
     def clear(self):

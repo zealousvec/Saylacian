@@ -20,6 +20,27 @@ class HistoryTests(unittest.TestCase):
             h.clear()
             self.assertEqual(h.read(), [])
 
+    def test_save_rejects_invalid_field_types_without_changing_history(self):
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder) / "history.json"
+            history = History(path)
+            history.save("English", "French", "hello", "bonjour")
+            original = path.read_bytes()
+            invalid_entries = (
+                (None, "French", "hello", "bonjour", False, "Translate meaning"),
+                ("English", [], "hello", "bonjour", False, "Translate meaning"),
+                ("English", "French", None, "bonjour", False, "Translate meaning"),
+                ("English", "French", "hello", 5, False, "Translate meaning"),
+                ("English", "French", "hello", "bonjour", "false", "Translate meaning"),
+                ("English", "French", "hello", "bonjour", False, None),
+            )
+
+            for entry in invalid_entries:
+                with self.subTest(entry=entry):
+                    with self.assertRaisesRegex(ValueError, "invalid field types"):
+                        history.save(*entry[:5], mode=entry[5])
+                    self.assertEqual(path.read_bytes(), original)
+
     def test_unknown_version_preserved(self):
         with tempfile.TemporaryDirectory() as folder:
             p = Path(folder) / "history.json"
