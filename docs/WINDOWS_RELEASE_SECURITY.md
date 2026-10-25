@@ -54,7 +54,7 @@ The existing clean onedir candidate was reused; it was not rebuilt. `tools/packa
 - This host's enforced policy blocked the unsigned EXE. I did not install or launch the unsigned MSIX, and did not alter SAC or Defender. Therefore packaged UI, translation, font, clipboard, close/restart and first-run behavior remain **runtime-unverified**. Source offline tests and existing UI evidence do not substitute for this gate.
 - Windows App Certification Kit (`appcert.exe`) is not installed or present in the extracted BuildTools package. MakeAppx's schema/pack/unpack checks are not a substitute for WACK or Store certification.
 - Final source verification on 2026-10-23: `pytest -q` passed (61 tests, 66 subtests); `pip check` reported no broken requirements; both release scripts passed `py_compile`; `tools/prepare_models.py --verify-only` verified 743,874,994 bytes across all pinned model files and archives without network access.
-- Existing offline translation samples are recorded in `docs/translation-benchmark.json`; e.g. English `Thank you.` → French `Merci.`. Somali output remains explicitly experimental and the benchmark includes known mistranslations. This is source/model evidence, not the unperformed MSIX runtime test.
+- Offline benchmark output is generated in local app data and is not stored in source. English/French routes have local smoke coverage; Somali remains explicitly experimental and automatic scores do not replace fluent review. This is source/model evidence, not the unperformed MSIX runtime test.
 
 ### Store enrollment, cost and certification
 

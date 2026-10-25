@@ -40,11 +40,12 @@ TICO-19 focuses on health/COVID-19 communication, and the current sample is only
 ## Reproduce
 
 ```powershell
-.\.venv\Scripts\python.exe tools\benchmark_somali_quality.py --system baseline --output PATH_TO_NEW_RESULT.json
+.\.venv\Scripts\python.exe tools\benchmark_somali_quality.py --system baseline
+.\.venv\Scripts\python.exe tools\benchmark_somali_en_candidate.py --model-dir PATH_TO_MODEL --results PATH_TO_BASELINE_RESULT.json
 .\.venv\Scripts\python.exe tools\evaluate_somali_repetition_fallback.py --parquet PATH_TO_TICO19_EN_SO_VALIDATION_PARQUET --limit 150
 ```
 
-Raw per-example test predictions and benchmark metadata are in [`somali_translation_quality_results.json`](somali_translation_quality_results.json). Dev sample outputs and rule comparisons are in [`somali_repetition_guard_dev_results.json`](somali_repetition_guard_dev_results.json). The dev parquet was used from the `gmnlp/tico19` mirror, whose dataset card declares CC0; download it to a private benchmark directory, not the app pack.
+Benchmark tools default to unique result files under `%LOCALAPPDATA%\Saylacian\benchmark`, outside the source repository. You may pass `--output` or `--results` to choose another path, but repository paths are rejected. Checkpoints also stay under local application data. The current source snapshot retains aggregate metrics and limitations; generated reports stay outside the checkout. Historical Git commits have not been rewritten. The dev parquet was used from the `gmnlp/tico19` mirror, whose dataset card declares CC0; download it to a private benchmark directory, not the app pack.
 
 ## Candidate sources
 

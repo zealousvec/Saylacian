@@ -2,7 +2,7 @@
 
 ## Current baseline
 
-English↔French is smoke-tested with installed offline packs. English↔Somali uses multilingual OPUS models and remains experimental; Somali↔French pivots through English and may compound errors. Existing short samples, benchmark outputs and model metadata live in `SOMALI_TRANSLATION_EVIDENCE.json`, `SOMALI_TRANSLATION_QUALITY.md`, `TRANSLATION_FEASIBILITY.md`, and the model manifests. These records are software/model smoke evidence, not fluent-speaker validation.
+English↔French is smoke-tested with installed offline packs. English↔Somali uses multilingual OPUS models and remains experimental; Somali↔French pivots through English and may compound errors. Model metadata and aggregate benchmark results live in `SOMALI_TRANSLATION_EVIDENCE.json`, `SOMALI_TRANSLATION_QUALITY.md`, `TRANSLATION_FEASIBILITY.md`, and the model manifests. Raw generated predictions stay in local app data and are not checked into source. These records are software/model smoke evidence, not fluent-speaker validation.
 
 ## Evaluation data
 

@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 """Run reproducible, local-only sentence samples for every bundled route."""
 
+import argparse
 import ctypes
-import json
 import socket
 import sys
 import time
@@ -12,7 +12,13 @@ from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
+
 from saylacian.core.translation import translate_meaning
+from tools.benchmark_output import (
+    new_benchmark_output,
+    require_external_output,
+    save_json_atomic,
+)
 
 EN = [
     "Hello.",
@@ -88,6 +94,18 @@ def peak_working_set_bytes():
 
 
 def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--output",
+        type=Path,
+        default=new_benchmark_output("translation-routes"),
+        help="result JSON path (default: unique file under local app data)",
+    )
+    args = parser.parse_args()
+    try:
+        output_path = require_external_output(args.output)
+    except ValueError as error:
+        parser.error(str(error))
     routes = [
         ("English", "French", EN),
         ("French", "English", FR),
@@ -113,24 +131,19 @@ def main():
                         "elapsed_ms": round((time.perf_counter() - start) * 1000, 1),
                     }
                 )
-    target = ROOT / "docs/translation-benchmark.json"
     peak_rss = peak_working_set_bytes()
-    target.write_text(
-        json.dumps(
-            {
-                "network": "socket.socket.connect patched to raise for entire run",
-                "human_review": "not performed; outputs are raw model results",
-                "route_sample_count": 10,
-                "peak_process_working_set_bytes": peak_rss,
-                "peak_process_working_set_note": "Windows GetProcessMemoryInfo; includes Python runtime and loaded models, measured in this run.",
-                "samples": rows,
-            },
-            ensure_ascii=False,
-            indent=2,
-        ),
-        encoding="utf-8",
+    save_json_atomic(
+        output_path,
+        {
+            "network": "socket.socket.connect patched to raise for entire run",
+            "human_review": "not performed; outputs are raw model results",
+            "route_sample_count": 10,
+            "peak_process_working_set_bytes": peak_rss,
+            "peak_process_working_set_note": "Windows GetProcessMemoryInfo; includes Python runtime and loaded models, measured in this run.",
+            "samples": rows,
+        },
     )
-    print(f"Wrote {len(rows)} offline samples to {target}")
+    print(f"Wrote {len(rows)} offline samples to {output_path}")
     print(f"Peak process working set: {peak_rss} bytes (initial: {initial_rss})")
     for source, target_name, _ in routes:
         selected = [

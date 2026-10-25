@@ -2,7 +2,7 @@
 
 ## Implemented experimental subset
 
-English ↔ French runs locally through CTranslate2 and SentencePiece with archived Argos model packages. The runtime performs no model download and calls no external translation service. Two directions were tested on four sentence examples while Python socket connections were disabled. Actual output and timing are recorded in `translation-examples.json`; these are small smoke examples, not a broad quality benchmark or expert review.
+English ↔ French runs locally through CTranslate2 and SentencePiece with archived Argos model packages. The runtime performs no model download and calls no external translation service. Two directions were tested on four sentence examples while Python socket connections were disabled. Aggregate timing is retained here; raw outputs are kept in local app data, not the repository. These are small smoke examples, not a broad quality benchmark or expert review.
 
 The UI uses a background worker with a short typing debounce and rejects stale results. Models are cached rather than reloaded per keystroke. Inputs above 4,000 characters or 400 SentencePiece tokens are rejected instead of silently truncated. A packaged build includes only the model and tokenizer needed by this path, not the unused Stanza resources in the original model archives.
 
@@ -16,7 +16,7 @@ https://raw.githubusercontent.com/uav4geo/LibreTranslate-Models/3d5ca0a2c3c30228
 
 ## Somali ↔ English — experimental offline support
 
-Both directions now run locally through pinned CTranslate2 conversions of Helsinki-NLP's multilingual OPUS-MT models. The English-to-multilingual model needs the OPUS source-side `>>som<<` language marker; the shared core adds it and the source end token. Reversing this marker placement produced unusable output during integration and is not the runtime path. Exact commits, SHA-256 digests and smoke outputs are recorded in `SOMALI_TRANSLATION_EVIDENCE.json`.
+Both directions now run locally through pinned CTranslate2 conversions of Helsinki-NLP's multilingual OPUS-MT models. The English-to-multilingual model needs the OPUS source-side `>>som<<` language marker; the shared core adds it and the source end token. Reversing this marker placement produced unusable output during integration and is not the runtime path. Exact commits and SHA-256 digests are recorded in `SOMALI_TRANSLATION_EVIDENCE.json`; raw smoke outputs are excluded from source.
 
 The converted model cards declare Apache-2.0 and attribute the work to Helsinki-NLP OPUS-MT and CTranslate2. Somali support is experimental: these are multilingual checkpoints with materially weaker evidence than the English/French smoke-tested pair. A few offline examples pass, but no broad benchmark or fluent community review has been done. The app warns that Somali output needs fluent human review.
 
@@ -35,7 +35,7 @@ An earlier candidate remains unimplemented: QVAC TranslatePsy-AfriSLM 0.8B Q4 GG
 
 ## Functionality-first benchmark (2026-10-23)
 
-`tools/benchmark_translation.py` ran 10 meaningful sentences on each of the six bundled routes (60 outputs total), with `socket.socket.connect` patched to raise throughout. Results and per-sentence wall times are in `translation-benchmark.json`. On the development Windows host, mean CPU times were 50–62 ms for direct English/French, 110–136 ms for direct Somali/English, and 92–112 ms for the two-leg pivot. Peak process working set was 679,718,912 bytes across the full warmed run; the complete `models/` folder was 681,479,977 bytes. These are one-machine measurements, not promised minimums.
+`tools/benchmark_translation.py` ran 10 sentences on each of the six bundled routes (60 outputs total), with `socket.socket.connect` patched to raise throughout. Raw results default to a unique file in local app data, outside source control. On the development Windows host, mean CPU times were 50–62 ms for direct English/French, 110–136 ms for direct Somali/English, and 92–112 ms for the two-leg pivot. Peak process working set was 679,718,912 bytes across the full warmed run; the complete `models/` folder was 681,479,977 bytes. These are one-machine measurements, not promised minimums.
 
 After integrating the synthetic EN→SO candidate, the same 60-case offline benchmark was rerun. The current output file is authoritative: peak process working set was 761,131,008 bytes; English→Somali averaged 1,165.5 ms (candidate inference plus fallback where needed); French→Somali averaged 1,153.9 ms; other routes remained about 68–120 ms. Candidate outputs were accepted for six of the ten original EN→SO prompts, with four falling back. These are CPU measurements on this machine, not release minimums. The candidate increases runtime/model footprint and stays experimental.
 

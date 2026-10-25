@@ -4,9 +4,11 @@
 The data and predictions are local. Candidate inference uses CPU-only llama.cpp.
 Run once per system so peak memory and cold-start time stay interpretable:
 
-  python tools/benchmark_somali_quality.py --system baseline --output PATH
+  python tools/benchmark_somali_quality.py --system baseline [--output PATH]
   python tools/benchmark_somali_quality.py --system afrislm --candidate-model PATH
-  python tools/benchmark_somali_en_candidate.py --model-dir PATH
+  python tools/benchmark_somali_en_candidate.py --model-dir PATH --results BASELINE_JSON
+
+Raw outputs default to unique files under local application data, outside the repository.
 """
 
 from __future__ import annotations
@@ -19,7 +21,6 @@ import json
 import os
 import socket
 import sys
-import tempfile
 import time
 from ctypes import wintypes
 from pathlib import Path
@@ -27,14 +28,17 @@ from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "tests/data/somali_translation_tico19_test_150.jsonl"
-OUTPUT = ROOT / "docs/somali_translation_quality_results.json"
-CHECKPOINT = (
-    Path(os.environ.get("LOCALAPPDATA", Path.home() / "AppData/Local"))
-    / "Saylacian"
-    / "benchmark"
-    / "somali_translation_quality_checkpoint.json"
-)
 sys.path.insert(0, str(ROOT))
+
+from tools.benchmark_output import (
+    checkpoint_for,
+    new_benchmark_output,
+    require_external_output,
+    save_json_atomic,
+)
+
+OUTPUT = new_benchmark_output("somali-translation-quality")
+CHECKPOINT = checkpoint_for(OUTPUT, "somali-quality-checkpoint")
 
 
 def deny_network(*_args, **_kwargs):
@@ -115,11 +119,16 @@ def model_file_sha256(path: Path) -> str:
 
 
 def load_checkpoint(
-    system: str, data_hash: str, model_hash: str | None = None, limit: int = 150
+    system: str,
+    data_hash: str,
+    model_hash: str | None = None,
+    limit: int = 150,
+    checkpoint_path: Path = CHECKPOINT,
 ) -> dict:
-    if not CHECKPOINT.is_file():
+    checkpoint_path = require_external_output(checkpoint_path)
+    if not checkpoint_path.is_file():
         return {"samples": {"en_so": [], "so_en": []}, "wall_seconds": 0.0}
-    saved = json.loads(CHECKPOINT.read_text(encoding="utf-8"))
+    saved = json.loads(checkpoint_path.read_text(encoding="utf-8"))
     if saved.get("system") != system or saved.get("data_sha256") != data_hash:
         return {"samples": {"en_so": [], "so_en": []}, "wall_seconds": 0.0}
     if saved.get("model_sha256") != model_hash:
@@ -138,28 +147,23 @@ def save_checkpoint(
     completed: int,
     limit: int,
     startup_seconds: float | None = None,
+    checkpoint_path: Path = CHECKPOINT,
 ) -> None:
-    CHECKPOINT.parent.mkdir(parents=True, exist_ok=True)
-    temporary = CHECKPOINT.with_suffix(".tmp")
-    temporary.write_text(
-        json.dumps(
-            {
-                "system": system,
-                "data_sha256": data_hash,
-                "model_sha256": model_hash,
-                "limit": limit,
-                "completed_pairs": completed,
-                "wall_seconds": round(wall_seconds, 2),
-                "startup_seconds": round(startup_seconds, 2)
-                if startup_seconds is not None
-                else None,
-                "samples": outputs,
-            },
-            ensure_ascii=False,
-        ),
-        encoding="utf-8",
+    save_json_atomic(
+        checkpoint_path,
+        {
+            "system": system,
+            "data_sha256": data_hash,
+            "model_sha256": model_hash,
+            "limit": limit,
+            "completed_pairs": completed,
+            "wall_seconds": round(wall_seconds, 2),
+            "startup_seconds": round(startup_seconds, 2)
+            if startup_seconds is not None
+            else None,
+            "samples": outputs,
+        },
     )
-    temporary.replace(CHECKPOINT)
 
 
 def diagnostic_flags(prediction: str, reference: str, direction: str) -> list[str]:
@@ -291,19 +295,8 @@ def score(references: list[str], predictions: list[str]) -> dict:
 
 
 def save_result(path: Path, result: dict) -> None:
-    """Write benchmark output atomically to the caller-selected path."""
-    path.parent.mkdir(parents=True, exist_ok=True)
-    temporary_path = None
-    try:
-        with tempfile.NamedTemporaryFile(
-            mode="w", encoding="utf-8", dir=path.parent, suffix=".tmp", delete=False
-        ) as temporary_file:
-            temporary_path = Path(temporary_file.name)
-            json.dump(result, temporary_file, ensure_ascii=False, indent=2)
-        temporary_path.replace(path)
-    finally:
-        if temporary_path is not None:
-            temporary_path.unlink(missing_ok=True)
+    """Write benchmark output atomically outside the source repository."""
+    save_json_atomic(path, result)
 
 
 def main() -> int:
@@ -320,10 +313,14 @@ def main() -> int:
         "--output",
         type=Path,
         default=OUTPUT,
-        help="result JSON path (default: ignored local report under docs/)",
+        help="result JSON path (default: unique file under local app data)",
     )
     args = parser.parse_args()
-    output_path = args.output.expanduser().resolve()
+    try:
+        output_path = require_external_output(args.output)
+        checkpoint_path = require_external_output(checkpoint_for(output_path))
+    except ValueError as error:
+        parser.error(str(error))
     if not DATA.is_file():
         raise SystemExit(f"Missing benchmark data: {DATA}")
     all_samples = [
@@ -345,7 +342,9 @@ def main() -> int:
         from saylacian.core.translation import _model_roots, translate_meaning
 
         data_hash = hashlib.sha256(DATA.read_bytes()).hexdigest()
-        checkpoint = load_checkpoint("baseline", data_hash, limit=args.limit)
+        checkpoint = load_checkpoint(
+            "baseline", data_hash, limit=args.limit, checkpoint_path=checkpoint_path
+        )
         outputs = checkpoint["samples"]
         completed = min(len(outputs["en_so"]), len(outputs["so_en"]))
         outputs["en_so"] = outputs["en_so"][:completed]
@@ -386,7 +385,14 @@ def main() -> int:
                 if i % 10 == 0 or i == len(samples):
                     wall = checkpoint["wall_seconds"] + time.perf_counter() - started
                     save_checkpoint(
-                        "baseline", data_hash, None, outputs, wall, i, args.limit
+                        "baseline",
+                        data_hash,
+                        None,
+                        outputs,
+                        wall,
+                        i,
+                        args.limit,
+                        checkpoint_path=checkpoint_path,
                     )
                     print(f"baseline: {i}/{len(samples)} pairs", flush=True)
         system = {
@@ -452,7 +458,13 @@ def main() -> int:
         model = args.candidate_model.resolve()
         model_hash = model_file_sha256(model)
         data_hash = hashlib.sha256(DATA.read_bytes()).hexdigest()
-        checkpoint = load_checkpoint("afrislm", data_hash, model_hash, args.limit)
+        checkpoint = load_checkpoint(
+            "afrislm",
+            data_hash,
+            model_hash,
+            args.limit,
+            checkpoint_path=checkpoint_path,
+        )
         outputs = checkpoint["samples"]
         completed = min(len(outputs["en_so"]), len(outputs["so_en"]))
         outputs["en_so"] = outputs["en_so"][:completed]
@@ -509,6 +521,7 @@ def main() -> int:
                         i,
                         args.limit,
                         load_seconds,
+                        checkpoint_path=checkpoint_path,
                     )
                     print(f"TranslatePsy-AfriSLM: {i}/{len(samples)} pairs", flush=True)
         system = {
@@ -606,8 +619,8 @@ def main() -> int:
         },
     )
     prior.setdefault("systems", {})[args.system] = system
-    save_result(output_path, prior)
-    CHECKPOINT.unlink(missing_ok=True)
+    save_json_atomic(output_path, prior)
+    checkpoint_path.unlink(missing_ok=True)
     print(f"Saved {args.system} results: {output_path}")
     for direction, metric in system["metrics"].items():
         print(
