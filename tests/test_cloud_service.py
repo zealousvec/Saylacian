@@ -64,6 +64,26 @@ class CloudTranslationServiceTests(unittest.TestCase):
         self.assertEqual(response.exception.code, 401)
         translate.assert_not_called()
 
+    def test_deeply_nested_json_returns_client_error_without_translation(self):
+        body = b"[" * 9000 + b"]" * 9000
+        request = Request(
+            self.url,
+            data=body,
+            headers={
+                "Authorization": "Bearer test-service-token",
+                "Content-Type": "application/json",
+            },
+            method="POST",
+        )
+        with (
+            patch.object(service, "translate_meaning") as translate,
+            self.assertRaises(HTTPError) as response,
+        ):
+            urlopen(request, timeout=3)
+
+        self.assertEqual(response.exception.code, 400)
+        translate.assert_not_called()
+
     def test_idle_connection_times_out_and_releases_request_capacity(self):
         with patch.object(service, "REQUEST_TIMEOUT_SECONDS", 0.1):
             client = socket.create_connection(

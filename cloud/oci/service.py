@@ -61,7 +61,7 @@ class TranslationHandler(BaseHTTPRequestHandler):
             return
         try:
             payload = json.loads(self.rfile.read(length).decode("utf-8"))
-        except (UnicodeError, json.JSONDecodeError):
+        except (UnicodeError, json.JSONDecodeError, RecursionError):
             self._send_json(400, {"error": "request body must be UTF-8 JSON"})
             return
         if not isinstance(payload, dict):
