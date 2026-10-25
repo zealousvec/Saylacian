@@ -12,6 +12,7 @@ This is an experimental-alpha source snapshot, not a numbered app release. Chang
 - When the optional Somali model falls back, the warning now names the checked issue, such as copied text, an unreadable token, excessive length or repeated output.
 - The translation notes now include a FLORES-200 baseline. Earlier TICO-19 scores are marked unreliable after a source/reference audit found mismatched Somali rows in both dev and test samples.
 - Fixed Somali-to-English input: the app no longer prepends an unknown Somali language tag to the many-to-English model. A 120-pair FLORES check improved BLEU from 9.728 to 10.598 and chrF++ from 32.954 to 33.460; see the [translation quality notes](docs/TRANSLATION_QUALITY.md) for the method and limitations.
+- On a 120-pair FLORES sample, the optional English-to-Somali model with standard-pack fallback scored 10.755 BLEU / 40.069 chrF++, compared with 5.353 / 29.882 for the standard pack. It fell back on 14 unreadable outputs; the guard remains enabled. Somali still needs fluent-speaker review.
 
 ### Script reading and writing
 

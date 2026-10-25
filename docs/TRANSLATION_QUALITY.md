@@ -94,3 +94,15 @@ These scores are only a small automatic-metric baseline. They do not show that t
 An audit found that the app added the `>>som<<` output-language tag to both Somali model directions. The Somali-to-English pack is pinned to [`gaudi/opus-mt-mul-en-ctranslate2`](https://huggingface.co/gaudi/opus-mt-mul-en-ctranslate2/tree/fb574c2082b1a49f89e55064aca6c1fba1125474), whose source is multilingual and target is English; the tokenizer maps `>>som<<` to its unknown token. The upstream [Helsinki-NLP model card](https://huggingface.co/Helsinki-NLP/opus-mt-mul-en) confirms the multiple-source-to-English direction. Saylacian now adds the Somali target tag only for English-to-Somali and sends Somali-to-English input without that tag.
 
 I compared the two inputs on the same deterministic 120-pair FLORES-200 `devtest` sample above, using CTranslate2 4.8.3, beam size 4, and the existing three-token repetition guard. Removing the unknown prefix changed BLEU from 9.728 to 10.598 and chrF++ from 32.954 to 33.460; measured batch time changed from 145.1 to 129.3 ms per sentence. These are sample-specific automatic metrics, not a claim of fluent English. A regression test checks that only English-to-Somali receives `>>som<<`.
+
+## Optional English-to-Somali model on FLORES-200
+
+I compared the standard pack with the optional synthetic model using the app's normal English-to-Somali route, including its output checks and standard-model fallback. Both runs used the same deterministic 120-pair sample described above. The optional pack is not part of the base installation; users must choose to download it.
+
+| Route | BLEU | chrF++ | Fallbacks |
+|---|---:|---:|---:|
+| Standard pack | 5.353 | 29.882 | — |
+| Optional model, raw output (diagnostic only) | 10.907 | 40.987 | Not applied |
+| Optional model with standard fallback | 10.755 | 40.069 | 14 of 120 |
+
+These automatic scores favor the optional route on this sample, but they do not establish that the Somali is fluent or meaning-preserving. The guard rejected 14 candidate outputs containing the unreadable SentencePiece marker `⁇`; the raw route left this marker inside words such as `New ⁇ ealand's`. Fallback avoids returning that marker, even though those replacement translations scored slightly lower automatically. The optional route's example for “Each temple had an open temple courtyard and then an inner sanctuary that only the priests could enter” was “Mid kasta oo macbud ah wuxuu lahaa barxad furan oo macbad ah ka dibna waxaa jiray hoy gudaha ah oo kaliya wadaadadu ay gali karaan.” It appears more complete than the standard route's output for that sentence, but it still needs fluent-speaker review. Training/test overlap has not been audited.

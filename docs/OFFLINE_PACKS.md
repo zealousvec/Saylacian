@@ -15,6 +15,8 @@ The Somali detection pack is optional. After download, it can recover Somali inp
 
 The optional English-to-Somali pack uses a separate CTranslate2 model. Install the standard Somali/English pack first: Saylacian will not install the add-on without it, and will not remove the standard pack while the add-on is installed. The app tries the add-on first for English-to-Somali and falls back to the standard pack when its output appears copied, unreadable or repetitive. This model has no published score in its model card and still needs fluent-speaker review.
 
+In Saylacian's 120-pair FLORES-200 sample, the optional route with fallback scored BLEU 10.755 / chrF++ 40.069; the standard pack scored 5.353 / 29.882. This is a small automatic comparison, not proof of fluent or meaning-preserving Somali. If you want to try the higher-scoring route from this sample, install the optional pack; see the [full method and limitations](TRANSLATION_QUALITY.md#optional-english-to-somali-model-on-flores-200).
+
 On a verified, licensed Qor sample of 67 short Somali texts, the integrated detector identified 45; the existing short-text route identified 33. At the selected 0.90 Somali score threshold, the candidate produced no Somali predictions among 24,815 sampled MASSIVE test texts from other labeled locales. These dataset labels are proxies, not specialist-verified language judgments, and these samples do not establish general accuracy.
 
 Translation packs work locally without a network connection, account, per-request fee or artificial daily quota. Translation quality is not guaranteed: Somali remains experimental and needs fluent-speaker review. See the [support matrix](SUPPORT_MATRIX.md).
