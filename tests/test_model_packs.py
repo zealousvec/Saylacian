@@ -199,6 +199,46 @@ class ModelPackTests(unittest.TestCase):
                 opener.assert_not_called()
                 self.assertFalse((Path(temporary) / "outside").exists())
 
+    def test_install_rejects_windows_style_asset_paths_before_download(self):
+        unsafe_destinations = (
+            r"..\..\..\outside\model.bin",
+            r"C:\outside\model.bin",
+            r"C:outside\model.bin",
+        )
+        for destination in unsafe_destinations:
+            with (
+                self.subTest(destination=destination),
+                tempfile.TemporaryDirectory() as temporary,
+            ):
+                item = {
+                    "kind": "file",
+                    "url": "https://huggingface.co/test/model.bin",
+                    "bytes": 1,
+                    "sha256": hashlib.sha256(b"x").hexdigest(),
+                    "destination": destination,
+                }
+                spec = {
+                    "somali": {
+                        "title": "Somali",
+                        "version": "1-safe",
+                        "download_bytes": 1,
+                        "assets": [item],
+                    }
+                }
+                manager = ModelPackManager(Path(temporary) / "packs", spec)
+                with (
+                    patch(
+                        "saylacian.core.model_packs.urllib.request.urlopen"
+                    ) as opener,
+                    self.assertRaisesRegex(
+                        ValueError, "Invalid model pack path in manifest"
+                    ),
+                ):
+                    manager.install("somali")
+
+                opener.assert_not_called()
+                self.assertFalse((Path(temporary) / "outside" / "model.bin").exists())
+
     def test_version_symlink_cannot_escape_pack_storage(self):
         content = b"external model data"
         with tempfile.TemporaryDirectory() as temporary:

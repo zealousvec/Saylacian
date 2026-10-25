@@ -14,7 +14,7 @@ import urllib.parse
 import urllib.request
 import uuid
 import zipfile
-from pathlib import Path, PurePosixPath
+from pathlib import Path, PurePosixPath, PureWindowsPath
 
 DATA_ROOT = Path(__file__).resolve().parent / "data"
 _SAFE_COMPONENT = re.compile(r"[A-Za-z0-9][A-Za-z0-9._-]{0,127}\Z")
@@ -36,6 +36,8 @@ def default_store_root() -> Path:
 
 
 def _safe_relative(value: str) -> Path:
+    if not isinstance(value, str) or "\\" in value or PureWindowsPath(value).drive:
+        raise ValueError("Invalid model pack path in manifest.")
     parsed = PurePosixPath(value)
     if (
         parsed.is_absolute()
