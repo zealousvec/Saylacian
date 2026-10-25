@@ -367,9 +367,12 @@ def translate_meaning(text, source, target, model_root=None, *, provider_overrid
     tokenizer, engine = load_model(str(folder))
     if folder.name in MULTILINGUAL_PAIRS:
         source_tokenizer, target_tokenizer = tokenizer
-        tokens = source_tokenizer.encode(text, out_type=str)
-
-        tokens = [">>som<<", *tokens, "</s>"]
+        language_prefix = (">>som<<",) if folder.name == "en_so" else ()
+        tokens = [
+            *language_prefix,
+            *source_tokenizer.encode(text, out_type=str),
+            "</s>",
+        ]
         if len(tokens) > MAX_MODEL_INPUT_TOKENS:
             return _translate_long_input(
                 text,
@@ -377,7 +380,7 @@ def translate_meaning(text, source, target, model_root=None, *, provider_overrid
                 target,
                 model_root,
                 (source_tokenizer,),
-                token_overheads=(2,),
+                token_overheads=(len(language_prefix) + 1,),
             )
         result = engine.translate_batch(
             [tokens],

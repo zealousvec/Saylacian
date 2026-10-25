@@ -7,9 +7,11 @@ This is an experimental-alpha source snapshot, not a numbered app release. Chang
 ### Translation
 
 - Long offline passages can be translated in sentence-sized sections instead of failing at the model's input limit. Meaning can shift where one section ends and the next begins.
-- An optional English-to-Somali model is available as a separate download. Saylacian checks its output and uses the standard Somali pack when a result appears incomplete or repetitive. On the 120-example TICO-19 sample, the optional route scored higher than the standard pack, but it was slower and fell back on 47 inputs. Somali still needs fluent-speaker review; the [quality notes](docs/TRANSLATION_QUALITY.md) explain the test and its limits.
+- An optional English-to-Somali model is available as a separate download. Saylacian checks its output and uses the standard Somali pack when a result appears incomplete or repetitive. Somali still needs fluent-speaker review; see the [quality notes](docs/TRANSLATION_QUALITY.md).
 - The optional Somali detection pack can help identify Somali input. It does not improve translation quality.
 - When the optional Somali model falls back, the warning now names the checked issue, such as copied text, an unreadable token, excessive length or repeated output.
+- The translation notes now include a FLORES-200 baseline. Earlier TICO-19 scores are marked unreliable after a source/reference audit found mismatched Somali rows in both dev and test samples.
+- Fixed Somali-to-English input: the app no longer prepends an unknown Somali language tag to the many-to-English model. A 120-pair FLORES check improved BLEU from 9.728 to 10.598 and chrF++ from 32.954 to 33.460; see the [translation quality notes](docs/TRANSLATION_QUALITY.md) for the method and limitations.
 
 ### Script reading and writing
 

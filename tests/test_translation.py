@@ -30,6 +30,43 @@ class FakeEngine:
 
 
 class TranslationTests(unittest.TestCase):
+    def test_somali_language_prefix_is_only_added_for_english_to_somali(self):
+        for source, target, folder_name, expected_tokens in (
+            (
+                "English",
+                "Somali Latin",
+                "en_so",
+                [">>som<<", "a", "short", "sentence", "for", "translation", "</s>"],
+            ),
+            (
+                "Somali Latin",
+                "English",
+                "so_en",
+                ["a", "short", "sentence", "for", "translation", "</s>"],
+            ),
+        ):
+            with self.subTest(source=source, target=target):
+                engine = FakeEngine()
+                tokenizers = (FakeTokenizer(), FakeTokenizer())
+                with (
+                    patch.object(
+                        translation,
+                        "model_directory",
+                        return_value=Path(folder_name),
+                    ),
+                    patch.object(
+                        translation, "load_model", return_value=(tokenizers, engine)
+                    ),
+                ):
+                    translation.translate_meaning(
+                        "a short sentence for translation",
+                        source,
+                        target,
+                        provider_override="offline",
+                    )
+
+                self.assertEqual(engine.calls, [[expected_tokens]])
+
     def test_somali_model_routes_enable_bounded_ngram_repetition_guard(self):
         for source, target, folder_name in (
             ("English", "Somali Latin", "en_so"),
