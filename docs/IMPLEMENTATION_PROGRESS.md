@@ -38,7 +38,7 @@ No task remains READY after the final source, UI and safety audit. The remaining
 | Verify current baseline and remote state | Local `main` at `c80f4e1` before this campaign's UI/docs fix, 56 commits ahead of public `origin/main` at `c4f2f87270c22a05e772816ce98e57a99b871b18`. Two pre-existing owner edits remain untouched and unstaged. Public Actions run `40087020450` completed successfully on the remote commit. |
 | Fix top-bar action-label collision | The Old Nubian `Read` action had only 48 dp allocated and crowded Translate/Transliterate. Increased its width to 72 dp and header action spacing to 12 dp; live Kivy acceptance asserts at least 8 dp between labels and verifies the button fits. Inspected live Read Studio capture after the fix; `Transliterate` and `Read` are distinct. |
 | Reconcile clipboard portability claims | `docs/SUPPORT_MATRIX.md` now says the guarded WinForms harness exists but the current publisher has not been tested in a real external app; the isolated-VM requirement remains BLOCKED. |
-| Run final local quality gates | Exact results and commands are recorded in `docs/FINAL_DEVELOPMENT_REPORT.md` after the final code change. |
+| Fix isolated Kivy self-test pack dependency and rerun gates | Acceptance now patches `model_directory` on the active `SaylacianApp` module (`__main__` when run as a script), so clean startup does not depend on local packs. Full suite: 143 passed, 2 Windows symlink-privilege skips, 197 subtests; Ruff check/format (113 files), compileall, `pip check`, release-safety and diff checks pass. Fresh isolated self-test returns `Bonjour, comment allez-vous ?`; clean-clone launch is recorded in the report. |
 
 ### VERIFIED
 

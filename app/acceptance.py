@@ -3,6 +3,7 @@
 
 import json
 import os
+import sys
 import threading
 import time
 from pathlib import Path
@@ -295,10 +296,11 @@ def start(app):
         saved_detected_language = app.detected_language
         app.mode = "Translate meaning"
         app.source, app.target = "Detect language/script", "English"
-        with patch("main.model_directory"):
+        app_module = sys.modules[app.__class__.__module__]
+        with patch.object(app_module, "model_directory"):
             app.convert("Waan ku jeclahay")
         assert app.detected_language[0] == "Somali Latin"
-        assert "Detected Somali Latin" in app.status
+        assert "Detected Somali Latin" in app.status, repr(app.status)
         app.translate_trigger.cancel()
         with patch("main.model_directory"):
             app.convert("Ou est la gare")
