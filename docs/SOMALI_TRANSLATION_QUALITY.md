@@ -14,6 +14,18 @@ The candidate route now detects U+2047 and falls back to the existing multilingu
 
 The temporary benchmark output and checkpoint are under `%TEMP%` and are not committed. The developer-only requirements now pin `sacrebleu==2.5.1`, which the benchmark imports; it is not a runtime dependency. Timing and memory figures from earlier runs are machine-specific.
 
+### Reproduction on 2026-10-25
+
+Reinstalled the pinned Somali pack with `tools/verify_pack_integration.py --pack somali` into a new temporary store. The installer verified all 10 manifest assets and passed English→Somali and Somali→English offline smoke translations. Installed pack version: `1-bfdcf52bd69`; runtime versions: CTranslate2 4.8.3, SentencePiece 0.2.2, SacreBLEU 2.5.1. The 150-pair test fixture SHA-256 remained `be58b2d350badb7e03b73906471453311a8843534e4a2a572a772c60c394c7f7`.
+
+This run also used the already-present, ignored local Helsinki synthetic EN→SO candidate, independently checked against the tracked manifest: revision `49384e6b2c3ddd374f2cccc8efecb678724b739d`, CC-BY-4.0, `model.bin` SHA-256 `62aacb4ec5812ce20a1eb2563fe763d16d20858e2490d6d8bdd0a3a1f4f72c22`. It was not added to Git or the downloaded pack. The official pack's English→Somali and Somali→English models are Apache-2.0 declarations at revisions `89fdef87793d0b4a3860bd4d7c5e4cf77e7575b9` and `fb574c2082b1a49f89e55064aca6c1fba1125474`, respectively.
+
+With network connections blocked during inference, the run reproduced the previous post-guard scores exactly: EN→SO BLEU 5.287 / chrF++ 25.282; SO→EN BLEU 6.300 / chrF++ 24.680. The synthetic candidate was accepted for 97/150 English inputs; 53 fell back (47 unreadable-token, 6 output-length, 0 repeat/copy). No U+2047 marker remained in final EN→SO output. This remains below the pre-guard EN→SO BLEU 7.057 / chrF++ 28.996 and is not evidence of semantic improvement.
+
+This Windows run took 134.91 seconds, with 548,204,544 bytes peak process working set. Warm per-sample latency medians were 254.9 ms EN→SO and 207.3 ms SO→EN; p95 values were 1,356.1 ms and 530.9 ms. Heuristic review cues flagged 41 EN→SO / 40 SO→EN numeric mismatches and 23 possible negation mismatches in each direction. These are automatic review cues, not confirmed errors; no fluent reviewer rated the samples.
+
+The run exposed stale route-audit string matching that had reported zero fallbacks. `tools/benchmark_somali_quality.py` now counts the current warning phrases, distinguishes candidate selections from fallbacks, and has a regression test for each reason. The complete result JSON, checkpoints, downloaded pack and raw examples remain in temporary storage only; none were committed.
+
 The experiment rejected broad repeated-ngram blocking: it reduced some loops but caused errors such as replacing “cough” with unrelated words, and hurt chrF++ on dev. Only the length guard is enabled.
 
 ## Candidate model results

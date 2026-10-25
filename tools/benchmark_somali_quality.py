@@ -193,6 +193,44 @@ def diagnostic_flags(prediction: str, reference: str, direction: str) -> list[st
     return flags
 
 
+def en_to_so_route_audit(
+    samples: list[dict], candidate_available: bool
+) -> dict[str, int | bool]:
+    """Count the current translator's explicit synthetic-candidate warnings."""
+    warning_sets = [set(sample.get("warnings", [])) for sample in samples]
+    fallback_reasons = {
+        "unreadable_marker_fallback_samples": (
+            "The first result contained an unreadable symbol; an alternative was used."
+        ),
+        "output_length_fallback_samples": (
+            "The first result was unusually long; an alternative was used."
+        ),
+        "repeat_or_copy_fallback_samples": (
+            "The first result repeated or copied the input; an alternative was used."
+        ),
+    }
+    reason_counts = {
+        name: sum(reason in warnings for warnings in warning_sets)
+        for name, reason in fallback_reasons.items()
+    }
+    fallback_reasons_seen = set(fallback_reasons.values())
+    fallback_count = sum(
+        bool(warnings & fallback_reasons_seen) for warnings in warning_sets
+    )
+    return {
+        "synthetic_candidate_available": candidate_available,
+        "synthetic_candidate_selected_samples": (
+            len(samples) - fallback_count if candidate_available else 0
+        ),
+        "candidate_fallback_samples": fallback_count,
+        **reason_counts,
+        "extra_symbol_removed_samples": sum(
+            "An extra symbol was removed from the output." in warnings
+            for warnings in warning_sets
+        ),
+    }
+
+
 def model_runtime_metadata(system: str, model_path: Path | None = None) -> dict:
     if system == "baseline":
         source_manifest = json.loads(
@@ -304,7 +342,7 @@ def main() -> int:
         )[: args.limit]
 
     if args.system == "baseline":
-        from saylacian.core.translation import translate_meaning
+        from saylacian.core.translation import _model_roots, translate_meaning
 
         data_hash = hashlib.sha256(DATA.read_bytes()).hexdigest()
         checkpoint = load_checkpoint("baseline", data_hash, limit=args.limit)
@@ -397,30 +435,13 @@ def main() -> int:
                 for key in ("en_so", "so_en")
             },
         }
-        en_so_samples = outputs["en_so"]
-        system["en_to_so_route_audit"] = {
-            "synthetic_candidate_samples": sum(
-                any(
-                    "synthetic EN→SO candidate selected" in warning
-                    for warning in sample.get("warnings", [])
-                )
-                for sample in en_so_samples
-            ),
-            "multilingual_fallback_samples": sum(
-                any(
-                    "used multilingual fallback" in warning
-                    for warning in sample.get("warnings", [])
-                )
-                for sample in en_so_samples
-            ),
-            "runaway_length_fallback_samples": sum(
-                any(
-                    "output-length guard" in warning
-                    for warning in sample.get("warnings", [])
-                )
-                for sample in en_so_samples
-            ),
-        }
+        candidate_available = any(
+            (root / "somali" / "en_so_synthetic" / "model.bin").is_file()
+            for root in _model_roots()
+        )
+        system["en_to_so_route_audit"] = en_to_so_route_audit(
+            outputs["en_so"], candidate_available
+        )
     else:
         if not args.candidate_model or not args.candidate_model.is_file():
             raise SystemExit(

@@ -4,13 +4,17 @@ Live task board for `SAYLACIAN_MASTER_DEVELOPMENT_DIRECTIVE.md`. This board reco
 
 Current checkpoint: branch `main`; local milestone commits remain unpublished. Model-pack pointer/path containment is verified. The last recorded public `origin/main` is `c4f2f87270c22a05e772816ce98e57a99b871b18`; no remote mutation occurred. Existing edits in `docs/PROJECT_STATUS.md` and `docs/TECHNICAL_AUDIT.md` remain unstaged and untouched.
 
+**Campaign status: PARTIALLY COMPLETE — NOT FINISHED.** The last completion report incorrectly declared the phase complete. The Somali benchmark reproduction and a development-dependency advisory fix are verified. The local commit is the current ACTIVE task; after it, re-evaluate for another independent READY task. External review, rights, permissions, and isolated environments remain BLOCKED.
+
 ## Autonomous execution queues
 
 Move each task among these queues at every milestone. A blocker must name the exact decision, permission, resource or evidence needed. If a task is blocked, keep it in `BLOCKED`, select the highest-impact independent `READY` task, and continue. Do not invent filler tasks or bypass approval boundaries.
 
 ### ACTIVE
 
-No ACTIVE item remains after the final Kivy acceptance and documentation audit. The top navigation label collision is fixed; current clipboard limitations are stated consistently. Do not promote source-locale checks into accuracy claims or invent filler work.
+| Task | Acceptance | Guardrails |
+|---|---|---|
+| Prepare and commit the verified benchmark and dependency-security milestone locally | Stage explicit reviewed paths only; ensure owner edits in `docs/PROJECT_STATUS.md` and `docs/TECHNICAL_AUDIT.md` stay untouched and unstaged; do not push | Keep raw benchmark output in temp; no push, release, or change to owner files. |
 
 ### BLOCKED
 
@@ -29,13 +33,15 @@ No ACTIVE item remains after the final Kivy acceptance and documentation audit. 
 
 | Order | Task | Acceptance |
 |---|---|---|
-No task remains READY after the final source, UI and safety audit. The remaining work needs the exact external evidence, reviewer input, isolated environment or owner approval listed in BLOCKED. Do not invent filler tasks.
+No additional safe, evidence-backed implementation task is presently READY after this local milestone. Reassess when code evidence or required resources change; do not invent filler work to keep the queue populated.
 
 ### DONE (current completion campaign)
 
 | Task | Evidence |
 |---|---|
 | Verify current baseline and remote state | Local `main` at `c80f4e1` before this campaign's UI/docs fix, 56 commits ahead of public `origin/main` at `c4f2f87270c22a05e772816ce98e57a99b871b18`. Two pre-existing owner edits remain untouched and unstaged. Public Actions run `40087020450` completed successfully on the remote commit. |
+| Reproduce the pinned Somali benchmark and fix route audit accounting | Freshly installed 10/10 asset pack `1-bfdcf52bd69` in unique temp storage; blocked socket connections during inference; reproduced EN→SO BLEU/chrF++ 5.287/25.282 and SO→EN 6.300/24.680. Route audit now recognizes current warning text: 97 candidate accepted, 53 fallback (47 unreadable marker, 6 output length), no U+2047 in final EN→SO. Temporary predictions retained outside Git. Three focused tests pass. This is reproducibility evidence only; EN→SO remains below pre-guard 7.057/28.996 and linguistic quality remains blocked. |
+| Remediate and audit Python development dependency advisory | `requirements-dev.txt` now pins pytest 9.1.1 instead of vulnerable 8.4.2 (PYSEC-2026-1845; fixed version 9.0.3). `pip-audit` found no known vulnerabilities across every `requirements*.txt` file after the change. Fresh temporary Windows venv installed `requirements-dev.txt`, `pip check` passed, and the full suite passed: 144 passed, 2 symlink-permission skips, 197 subtests. |
 | Fix top-bar action-label collision | The Old Nubian `Read` action had only 48 dp allocated and crowded Translate/Transliterate. Increased its width to 72 dp and header action spacing to 12 dp; live Kivy acceptance asserts at least 8 dp between labels and verifies the button fits. Inspected live Read Studio capture after the fix; `Transliterate` and `Read` are distinct. |
 | Reconcile clipboard portability claims | `docs/SUPPORT_MATRIX.md` now says the guarded WinForms harness exists but the current publisher has not been tested in a real external app; the isolated-VM requirement remains BLOCKED. |
 | Make Kivy acceptance isolated and verify clean-clone launch | Acceptance patches model-path, clipboard and publisher dependencies on the active `SaylacianApp` module, including `__main__` script execution; it needs no local Somali pack and does not access the host clipboard. A clean clone downloaded the pinned French pack through `verify_pack_integration.py`, verified 2/2 assets and passed both offline directions; Kivy self-test then returned `Bonjour, comment allez-vous ?` with network blocked and a clean tracked tree. Full suite: 143 passed, 2 Windows symlink-privilege skips, 197 subtests; Ruff check/format (113 files), compileall, `pip check`, release-safety and diff checks pass. |

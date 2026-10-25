@@ -1,6 +1,6 @@
 -r requirements-runtime-lock.txt
 -r requirements-website.txt
-pytest==8.4.2
+pytest==9.1.1
 ruff==0.17.2
 fonttools==4.67.0
 sacrebleu==2.5.1
