@@ -2,9 +2,11 @@
 
 ## Current checkpoint — 2026-10-25
 
-**Not finished: remaining work requires external review, resources or approval.** Local source/UI commits: `b7fbe45` and `8b748ab`. Full suite: 163 passed, 2 Windows symlink-permission skips, 208 subtests. Lint, formatting, compilation, dependency/security checks and 46-file Markdown link scan passed. Real Kivy: 19 viewport/interaction checks and 24 broader app checks passed, with network blocked and in-memory clipboard.
+**Not finished: remaining work requires external review, resources or approval.** Local source/UI commits include `b7fbe45`, `8b748ab`, and `f452827c481ab8bfdd8261a7784582d321ae492c`. Full suite: 163 passed, 2 Windows symlink-permission skips, 208 subtests. Ruff, format, compilation, dependency/security checks and 41 modified-document links passed. Real Kivy: 19 checks across six window sizes, with exact home-control and text-panel positions asserted across mode switches; broader app self-test: 24 checks. Network blocked; clipboard was in-memory.
 
-The Read action is hidden outside Old Nubian routes; Somali picker and unsupported-route wording are concise. Latest compact screenshot: `%TEMP%\saylacian-final-verified-06750f26b8c14d56b852f71bb3b49932\evidence\previews\enhanced-compact-portrait.png`. No redesign or physical input occurred.
+The unavailable Read action stays hidden. Picker now shows one-line route names with an ASCII `[x]` selection marker; long coverage/copy explanations moved to linked GitHub docs. Mode toggle has a reserved layout slot; compact spacing protects text entry. Latest compact screenshot: `%TEMP%\saylacian-final-ui-afeab47f12cb469daaf2ff6df6383c2a\evidence\previews\enhanced-compact-portrait.png`; picker: `%TEMP%\saylacian-final-ui-afeab47f12cb469daaf2ff6df6383c2a\evidence\previews\enhanced-picker-mobile.png`. No redesign or physical input occurred.
+
+New docs: `docs/README.md`, `docs/USER_GUIDE.md`, and `docs/API_REFERENCE.md`. User guide explains Borama/Kaddare `Copy text`, `Copy image`, and `Copy Latin`, including PUA/font limits and unverified external-app behavior. No public translation API is claimed. KivyMD 1.2.0 deprecation warning remains; no framework migration was attempted.
 
 Four benchmark CLIs now reject repository output paths, generate unique results in local app data and preserve baseline audits. Six legacy output/checkpoint files were hash-verified in a local archive before removal from the checkout. Aggregate evidence and model provenance remain tracked; older Git commits were not rewritten. Archive: `%LOCALAPPDATA%\Saylacian\benchmark\legacy-predictions-20261025-b676335650ff493dad0bab373b73145e`.
 
