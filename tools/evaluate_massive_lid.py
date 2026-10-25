@@ -28,10 +28,13 @@ def load_test_samples(
     path: Path,
     per_language_limit: int = 500,
     expected_sha256: str | None = EXPECTED_SHA256,
+    partition: str = "test",
 ) -> tuple[dict[str, list[tuple[str, str]]], dict[str, dict[str, int]], str]:
-    """Read the app-length gate from locale-labeled test rows."""
+    """Read the app-length gate from one locale-labeled dev or test split."""
     if per_language_limit < 1:
         raise ValueError("Per-language sample limit must be at least one.")
+    if partition not in {"dev", "test"}:
+        raise ValueError("MASSIVE partition must be dev or test.")
 
     digest = hashlib.sha256()
     with path.open("rb") as source:
@@ -57,7 +60,7 @@ def load_test_samples(
                 counts = stats.setdefault(
                     locale,
                     {
-                        "test_rows": 0,
+                        f"{partition}_rows": 0,
                         "short_gate_rows": 0,
                         "sampled_rows": 0,
                     },
@@ -79,9 +82,9 @@ def load_test_samples(
                             raise ValueError(
                                 f"MASSIVE row in {locale} at line {line_number} has an invalid schema."
                             )
-                        if row["partition"] != "test":
+                        if row["partition"] != partition:
                             continue
-                        counts["test_rows"] += 1
+                        counts[f"{partition}_rows"] += 1
                         text = row["utt"]
                         row_id = row["id"]
                         if not isinstance(text, str) or not isinstance(row_id, str):
@@ -110,7 +113,9 @@ def load_test_samples(
         raise ValueError("MASSIVE archive is not a readable gzip tar file.") from error
 
     if not {"en-US", "fr-FR"}.issubset(stats):
-        raise ValueError("MASSIVE archive is missing English or French test data.")
+        raise ValueError(
+            f"MASSIVE archive is missing English or French {partition} data."
+        )
 
     datasets = {}
     for locale, sample in samples.items():
@@ -200,10 +205,18 @@ def main() -> int:
         default=500,
         help="Maximum deterministic sample per locale (default: 500).",
     )
+    parser.add_argument(
+        "--partition",
+        choices=("dev", "test"),
+        default="test",
+        help="Evaluate dev for threshold selection or test for held-out checks.",
+    )
     arguments = parser.parse_args()
     try:
         datasets, source_stats, digest = load_test_samples(
-            arguments.archive, arguments.per_language_limit
+            arguments.archive,
+            arguments.per_language_limit,
+            partition=arguments.partition,
         )
         results = score_thresholds(datasets)
     except (OSError, TypeError, UnicodeError, ValueError) as error:
@@ -217,15 +230,15 @@ def main() -> int:
                 "source_url": DATASET_URL,
                 "license": DATASET_LICENSE,
                 "archive_sha256": digest,
-                "split": "test",
+                "split": arguments.partition,
                 "source_stats_by_locale": dict(sorted(source_stats.items())),
                 "supported_source_labels": SUPPORTED_LABELS,
-                "criteria": "12-19 Unicode code points, at least three words, and test split locale label",
+                "criteria": "12-19 Unicode code points, at least three words, and selected split locale label",
                 "sampling": "Lowest SHA-256 ranks of locale and row ID, capped per locale.",
                 "per_language_limit": arguments.per_language_limit,
                 "thresholds": results,
                 "interpretation": (
-                    "MASSIVE test locale is the source label; raw archive has no per-row "
+                    f"MASSIVE {arguments.partition} locale is the source label; raw archive has no per-row "
                     "language-identification judgments. Only English and French are "
                     "supported source classes; Somali is absent. Intent-domain and "
                     "localized phrases do not establish fluent-Somali quality or "

@@ -54,11 +54,13 @@ class MassiveLidEvaluatorTests(unittest.TestCase):
                 massive_row("2", text="Too short"),
                 massive_row("3", text="This is a longer sentence beyond the app limit"),
                 massive_row("4", text="Find a nearby coffee shop", locale="en-US"),
+                massive_row("7", text="Read blue books", locale="en-US"),
             ],
             "fr-FR": [massive_row("5", locale="fr-FR")],
             "af-ZA": [massive_row("6", locale="af-ZA")],
         }
         rows_by_locale["en-US"][3]["partition"] = "train"
+        rows_by_locale["en-US"][4]["partition"] = "dev"
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
             path = self.make_archive(root, rows_by_locale)
@@ -77,6 +79,19 @@ class MassiveLidEvaluatorTests(unittest.TestCase):
         self.assertEqual(stats["af-ZA"]["short_gate_rows"], 1)
         self.assertEqual(digest, expected_digest)
 
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            path = self.make_archive(root, rows_by_locale)
+            datasets, stats, _ = load_test_samples(
+                path,
+                per_language_limit=10,
+                expected_sha256=hashlib.sha256(path.read_bytes()).hexdigest(),
+                partition="dev",
+            )
+
+        self.assertEqual(datasets["en-US"], [("7", "Read blue books")])
+        self.assertEqual(stats["en-US"]["dev_rows"], 1)
+
     def test_rejects_wrong_archive_hash(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
@@ -86,6 +101,16 @@ class MassiveLidEvaluatorTests(unittest.TestCase):
             )
             with self.assertRaisesRegex(ValueError, "SHA-256"):
                 load_test_samples(path, expected_sha256="0" * 64)
+
+    def test_rejects_training_partition(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            path = self.make_archive(
+                root,
+                {"en-US": [massive_row("1")], "fr-FR": [massive_row("2", "fr-FR")]},
+            )
+            with self.assertRaisesRegex(ValueError, "dev or test"):
+                load_test_samples(path, expected_sha256=None, partition="train")
 
     def test_scores_supported_disagreements_unsupported_and_abstentions(self):
         identifier = FakeIdentifier()
