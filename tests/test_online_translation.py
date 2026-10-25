@@ -10,6 +10,7 @@ from unittest.mock import patch
 
 from saylacian.core.online_translation import (
     ACCOUNT_ENV,
+    MAX_RESPONSE_BYTES,
     MODEL,
     PROVIDER_ENV,
     SERVICE_TOKEN_ENV,
@@ -26,6 +27,7 @@ from saylacian.core.translation import translate_meaning
 class _Response:
     def __init__(self, value):
         self.value = value
+        self.requested_size = None
 
     def __enter__(self):
         return self
@@ -33,8 +35,10 @@ class _Response:
     def __exit__(self, *args):
         return False
 
-    def read(self):
-        return json.dumps(self.value).encode("utf-8")
+    def read(self, size=-1):
+        payload = json.dumps(self.value).encode("utf-8")
+        self.requested_size = size
+        return payload if size < 0 else payload[:size]
 
 
 class OnlineTranslationTests(unittest.TestCase):
@@ -106,6 +110,44 @@ class OnlineTranslationTests(unittest.TestCase):
         )
         self.assertEqual(timeout, 90)
         self.assertTrue(any("self-hosted" in warning for warning in warnings))
+
+    def test_provider_responses_are_bounded_and_must_be_json_objects(self):
+        os.environ[ACCOUNT_ENV] = "account-123"
+        os.environ[TOKEN_ENV] = "test-secret"
+        os.environ[SERVICE_URL_ENV] = "https://saylacian.example"
+        providers = (
+            (
+                translate_cloudflare,
+                ("Hello", "English", "French"),
+                "Cloudflare returned an invalid translation response",
+            ),
+            (
+                translate_self_hosted,
+                ("Hello", "English", "French"),
+                "Self-hosted translation server returned invalid JSON",
+            ),
+        )
+
+        for provider, arguments, invalid_message in providers:
+            with self.subTest(provider=provider.__name__):
+                oversized = _Response({"translation": "x" * MAX_RESPONSE_BYTES})
+
+                @contextmanager
+                def oversized_open(request, timeout, response=oversized):
+                    yield response
+
+                with self.assertRaisesRegex(ValueError, "1 MiB limit"):
+                    provider(*arguments, opener=oversized_open)
+                self.assertEqual(oversized.requested_size, MAX_RESPONSE_BYTES + 1)
+
+                non_object = _Response(["not", "an", "object"])
+
+                @contextmanager
+                def non_object_open(request, timeout, response=non_object):
+                    yield response
+
+                with self.assertRaisesRegex(ValueError, invalid_message):
+                    provider(*arguments, opener=non_object_open)
 
     def test_self_hosted_rejects_insecure_remote_endpoint(self):
         os.environ[SERVICE_URL_ENV] = "http://public.example"

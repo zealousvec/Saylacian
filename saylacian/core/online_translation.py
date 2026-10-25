@@ -22,6 +22,15 @@ SERVICE_TOKEN_ENV = "SAYLACIAN_SERVICE_TOKEN"
 API_ROOT = "https://api.cloudflare.com/client/v4/accounts"
 MODEL = "@cf/meta/m2m100-1.2b"
 MAX_TEXT_LENGTH = 4000
+MAX_RESPONSE_BYTES = 1024 * 1024
+
+
+def _read_json_response(response):
+    """Read a bounded JSON response so a broken service cannot exhaust memory."""
+    payload = response.read(MAX_RESPONSE_BYTES + 1)
+    if len(payload) > MAX_RESPONSE_BYTES:
+        raise ValueError("Translation service response exceeded its 1 MiB limit.")
+    return payload
 
 
 def selected_provider():
@@ -92,7 +101,9 @@ def translate_self_hosted(text, source, target, *, opener=None, timeout=90):
     )
     try:
         with (opener or urlopen)(request, timeout=timeout) as response:
-            result = json.loads(response.read().decode("utf-8"))
+            result = json.loads(_read_json_response(response).decode("utf-8"))
+            if not isinstance(result, dict):
+                raise TypeError("JSON root must be an object.")
     except HTTPError as error:
         if error.code in (401, 403):
             raise ValueError(
@@ -111,6 +122,10 @@ def translate_self_hosted(text, source, target, *, opener=None, timeout=90):
             f"Self-hosted translation server is unreachable: {reason}"
         ) from None
     except (UnicodeError, json.JSONDecodeError):
+        raise ValueError(
+            "Self-hosted translation server returned invalid JSON."
+        ) from None
+    except TypeError:
         raise ValueError(
             "Self-hosted translation server returned invalid JSON."
         ) from None
@@ -174,7 +189,9 @@ def translate_cloudflare(text, source, target, *, opener=None, timeout=45):
     )
     try:
         with (opener or urlopen)(request, timeout=timeout) as response:
-            result = json.loads(response.read().decode("utf-8"))
+            result = json.loads(_read_json_response(response).decode("utf-8"))
+            if not isinstance(result, dict):
+                raise TypeError("JSON root must be an object.")
     except HTTPError as error:
         if error.code == 429:
             raise ValueError(
@@ -193,6 +210,10 @@ def translate_cloudflare(text, source, target, *, opener=None, timeout=45):
         reason = error.reason if isinstance(error, URLError) else error
         raise ValueError(f"Cloudflare translation is unreachable: {reason}") from None
     except (UnicodeError, json.JSONDecodeError):
+        raise ValueError(
+            "Cloudflare returned an invalid translation response."
+        ) from None
+    except TypeError:
         raise ValueError(
             "Cloudflare returned an invalid translation response."
         ) from None

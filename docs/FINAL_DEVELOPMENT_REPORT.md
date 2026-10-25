@@ -78,7 +78,7 @@ Environment: project `.venv`, Windows, Python project test suite, Kivy live self
 
 ## 10. Known failures, skips and blockers
 
-The two skipped tests require Windows symlink privileges. Somali linguistic quality still requires fluent reviewer input; model outputs and heuristic cues are not human quality judgments. Old Nubian data expansion needs rights-holder terms and specialist review. Screen-reader verification requires a manual Narrator/NVDA run. Compact-layout screenshot validation needs a functioning isolated capture path; existing SDL captures at the compact viewport were invalid. Real clipboard interoperability needs a disposable isolated VM. Hosted integration tests need owner approval to push. Clean-host Windows packaging/signing requires an isolated test host and appropriate signing/distribution decisions. The pinned MIT M2M100 candidate also remains unevaluated beyond 25/150 development examples because this host's CPU throughput was too slow; complete the full dev evaluation on faster suitable hardware before considering it. These blockers do not invalidate the local test suite or limited features stated above.
+The two skipped tests require Windows symlink privileges. Somali linguistic quality still requires fluent reviewer input; model outputs and heuristic cues are not human quality judgments. Old Nubian data expansion needs rights-holder terms and specialist review. Screen-reader verification requires a manual Narrator/NVDA run. Desktop compact-layout capture is now valid through Kivy FBO export: six viewports, including 320×500 dp, were captured and reviewed; physical-device layout remains unverified. Real clipboard interoperability needs a disposable isolated VM. Hosted integration tests need owner approval to push. Clean-host Windows packaging/signing requires an isolated test host and appropriate signing/distribution decisions. The pinned MIT M2M100 candidate also remains unevaluated beyond 25/150 development examples because this host's CPU throughput was too slow; complete the full dev evaluation on faster suitable hardware before considering it. These blockers do not invalidate the local test suite or limited features stated above.
 
 ## 11. Git branch and unpublished commits
 
@@ -101,6 +101,14 @@ The pre-existing edits in `docs/PROJECT_STATUS.md` and `docs/TECHNICAL_AUDIT.md`
 ## 15. Final phase status
 
 **PARTIALLY COMPLETE — NOT FINISHED.** The toolbar fix, clean-clone pack workflow, Somali benchmark reproduction and route-audit correction, dependency advisory remediation, Windows-specific pack-path containment, and post-install integrity recovery are verified. This does not complete the project or release readiness: linguistic review, historical-data rights, accessibility observation, real clipboard validation, and clean-host/signing checks remain open. The previous report's “complete” label was premature. Nothing was pushed; no files were released.
+
+## 18. Continuing audit — compact layout and online response safety (2026-10-25)
+
+The 320×500 dp compact portrait layout now keeps source/target controls in one row and input/output panels stacked. Live Kivy acceptance checks both text fields remain at least 56 dp high, and the rendered screenshot was visually reviewed. This corrects the older compact-capture blocker for desktop FBO output; physical-device behavior remains unverified.
+
+Optional online translation clients now bound JSON response reads to 1 MiB + 1 byte and reject non-object JSON roots as provider-specific recoverable errors. No online request was made and no credentials were used. Regression tests cover both Cloudflare and self-hosted paths.
+
+Latest local commits: `05d5608753c08980502f16fa352e76b5d074af8b` (compact portrait usability), `5d8ee03b227cd7fb5a1913e1b36625c83db8f082` (56 dp live viewport assertion), `240a5361b419dc3887fef84596c3f60917d84e69` (handoff record), `0cd520638aad45b97081d06ad0ea7b22b33c6c9a` (current progress checkpoint). Online-response fix is in progress and not yet committed. Full suite before the response hardening: 154 passed, 2 skipped, 206 subtests. No push/publication. Owner edits in `docs/PROJECT_STATUS.md` and `docs/TECHNICAL_AUDIT.md` remain untouched.
 
 ## 16. Required isolated benchmark re-run — 2026-10-25
 
