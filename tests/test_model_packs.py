@@ -84,6 +84,59 @@ class ModelPackTests(unittest.TestCase):
             self.assertEqual(progress[-1][:2], (len(content), len(content)))
             self.assertIn("Installed and verified", progress[-1][2])
 
+    def test_post_install_file_corruption_is_detected_and_removable(self):
+        original = b"model bytes"
+        replacement = b"wrong bytes"
+        self.assertEqual(len(original), len(replacement))
+        item = {
+            "kind": "file",
+            "url": "https://huggingface.co/test/model.bin",
+            "bytes": len(original),
+            "sha256": hashlib.sha256(original).hexdigest(),
+            "destination": "somali/en_so/model.bin",
+        }
+        spec = {
+            "somali": {
+                "title": "Somali",
+                "version": "1-integrity",
+                "download_bytes": len(original),
+                "assets": [item],
+            }
+        }
+        with tempfile.TemporaryDirectory() as temporary:
+            manager = ModelPackManager(Path(temporary) / "packs", spec)
+            with patch(
+                "saylacian.core.model_packs.urllib.request.urlopen",
+                return_value=io.BytesIO(original),
+            ):
+                installed = manager.install("somali")
+            model = installed / item["destination"]
+            self.assertEqual(manager.active_model_roots(), [installed])
+
+            model.write_bytes(replacement)
+
+            self.assertEqual(manager.active_model_roots(), [])
+            pack = manager.list_packs()[0]
+            self.assertFalse(pack["installed"])
+            self.assertTrue(pack["damaged"])
+            self.assertEqual(model.read_bytes(), replacement)
+            with (
+                patch("saylacian.core.model_packs.urllib.request.urlopen") as opener,
+                self.assertRaisesRegex(ValueError, "integrity check"),
+            ):
+                manager.install("somali")
+            opener.assert_not_called()
+            self.assertEqual(model.read_bytes(), replacement)
+
+            (installed / "installed.json").write_text("{", encoding="utf-8")
+            unreadable_receipt = manager.list_packs()[0]
+            self.assertFalse(unreadable_receipt["installed"])
+            self.assertTrue(unreadable_receipt["damaged"])
+            self.assertEqual(unreadable_receipt["installed_version"], "1-integrity")
+
+            manager.remove("somali")
+            self.assertFalse(manager.list_packs()[0]["damaged"])
+
     def test_generated_compatibility_config_is_checksum_verified(self):
         content = {
             "add_source_bos": False,

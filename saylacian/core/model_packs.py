@@ -14,6 +14,7 @@ import urllib.parse
 import urllib.request
 import uuid
 import zipfile
+from functools import lru_cache
 from pathlib import Path, PurePosixPath, PureWindowsPath
 
 DATA_ROOT = Path(__file__).resolve().parent / "data"
@@ -194,6 +195,54 @@ def _hash(path: Path) -> tuple[int, str]:
     return size, digest.hexdigest()
 
 
+@lru_cache(maxsize=64)
+def _cached_file_hash(
+    path: str, size: int, modified_ns: int, changed_ns: int, device: int, inode: int
+) -> tuple[int, str]:
+    return _hash(Path(path))
+
+
+def _matches_installed_file(path: Path, record: dict) -> bool:
+    if not isinstance(record, dict):
+        return False
+    expected_size = record.get("bytes")
+    expected_hash = record.get("sha256")
+    if (
+        not isinstance(expected_size, int)
+        or expected_size < 0
+        or not isinstance(expected_hash, str)
+        or len(expected_hash) != 64
+    ):
+        return False
+    if not path.is_file():
+        return False
+    details = path.stat()
+    if details.st_size != expected_size:
+        return False
+    actual_size, actual_hash = _cached_file_hash(
+        str(path.resolve()),
+        details.st_size,
+        details.st_mtime_ns,
+        details.st_ctime_ns,
+        details.st_dev,
+        details.st_ino,
+    )
+    return actual_size == expected_size and actual_hash.lower() == expected_hash.lower()
+
+
+def _installed_files_match(folder: Path, manifest: dict) -> bool:
+    if not isinstance(manifest, dict):
+        return False
+    files = manifest.get("files")
+    if not isinstance(files, list) or not files:
+        return False
+    return all(
+        isinstance(item, dict)
+        and _matches_installed_file(_installed_file(folder, item.get("path")), item)
+        for item in files
+    )
+
+
 def _lock_for(pack_id: str) -> threading.Lock:
     with _LOCKS_GUARD:
         return _LOCKS.setdefault(pack_id, threading.Lock())
@@ -215,6 +264,7 @@ class ModelPackManager:
                 continue
             current_version = None
             installed_bytes = 0
+            damaged = False
             try:
                 pointer = _installed_file(pack_home, "current.json")
                 if pointer.is_file():
@@ -227,22 +277,34 @@ class ModelPackManager:
                     if manifest_path.is_file():
                         manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
                         if manifest.get("version") == current_version:
-                            installed_bytes = sum(
-                                _installed_file(folder, item["path"]).stat().st_size
-                                for item in manifest.get("files", [])
-                                if _installed_file(folder, item["path"]).is_file()
-                            )
+                            if _installed_files_match(folder, manifest):
+                                installed_bytes = sum(
+                                    item["bytes"] for item in manifest["files"]
+                                )
+                            else:
+                                damaged = current_version == spec["version"]
                         else:
                             current_version = None
-            except (OSError, KeyError, ValueError, json.JSONDecodeError):
-                current_version = None
+            except (
+                OSError,
+                KeyError,
+                TypeError,
+                ValueError,
+                AttributeError,
+                json.JSONDecodeError,
+            ):
+                damaged = current_version == spec["version"]
+                if not damaged:
+                    current_version = None
             packs.append(
                 {
                     "id": pack_id,
                     "title": spec["title"],
                     "version": spec["version"],
                     "installed": current_version == spec["version"]
-                    and installed_bytes > 0,
+                    and installed_bytes > 0
+                    and not damaged,
+                    "damaged": damaged,
                     "installed_version": current_version,
                     "download_bytes": spec["download_bytes"],
                     "license": spec.get("license", "See upstream model metadata"),
@@ -278,16 +340,18 @@ class ModelPackManager:
                         encoding="utf-8"
                     )
                 )
-                if manifest.get("version") != version or not manifest.get("files"):
+                if manifest.get("version") != version:
                     continue
-                if all(
-                    _installed_file(folder, item["path"]).is_file()
-                    and _installed_file(folder, item["path"]).stat().st_size
-                    == item["bytes"]
-                    for item in manifest["files"]
-                ):
+                if _installed_files_match(folder, manifest):
                     roots.append(folder.resolve())
-            except (OSError, KeyError, ValueError, json.JSONDecodeError):
+            except (
+                OSError,
+                KeyError,
+                TypeError,
+                ValueError,
+                AttributeError,
+                json.JSONDecodeError,
+            ):
                 continue
         return roots
 
@@ -524,13 +588,10 @@ class ModelPackManager:
         manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
         if manifest.get("version") != version:
             raise ValueError("Existing model pack version does not match its manifest.")
-        for item in manifest.get("files", []):
-            path = _installed_file(folder, item["path"])
-            size, checksum = _hash(path)
-            if size != item["bytes"] or checksum.lower() != item["sha256"].lower():
-                raise ValueError(
-                    f"Installed model failed integrity check; left untouched: {item['path']}"
-                )
+        if not _installed_files_match(folder, manifest):
+            raise ValueError(
+                "Existing model pack failed integrity check; it was left untouched."
+            )
 
     @staticmethod
     def _write_pointer(home: Path, version: str):

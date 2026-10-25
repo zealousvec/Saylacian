@@ -361,7 +361,7 @@ class SaylacianApp(MDApp):
             option = self.pack_options[max(self.pack_index, 0)]
             if self.pack_busy:
                 self.pack_status = "Wait for the current download to finish."
-            elif option["installed"]:
+            elif option["installed"] or option.get("damaged"):
                 self.confirm_remove_pack(option["id"])
             else:
                 self.start_pack_download(option["id"])
@@ -407,8 +407,11 @@ class SaylacianApp(MDApp):
         packs = self.pack_manager.list_packs()
         for pack in packs:
             row = BoxLayout(orientation="horizontal", size_hint_y=None, spacing=dp(8))
+            damaged = pack.get("damaged", False)
+            removable = pack["installed"] or damaged
             available_update = (
                 not pack["installed"]
+                and not damaged
                 and bool(pack.get("installed_version"))
                 and pack["installed_version"] != pack["version"]
             )
@@ -422,7 +425,9 @@ class SaylacianApp(MDApp):
                 valign="middle",
                 text_size=(None, None),
             )
-            if pack["installed"]:
+            if damaged:
+                note = "Files changed · remove and download again"
+            elif pack["installed"]:
                 note = f"Installed · {self._format_bytes(pack['installed_bytes'])} on device"
             elif available_update:
                 note = f"Update available · {self._format_bytes(pack['download_bytes'])} download"
@@ -467,7 +472,7 @@ class SaylacianApp(MDApp):
             button = Button(
                 text=(
                     "Remove"
-                    if pack["installed"]
+                    if removable
                     else "Update"
                     if available_update
                     else "Download"
@@ -482,7 +487,7 @@ class SaylacianApp(MDApp):
             )
             if self.pack_busy:
                 button.disabled = True
-            elif pack["installed"]:
+            elif removable:
                 button.bind(
                     on_release=lambda _button, pid=pack["id"]: self.confirm_remove_pack(
                         pid
@@ -503,7 +508,12 @@ class SaylacianApp(MDApp):
             )
             rows.add_widget(row)
             self.pack_options.append(
-                {"id": pack["id"], "title": title, "installed": pack["installed"]}
+                {
+                    "id": pack["id"],
+                    "title": title,
+                    "installed": pack["installed"],
+                    "damaged": damaged,
+                }
             )
         total_storage = sum(pack["storage_bytes"] for pack in packs)
         self.pack_storage = (

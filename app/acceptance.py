@@ -205,6 +205,42 @@ def start(app):
             assert app.keyboard(Window, 13, None, 13, [])
             remove_pack.assert_called_once_with(dialog, "somali")
             app.dismiss_pack_dialog(dialog)
+        damaged_pack = [
+            {
+                "id": "somali",
+                "title": "Somali / English",
+                "installed": False,
+                "damaged": True,
+                "installed_version": "1-test",
+                "version": "1-test",
+                "installed_bytes": 0,
+                "download_bytes": 300,
+                "storage_bytes": 300,
+            }
+        ]
+        with (
+            patch.object(app.pack_manager, "list_packs", return_value=damaged_pack),
+            patch.object(app, "confirm_remove_pack") as confirm_remove,
+        ):
+            app.open_packs()
+            damage_note = next(
+                widget
+                for widget in app.root.get_screen("packs").ids.pack_rows.walk()
+                if type(widget).__name__ == "MDLabel"
+                and widget.text.startswith("Files changed")
+            )
+            remove_button = next(
+                widget
+                for widget in app.root.get_screen("packs").ids.pack_rows.walk()
+                if isinstance(widget, Button) and widget.text == "Remove"
+            )
+            assert "remove and download again" in damage_note.text
+            assert app.pack_options[0]["damaged"]
+            assert app.keyboard(Window, 274, None, None, ["down"])
+            assert app.keyboard(Window, 13, None, 13, [])
+            confirm_remove.assert_called_once_with("somali")
+            remove_button.dispatch("on_release")
+            assert confirm_remove.call_count == 2
         app.pack_busy = True
         app.pack_cancel_event = threading.Event()
         app.pack_cancel_requested = False
