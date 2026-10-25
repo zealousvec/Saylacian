@@ -9,6 +9,12 @@ import tempfile
 from pathlib import Path
 
 PROJECT = Path(__file__).resolve().parents[1]
+EVIDENCE_DIR = Path(
+    os.environ.get("SAYLACIAN_UI_EVIDENCE_DIR")
+    or tempfile.mkdtemp(prefix="saylacian-ui-acceptance-")
+).expanduser()
+PREVIEW_DIR = EVIDENCE_DIR / "previews"
+PREVIEW_DIR.mkdir(parents=True, exist_ok=True)
 os.environ.setdefault("SAYLACIAN_TRANSLATION_PROVIDER", "offline")
 sys.path.insert(0, str(PROJECT))
 from kivy.clock import Clock
@@ -74,13 +80,13 @@ class CheckedApp(SaylacianApp):
                 "offline model-pack screen, installed state, and storage summary"
             )
             capture_after_present(
-                PROJECT / "docs/previews/offline-language-packs.png",
+                PREVIEW_DIR / "offline-language-packs.png",
                 self.check_after_pack_screen,
             )
         except Exception:
             import traceback
 
-            (PROJECT / "docs/UI_TEST_FAILURE.txt").write_text(traceback.format_exc())
+            (EVIDENCE_DIR / "UI_TEST_FAILURE.txt").write_text(traceback.format_exc())
             self.stop()
             raise
 
@@ -105,12 +111,12 @@ class CheckedApp(SaylacianApp):
             assert home.ids.output_text.text == "abg ngnywj!"
             checks.append("Old Nubian Coptic live conversion and font")
             capture_after_present(
-                PROJECT / "docs/previews/oldnubian-live.png", self.check_after_nubian
+                PREVIEW_DIR / "oldnubian-live.png", self.check_after_nubian
             )
         except Exception:
             import traceback
 
-            (PROJECT / "docs/UI_TEST_FAILURE.txt").write_text(traceback.format_exc())
+            (EVIDENCE_DIR / "UI_TEST_FAILURE.txt").write_text(traceback.format_exc())
             self.stop()
             raise
 
@@ -126,12 +132,17 @@ class CheckedApp(SaylacianApp):
             self.open_picker("target")
             assert self.root.current == "picker"
             self.filter_languages("Borama")
+            route_options = [
+                button for name, button in self.picker_options if name == "Borama"
+            ]
+            assert len(route_options) == 1
+            assert route_options[0].secondary_text == (
+                "Limited conversion · needs Saylacian font"
+            )
             chart_options = [
-                item
-                for item in self.root.get_screen("picker").ids.options.children
-                if getattr(item, "secondary_text", "").startswith(
-                    "Partial chart-label mapping"
-                )
+                button
+                for name, button in self.picker_options
+                if name == "Borama alphabet chart"
             ]
             assert len(chart_options) == 1
             chart_options[0].dispatch("on_release")
@@ -204,7 +215,7 @@ class CheckedApp(SaylacianApp):
         except Exception:
             import traceback
 
-            (PROJECT / "docs/UI_TEST_FAILURE.txt").write_text(
+            (EVIDENCE_DIR / "UI_TEST_FAILURE.txt").write_text(
                 traceback.format_exc(), encoding="utf-8"
             )
             self.stop()
@@ -231,7 +242,7 @@ class CheckedApp(SaylacianApp):
             assert control.y >= controls.y - 1
             assert control.top <= controls.top + 1
         _, _, screenshot_name = self.viewport_cases[self.viewport_index]
-        path = PROJECT / "docs/previews" / f"{screenshot_name}.png"
+        path = PREVIEW_DIR / f"{screenshot_name}.png"
         self.viewport_index += 1
         if screenshot_name != "enhanced-mobile" or self.viewport_index == 1:
             capture_after_present(path, self.capture_next_viewport)
@@ -245,7 +256,7 @@ class CheckedApp(SaylacianApp):
         checks.append(
             "responsive layouts at 320x640, 390x780, 780x390, 768x1024 and 1366x768"
         )
-        (PROJECT / "docs/ui-test-results.json").write_text(
+        (EVIDENCE_DIR / "ui-test-results.json").write_text(
             json.dumps(
                 {
                     "checks": checks,
@@ -260,7 +271,7 @@ class CheckedApp(SaylacianApp):
 
     def capture_picker(self, dt):
         capture_after_present(
-            PROJECT / "docs/previews/enhanced-picker-mobile.png",
+            PREVIEW_DIR / "enhanced-picker-mobile.png",
             self.capture_unavailable,
         )
 
@@ -272,7 +283,7 @@ class CheckedApp(SaylacianApp):
         assert not self.root.get_screen("home").ids.output_text.text
         checks.append("Borama reference chart renders without claiming a converter")
         capture_after_present(
-            PROJECT / "docs/previews/enhanced-unavailable-mobile.png",
+            PREVIEW_DIR / "enhanced-unavailable-mobile.png",
             self.start_english_french,
         )
 
@@ -301,7 +312,7 @@ class CheckedApp(SaylacianApp):
             assert self.root.get_screen("home").ids.output_text.text == result
             checks.append("stale worker result ignored")
             capture_after_present(
-                PROJECT / "docs/previews/enhanced-meaning.png",
+                PREVIEW_DIR / "enhanced-meaning.png",
                 self.start_english_somali,
             )
             return False
@@ -323,7 +334,7 @@ class CheckedApp(SaylacianApp):
         result = home.ids.output_text.text
         if result:
             assert result.strip() and result.strip() != home.ids.input_text.text
-            assert "human review" in self.status.lower(), self.status
+            assert "Somali translation may be inaccurate" in self.status, self.status
             checks.append("background English/Somali meaning translation offline")
             self.source = "Somali Latin"
             self.target = "English"
@@ -343,7 +354,7 @@ class CheckedApp(SaylacianApp):
         result = home.ids.output_text.text
         if result:
             assert result == "How are you?", result
-            assert "human review" in self.status.lower(), self.status
+            assert "Somali translation may be inaccurate" in self.status, self.status
             checks.append("background Somali/English meaning translation offline")
             self.source = "Detect language/script"
             home.ids.input_text.text = "Salaan, sidee tahay?"
@@ -378,10 +389,10 @@ class CheckedApp(SaylacianApp):
         result = home.ids.output_text.text
         if result:
             assert result == "Comment allez-vous ?", result
-            assert "errors may compound" in self.status, self.status
+            assert "some meaning may change" in self.status, self.status
             checks.append("automatic Somali detection and offline French pivot")
             capture_after_present(
-                PROJECT / "docs/previews/enhanced-meaning-somali-french.png",
+                PREVIEW_DIR / "enhanced-meaning-somali-french.png",
                 lambda: self.finish_somali(0),
             )
             return False
@@ -389,7 +400,7 @@ class CheckedApp(SaylacianApp):
             raise AssertionError("Somali/French pivot failed: " + self.status)
 
     def finish_somali(self, dt):
-        (PROJECT / "docs/ui-test-results.json").write_text(
+        (EVIDENCE_DIR / "ui-test-results.json").write_text(
             json.dumps(
                 {
                     "checks": checks,
@@ -404,3 +415,4 @@ class CheckedApp(SaylacianApp):
 
 
 CheckedApp().run()
+print(f"UI acceptance evidence: {EVIDENCE_DIR}")
