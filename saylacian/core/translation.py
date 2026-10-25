@@ -4,6 +4,7 @@
 import os
 import re
 import unicodedata
+from collections import Counter
 from functools import lru_cache
 from pathlib import Path
 
@@ -32,7 +33,7 @@ _SENTENCEPIECE_UNKNOWN_SURFACE = "\u2047"
 
 
 def _synthetic_candidate_is_degenerate(source, output):
-    """Conservatively reject identity and obvious repeated output from candidate."""
+    """Reject copied, repeated, unreadable or unusually expanded candidate text."""
     if _SENTENCEPIECE_UNKNOWN_SURFACE in output:
         return True
 
@@ -45,11 +46,13 @@ def _synthetic_candidate_is_degenerate(source, output):
     )
     if normalize(source) == normalize(output):
         return True
-    word_count = lambda value: len(
-        re.findall(r"[^\W_]+", value.casefold(), flags=re.UNICODE)
-    )
+    words = re.findall(r"[^\W_]+", output.casefold(), flags=re.UNICODE)
+    source_word_count = len(re.findall(r"[^\W_]+", source.casefold(), flags=re.UNICODE))
+    output_word_count = len(words)
 
-    if word_count(output) > word_count(source) * 2 + 10:
+    if output_word_count > source_word_count * 2 + 10:
+        return True
+    if _has_repeated_content_word(words):
         return True
     segments = [normalize(part) for part in _SENTENCE_SPLIT.split(output)]
     segments = [part for part in segments if part]
@@ -62,6 +65,10 @@ def _synthetic_candidate_is_degenerate(source, output):
         and words[0] in words[1]
         and words[0] != words[1]
     )
+
+
+def _has_repeated_content_word(words):
+    return any(len(word) >= 4 and count >= 3 for word, count in Counter(words).items())
 
 
 def _clean_model_markers(text):
@@ -237,13 +244,27 @@ def translate_meaning(text, source, target, model_root=None, *, provider_overrid
                     re.findall(r"[^\W_]+", value.casefold(), flags=re.UNICODE)
                 )
                 source_words = word_count(text)
-                output_words = word_count(candidate_text)
+                output_words = len(
+                    re.findall(
+                        r"[^\W_]+",
+                        candidate_text.casefold(),
+                        flags=re.UNICODE,
+                    )
+                )
                 if _SENTENCEPIECE_UNKNOWN_SURFACE in candidate_text:
                     candidate_fallback_reason = "The first result contained an unreadable symbol; an alternative was used."
                 elif output_words > source_words * 2 + 10:
                     candidate_fallback_reason = (
                         "The first result was unusually long; an alternative was used."
                     )
+                elif _has_repeated_content_word(
+                    re.findall(
+                        r"[^\W_]+",
+                        candidate_text.casefold(),
+                        flags=re.UNICODE,
+                    )
+                ):
+                    candidate_fallback_reason = "The first result repeated a word several times; an alternative was used."
                 else:
                     candidate_fallback_reason = "The first result repeated or copied the input; an alternative was used."
             else:

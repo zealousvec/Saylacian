@@ -126,6 +126,27 @@ class TranslationTests(unittest.TestCase):
         self.assertIsNotNone(baseline_engine.options)
         self.assertTrue(any("copied" in warning for warning in result.warnings))
 
+    def test_synthetic_guard_rejects_repeated_content_and_long_outputs(self):
+        examples = (
+            (
+                "people often repeat names in a long sentence many times",
+                "qaraabadaadu waxay leeyihiin calaamado qaraabadaadu waxay leeyihiin calaamado qaraabadaadu",
+            ),
+            (
+                "a short sentence",
+                "waxaan waxaan waxaan",
+            ),
+            (
+                "hi",
+                "waxaan u baahanahay inaad iga caawiso inaan helo goobta ugu dhow ee aan ka heli karo meel kale oo aan aado",
+            ),
+        )
+        for source, output in examples:
+            with self.subTest(source=source):
+                self.assertTrue(
+                    translation._synthetic_candidate_is_degenerate(source, output)
+                )
+
 
 if __name__ == "__main__":
     unittest.main()
