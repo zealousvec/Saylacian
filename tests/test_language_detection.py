@@ -74,24 +74,47 @@ class LanguageDetectionTests(unittest.TestCase):
         with patch.object(
             language_detection,
             "_identifier",
-            return_value=FakeIdentifier("en", 0.75),
+            return_value=FakeIdentifier("en", 0.70),
         ):
             language, confidence, message = detect_language("Where is my phone?")
 
         self.assertEqual(language, "English")
-        self.assertEqual(confidence, 0.75)
+        self.assertEqual(confidence, 0.70)
         self.assertEqual(message, "")
 
         with patch.object(
             language_detection,
             "_identifier",
-            return_value=FakeIdentifier("en", 0.749),
+            return_value=FakeIdentifier("en", 0.699),
         ):
             language, confidence, message = detect_language("Where is my phone?")
 
         self.assertIsNone(language)
-        self.assertEqual(confidence, 0.749)
+        self.assertEqual(confidence, 0.699)
         self.assertIn("Short text is uncertain", message)
+
+    def test_short_somali_text_uses_same_confidence_boundary(self):
+        with patch.object(
+            language_detection,
+            "_identifier",
+            return_value=FakeIdentifier("so", 0.699),
+        ):
+            language, confidence, message = detect_language("Waan ku jeclahay")
+
+        self.assertIsNone(language)
+        self.assertEqual(confidence, 0.699)
+        self.assertIn("Short text is uncertain", message)
+
+        with patch.object(
+            language_detection,
+            "_identifier",
+            return_value=FakeIdentifier("so", 0.70),
+        ):
+            language, confidence, message = detect_language("Waan ku jeclahay")
+
+        self.assertEqual(language, "Somali Latin")
+        self.assertEqual(confidence, 0.70)
+        self.assertEqual(message, "")
 
     def test_short_high_confidence_unsupported_language_stays_unsupported(self):
         language, confidence, message = detect_language("Guten Tag mein Freund")
