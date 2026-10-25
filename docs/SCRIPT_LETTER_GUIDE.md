@@ -6,7 +6,7 @@ This page describes the mappings currently present in Saylacian's source tables.
 
 The app maps Somali Latin graphemes to assigned Unicode Osmanya characters. It has entries for `a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, q, r, s, t, u, w, x, y`, the digraphs `dh, kh, sh`, long-vowel tokens `aa, ee, ii, oo, uu`, and apostrophe. The matcher checks longer tokens first, so digraphs and long vowels are recognized before their first letters.
 
-There is no app mapping for `p`, `v` or `z`; these are not part of the Somali letter set represented by this table and remain Latin when present in borrowed or foreign words. This is a limitation of the app's Somali mapping, not a claim that Osmanya cannot represent every foreign sound. The table also maps `w` and `uu` to the same Osmanya character, and `y` and `ii` to the same character. Consequently reverse transliteration cannot always recover which Latin spelling was intended. Capitalization is not encoded.
+There is no app mapping for `p`, `v` or `z`; these are not part of the Somali letter set represented by this table and remain Latin when present in borrowed or foreign words. This is a limitation of the app's Somali mapping, not a claim that Osmanya cannot represent every foreign sound. The table maps `w` and `uu` to the same Osmanya character, and `y` and `ii` to the same character. Reverse transliteration chooses `w` or `y` as the main reading and now lists other possible readings in the app. The original spelling cannot always be recovered. Capitalization is not encoded.
 
 ## Borama
 

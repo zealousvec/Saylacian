@@ -1,6 +1,6 @@
 # Saylacian
 
-Saylacian is a free Python and Kivy app for language translation and Somali script conversion. Its primary translation route runs locally with downloadable language packs. Installed packs work without an account, request quota, subscription, or per-translation fee.
+Saylacian is a Python and Kivy app for translation and Somali script conversion. English–French translation works offline after you download its language packs. Somali translation is experimental and still needs fluent-speaker review. Offline packs need no account or per-translation fee.
 
 ## Run on Windows
 
@@ -28,6 +28,8 @@ The app does not support modern Nubian varieties. See the [support matrix](docs/
 ## Help and privacy
 
 The [user guide](docs/USER_GUIDE.md) explains modes, scripts and clipboard choices. [Script interoperability](docs/SOMALI_SCRIPT_INTEROPERABILITY.md) explains what other apps can display. Translation defaults to installed local packs; optional online providers send text to the configured service and may have their own limits, privacy terms or costs.
+
+See the [version history](CHANGELOG.md) for changes made to the app.
 
 ## Licence
 

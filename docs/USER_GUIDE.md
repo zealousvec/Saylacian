@@ -29,6 +29,8 @@ For Borama or Kaddare, choose a script route to convert the available chart-mapp
 
 For a side-by-side explanation of mapped and unmatched letters in Osmanya, Borama, Kaddare and Old Nubian, see [letter mappings and unmatched letters](SCRIPT_LETTER_GUIDE.md).
 
+When reading Osmanya back into Latin, the shared glyphs produce a main reading plus alternatives: `𐒓` can be `w` or `uu`, and `𐒕` can be `y` or `ii`.
+
 The guide identifies table entries and ambiguities, including why a Latin `v` remains unchanged in these current Somali mappings. It does not claim missing Latin letters are missing from a historical script.
 
 

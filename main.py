@@ -801,7 +801,7 @@ class SaylacianApp(MDApp):
             output.text = result.text
             warnings = " ".join(result.warnings)
             if result.alternatives:
-                self.alternative_readings = "\nOther Coptic readings: " + " / ".join(
+                self.alternative_readings = "\nOther readings: " + " / ".join(
                     result.alternatives[:3]
                 )
             if source in ("Borama", "Kaddare") or self.target in (

@@ -4,6 +4,7 @@
 import json
 import unicodedata
 from dataclasses import dataclass
+from itertools import islice, product
 from pathlib import Path
 
 from .capabilities import get_capability
@@ -32,6 +33,10 @@ SCRIPT_PUA_TO_LATIN = {
 }
 SOMALI_TO_OSMANYA = RESOURCE["mapping"]
 OSMANYA_TO_SOMALI = {value: key for key, value in SOMALI_TO_OSMANYA.items()}
+OSMANYA_REVERSE_VARIANTS = {
+    chr(0x10493): ("uu",),
+    chr(0x10495): ("ii",),
+}
 OLD_NUBIAN_TO_LATIN = {
     "ⲁ": "a",
     "ⲃ": "b",
@@ -213,6 +218,18 @@ def _old_nubian_reverse_candidates(text: str, limit: int = 12) -> tuple[str, ...
     return paths[0]
 
 
+def _osmanya_reverse_candidates(text: str, limit: int = 12) -> tuple[str, ...]:
+    """Return bounded readings for Osmanya glyphs shared by short and long vowels."""
+    readings = tuple(
+        (
+            OSMANYA_TO_SOMALI.get(character, character),
+            *OSMANYA_REVERSE_VARIANTS.get(character, ()),
+        )
+        for character in text
+    )
+    return tuple("".join(candidate) for candidate in islice(product(*readings), limit))
+
+
 def detect_chart_script(text):
     private = [c for c in text if is_private_use_character(c)]
     if private:
@@ -347,7 +364,15 @@ def transliterate(text: str, source: str, target: str) -> Conversion:
                 warnings.append("Reverse ambiguity: w/uu or y/ii; output uses w and y.")
             elif char.isalpha() and char not in OSMANYA_TO_SOMALI:
                 warnings.append("Unmapped input preserved: " + char)
-    return Conversion("".join(result), tuple(dict.fromkeys(warnings)))
+    alternatives = ()
+    if source == "Osmanya":
+        primary = "".join(result)
+        alternatives = tuple(
+            candidate
+            for candidate in _osmanya_reverse_candidates(text)
+            if candidate != primary
+        )
+    return Conversion("".join(result), tuple(dict.fromkeys(warnings)), alternatives)
 
 
 transliterate_script = transliterate
