@@ -10,7 +10,7 @@ Move each task among these queues at every milestone. A blocker must name the ex
 
 ### ACTIVE
 
-No ACTIVE implementation item remains after fixing Windows clipboard ownership/allocation cleanup and removing directory paths from diagnostic logs. Reconcile the next product milestone against the master directive and roadmap; do not promote source-locale checks into accuracy claims or invent filler work.
+No ACTIVE item remains after the final Kivy acceptance and documentation audit. The top navigation label collision is fixed; current clipboard limitations are stated consistently. Do not promote source-locale checks into accuracy claims or invent filler work.
 
 ### BLOCKED
 
@@ -22,13 +22,23 @@ No ACTIVE implementation item remains after fixing Windows clipboard ownership/a
 | Obtain compact-layout pixel evidence | SDL2 `Window.screenshot` returned an all-black frame at a 360×640 dp viewport; widget geometry is verified but pixels are not | Use a validated isolated virtual display or a known-good OpenGL/SDL screenshot path, then capture and inspect the 360×640 dp view. Do not claim visual acceptance until that works. |
 | Verify portable Borama/Kaddare clipboard use in an external application | The publisher now uses Saylacian's native HWND and frees prepared buffers on setup failure; fake-API regressions pass, but no real OS clipboard or external application was exercised | Provision/use a disposable Windows VM with host clipboard sharing disabled, then run the guarded harness and import into a font-compatible external app. Record OS Unicode/RTF/bitmap/custom-format support separately. |
 | Run the hosted model-pack integration workflow | Workflow is local and tested; no hosted run occurred because the user prohibited pushes without approval | Obtain owner approval to push the reviewed workflow commit, then manually dispatch the French or Somali job and inspect its logs. Do not run before approval. |
+| Verify packaged Windows release on a clean host | The unsigned executable was blocked by host Application Control; no disposable clean Windows host was available | Test only in an isolated clean Windows VM after reviewing bundled DLL/font notices. Never weaken Smart App Control or Defender. No installer publication without owner approval. |
 | Validate short-input language-detection accuracy | Tatoeba source labels conflict with some texts; WiLI has no native rows in the app gate. Qor provides 67 verified Somali short rows but no negative classes. MASSIVE 1.1 is CC BY 4.0 and has useful short locale-labelled test text, but no per-row language-identification judgments and no Somali. Common Voice's official 950.41 MB archive requires Mozilla Data Collective access; SomaliWeb v1's cited benchmark CSV returns 404. | Obtain reviewer-adjudicated, consented short examples for Somali, English/French and unsupported languages under clear reuse terms. Alternatively, owner obtains Common Voice through MDC for additional source-locale evidence, then arranges independent review. Do not use mirrors, infer label correctness, or claim accuracy from source tags. |
 
 ### READY
 
 | Order | Task | Acceptance |
 |---|---|---|
-No separate task is READY after the Windows clipboard, diagnostic-privacy, and detector-threshold milestones. Reconcile the roadmap when new evidence, permission, reviewer input or a validated isolated resource becomes available. Continue independent READY work in future sessions; keep unresolved independent-label accuracy and external clipboard validation BLOCKED.
+No task remains READY after the final source, UI and safety audit. The remaining work needs the exact external evidence, reviewer input, isolated environment or owner approval listed in BLOCKED. Do not invent filler tasks.
+
+### DONE (current completion campaign)
+
+| Task | Evidence |
+|---|---|
+| Verify current baseline and remote state | Local `main` at `c80f4e1` before this campaign's UI/docs fix, 56 commits ahead of public `origin/main` at `c4f2f87270c22a05e772816ce98e57a99b871b18`. Two pre-existing owner edits remain untouched and unstaged. Public Actions run `40087020450` completed successfully on the remote commit. |
+| Fix top-bar action-label collision | The Old Nubian `Read` action had only 48 dp allocated and crowded Translate/Transliterate. Increased its width to 72 dp and header action spacing to 12 dp; live Kivy acceptance asserts at least 8 dp between labels and verifies the button fits. Inspected live Read Studio capture after the fix; `Transliterate` and `Read` are distinct. |
+| Reconcile clipboard portability claims | `docs/SUPPORT_MATRIX.md` now says the guarded WinForms harness exists but the current publisher has not been tested in a real external app; the isolated-VM requirement remains BLOCKED. |
+| Run final local quality gates | Exact results and commands are recorded in `docs/FINAL_DEVELOPMENT_REPORT.md` after the final code change. |
 
 ### VERIFIED
 

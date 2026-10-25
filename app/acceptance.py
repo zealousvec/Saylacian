@@ -660,6 +660,13 @@ def start(app):
     def show_old_nubian_reader(dt):
         app.source, app.target = "Old Nubian (Coptic)", "Old Nubian scholarly Latin"
         app.refresh_fonts()
+        read_button = app.root.get_screen("home").ids.old_nubian_read_button
+        mode_button = app.root.get_screen("home").ids.mode_toggle_button
+        assert read_button.width >= dp(72)
+        assert read_button.x - mode_button.right >= dp(8), (
+            read_button.x,
+            mode_button.right,
+        )
         home.ids.output_text.cancel_selection()
         home.ids.input_text.text = "ⲀⲂⲄ\nⳜⳞⳠⳢ\nⲁ⳯⳰⳱"
         Clock.schedule_once(capture_old_nubian_reader, 0.2)

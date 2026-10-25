@@ -45,14 +45,16 @@
                     size_hint_y: None
                     width: self.minimum_width
                     height: dp(44)
-                    spacing: dp(4)
+                    spacing: dp(12)
                     MDFlatButton:
+                        id: mode_toggle_button
                         text: "Transliterate" if app.mode == "Convert writing system" else "Translate"
                         on_release: app.switch_mode()
                     MDFlatButton:
+                        id: old_nubian_read_button
                         text: "Read"
                         size_hint_x: None
-                        width: dp(48) if app.mode == "Convert writing system" and ("Old Nubian" in app.source or "Old Nubian" in app.target) else 0
+                        width: dp(72) if app.mode == "Convert writing system" and ("Old Nubian" in app.source or "Old Nubian" in app.target) else 0
                         disabled: not (app.mode == "Convert writing system" and ("Old Nubian" in app.source or "Old Nubian" in app.target))
                         on_release: app.open_old_nubian_studio()
                     ActionIcon:
