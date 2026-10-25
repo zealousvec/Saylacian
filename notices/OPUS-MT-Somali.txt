@@ -1,0 +1,10 @@
+Offline Somali-English model provenance
+
+The local English-to-Somali and Somali-to-English CTranslate2 model files are from these pinned repositories:
+
+- https://huggingface.co/gaudi/opus-mt-en-mul-ctranslate2/tree/89fdef87793d0b4a3860bd4d7c5e4cf77e7575b9
+- https://huggingface.co/gaudi/opus-mt-mul-en-ctranslate2/tree/fb574c2082b1a49f89e55064aca6c1fba1125474
+
+Both model cards declare Apache-2.0 and identify Helsinki-NLP OPUS-MT and CTranslate2 as upstream work. The complete Apache License 2.0 text is included as Apache-2.0.txt. File hashes are in docs/SOMALI_TRANSLATION_EVIDENCE.json; aggregate test results are in docs/SOMALI_TRANSLATION_QUALITY.md. The weights are unchanged; the English-to-multilingual CTranslate2 config sets layer_norm_epsilon to 1e-5 because the upstream null value is rejected by the installed runtime.
+
+The models are experimental; their presence does not imply Somali translation quality has received fluent community review.
