@@ -107,6 +107,18 @@ I compared the standard pack with the optional synthetic model using the app's n
 
 These automatic scores favor the optional route on this sample, but they do not establish that the Somali is fluent or meaning-preserving. The guard rejected 14 candidate outputs containing the unreadable SentencePiece marker `⁇`; the raw route left this marker inside words such as `New ⁇ ealand's`. Fallback avoids returning that marker, even though those replacement translations scored slightly lower automatically. The optional route's example for “Each temple had an open temple courtyard and then an inner sanctuary that only the priests could enter” was “Mid kasta oo macbud ah wuxuu lahaa barxad furan oo macbad ah ka dibna waxaa jiray hoy gudaha ah oo kaliya wadaadadu ay gali karaan.” It appears more complete than the standard route's output for that sentence, but it still needs fluent-speaker review. Training/test overlap has not been audited.
 
+### Unprompted trailing-ellipsis fallback
+
+A second independently ranked 120-pair FLORES-200 sample (`saylacian-flores-devtest-v2`) exposed 11 candidate translations that ended in `...` or `…` although their English source sentences did not. The output guard previously accepted these likely incomplete results. Saylacian now uses the standard pack for that specific case and tells the user that the first result appeared unfinished. A source that itself ends in an ellipsis is not rejected for matching punctuation.
+
+| Route on the same 120-pair sample | BLEU | chrF++ | Fallbacks | Mean time per sentence |
+|---|---:|---:|---:|---:|
+| Standard pack | 4.432 | 29.789 | — | 608 ms |
+| Optional model with previous guard | 10.630 | 38.791 | 20 of 120 | 420 ms |
+| Optional model with trailing-ellipsis guard | 10.470 | 37.983 | 31 of 120 | 407 ms |
+
+The new guard caught all 11 outputs ending in an unprompted ellipsis in this sample. The automatic scores decreased slightly after replacing them with standard-pack results; this is a quality safeguard against visibly unfinished output, not evidence that the replacement is more accurate. The existing limitations still apply: these scores do not establish fluency or meaning preservation, and fluent-speaker review and training/test overlap checks remain outstanding.
+
 ## Somali-to-English repetition setting check
 
 After removing the unknown language tag, I compared CTranslate2 no-repeat sizes on two independently ranked 120-pair samples from the same FLORES-200 `devtest` archive. Both used beam size 4 and the current Somali-to-English model input. “Repeated trigrams” counts repeated word-level three-word sequences in the English output; CTranslate2 applies its restriction to model tokens, so the counts are not expected to be zero in every run.

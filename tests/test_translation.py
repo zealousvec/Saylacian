@@ -163,7 +163,18 @@ class TranslationTests(unittest.TestCase):
 
         self.assertEqual(result.text, "baseline Somali result")
         self.assertIsNotNone(baseline_engine.options)
-        self.assertTrue(any("copied" in warning for warning in result.warnings))
+
+    def test_synthetic_result_with_unprompted_trailing_ellipsis_falls_back(self):
+        result, candidate_engine, baseline_engine = self.run_with_candidate_output(
+            "A useful Somali result..."
+        )
+
+        self.assertEqual(result.text, "baseline Somali result")
+        self.assertIsNotNone(candidate_engine.options)
+        self.assertIsNotNone(baseline_engine.options)
+        self.assertTrue(
+            any("appeared unfinished" in warning for warning in result.warnings)
+        )
 
     def test_synthetic_guard_rejects_repeated_content_and_long_outputs(self):
         examples = (
@@ -193,6 +204,16 @@ class TranslationTests(unittest.TestCase):
                 "A useful English sentence.",
                 "A useful English sentence.",
                 "copied_input",
+            ),
+            (
+                "A complete English sentence.",
+                "Turjumaad dhammeystiran...",
+                "trailing_ellipsis",
+            ),
+            (
+                "An unfinished source thought...",
+                "Fikir aan dhammeystirnayn...",
+                None,
             ),
             ("hi", "a b c d e f g h i j k l m", "overlong"),
             ("a short sentence", "waxaan waxaan waxaan", "repeated_content_word"),

@@ -38,6 +38,10 @@ def _synthetic_candidate_rejection_reason(source, output):
     """Identify why candidate output should fall back to the standard model."""
     if _SENTENCEPIECE_UNKNOWN_SURFACE in output:
         return "unknown_symbol"
+    if output.rstrip().endswith(("...", "…")) and not source.rstrip().endswith(
+        ("...", "…")
+    ):
+        return "trailing_ellipsis"
 
     def normalize(value):
         return " ".join(
@@ -74,7 +78,7 @@ def _synthetic_candidate_rejection_reason(source, output):
 
 
 def _synthetic_candidate_is_degenerate(source, output):
-    """Reject copied, repeated, unreadable or unusually expanded candidate text."""
+    """Reject incomplete, copied, repeated, unreadable or expanded candidate text."""
     return _synthetic_candidate_rejection_reason(source, output) is not None
 
 
@@ -339,6 +343,9 @@ def translate_meaning(text, source, target, model_root=None, *, provider_overrid
                     "unknown_symbol": (
                         "The first result contained an unreadable symbol; "
                         "an alternative was used."
+                    ),
+                    "trailing_ellipsis": (
+                        "The first result appeared unfinished; an alternative was used."
                     ),
                     "copied_input": (
                         "The first result repeated or copied the input; "
