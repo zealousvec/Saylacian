@@ -46,6 +46,11 @@ def start(app):
     app.update_layout(Window, dp(320), dp(700))
     assert not app.wide_layout
     assert home.ids.translation_panels.orientation == "vertical"
+    assert home.ids.language_controls.orientation == "vertical"
+    app.update_layout(Window, dp(320), dp(500))
+    assert not app.wide_layout
+    assert home.ids.translation_panels.orientation == "vertical"
+    assert home.ids.language_controls.orientation == "horizontal"
     app.update_layout(Window, dp(800), dp(700))
     assert app.wide_layout
     assert home.ids.translation_panels.orientation == "horizontal"

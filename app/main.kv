@@ -65,10 +65,10 @@
                         on_release: app.open_packs()
             BoxLayout:
                 id: language_controls
-                orientation: "horizontal" if root.width >= dp(360) else "vertical"
-                spacing: dp(10)
+                orientation: "horizontal" if root.width >= dp(360) or root.height <= dp(520) else "vertical"
+                spacing: dp(2) if root.width < dp(360) and root.height <= dp(520) else dp(10)
                 size_hint_y: None
-                height: dp(48) if root.width >= dp(360) else dp(156)
+                height: dp(48) if root.width >= dp(360) or root.height <= dp(520) else dp(156)
                 MDFillRoundFlatIconButton:
                     text: app.display_name(app.source) if len(app.display_name(app.source)) <= 18 else app.display_name(app.source)[:15] + "..."
                     icon: "chevron-down"
@@ -82,7 +82,7 @@
                     icon: "swap-horizontal"
                     tooltip_text: "Swap source and target"
                     size_hint: None, None
-                    size: dp(48), dp(48)
+                    size: (dp(32) if root.width < dp(360) and root.height <= dp(520) else dp(48)), dp(48)
                     md_bg_color: 1, 1, 1, 1
                     theme_icon_color: "Custom"
                     icon_color: 0, 0, 0, 1

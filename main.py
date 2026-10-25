@@ -242,7 +242,7 @@ class SaylacianApp(MDApp):
 
     def update_layout(self, window, width, height):
         """Use two panels when there is room, including short landscape windows."""
-        self.wide_layout = width >= dp(760) or height <= dp(520)
+        self.wide_layout = width >= dp(760) or (height <= dp(520) and width >= dp(480))
 
     def on_start(self):
         Window.bind(on_keyboard=self.keyboard)
