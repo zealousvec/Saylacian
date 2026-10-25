@@ -17,6 +17,7 @@ PREVIEW_DIR = EVIDENCE_DIR / "previews"
 PREVIEW_DIR.mkdir(parents=True, exist_ok=True)
 os.environ.setdefault("SAYLACIAN_TRANSLATION_PROVIDER", "offline")
 sys.path.insert(0, str(PROJECT))
+from kivy.app import App
 from kivy.clock import Clock
 from kivy.core.window import Window
 
@@ -39,7 +40,8 @@ def capture_after_present(path, continuation):
         Window._saylacian_capture_callback = None
 
         def capture(dt):
-            Window.screenshot(name=str(path))
+            app = App.get_running_app()
+            app.root.export_to_png(str(path))
             Clock.schedule_once(lambda dt: continuation(), 0.1)
 
         Clock.schedule_once(capture, 0.15)

@@ -4,7 +4,7 @@ For current language and platform capability status, see [`SUPPORT_MATRIX.md`](S
 
 ## Current source acceptance
 
-As of 2026-10-25, the local Windows Python source app passes 149 tests, 2 symlink-permission skips, and 200 subtests. The isolated live Kivy acceptance passed 19 checks with networking blocked and runtime data redirected to a temporary directory; a 320x640 viewport capture was visually checked. Clipboard tests use an in-memory adapter; real Windows/external-app delivery is unverified. The unsigned packaged app remains runtime-unverified under the host's enforced application-control policy. Do not bypass Windows security controls or distribute the candidate.
+As of 2026-10-25, the local Windows Python source app passes 149 tests, 2 symlink-permission skips, and 200 subtests. The isolated live Kivy acceptance passed 19 checks with networking blocked and runtime data redirected to a temporary directory. FBO captures at 320x640, 390x780, 780x390, 768x1024 and 1366x768 were visually reviewed; the landscape case is intact. Clipboard tests use an in-memory adapter; real Windows/external-app delivery is unverified. The unsigned packaged app remains runtime-unverified under the host's enforced application-control policy. Do not bypass Windows security controls or distribute the candidate.
 
 ## Windows
 
