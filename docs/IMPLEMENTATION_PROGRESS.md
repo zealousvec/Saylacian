@@ -2,9 +2,9 @@
 
 Live task board for `SAYLACIAN_MASTER_DEVELOPMENT_DIRECTIVE.md`. This board records evidence, not aspirations. `verified` means the stated check passed; it does not establish linguistic acceptance.
 
-Current checkpoint: branch `main`, local commit `72a3e5ee8554401fd36d9901722bd64bcf1ed66b`; unpublished. Model-pack pointer/path containment is verified. The last recorded public `origin/main` is `c4f2f87270c22a05e772816ce98e57a99b871b18`; no remote mutation occurred. Existing edits in `docs/PROJECT_STATUS.md` and `docs/TECHNICAL_AUDIT.md` remain unstaged and untouched.
+Current checkpoint: branch `main`, local implementation commit `6f294db2bf8be75bfba88334325635784fd9631a`; unpublished. Model-pack pointer/path containment is verified. The last recorded public `origin/main` is `c4f2f87270c22a05e772816ce98e57a99b871b18`; no remote mutation occurred. Existing edits in `docs/PROJECT_STATUS.md` and `docs/TECHNICAL_AUDIT.md` remain unstaged and untouched.
 
-**Campaign status: PARTIALLY COMPLETE — NOT FINISHED.** The last completion report incorrectly declared the phase complete. The Somali benchmark reproduction and a development-dependency advisory fix are verified and committed locally. No implementation task is currently ACTIVE or READY; re-evaluate when evidence or required resources change. External review, rights, permissions, and isolated environments remain BLOCKED.
+**Campaign status: PARTIALLY COMPLETE — NOT FINISHED.** The last completion report incorrectly declared the phase complete. Somali benchmark reproduction, development-dependency advisory remediation, and Windows pack-path containment are verified and committed locally. No implementation task is currently ACTIVE or READY; re-evaluate when evidence or required resources change. External review, rights, permissions, and isolated environments remain BLOCKED.
 
 ## Autonomous execution queues
 
@@ -14,7 +14,7 @@ Move each task among these queues at every milestone. A blocker must name the ex
 
 | Task | Acceptance | Guardrails |
 |---|---|---|
-No active task remains after local commit `72a3e5ee8554401fd36d9901722bd64bcf1ed66b`.
+No active task remains after local commit `6f294db2bf8be75bfba88334325635784fd9631a`.
 
 ### BLOCKED
 
@@ -43,6 +43,7 @@ No additional safe, evidence-backed implementation task is presently READY after
 | Reproduce the pinned Somali benchmark and fix route audit accounting | Freshly installed 10/10 asset pack `1-bfdcf52bd69` in unique temp storage; blocked socket connections during inference; reproduced EN→SO BLEU/chrF++ 5.287/25.282 and SO→EN 6.300/24.680. Route audit now recognizes current warning text: 97 candidate accepted, 53 fallback (47 unreadable marker, 6 output length), no U+2047 in final EN→SO. Temporary predictions retained outside Git. Three focused tests pass. This is reproducibility evidence only; EN→SO remains below pre-guard 7.057/28.996 and linguistic quality remains blocked. |
 | Remediate and audit Python development dependency advisory | `requirements-dev.txt` now pins pytest 9.1.1 instead of vulnerable 8.4.2 (PYSEC-2026-1845; fixed version 9.0.3). `pip-audit` found no known vulnerabilities across every `requirements*.txt` file after the change. Fresh temporary Windows venv installed `requirements-dev.txt`, `pip check` passed, and the full suite passed: 144 passed, 2 symlink-permission skips, 197 subtests. |
 | Commit the verified recovery milestone locally | Commit `72a3e5ee8554401fd36d9901722bd64bcf1ed66b`, message `fix: secure dev deps and audit routes`; contains exactly seven reviewed paths. The owner-edited project status and technical audit files remain unstaged and untouched. No push. |
+| Reject Windows-specific pack asset path escapes | `_safe_relative` now rejects backslashes and Windows drive paths before using a manifest destination. Regression covers traversal, absolute drive, and drive-relative paths and proves no download is attempted or escaped file created. Focused tests: 10 passed, 2 symlink-privilege skips, 8 subtests. Full suite: 145 passed, 2 skips, 200 subtests; Ruff, format, compileall, `pip check`, release scan and diff check pass. Local commit `6f294db2bf8be75bfba88334325635784fd9631a`; no push. |
 | Fix top-bar action-label collision | The Old Nubian `Read` action had only 48 dp allocated and crowded Translate/Transliterate. Increased its width to 72 dp and header action spacing to 12 dp; live Kivy acceptance asserts at least 8 dp between labels and verifies the button fits. Inspected live Read Studio capture after the fix; `Transliterate` and `Read` are distinct. |
 | Reconcile clipboard portability claims | `docs/SUPPORT_MATRIX.md` now says the guarded WinForms harness exists but the current publisher has not been tested in a real external app; the isolated-VM requirement remains BLOCKED. |
 | Make Kivy acceptance isolated and verify clean-clone launch | Acceptance patches model-path, clipboard and publisher dependencies on the active `SaylacianApp` module, including `__main__` script execution; it needs no local Somali pack and does not access the host clipboard. A clean clone downloaded the pinned French pack through `verify_pack_integration.py`, verified 2/2 assets and passed both offline directions; Kivy self-test then returned `Bonjour, comment allez-vous ?` with network blocked and a clean tracked tree. Full suite: 143 passed, 2 Windows symlink-privilege skips, 197 subtests; Ruff check/format (113 files), compileall, `pip check`, release-safety and diff checks pass. |
