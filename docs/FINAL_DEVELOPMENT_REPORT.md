@@ -73,7 +73,7 @@ The two skipped tests require Windows symlink privileges. Somali linguistic qual
 
 ## 11. Git branch and unpublished commits
 
-Branch: `main`, at recovery base `80c868fc30521a2603bf20a255631ff0c09d14fb`, 61 commits ahead of public `origin/main` at `c4f2f87270c22a05e772816ce98e57a99b871b18`. The benchmark, route-audit, dev pin, and progress/report changes are being prepared as one local commit from explicit paths. Previous implementation commits remain local and unpublished. No force operation is authorized.
+Branch: `main`, local commit `72a3e5ee8554401fd36d9901722bd64bcf1ed66b` contains only the reviewed benchmark, route-audit, development dependency and campaign report files. Its parent was recovery base `80c868fc30521a2603bf20a255631ff0c09d14fb`; public `origin/main` remains at the last verified `c4f2f87270c22a05e772816ce98e57a99b871b18`. All commits are local and unpublished. No force operation is authorized.
 
 ## 12. Owner edits and publication
 
@@ -87,8 +87,8 @@ The pre-existing edits in `docs/PROJECT_STATUS.md` and `docs/TECHNICAL_AUDIT.md`
 
 **Owner/reviewer actions:** obtain DBMNT reuse terms and qualified Old Nubian review; arrange fluent Somali review; authorize any push needed for hosted workflows; provide an isolated Windows VM and appropriate clean-host/signing plan if pursuing binary distribution.
 
-**Completed developer actions:** fresh Somali benchmark reproduction with verified pack, network-blocked inference and temp-only outputs; corrected and regression-tested stale route-audit accounting; fixed the vulnerable development pytest pin and audited all requirement files. The next action is to commit only reviewed files locally, then reassess READY work while external blockers remain open.
+**Completed developer actions:** fresh Somali benchmark reproduction with verified pack, network-blocked inference and temp-only outputs; corrected and regression-tested stale route-audit accounting; fixed the vulnerable development pytest pin and audited all requirement files. These changes are committed locally at `72a3e5ee8554401fd36d9901722bd64bcf1ed66b`. No other safe, evidence-backed task is currently READY; reassess if required people, permissions, or isolated environments become available.
 
 ## 15. Final phase status
 
-**PARTIALLY COMPLETE — NOT FINISHED.** The toolbar fix, clean-clone pack workflow, Somali benchmark reproduction and route-audit correction, and dependency advisory remediation are verified. This does not complete the project or release readiness: linguistic review, historical-data rights, accessibility observation, real clipboard validation, and clean-host/signing checks remain open. The previous report's “complete” label was premature. No files were pushed or released.
+**PARTIALLY COMPLETE — NOT FINISHED.** The toolbar fix, clean-clone pack workflow, Somali benchmark reproduction and route-audit correction, and dependency advisory remediation are verified. This does not complete the project or release readiness: linguistic review, historical-data rights, accessibility observation, real clipboard validation, and clean-host/signing checks remain open. The previous report's “complete” label was premature. Local commit `72a3e5ee8554401fd36d9901722bd64bcf1ed66b` was not pushed; no files were released.

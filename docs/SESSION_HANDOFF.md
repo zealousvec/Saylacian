@@ -8,11 +8,11 @@ Benchmark: fresh 10/10-asset pack `1-bfdcf52bd69` installed in unique temporary 
 
 Dependency audit: `requirements-dev.txt` now pins pytest 9.1.1, replacing vulnerable 8.4.2 (PYSEC-2026-1845). `pip-audit` found no known vulnerabilities in any `requirements*.txt` file after the fix. A fresh temporary Windows environment installed the dev requirements; `pip check` and the complete suite passed: 144 passed, 2 symlink-permission skips, 197 subtests. Ruff, format (113 files), compileall, release scan and diff checks also passed.
 
-**ACTIVE:** prepare one local commit from the explicit reviewed paths only. Do not stage or alter owner edits in `docs/PROJECT_STATUS.md` and `docs/TECHNICAL_AUDIT.md`. Do not push. After commit, reassess READY work; do not invent filler if every remaining item needs an external resource.
+Recovery milestone is committed locally at `72a3e5ee8554401fd36d9901722bd64bcf1ed66b` (`fix: secure dev deps and audit routes`). It contains only seven reviewed paths; owner edits in `docs/PROJECT_STATUS.md` and `docs/TECHNICAL_AUDIT.md` remain untouched and unstaged. Do not push. No safe implementation task is currently READY; reassess if an external resource or new evidence changes the queue.
 
 **BLOCKED:** fluent Somali review; written DBMNT rights plus Old Nubian specialist review; Narrator/NVDA observation; validated compact-layout capture; real clipboard delivery/import in a disposable VM; hosted workflow run requiring an approved push; clean-host Windows signing/package validation. The exact unblock actions remain in `docs/IMPLEMENTATION_PROGRESS.md`.
 
-The active goal remains unfinished. Start with `git status --short`, verify only owned paths are staged, finish the local commit, and continue any newly READY safe task. Preserve the benchmark temp outputs; no model weights or example predictions belong in Git.
+The active goal remains unfinished even though this local milestone is committed. Start future work by checking `git status --short` and the queues, then continue any newly READY safe task. Preserve the benchmark temp outputs; no model weights or example predictions belong in Git.
 
 ## Latest milestone — diagnostic log path privacy (2026-10-24)
 
