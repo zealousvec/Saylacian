@@ -94,6 +94,9 @@ def get_pack_specs() -> dict[str, dict]:
     afrislm = json.loads(
         (DATA_ROOT / "afrislm_model_manifest.json").read_text(encoding="utf-8")
     )
+    afrislm_2b = json.loads(
+        (DATA_ROOT / "afrislm_2b_model_manifest.json").read_text(encoding="utf-8")
+    )
 
     somali_assets = []
     for item in somali:
@@ -170,8 +173,9 @@ def get_pack_specs() -> dict[str, dict]:
         "somali_afrislm": {
             "title": "Somali experimental model (AfriSLM)",
             "description": (
-                "Optional 641 MiB model; requires llama-cpp-python 0.3.36. "
-                "Output needs fluent review; CC-BY-NC-4.0 data is not included."
+                "Optional 641 MiB model preferred for English-to-Somali; "
+                "requires llama-cpp-python 0.3.36. Output needs fluent review; "
+                "CC-BY-NC-4.0 data is not included."
             ),
             "license": "Apache-2.0",
             "training_data_license": afrislm[0]["training_data_license"],
@@ -192,6 +196,34 @@ def get_pack_specs() -> dict[str, dict]:
                     "runtimes": item["runtimes"],
                 }
                 for item in afrislm
+            ],
+        },
+        "somali_afrislm_2b": {
+            "title": "Somali → English experimental model (AfriSLM 2B)",
+            "description": (
+                "Optional 1.46 GiB model used for Somali-to-English only; "
+                "requires llama-cpp-python 0.3.36. Results remain experimental; "
+                "training data is not included."
+            ),
+            "license": "Apache-2.0",
+            "training_data_license": afrislm_2b[0]["training_data_license"],
+            "model_repositories": sorted({item["repository"] for item in afrislm_2b}),
+            "runtimes": afrislm_2b[0]["runtimes"],
+            "assets": [
+                {
+                    "kind": "file",
+                    "url": _huggingface_url(
+                        item["repository"], item["revision"], item["filename"]
+                    ),
+                    "bytes": item["bytes"],
+                    "sha256": item["sha256"],
+                    "destination": item["destination"],
+                    "license": item["license"],
+                    "repository": item["repository"],
+                    "revision": item["revision"],
+                    "runtimes": item["runtimes"],
+                }
+                for item in afrislm_2b
             ],
         },
     }

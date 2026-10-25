@@ -228,6 +228,17 @@ def _afrislm_model_path():
     )
 
 
+def _afrislm_2b_model_path():
+    return next(
+        (
+            root / "somali" / "afrislm_2b" / "model.gguf"
+            for root in _model_roots()
+            if (root / "somali" / "afrislm_2b" / "model.gguf").is_file()
+        ),
+        None,
+    )
+
+
 def _translate_afrislm(text, source, target, model_path):
     try:
         model = load_afrislm_model(str(model_path))
@@ -354,28 +365,35 @@ def translate_meaning(text, source, target, model_root=None, *, provider_overrid
             )
         )
         return Conversion(second.text, warnings)
+    experimental_paths = []
+    if (source, target) == ("English", "Somali Latin"):
+        experimental_paths.append(_afrislm_model_path())
+    elif (source, target) == ("Somali Latin", "English"):
+        experimental_paths.extend((_afrislm_2b_model_path(), _afrislm_model_path()))
+
     experimental_warning = None
-    experimental_path = (
-        _afrislm_model_path()
-        if (source, target)
-        in {
-            ("English", "Somali Latin"),
-            ("Somali Latin", "English"),
-        }
-        else None
-    )
-    if experimental_path is not None:
-        experimental = None
+    for experimental_path in filter(None, experimental_paths):
         try:
-            experimental, experimental_warning = _translate_afrislm(
+            experimental, fallback_warning = _translate_afrislm(
                 text, source, target, experimental_path
             )
         except ValueError:
-            experimental_warning = (
+            experimental = None
+            fallback_warning = (
                 "Optional AfriSLM runtime unavailable; used the standard offline model."
             )
         if experimental is not None:
+            if experimental_warning:
+                return Conversion(
+                    experimental.text,
+                    (
+                        *experimental.warnings,
+                        "The larger experimental model could not run; used the smaller model.",
+                    ),
+                    experimental.alternatives,
+                )
             return experimental
+        experimental_warning = fallback_warning
 
     try:
         folder = model_directory(source, target, model_root)

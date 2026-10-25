@@ -19,7 +19,10 @@ class ModelPackTests(unittest.TestCase):
     def test_pinned_packs_include_reproducible_sources_and_sizes(self):
         first = get_pack_specs()
         second = get_pack_specs()
-        self.assertEqual(set(first), {"somali", "french", "somali_afrislm"})
+        self.assertEqual(
+            set(first),
+            {"somali", "french", "somali_afrislm", "somali_afrislm_2b"},
+        )
         for pack_id in first:
             self.assertEqual(first[pack_id]["version"], second[pack_id]["version"])
             self.assertGreater(first[pack_id]["download_bytes"], 0)
@@ -57,6 +60,21 @@ class ModelPackTests(unittest.TestCase):
             )
         self.assertIn("llama-cpp-python", candidate_row["description"])
         self.assertIn("CC-BY-NC-4.0", candidate_row["description"])
+
+        larger = first["somali_afrislm_2b"]
+        self.assertIn("Somali → English", larger["title"])
+        self.assertIn("experimental", larger["title"])
+        self.assertEqual(larger["runtimes"], {"llama-cpp-python": "0.3.36"})
+        self.assertEqual(larger["license"], "Apache-2.0")
+        self.assertEqual(
+            larger["training_data_license"],
+            "CC-BY-NC-4.0; training data is not included",
+        )
+        self.assertEqual(larger["download_bytes"], 1560461376)
+        self.assertEqual(
+            larger["assets"][0]["sha256"],
+            "fc2a80532e58e0655efd9e68c5b7cb2c4373222e736bcc88de648502a4e30361",
+        )
 
     def test_download_verifies_hash_installs_version_and_reports_progress(self):
         content = b"model bytes"

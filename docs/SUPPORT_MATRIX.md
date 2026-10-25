@@ -8,8 +8,8 @@ Status describes current checked-in code and local resources, not a release-qual
 |---|---|---|---|
 | English | French | Local model | Works offline; smoke-tested |
 | French | English | Local model | Works offline; smoke-tested |
-| English | Somali Latin | Downloaded packs use multilingual OPUS; builds with the locally prepared synthetic candidate prefer it and fall back on degenerate output | Experimental; no synthetic model is included in current downloadable pack; fluent review needed |
-| Somali Latin | English | Local multilingual model | Experimental; fluent review needed |
+| English | Somali Latin | Optional AfriSLM 0.8B pack when installed; otherwise the standard offline route | Experimental; output needs fluent review |
+| Somali Latin | English | Optional AfriSLM 2B pack when installed, then optional 0.8B pack, then standard offline route | Experimental; the 2B pack is about 1.45 GiB and slower on CPU; output needs fluent review |
 | Somali Latin | French | Somali → English → French local models | Experimental pivot; errors compound |
 | French | Somali Latin | French → English → Somali local models | Experimental pivot; known awkward output |
 

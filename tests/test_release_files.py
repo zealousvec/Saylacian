@@ -26,6 +26,9 @@ class ReleaseFileTests(unittest.TestCase):
         self.assertIn("models/**", ignore)
         self.assertIn("!models/manifest.json", ignore)
         self.assertIn("!models/somali-manifest.json", ignore)
+        self.assertTrue(
+            (ROOT / "saylacian/core/data/afrislm_2b_model_manifest.json").is_file()
+        )
 
 
 if __name__ == "__main__":

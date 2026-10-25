@@ -13,6 +13,7 @@ from unittest.mock import Mock, patch
 
 from saylacian.core.translation import (
     MODEL_ROOT,
+    _afrislm_2b_model_path,
     _afrislm_model_path,
     _clean_model_markers,
     _join_model_segments,
@@ -141,6 +142,95 @@ class TranslationTests(unittest.TestCase):
                 return_value=[Path(temporary)],
             ):
                 self.assertEqual(_afrislm_model_path(), model_path)
+
+    def test_afrislm_2b_path_is_discovered_from_active_model_pack(self):
+        with TemporaryDirectory() as temporary:
+            model_path = Path(temporary) / "somali" / "afrislm_2b" / "model.gguf"
+            model_path.parent.mkdir(parents=True)
+            model_path.touch()
+
+            with patch(
+                "saylacian.core.translation._model_roots",
+                return_value=[Path(temporary)],
+            ):
+                self.assertEqual(_afrislm_2b_model_path(), model_path)
+
+    def test_directional_afrislm_routes_keep_best_model_per_direction(self):
+        with TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            small = root / "somali" / "afrislm" / "model.gguf"
+            large = root / "somali" / "afrislm_2b" / "model.gguf"
+            small.parent.mkdir(parents=True)
+            large.parent.mkdir(parents=True)
+            small.touch()
+            large.touch()
+
+            def convert(_text, _source, _target, path):
+                label = "larger model" if path == large else "smaller model"
+                return SimpleNamespace(text=label, warnings=("Experimental.",)), None
+
+            with (
+                patch(
+                    "saylacian.core.translation._model_roots",
+                    return_value=[root],
+                ),
+                patch(
+                    "saylacian.core.translation._translate_afrislm",
+                    side_effect=convert,
+                ) as route,
+                patch(
+                    "saylacian.core.translation.model_directory",
+                    side_effect=AssertionError("installed candidate should handle it"),
+                ),
+            ):
+                somali_to_english = translate_meaning(
+                    "Waan ku jeclahay.", "Somali Latin", "English"
+                )
+                english_to_somali = translate_meaning(
+                    "I love you.", "English", "Somali Latin"
+                )
+
+        self.assertEqual(somali_to_english.text, "larger model")
+        self.assertEqual(english_to_somali.text, "smaller model")
+        self.assertEqual(route.call_args_list[0].args[3], large)
+        self.assertEqual(route.call_args_list[1].args[3], small)
+
+    def test_failed_larger_model_falls_back_to_installed_smaller_model(self):
+        with TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            small = root / "somali" / "afrislm" / "model.gguf"
+            large = root / "somali" / "afrislm_2b" / "model.gguf"
+            small.parent.mkdir(parents=True)
+            large.parent.mkdir(parents=True)
+            small.touch()
+            large.touch()
+            small_result = SimpleNamespace(
+                text="Waan ku jeclahay.", warnings=("Experimental.",), alternatives=()
+            )
+
+            with (
+                patch(
+                    "saylacian.core.translation._model_roots",
+                    return_value=[root],
+                ),
+                patch(
+                    "saylacian.core.translation._translate_afrislm",
+                    side_effect=[
+                        (None, "Large model ran out of memory."),
+                        (small_result, None),
+                    ],
+                ),
+                patch(
+                    "saylacian.core.translation.model_directory",
+                    side_effect=AssertionError("smaller candidate should handle it"),
+                ),
+            ):
+                result = translate_meaning(
+                    "Waan ku jeclahay.", "Somali Latin", "English"
+                )
+
+        self.assertEqual(result.text, "Waan ku jeclahay.")
+        self.assertIn("used the smaller model", result.warnings[-1])
 
     def test_unavailable_afrislm_runtime_falls_back_with_warning(self):
         with TemporaryDirectory() as temporary:
