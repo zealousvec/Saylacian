@@ -579,6 +579,7 @@ class SaylacianApp(MDApp):
         except (OSError, RuntimeError, ValueError, zipfile.BadZipFile) as error:
             self.pack_status = pack_download_error_message(error)
         else:
+            clear_model_cache()
             self.pack_progress = 100
             title = self.pack_manager.specs[pack_id]["title"]
             self.pack_status = f"{title} is ready to use offline."

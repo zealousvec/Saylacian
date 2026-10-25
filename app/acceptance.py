@@ -366,11 +366,26 @@ def start(app):
         failed_download.result.side_effect = OSError("C:\\private\\pack.zip")
         app.pack_busy = True
         app.pack_cancel_event = threading.Event()
-        with patch.object(app, "refresh_pack_screen"):
+        with (
+            patch.object(app, "refresh_pack_screen"),
+            patch.object(app_module, "clear_model_cache") as clear_model_cache,
+        ):
             app.finish_pack_download(failed_download, "somali")
+        clear_model_cache.assert_not_called()
         assert app.pack_status == (
             "Download failed. Check your connection and available storage, then try again."
         )
+        successful_download = Mock()
+        successful_download.result.return_value = Path("isolated-pack")
+        app.pack_busy = True
+        app.pack_cancel_event = threading.Event()
+        with (
+            patch.object(app, "refresh_pack_screen"),
+            patch.object(app_module, "clear_model_cache") as clear_model_cache,
+        ):
+            app.finish_pack_download(successful_download, "somali")
+        clear_model_cache.assert_called_once_with()
+        assert app.pack_status == "Somali / English is ready to use offline."
         failed_dialog = Mock()
         with (
             patch.object(
@@ -642,7 +657,7 @@ def start(app):
                     "clear chart-image recovery guidance in the alphabet screen",
                     "limited-coverage wording in the Old Nubian Latin-reading picker",
                     "safe recovery guidance for pack download and removal failures",
-                    "successful pack removal clears cached engines; failed removal keeps cache",
+                    "successful pack install/removal clears cached engines; failures keep cache",
                 ]
                 (folder / "result.json").write_text(
                     json.dumps(
