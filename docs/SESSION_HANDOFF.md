@@ -1,5 +1,16 @@
 # Session handoff
 
+## Current checkpoint — 2026-10-25
+
+**Not finished: remaining work requires external review, resources or approval.** Local source/UI commits: `b7fbe45` and `8b748ab`. Full suite: 163 passed, 2 Windows symlink-permission skips, 208 subtests. Lint, formatting, compilation, dependency/security checks and 46-file Markdown link scan passed. Real Kivy: 19 viewport/interaction checks and 24 broader app checks passed, with network blocked and in-memory clipboard.
+
+The Read action is hidden outside Old Nubian routes; Somali picker and unsupported-route wording are concise. Latest compact screenshot: `%TEMP%\saylacian-final-verified-06750f26b8c14d56b852f71bb3b49932\evidence\previews\enhanced-compact-portrait.png`. No redesign or physical input occurred.
+
+Four benchmark CLIs now reject repository output paths, generate unique results in local app data and preserve baseline audits. Six legacy output/checkpoint files were hash-verified in a local archive before removal from the checkout. Aggregate evidence and model provenance remain tracked; older Git commits were not rewritten. Archive: `%LOCALAPPDATA%\Saylacian\benchmark\legacy-predictions-20261025-b676335650ff493dad0bab373b73145e`.
+
+Use the ACTIVE/BLOCKED/READY queues in `IMPLEMENTATION_PROGRESS.md`. No independent READY task remains in this audit. Do not invent filler work. External actions: fluent Somali review; written Old Nubian reuse rights and specialist review; Narrator/NVDA; clipboard VM; hosted-run/push approval; clean-host signing/package tests; physical devices and documented evaluation resources. Keep owner edits in PROJECT_STATUS/TECHNICAL_AUDIT untouched. Nothing pushed or published. Dated sections below are historical.
+
+
 ## Unfinished recovery campaign — 2026-10-25
 
 **Status: PARTIALLY COMPLETE — NOT FINISHED.** The earlier completion report was premature. This recovery completed the pinned Somali benchmark reproduction and fixed a vulnerable development dependency. No push or release occurred.

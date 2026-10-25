@@ -181,3 +181,11 @@ Verification: focused service tests `4 passed`; full suite `159 passed, 2 skippe
 Rechecked all 10 files in isolated pack `1-bfd6cf52bd69` against the installed SHA-256/size receipt before inference (314,460,806 bytes). The exact 150-pair TICO-19 fixture hash was unchanged (`be58b2d350badb7e03b73906471453311a8843534e4a2a572a772c60c394c7f7`). Benchmark inference blocked all `socket.socket.connect` calls; full output and checkpoint stayed in a unique temp run folder outside Git.
 
 Metrics reproduced exactly: EN→SO BLEU/chrF++ 5.287/25.282; SO→EN 6.300/24.680. Synthetic candidate accepted 97 examples, fallback 53 (47 unreadable markers, six output length); runtime 129.12 s; peak working set 548,409,344 bytes. This verifies reproducibility, not semantic quality. No changes to model or predictions entered the repository. Goal remains ACTIVE — NOT FINISHED.
+
+## 23. Final source/UI acceptance — 2026-10-25
+
+Local commits `b7fbe45` and `8b748ab` finish the benchmark output safeguards and UI cleanup. Four benchmark CLIs reject repository output paths; results are unique, external and atomic. Baseline audits survive candidate comparisons. Six legacy reports/checkpoints were preserved with matching hashes in local app data; generated records were removed from the current source snapshot while Git history remains unchanged.
+
+The unavailable Read action no longer renders outside Old Nubian, and Somali/unsupported-route wording is shorter. Actual Kivy acceptance passed 19 checks across six window sizes; the broader self-test passed 24 checks. Screenshots were visually inspected. Full suite: 163 passed, 2 symlink-permission skips, 208 subtests. Ruff/format, compile, dependency/security and local Markdown-link checks passed. Owner edits and backups are preserved; nothing pushed.
+
+The overall project remains incomplete because linguistic/rights review, actual external clipboard and screen-reader testing, clean-host signing/packaging, supported physical devices and independent model evaluation resources remain unavailable or unapproved. No source check can substitute for those gates.

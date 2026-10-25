@@ -34,3 +34,7 @@ Visible wording reviewed across the approved Kivy screens, dialogs, picker, hist
 ## Remaining
 
 The audited route, chart, Old Nubian picker and pack error paths have direct regression or live UI checks. Revisit visible text whenever UI functionality changes. Do not remove limitation statements; keep detailed explanation in focused docs. Repository description, topics and security settings remain owner-controlled.
+
+## Final wording and visibility check — 2026-10-25
+
+Somali translation picker now says “Experimental translation”. Unsupported routes direct the user to choose another target or supported language. The Old Nubian Read action is invisible when unavailable; both hidden and active states were checked in live Kivy. Approved layout and colours remain intact. Somali accuracy and script/font limitations remain visible.
