@@ -2,9 +2,9 @@
 
 Live task board for `SAYLACIAN_MASTER_DEVELOPMENT_DIRECTIVE.md`. This board records evidence, not aspirations. `verified` means the stated check passed; it does not establish linguistic acceptance.
 
-Current checkpoint: branch `main`, latest local implementation commit `2b42cef90dd1eeb7f2c267380d73814ce9a88fe2`; unpublished. Model-pack pointer/path containment, receipt hash validation, bounded model retention, and successful cache invalidation after removal and installation are verified. The last recorded public `origin/main` is `c4f2f87270c22a05e772816ce98e57a99b871b18`; no remote mutation occurred. Existing edits in `docs/PROJECT_STATUS.md` and `docs/TECHNICAL_AUDIT.md` remain unstaged and untouched.
+Current checkpoint: branch `main`, latest local implementation commit `2b5d9fa9bfca97cf8c9c8fdfdf5d3ea96fb4040f`; unpublished. Model-pack pointer/path containment, receipt hash validation, bounded model retention, cache invalidation after install/removal, and bounded saved-history handling are verified. The last recorded public `origin/main` is `c4f2f87270c22a05e772816ce98e57a99b871b18`; no remote mutation occurred. Existing edits in `docs/PROJECT_STATUS.md` and `docs/TECHNICAL_AUDIT.md` remain unstaged and untouched.
 
-**Campaign status: PARTIALLY COMPLETE — NOT FINISHED.** The last completion report incorrectly declared the phase complete. Somali benchmark reproduction, development-dependency advisory remediation, Windows pack-path containment, post-install file-integrity recovery, bounded model retention, and pack-removal cache release are verified and committed locally. Continue with next highest-impact READY work; external review, rights, permissions, and isolated environments remain BLOCKED.
+**Campaign status: PARTIALLY COMPLETE — NOT FINISHED.** The last completion report incorrectly declared the phase complete. Somali benchmark reproduction, development-dependency advisory remediation, Windows pack-path containment, post-install file-integrity recovery, bounded model retention, pack-cache invalidation, and bounded saved-history handling are verified and committed locally. External review, rights, permissions, and isolated environments remain BLOCKED; keep the goal active and revisit READY work as evidence/resources change.
 
 ## Autonomous execution queues
 
@@ -14,7 +14,7 @@ Move each task among these queues at every milestone. A blocker must name the ex
 
 | Task | Acceptance | Guardrails |
 |---|---|---|
-| Re-screen the remaining backlog after the saved-history reliability fix | Select the next highest-impact independent READY task when new code evidence or required resources allow it | Keep owner edits untouched; no mouse/keyboard control; no push or publication |
+| No implementation task is ACTIVE after the current backlog re-screen; the development goal remains active and unfinished | Recheck when code evidence/resources change; select the highest-impact independent READY task | Keep owner edits untouched; no mouse/keyboard control; no push or publication |
 
 ### BLOCKED
 
