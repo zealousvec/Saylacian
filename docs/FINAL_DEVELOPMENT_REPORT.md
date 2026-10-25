@@ -58,8 +58,8 @@ Environment: project `.venv`, Windows, Python project test suite, Kivy live self
 - `git diff --check` and `git diff --cached --check` — passed; Git reports existing CRLF-to-LF normalization warnings for edited files.
 - `.\.venv\Scripts\python.exe tools\check_release_safety.py` — passed; no recognized credential patterns found.
 - PowerShell parser — both clipboard scripts parsed successfully.
-- Isolated `main.py --self-test` — passed with a fresh temporary app/Kivy/pack directory; returned offline French output `Bonjour, comment allez-vous ?` and produced five screenshots. The self-test patches model-path, clipboard and publisher fixtures on the running app module, so it does not depend on installed packs or access the host clipboard. Network access was blocked.
-- Clean clone of the final local source — live Kivy self-test passed with isolated app/Kivy/pack directories, a clean working tree and no network access.
+- Clean clone of local commit `2dc7378` — `tools/verify_pack_integration.py --pack french` downloaded the pinned French pack into an isolated temporary store, verified both assets, installed its receipt, and passed offline English→French and French→English inference. Then `main.py --self-test` passed from the clone with output `Bonjour, comment allez-vous ?`; inference and Kivy acceptance ran with network access blocked, five screenshots were produced in isolated temporary evidence, and the clone's tracked working tree remained clean.
+- The live acceptance harness patches model-path, clipboard and publisher fixtures on the running app module (`__main__` for script launch). This makes detector and clipboard assertions independent of a machine's local Somali pack and avoids host clipboard access. The meaning-translation acceptance still correctly requires its verified French pack.
 
 ## 10. Known failures, skips and blockers
 
@@ -67,7 +67,7 @@ The two skipped tests require Windows symlink privileges. Somali quality review 
 
 ## 11. Git branch and unpublished commits
 
-Branch: `main`. Before this campaign, HEAD was `c80f4e1` and 56 commits ahead of public `origin/main` at `c4f2f87270c22a05e772816ce98e57a99b871b18`. The implementation/report commit `f7f27ed508343f2d3c9b0a21034810d56c52afc1` and handoff checkpoint `6bcf0fbf21f34664026d73c4d142028f9866f701` are local and unpublished. A focused acceptance-harness correction makes `--self-test` independent of an installed pack; its commit and final clean-clone result are recorded in the session handoff and Obsidian state. No force operation is authorized.
+Branch: `main`, at implementation commit `2dc7378245386368489ba2897b4165aded51255c`, then 60 commits ahead of public `origin/main` at `c4f2f87270c22a05e772816ce98e57a99b871b18`. Campaign implementation commits include `f7f27ed508343f2d3c9b0a21034810d56c52afc1`, `6bcf0fbf21f34664026d73c4d142028f9866f701`, `7e96280128c720aabe62a20e095ffaf2a04c1bd3` and `2dc7378245386368489ba2897b4165aded51255c`; they are local and unpublished. This report/handoff receives one documentation-only local checkpoint after the verified implementation. No force operation is authorized.
 
 ## 12. Owner edits and publication
 
