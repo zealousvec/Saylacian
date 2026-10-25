@@ -14,6 +14,7 @@ from saylacian.core.translation import (
     MODEL_ROOT,
     _clean_model_markers,
     _synthetic_candidate_is_degenerate,
+    clear_model_cache,
     load_model,
     translate_meaning,
 )
@@ -210,6 +211,9 @@ class TranslationTests(unittest.TestCase):
                 load_model(str(folders[0]))
 
             self.assertEqual(fake_ctranslate2.Translator.call_count, 5)
+            self.assertEqual(load_model.cache_info().currsize, 3)
+            clear_model_cache()
+            self.assertEqual(load_model.cache_info().currsize, 0)
 
     def test_token_limit_rejects_without_model_inference(self):
         with TemporaryDirectory() as temporary:

@@ -88,7 +88,11 @@ from saylacian.core.presentation import (
     translation_error_message,
 )
 from saylacian.core.script_info import osmanya_letters
-from saylacian.core.translation import model_directory, translate_meaning
+from saylacian.core.translation import (
+    clear_model_cache,
+    model_directory,
+    translate_meaning,
+)
 from saylacian.core.transliteration import (
     detect_script,
     is_private_use_character,
@@ -623,6 +627,7 @@ class SaylacianApp(MDApp):
         except (OSError, ValueError) as error:
             self.pack_status = pack_removal_error_message(error)
         else:
+            clear_model_cache()
             self.pack_status = "Offline pack removed."
         self.refresh_pack_screen()
 

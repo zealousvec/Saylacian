@@ -376,6 +376,7 @@ def start(app):
             patch.object(
                 app.pack_manager, "remove", side_effect=OSError("C:\\private\\packs")
             ),
+            patch.object(app_module, "clear_model_cache") as clear_model_cache,
             patch.object(app, "refresh_pack_screen"),
         ):
             app.remove_pack(failed_dialog, "somali")
@@ -383,6 +384,18 @@ def start(app):
             "Could not remove the pack. Close Saylacian and try again."
         )
         assert failed_dialog.dismiss.called
+        clear_model_cache.assert_not_called()
+        removed_dialog = Mock()
+        with (
+            patch.object(app.pack_manager, "remove") as remove_pack,
+            patch.object(app_module, "clear_model_cache") as clear_model_cache,
+            patch.object(app, "refresh_pack_screen"),
+        ):
+            app.remove_pack(removed_dialog, "somali")
+        remove_pack.assert_called_once_with("somali")
+        clear_model_cache.assert_called_once_with()
+        assert app.pack_status == "Offline pack removed."
+        assert removed_dialog.dismiss.called
 
         app.mode = "Convert writing system"
         app.source, app.target = "Old Nubian (Coptic)", "Old Nubian scholarly Latin"
@@ -629,6 +642,7 @@ def start(app):
                     "clear chart-image recovery guidance in the alphabet screen",
                     "limited-coverage wording in the Old Nubian Latin-reading picker",
                     "safe recovery guidance for pack download and removal failures",
+                    "successful pack removal clears cached engines; failed removal keeps cache",
                 ]
                 (folder / "result.json").write_text(
                     json.dumps(

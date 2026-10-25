@@ -139,6 +139,11 @@ def load_model(folder):
     return tokenizer, engine
 
 
+def clear_model_cache():
+    """Release cached model engines after pack removal or memory recovery."""
+    load_model.cache_clear()
+
+
 def translate_meaning(text, source, target, model_root=None, *, provider_override=None):
     if get_capability(source, target, "translation") is None:
         raise ValueError(
