@@ -8,6 +8,7 @@ This source snapshot has no numbered application release, so unreleased work sta
 - The pack screen now says the experimental Somali add-on needs the standard Somali / English pack for fallback.
 - The pack manager enforces that dependency: install the standard pack first and remove the add-on before removing its fallback.
 - Tightened the experimental Somali model's fallback for overlong and repeated-word output. On a 37-example TICO-19 sample, the guarded route scored higher than the standard pack, but took longer and still produced awkward Somali.
+- Expanded the comparison to a reproducible 120-example TICO-19 sample. The optional route scored higher on this sample, took longer, and fell back on 47 inputs; Somali remains experimental and needs fluent-speaker review.
 - Added an optional offline Somali detector. It helps identify some short Somali input; it does not improve translation quality.
 - Reverse Osmanya conversion now shows alternate readings where `w`/`uu` or `y`/`ii` share a glyph.
 - Unknown Borama and Kaddare private-use characters are now preserved and reported across all Unicode private-use ranges.

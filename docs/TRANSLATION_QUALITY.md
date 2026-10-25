@@ -1,6 +1,6 @@
 # Somali translation quality checks
 
-Somali translation is experimental. This page records one reproducible check of the current offline model; it does not establish fluent or general-purpose translation quality.
+Somali translation is experimental. These reproducible checks compare shipped routes; they do not establish fluent or general-purpose translation quality.
 
 ## Repetition-control check
 
@@ -32,14 +32,18 @@ Saylacian now offers `WindyWord/translate-synthetic-en-so` as a separate, option
 
 I installed the pinned pack through Saylacian's checksum-verifying installer and ran it through the app's English-to-Somali routing path. Smoke examples included “I need help finding the hospital.” → “Waxaan u baahanahay caawimaad si aan u helo isbitaalka.” and “Where is the nearest bus station?” → “Halkee buu ku yaal saldhigga baska ee ugu dhow?” The output guard rejected a repeated “Good morning” result and used the standard model instead. These few sentences only verify installation and routing; they are not a quality benchmark or evidence of fluent translation. The model still needs a scored held-out evaluation and fluent-speaker review.
 
-I then evaluated the app's single-sentence route on the public-labeled rows in the TICO-19 English–Somali **dev** file, pinned to [dataset revision `55d70dc0b1d1d0b2151c5e22815d823fedac3f2f`](https://huggingface.co/datasets/gmnlp/tico19/tree/55d70dc0b1d1d0b2151c5e22815d823fedac3f2f/dev). Only 37 rows in that file carry the `public` label. I selected all 37 by sorting on SHA-256 of `saylacian-windy-pack-v1` plus each row ID. Scores use SacreBLEU 2.5.1 with effective-order BLEU and chrF++ (`word_order=2`).
+I first evaluated all 37 rows marked `public` in the TICO-19 English–Somali **dev** file, pinned to [dataset revision `55d70dc0b1d1d0b2151c5e22815d823fedac3f2f`](https://huggingface.co/datasets/gmnlp/tico19/tree/55d70dc0b1d1d0b2151c5e22815d823fedac3f2f/dev). I then expanded the check to a deterministic 120-row sample drawn from all 971 rows in that file. Rows were ranked by SHA-256 of `saylacian-windy-pack-v1` plus each row ID, then the first 120 were selected. The dataset card marks the translations CC0. Both comparisons use the app's single-sentence route, CTranslate2 4.8.3, and SacreBLEU 2.5.1 with effective-order BLEU and chrF++ (`word_order=2`).
 
-| Route | BLEU | chrF++ | Mean time per sentence | Candidate fallbacks |
+| Sample and route | BLEU | chrF++ | Mean time per sentence | Candidate fallbacks |
 |---|---:|---:|---:|---:|
-| Standard Somali/English pack | 2.197 | 27.427 | 207 ms | — |
-| Experimental model, output guard on | 4.332 | 35.376 | 770 ms | 15 of 37 |
+| 37 public rows, standard pack | 2.197 | 27.427 | 207 ms | — |
+| 37 public rows, experimental model with guard | 4.332 | 35.376 | 770 ms | 15 of 37 |
+| 120-row sample, standard pack | 2.142 | 22.005 | 632 ms | — |
+| 120-row sample, experimental model with guard | 4.894 | 25.961 | 834 ms | 47 of 120 |
 
-The guard rejects copied text, output that is unusually long for its input, and content words of four or more characters repeated three or more times. It improved both scores in this small sample, at a substantial latency cost. It does not recognize every paraphrased repetition: for example, the remaining result for “do your relatives have the same symptoms” repeats a phrase about relatives. Other outputs are also awkward. These automatic scores do not establish useful or fluent Somali; a larger held-out evaluation and fluent-speaker review are still needed. TICO-19 is medical-domain data, so this result must not be generalized to other topics.
+The larger sample supports the same limited conclusion: the experimental route scored higher on this medical-domain sample, at higher latency and with frequent fallback. The timing varied substantially between runs, so it should not be read as a stable device-performance estimate. The automatic scores do not establish that the output is natural or medically safe Somali. Some wording remains awkward, repeated ideas can pass the guard, and fluent-speaker review is still needed. Do not generalize this result beyond the sampled TICO-19 material.
+
+The guard rejects copied text, output that is unusually long for its input, and content words of four or more characters repeated three or more times. It does not recognize every paraphrased repetition: for example, the result for “do your relatives have the same symptoms” repeats a phrase about relatives. Other outputs are also awkward. The 37-row subset is retained here as an earlier checkpoint; the 120-row comparison above is the broader result. TICO-19 is medical-domain data, so neither result should be generalized to other topics.
 
 ## Fine-tuned model screened, not selected
 
