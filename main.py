@@ -810,7 +810,7 @@ class SaylacianApp(MDApp):
                     self.status = (
                         "Coptic-derived writing found; language is unknown. Choose Latin reading to use the Old Nubian table."
                         if coptic_script
-                        else f"Detected {source}, but no verified writing conversion is available for the selected target."
+                        else f"Detected {source}. Choose another target to convert this text."
                     )
                     return
                 if self.target == source:

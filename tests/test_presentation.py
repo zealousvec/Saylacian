@@ -105,7 +105,7 @@ class PresentationTests(unittest.TestCase):
         self.assertTrue({"English", "French", "Somali Latin"}.issubset(names))
         self.assertNotIn("Osmanya", names)
         self.assertNotIn("Nobiin (Nubian)", names)
-        self.assertTrue(any("needs fluent review" in note for _, note in choices))
+        self.assertIn(("Somali Latin", "Experimental translation"), choices)
 
     def test_script_picker_keeps_old_nubian_separate_and_hides_modern_research(self):
         choices = picker_choices(list_capabilities(), "transliteration")

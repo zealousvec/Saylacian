@@ -147,7 +147,7 @@ def clear_model_cache():
 def translate_meaning(text, source, target, model_root=None, *, provider_override=None):
     if get_capability(source, target, "translation") is None:
         raise ValueError(
-            "No verified offline meaning-translation route exists for this pair."
+            "Translation is unavailable for this pair. Choose English, French or Somali."
         )
     if not text.strip():
         return Conversion("")

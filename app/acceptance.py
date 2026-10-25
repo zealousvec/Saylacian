@@ -43,21 +43,24 @@ def start(app):
     )
     assert home.ids.brand_title.texture_size[1] <= home.ids.brand_title.height + 1
     assert home.ids.status_label.texture_size[1] <= home.ids.status_label.height + 1
-    app.update_layout(Window, dp(320), dp(700))
-    assert not app.wide_layout
-    assert home.ids.translation_panels.orientation == "vertical"
-    assert home.ids.language_controls.orientation == "vertical"
-    app.update_layout(Window, dp(320), dp(500))
-    assert not app.wide_layout
-    assert home.ids.translation_panels.orientation == "vertical"
-    assert home.ids.language_controls.orientation == "horizontal"
-    app.update_layout(Window, dp(800), dp(700))
-    assert app.wide_layout
-    assert home.ids.translation_panels.orientation == "horizontal"
-    app.update_layout(Window, dp(500), dp(500))
-    assert app.wide_layout
-    assert home.ids.translation_panels.orientation == "horizontal"
-    app.update_layout(Window, *Window.size)
+    original_home_size = tuple(home.size)
+    try:
+        for width, height, wide, controls in (
+            (320, 700, False, "vertical"),
+            (320, 500, False, "horizontal"),
+            (800, 700, True, "horizontal"),
+            (500, 500, True, "horizontal"),
+        ):
+            home.size = dp(width), dp(height)
+            app.update_layout(Window, *home.size)
+            assert app.wide_layout is wide
+            assert home.ids.translation_panels.orientation == (
+                "horizontal" if wide else "vertical"
+            )
+            assert home.ids.language_controls.orientation == controls
+    finally:
+        home.size = original_home_size
+        app.update_layout(Window, *Window.size)
     try:
         pack_screen = app.root.get_screen("packs")
         app.root.current = "packs"
@@ -735,6 +738,7 @@ def start(app):
         read_button = app.root.get_screen("home").ids.old_nubian_read_button
         mode_button = app.root.get_screen("home").ids.mode_toggle_button
         assert read_button.width >= dp(72)
+        assert not read_button.disabled and read_button.opacity == 1
         assert read_button.x - mode_button.right >= dp(8), (
             read_button.x,
             mode_button.right,

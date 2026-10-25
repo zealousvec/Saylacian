@@ -232,6 +232,8 @@ class CheckedApp(SaylacianApp):
 
     def check_viewport(self, expected_wide):
         home = self.root.get_screen("home")
+        assert home.ids.old_nubian_read_button.disabled
+        assert home.ids.old_nubian_read_button.opacity == 0
         panels = home.ids.translation_panels
         assert self.wide_layout is expected_wide, (Window.size, self.wide_layout)
         assert panels.orientation == ("horizontal" if expected_wide else "vertical")

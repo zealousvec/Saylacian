@@ -45,7 +45,7 @@ def picker_choices(capabilities, mode: str) -> list[tuple[str, str]]:
         if mode == "transliteration":
             note = CONTEXT_NOTES.get(name, "Writing system")
         elif name == "Somali Latin":
-            note = "Latin script · needs fluent review"
+            note = "Experimental translation"
         else:
             note = "Language"
         choices.append((name, note))

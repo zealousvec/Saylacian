@@ -56,6 +56,7 @@
                         size_hint_x: None
                         width: dp(72) if app.mode == "Convert writing system" and ("Old Nubian" in app.source or "Old Nubian" in app.target) else 0
                         disabled: not (app.mode == "Convert writing system" and ("Old Nubian" in app.source or "Old Nubian" in app.target))
+                        opacity: 0 if self.disabled else 1
                         on_release: app.open_old_nubian_studio()
                     ActionIcon:
                         icon: "download"
