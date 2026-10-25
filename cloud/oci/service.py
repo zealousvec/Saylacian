@@ -97,6 +97,8 @@ class TranslationHandler(BaseHTTPRequestHandler):
                     "provider": "Saylacian self-hosted models",
                 },
             )
+        except MemoryError:
+            self._send_json(503, {"error": "translation service is temporarily busy"})
         except ValueError as error:
             self._send_json(422, {"error": str(error)})
         except (ImportError, OSError, RuntimeError):
