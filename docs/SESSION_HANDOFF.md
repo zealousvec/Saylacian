@@ -464,7 +464,7 @@ Goal remains ACTIVE — NOT FINISHED. No push. Owner edits in `docs/PROJECT_STAT
 
 ## 2026-10-25 — Compact portrait layout usability
 
-The goal remains ACTIVE and unfinished; previous stopping point is recorded as NOT FINISHED. Re-screening revealed a 320 dp wide, 500 dp high window was treated as landscape solely because it was short. Two translation panels became too narrow. Updated the breakpoint: side-by-side panels require 760 dp width, or at least 480 dp width when height is 520 dp or less. At narrow compact height, source/swap/target controls use one row with tighter spacing and a smaller swap button, reclaiming space for both text panels.
+The goal remains ACTIVE and unfinished; previous stopping point is recorded as NOT FINISHED. Re-screening revealed a 320 dp wide, 500 dp high window was treated as landscape solely because it was short. Two translation panels became too narrow. Updated the breakpoint: side-by-side panels require 760 dp width, or at least 480 dp width when height is 520 dp or less. At narrow compact height, source/swap/target controls use one row with tighter spacing and a smaller swap button, reclaiming space for both text panels. The viewport harness now asserts both text widgets remain at least 56 dp high at 320×500.
 
 Added live viewport checks and a rendered 320×500 screenshot. Kivy capture visibly shows input and output panels and all language controls. Live UI acceptance passed with network blocked and in-memory clipboard. Full suite: `154 passed, 2 skipped, 206 subtests`; Ruff, format (115 files), compileall, `pip check`, release-safety and `git diff --check` pass. Screenshot/evidence is in the temp folder printed by `tools/check_ui.py`; it is not added to the source tree.
 

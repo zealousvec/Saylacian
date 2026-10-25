@@ -20,6 +20,7 @@ sys.path.insert(0, str(PROJECT))
 from kivy.app import App
 from kivy.clock import Clock
 from kivy.core.window import Window
+from kivy.metrics import dp
 
 import main as app_module
 from main import SaylacianApp
@@ -234,6 +235,10 @@ class CheckedApp(SaylacianApp):
         panels = home.ids.translation_panels
         assert self.wide_layout is expected_wide, (Window.size, self.wide_layout)
         assert panels.orientation == ("horizontal" if expected_wide else "vertical")
+        viewport, _, _ = self.viewport_cases[self.viewport_index]
+        if viewport == (320, 500):
+            assert home.ids.input_text.height >= dp(56), home.ids.input_text.height
+            assert home.ids.output_text.height >= dp(56), home.ids.output_text.height
         controls = home.ids.language_controls
         for control in controls.children:
             assert control.x >= controls.x - 1, (Window.size, control.x, controls.x)
