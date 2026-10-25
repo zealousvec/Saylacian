@@ -192,6 +192,18 @@ class TranslationTests(unittest.TestCase):
                 provider_override="offline",
             )
 
+    def test_sentence_chunker_accounts_for_fallback_language_tokens(self):
+        sentence_one = " ".join(["first"] * 200) + "."
+        sentence_two = " ".join(["second"] * 199) + "."
+        chunks, boundaries = translation._sentence_chunks(
+            sentence_one + " " + sentence_two,
+            (FakeTokenizer(), FakeTokenizer()),
+            token_overheads=(0, 2),
+        )
+
+        self.assertEqual(len(chunks), 2)
+        self.assertEqual(boundaries, [" "])
+
 
 if __name__ == "__main__":
     unittest.main()

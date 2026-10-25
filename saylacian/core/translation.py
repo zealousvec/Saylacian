@@ -311,6 +311,7 @@ def translate_meaning(text, source, target, model_root=None, *, provider_overrid
                     target,
                     model_root,
                     (candidate_source, baseline_source),
+                    token_overheads=(0, 2),
                 )
             candidate_result = candidate_engine.translate_batch(
                 [candidate_tokens],
