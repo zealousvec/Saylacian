@@ -108,6 +108,23 @@ class LanguageDetectionTests(unittest.TestCase):
             "ee8599c721d24f678ef10cee403f4deda3a40e7e237e9983b3df11bf3f34ec2e",
         )
 
+    def test_synthetic_somali_pack_is_optional_and_separately_licensed(self):
+        pack = get_pack_specs()["somali_synthetic_en_so"]
+        self.assertEqual(pack["license"], "CC-BY-4.0")
+        self.assertEqual(
+            pack["model_repositories"],
+            ["WindyWord/translate-synthetic-en-so"],
+        )
+        self.assertEqual(pack["download_bytes"], 64_704_828)
+        assets = {asset["destination"]: asset for asset in pack["assets"]}
+        model = assets["somali/en_so_synthetic/model.bin"]
+        self.assertEqual(
+            model["sha256"],
+            "4c010d7a7aad603503294994bd59a0f30517fa1e64295debfe9aae44f1fe2228",
+        )
+        self.assertIn("11427877b7864afad1b5e93e10d1e89661d8b0c0", model["url"])
+        self.assertIn("somali/en_so_synthetic/NOTICE.md", assets)
+
 
 if __name__ == "__main__":
     unittest.main()

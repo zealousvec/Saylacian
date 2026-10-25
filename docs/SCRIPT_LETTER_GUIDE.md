@@ -8,6 +8,8 @@ The app maps Somali Latin graphemes to assigned Unicode Osmanya characters. It h
 
 There is no app mapping for `p`, `v` or `z`; these are not part of the Somali letter set represented by this table and remain Latin when present in borrowed or foreign words. This is a limitation of the app's Somali mapping, not a claim that Osmanya cannot represent every foreign sound. The table maps `w` and `uu` to the same Osmanya character, and `y` and `ii` to the same character. Reverse transliteration chooses `w` or `y` as the main reading and now lists other possible readings in the app. The original spelling cannot always be recovered. Capitalization is not encoded.
 
+The Unicode Standard describes Osmanya as having 22 consonants and 8 vowels, and specifies that long `uu` and `ii` use the same Waw and Ya letters as `w` and `y`. That is why the reverse readings are alternatives instead of a claim that the original spelling can be recovered. See [Unicode 16.0, chapter 19](https://www.unicode.org/versions/Unicode16.0.0/core-spec/chapter-19/).
+
 ## Borama
 
 The current chart-derived table contains these graphemes:

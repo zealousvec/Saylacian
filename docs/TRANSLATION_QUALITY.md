@@ -26,6 +26,10 @@ I also compared the current pack with Helsinki-NLP's `opus-mt-synthetic-en-so` c
 
 The candidate scored higher in both samples and had fewer repeated outputs. This is promising evidence, not a release decision: the samples are small, automatic metrics can reward the wrong wording, the model has not had fluent-speaker review, and I have not audited training/test overlap. The candidate is listed as CC BY 4.0 and derives from GPT-4o-generated Europarl translations in the [upstream model card](https://huggingface.co/Helsinki-NLP/opus-mt-synthetic-en-so). Its licence and attribution must stay separate from Saylacian's code licence.
 
-It is not in the downloadable pack yet. The upstream checkpoint is provided as PyTorch/safetensors weights, while Saylacian's pack currently needs CTranslate2 files. Adding it needs a reproducible way to distribute the converted files; the app does not install the large PyTorch/Transformers conversion stack. No model weights were added to this source repository.
+## Optional CTranslate2 pack
+
+Saylacian now offers `WindyWord/translate-synthetic-en-so` as a separate, optional download, pinned to revision `11427877b7864afad1b5e93e10d1e89661d8b0c0`. Its card provides a CPU INT8 CTranslate2 variant and CC BY 4.0 license, plus a bundled attribution notice. It derives from the Helsinki synthetic model above. The pack is about 62 MiB and is not bundled in the source repository. The standard Somali/English pack remains the fallback. The experimental model card publishes no quality score.
+
+I installed the pinned pack through Saylacian's checksum-verifying installer and ran it through the app's English-to-Somali routing path. Smoke examples included “I need help finding the hospital.” → “Waxaan u baahanahay caawimaad si aan u helo isbitaalka.” and “Where is the nearest bus station?” → “Halkee buu ku yaal saldhigga baska ee ugu dhow?” The output guard rejected a repeated “Good morning” result and used the standard model instead. These few sentences only verify installation and routing; they are not a quality benchmark or evidence of fluent translation. The model still needs a scored held-out evaluation and fluent-speaker review.
 
 Other model candidates remain experimental until their outputs, dataset overlap, licence terms and runtime costs have been checked against the shipped pack.

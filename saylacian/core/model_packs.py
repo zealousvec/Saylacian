@@ -94,6 +94,9 @@ def get_pack_specs() -> dict[str, dict]:
     detection = json.loads(
         (DATA_ROOT / "somali_detection_manifest.json").read_text(encoding="utf-8")
     )
+    synthetic = json.loads(
+        (DATA_ROOT / "somali_synthetic_manifest.json").read_text(encoding="utf-8")
+    )
 
     somali_assets = []
     for item in somali:
@@ -165,6 +168,26 @@ def get_pack_specs() -> dict[str, dict]:
             }
         )
 
+    synthetic_assets = []
+    for filename, metadata in synthetic["files"].items():
+        synthetic_assets.append(
+            {
+                "kind": "file",
+                "url": _huggingface_url(
+                    synthetic["repository"],
+                    synthetic["revision"],
+                    metadata.get("repository_path", filename),
+                ),
+                "bytes": metadata["bytes"],
+                "sha256": metadata["sha256"],
+                "destination": f"somali/en_so_synthetic/{filename}",
+                "license": synthetic["license"],
+                "repository": synthetic["repository"],
+                "revision": synthetic["revision"],
+                "runtimes": synthetic["runtimes"],
+            }
+        )
+
     somali_manifest_item = somali[0]
     french_manifest_items = [
         item for item in argos if item.get("pair") in {"en_fr", "fr_en"}
@@ -192,6 +215,13 @@ def get_pack_specs() -> dict[str, dict]:
             "model_repositories": [detection["repository"]],
             "runtimes": detection["runtimes"],
             "assets": detection_assets,
+        },
+        "somali_synthetic_en_so": {
+            "title": "Somali translation (experimental)",
+            "license": synthetic["license"],
+            "model_repositories": [synthetic["repository"]],
+            "runtimes": synthetic["runtimes"],
+            "assets": synthetic_assets,
         },
     }
     for pack_id, spec in specs.items():

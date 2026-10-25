@@ -79,6 +79,15 @@ class TransliterationTests(unittest.TestCase):
         entry = next(item for item in alphabet_entries() if item["glyph"] == "ⳣ")
         self.assertEqual(entry["alternative_readings"], ("ou",))
 
+    def test_old_nubian_keeps_case_spaces_and_punctuation(self):
+        reading = transliterate(
+            "Ⲁ ⳣ, Ϯ!",
+            "Old Nubian (Coptic)",
+            "Old Nubian scholarly Latin",
+        )
+        self.assertEqual(reading.text, "A w, TI!")
+        self.assertIn("A ou, TI!", reading.alternatives)
+
     def test_old_nubian_reader_keeps_alternative_after_record_round_trip(self):
         record = make_reading_record("ⳣ")
         self.assertIn("ou", record.alternatives)

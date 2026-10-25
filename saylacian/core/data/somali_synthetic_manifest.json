@@ -1,0 +1,44 @@
+{
+  "repository": "WindyWord/translate-synthetic-en-so",
+  "revision": "11427877b7864afad1b5e93e10d1e89661d8b0c0",
+  "license": "CC-BY-4.0",
+  "runtimes": {
+    "ctranslate2": "4.8.3",
+    "sentencepiece": "0.2.2"
+  },
+  "files": {
+    "config.json": {
+      "repository_path": "lora-ct2-int8/config.json",
+      "sha256": "8f6496adfc930cbfecbe8281112197705c488fab47d34b4829b06d7f478909af",
+      "bytes": 223
+    },
+    "model.bin": {
+      "repository_path": "lora-ct2-int8/model.bin",
+      "sha256": "4c010d7a7aad603503294994bd59a0f30517fa1e64295debfe9aae44f1fe2228",
+      "bytes": 62407635
+    },
+    "shared_vocabulary.json": {
+      "repository_path": "lora-ct2-int8/shared_vocabulary.json",
+      "sha256": "600a189f487e39bb0ed1d6e387a91cec30aba730a7e84963b7b368f5e334cf67",
+      "bytes": 591935
+    },
+    "source.spm": {
+      "repository_path": "lora/source.spm",
+      "sha256": "324a71b7317b9f4e26a181a515d374fc31398e29cd240c4123a4a130b6fa31d8",
+      "bytes": 842939
+    },
+    "target.spm": {
+      "repository_path": "lora/target.spm",
+      "sha256": "324a71b7317b9f4e26a181a515d374fc31398e29cd240c4123a4a130b6fa31d8",
+      "bytes": 842939
+    },
+    "LICENSE": {
+      "sha256": "9ba9550ad48438d0836ddab3da480b3b69ffa0aac7b7878b5a0039e7ab429411",
+      "bytes": 18657
+    },
+    "NOTICE.md": {
+      "sha256": "38fd2f9b4fbab28b7d8a308a468d8ff105d709135fc3084fa0dd7cc8a43e4494",
+      "bytes": 500
+    }
+  }
+}
