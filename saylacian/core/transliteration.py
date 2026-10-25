@@ -182,41 +182,34 @@ def _chart_transliterate(text: str, source: str, target: str) -> Conversion:
 
 
 def _old_nubian_reverse_candidates(text: str, limit: int = 12) -> tuple[str, ...]:
-    """Enumerate distinct letter-boundary readings of scholarly Latin input."""
-    paths = [()] * (len(text) + 1)
-    paths[len(text)] = ("",)
-    for index in range(len(text) - 1, -1, -1):
-        matches = [
-            token
-            for token in OLD_NUBIAN_REVERSE_TOKENS
-            if text[index : index + len(token)].casefold() == token
-        ]
-        if not matches:
-            paths[index] = (
-                ()
-                if text[index].isalpha()
-                else tuple(text[index] + tail for tail in paths[index + 1])[:limit]
-            )
+    """Return table-listed alternatives while leaving unmatched text unchanged."""
+    readings = []
+    index = 0
+    while index < len(text):
+        token = next(
+            (
+                item
+                for item in OLD_NUBIAN_REVERSE_TOKENS
+                if text[index : index + len(item)].casefold() == item
+            ),
+            None,
+        )
+        if token is None:
+            readings.append((text[index],))
+            index += 1
             continue
-        outputs = []
-        for token in matches:
-            source_token = text[index : index + len(token)]
-            readings = tuple(
+        source_token = text[index : index + len(token)]
+        readings.append(
+            tuple(
                 _match_case(source_token, reading)
                 for reading in (
                     OLD_NUBIAN_REVERSE[token],
                     *OLD_NUBIAN_REVERSE_VARIANTS.get(token, ()),
                 )
             )
-            for reading in readings:
-                outputs.extend(reading + tail for tail in paths[index + len(token)])
-                if len(outputs) >= limit * 2:
-                    break
-            if len(outputs) >= limit * 2:
-                break
-        paths[index] = tuple(dict.fromkeys(outputs))[:limit]
-
-    return paths[0]
+        )
+        index += len(token)
+    return tuple("".join(candidate) for candidate in islice(product(*readings), limit))
 
 
 def _osmanya_reverse_candidates(text: str, limit: int = 12) -> tuple[str, ...]:
@@ -318,6 +311,7 @@ def transliterate(text: str, source: str, target: str) -> Conversion:
         output = []
         index = 0
         matched_tokens = []
+        unmapped_letters = []
         while index < len(text):
             token = next(
                 (
@@ -334,6 +328,8 @@ def transliterate(text: str, source: str, target: str) -> Conversion:
                 index += len(token)
                 continue
             output.append(text[index])
+            if text[index].isalpha():
+                unmapped_letters.append(text[index])
             index += 1
         primary = "".join(output)
         candidates = _old_nubian_reverse_candidates(text)
@@ -347,6 +343,9 @@ def transliterate(text: str, source: str, target: str) -> Conversion:
             )
         if alternatives:
             warnings.append("Other script readings are available; see alternatives.")
+        if unmapped_letters:
+            letters = " ".join(dict.fromkeys(unmapped_letters))
+            warnings.append(f"Unmapped Latin letters preserved: {letters}.")
         return Conversion(primary, tuple(warnings), alternatives)
     if (source, target) not in {
         ("Somali Latin", "Osmanya"),

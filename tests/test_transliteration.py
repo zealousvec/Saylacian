@@ -130,6 +130,20 @@ class TransliterationTests(unittest.TestCase):
             any("letter boundaries can be ambiguous" in w for w in ambiguous.warnings)
         )
 
+    def test_old_nubian_preserves_unmapped_latin_and_keeps_other_readings(self):
+        result = transliterate(
+            "ng v", "Old Nubian scholarly Latin", "Old Nubian (Coptic)"
+        )
+
+        self.assertEqual(result.text, "ⳟ v")
+        self.assertIn("ⲛⲅ v", result.alternatives)
+        self.assertTrue(
+            any(
+                "Unmapped Latin letters preserved: v." in item
+                for item in result.warnings
+            )
+        )
+
     def test_every_unique_osmanya_mapping_can_be_read_back(self):
         for grapheme, glyph in SOMALI_TO_OSMANYA.items():
             with self.subTest(grapheme=grapheme):

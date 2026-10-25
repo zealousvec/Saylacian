@@ -5,6 +5,7 @@ This source snapshot has no numbered application release, so unreleased work sta
 ## Unreleased
 
 - Long offline passages now translate in sentence-sized sections when they exceed a model's input limit. Saylacian keeps the original spacing between sections and warns that context can change across them.
+- Old Nubian Latin-to-script conversion now keeps unmapped letters visible, flags them, and retains alternate readings for the mapped parts of the text.
 - Added an optional English-to-Somali model download. Saylacian checks its output and falls back to the standard Somali pack when a result looks incomplete or repetitive. The model is experimental and carries its own CC BY 4.0 terms.
 - The pack screen now says the experimental Somali add-on needs the standard Somali / English pack for fallback.
 - The pack manager enforces that dependency: install the standard pack first and remove the add-on before removing its fallback.
