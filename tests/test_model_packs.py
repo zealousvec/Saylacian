@@ -21,7 +21,13 @@ class ModelPackTests(unittest.TestCase):
         second = get_pack_specs()
         self.assertEqual(
             set(first),
-            {"somali", "french", "somali_afrislm", "somali_afrislm_2b"},
+            {
+                "somali",
+                "french",
+                "somali_afrislm",
+                "somali_afrislm_2b",
+                "somali_afrislm_4b",
+            },
         )
         for pack_id in first:
             self.assertEqual(first[pack_id]["version"], second[pack_id]["version"])
@@ -74,6 +80,22 @@ class ModelPackTests(unittest.TestCase):
         self.assertEqual(
             larger["assets"][0]["sha256"],
             "fc2a80532e58e0655efd9e68c5b7cb2c4373222e736bcc88de648502a4e30361",
+        )
+
+        largest = first["somali_afrislm_4b"]
+        self.assertIn("Somali → English", largest["title"])
+        self.assertIn("experimental", largest["title"])
+        self.assertIn("about 5 GB", largest["description"])
+        self.assertEqual(largest["runtimes"], {"llama-cpp-python": "0.3.36"})
+        self.assertEqual(largest["license"], "Apache-2.0")
+        self.assertEqual(
+            largest["training_data_license"],
+            "CC-BY-NC-4.0 (synthetic mix), ODC-By-1.0 (Dolci-Instruct); training data is not included",
+        )
+        self.assertEqual(largest["download_bytes"], 3066385344)
+        self.assertEqual(
+            largest["assets"][0]["sha256"],
+            "166226feb6144f6e416e4936706eb5f9183526a05141410156c578c48b4bd4f1",
         )
 
     def test_download_verifies_hash_installs_version_and_reports_progress(self):

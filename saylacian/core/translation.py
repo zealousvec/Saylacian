@@ -239,6 +239,17 @@ def _afrislm_2b_model_path():
     )
 
 
+def _afrislm_4b_model_path():
+    return next(
+        (
+            root / "somali" / "afrislm_4b" / "model.gguf"
+            for root in _model_roots()
+            if (root / "somali" / "afrislm_4b" / "model.gguf").is_file()
+        ),
+        None,
+    )
+
+
 def _translate_afrislm(text, source, target, model_path):
     try:
         model = load_afrislm_model(str(model_path))
@@ -284,6 +295,12 @@ def _translate_afrislm(text, source, target, model_path):
         return (
             None,
             "Experimental model ran out of memory; used the standard offline model.",
+        )
+    except (OSError, RuntimeError):
+        load_afrislm_model.cache_clear()
+        return (
+            None,
+            "Experimental model could not run; used the standard offline model.",
         )
 
     content = result["choices"][0]["message"].get("content")
@@ -369,7 +386,13 @@ def translate_meaning(text, source, target, model_root=None, *, provider_overrid
     if (source, target) == ("English", "Somali Latin"):
         experimental_paths.append(_afrislm_model_path())
     elif (source, target) == ("Somali Latin", "English"):
-        experimental_paths.extend((_afrislm_2b_model_path(), _afrislm_model_path()))
+        experimental_paths.extend(
+            (
+                _afrislm_4b_model_path(),
+                _afrislm_2b_model_path(),
+                _afrislm_model_path(),
+            )
+        )
 
     experimental_warning = None
     for experimental_path in filter(None, experimental_paths):

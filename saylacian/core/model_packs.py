@@ -97,6 +97,9 @@ def get_pack_specs() -> dict[str, dict]:
     afrislm_2b = json.loads(
         (DATA_ROOT / "afrislm_2b_model_manifest.json").read_text(encoding="utf-8")
     )
+    afrislm_4b = json.loads(
+        (DATA_ROOT / "afrislm_4b_model_manifest.json").read_text(encoding="utf-8")
+    )
 
     somali_assets = []
     for item in somali:
@@ -224,6 +227,35 @@ def get_pack_specs() -> dict[str, dict]:
                     "runtimes": item["runtimes"],
                 }
                 for item in afrislm_2b
+            ],
+        },
+        "somali_afrislm_4b": {
+            "title": "Somali → English experimental model (AfriSLM 4B)",
+            "description": (
+                "Optional 3.07 GB Somali-to-English model; tries before AfriSLM 2B. "
+                "Requires llama-cpp-python 0.3.36 and more memory; about 5 GB was "
+                "used on one 32 GB Windows computer. Output remains experimental; "
+                "training data is not included."
+            ),
+            "license": "Apache-2.0",
+            "training_data_license": afrislm_4b[0]["training_data_license"],
+            "model_repositories": sorted({item["repository"] for item in afrislm_4b}),
+            "runtimes": afrislm_4b[0]["runtimes"],
+            "assets": [
+                {
+                    "kind": "file",
+                    "url": _huggingface_url(
+                        item["repository"], item["revision"], item["filename"]
+                    ),
+                    "bytes": item["bytes"],
+                    "sha256": item["sha256"],
+                    "destination": item["destination"],
+                    "license": item["license"],
+                    "repository": item["repository"],
+                    "revision": item["revision"],
+                    "runtimes": item["runtimes"],
+                }
+                for item in afrislm_4b
             ],
         },
     }

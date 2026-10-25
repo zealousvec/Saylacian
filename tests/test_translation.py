@@ -14,11 +14,13 @@ from unittest.mock import Mock, patch
 from saylacian.core.translation import (
     MODEL_ROOT,
     _afrislm_2b_model_path,
+    _afrislm_4b_model_path,
     _afrislm_model_path,
     _clean_model_markers,
     _join_model_segments,
     _model_token_segments,
     _synthetic_candidate_is_degenerate,
+    _translate_afrislm,
     clear_model_cache,
     load_model,
     translate_meaning,
@@ -131,6 +133,31 @@ class TranslationTests(unittest.TestCase):
             model.create_chat_completion.call_args.kwargs["max_tokens"], 288
         )
 
+    def test_afrislm_native_runtime_failure_returns_safe_fallback(self):
+        model = Mock()
+        model.tokenize.return_value = [1]
+        model.create_chat_completion.side_effect = RuntimeError(
+            "llama_decode returned -1"
+        )
+
+        with (
+            patch(
+                "saylacian.core.translation.load_afrislm_model",
+                return_value=model,
+            ),
+            patch("saylacian.core.translation.load_afrislm_model.cache_clear") as clear,
+        ):
+            result, warning = _translate_afrislm(
+                "Waan ku jeclahay.",
+                "Somali Latin",
+                "English",
+                Path("model.gguf"),
+            )
+
+        self.assertIsNone(result)
+        self.assertIn("used the standard offline model", warning)
+        clear.assert_called_once()
+
     def test_afrislm_path_is_discovered_from_active_model_pack(self):
         with TemporaryDirectory() as temporary:
             model_path = Path(temporary) / "somali" / "afrislm" / "model.gguf"
@@ -155,18 +182,39 @@ class TranslationTests(unittest.TestCase):
             ):
                 self.assertEqual(_afrislm_2b_model_path(), model_path)
 
+    def test_afrislm_4b_path_is_discovered_from_active_model_pack(self):
+        with TemporaryDirectory() as temporary:
+            model_path = Path(temporary) / "somali" / "afrislm_4b" / "model.gguf"
+            model_path.parent.mkdir(parents=True)
+            model_path.touch()
+
+            with patch(
+                "saylacian.core.translation._model_roots",
+                return_value=[Path(temporary)],
+            ):
+                self.assertEqual(_afrislm_4b_model_path(), model_path)
+
     def test_directional_afrislm_routes_keep_best_model_per_direction(self):
         with TemporaryDirectory() as temporary:
             root = Path(temporary)
             small = root / "somali" / "afrislm" / "model.gguf"
             large = root / "somali" / "afrislm_2b" / "model.gguf"
+            largest = root / "somali" / "afrislm_4b" / "model.gguf"
             small.parent.mkdir(parents=True)
             large.parent.mkdir(parents=True)
+            largest.parent.mkdir(parents=True)
             small.touch()
             large.touch()
+            largest.touch()
 
             def convert(_text, _source, _target, path):
-                label = "larger model" if path == large else "smaller model"
+                label = (
+                    "largest model"
+                    if path == largest
+                    else "larger model"
+                    if path == large
+                    else "smaller model"
+                )
                 return SimpleNamespace(text=label, warnings=("Experimental.",)), None
 
             with (
@@ -190,10 +238,49 @@ class TranslationTests(unittest.TestCase):
                     "I love you.", "English", "Somali Latin"
                 )
 
-        self.assertEqual(somali_to_english.text, "larger model")
+        self.assertEqual(somali_to_english.text, "largest model")
         self.assertEqual(english_to_somali.text, "smaller model")
-        self.assertEqual(route.call_args_list[0].args[3], large)
+        self.assertEqual(route.call_args_list[0].args[3], largest)
         self.assertEqual(route.call_args_list[1].args[3], small)
+
+    def test_failed_afrislm_4b_falls_back_to_2b_then_smaller_model(self):
+        with TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            small = root / "somali" / "afrislm" / "model.gguf"
+            medium = root / "somali" / "afrislm_2b" / "model.gguf"
+            largest = root / "somali" / "afrislm_4b" / "model.gguf"
+            for path in (small, medium, largest):
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.touch()
+            medium_result = SimpleNamespace(
+                text="2B translation.", warnings=("Experimental.",), alternatives=()
+            )
+
+            with (
+                patch(
+                    "saylacian.core.translation._model_roots",
+                    return_value=[root],
+                ),
+                patch(
+                    "saylacian.core.translation._translate_afrislm",
+                    side_effect=[
+                        (None, "4B model ran out of memory."),
+                        (medium_result, None),
+                    ],
+                ) as route,
+                patch(
+                    "saylacian.core.translation.model_directory",
+                    side_effect=AssertionError("smaller candidate should handle it"),
+                ),
+            ):
+                result = translate_meaning(
+                    "Waan ku jeclahay.", "Somali Latin", "English"
+                )
+
+        self.assertEqual(result.text, "2B translation.")
+        self.assertIn("used the smaller model", result.warnings[-1])
+        self.assertEqual(route.call_args_list[0].args[3], largest)
+        self.assertEqual(route.call_args_list[1].args[3], medium)
 
     def test_failed_larger_model_falls_back_to_installed_smaller_model(self):
         with TemporaryDirectory() as temporary:
