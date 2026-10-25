@@ -100,15 +100,7 @@ The pre-existing edits in `docs/PROJECT_STATUS.md` and `docs/TECHNICAL_AUDIT.md`
 
 ## 15. Final phase status
 
-**PARTIALLY COMPLETE — NOT FINISHED.** The toolbar fix, clean-clone pack workflow, Somali benchmark reproduction and route-audit correction, dependency advisory remediation, Windows-specific pack-path containment, and post-install integrity recovery are verified. This does not complete the project or release readiness: linguistic review, historical-data rights, accessibility observation, real clipboard validation, and clean-host/signing checks remain open. The previous report's “complete” label was premature. Nothing was pushed; no files were released.
-
-## 18. Continuing audit — compact layout and online response safety (2026-10-25)
-
-The 320×500 dp compact portrait layout now keeps source/target controls in one row and input/output panels stacked. Live Kivy acceptance checks both text fields remain at least 56 dp high, and the rendered screenshot was visually reviewed. This corrects the older compact-capture blocker for desktop FBO output; physical-device behavior remains unverified.
-
-Optional online translation clients now bound JSON response reads to 1 MiB + 1 byte and reject non-object JSON roots as provider-specific recoverable errors. No online request was made and no credentials were used. Regression tests cover both Cloudflare and self-hosted paths.
-
-Latest local commits: `05d5608753c08980502f16fa352e76b5d074af8b` (compact portrait usability), `5d8ee03b227cd7fb5a1913e1b36625c83db8f082` (56 dp live viewport assertion), `240a5361b419dc3887fef84596c3f60917d84e69` (handoff record), `0cd520638aad45b97081d06ad0ea7b22b33c6c9a` (current progress checkpoint). Online-response fix is in progress and not yet committed. Full suite before the response hardening: 154 passed, 2 skipped, 206 subtests. No push/publication. Owner edits in `docs/PROJECT_STATUS.md` and `docs/TECHNICAL_AUDIT.md` remain untouched.
+**PARTIALLY COMPLETE — NOT FINISHED.** The toolbar fix, clean-clone pack workflow, Somali benchmark reproduction and route-audit correction, dependency advisory remediation, Windows-specific pack-path containment, post-install integrity recovery, compact portrait layout and bounded online response parsing are verified. This does not complete the project or release readiness: linguistic review, historical-data rights, accessibility observation, real clipboard validation, and clean-host/signing checks remain open. The previous report's “complete” label was premature. Nothing was pushed; no files were released.
 
 ## 16. Required isolated benchmark re-run — 2026-10-25
 
@@ -155,3 +147,11 @@ Pack removal previously deleted the installed folder but left its CTranslate2 en
 Added live acceptance for both outcomes: mocked successful removal confirms cache clear and success status; mocked deletion failure confirms cache is preserved and the existing privacy-safe error is shown. Translation cache unit test confirms clear empties the cache. Kivy `main.py --self-test` passed with isolated app/Kivy/pack/evidence directories and networking disabled; `result.json` reports 24 checks, including the new assertion. No physical input, OS clipboard use, real pack deletion, or network call.
 
 Full suite: `150 passed, 2 skipped, 200 subtests`; Ruff check/format, compileall, `pip check`, and release-safety scan pass. ACTIVE: commit and re-screen remaining READY tasks. BLOCKED: fluent Somali review, Old Nubian rights/specialist review, Narrator/NVDA, external clipboard VM, hosted workflow approval, clean-host signing/packaging, and full M2M100 evaluation on faster hardware. Owner status/audit edits untouched; no push.
+
+## 18. Continuing audit — compact layout and online response safety (2026-10-25)
+
+The 320×500 dp compact portrait layout keeps source/target controls in one row and input/output panels stacked. Live Kivy acceptance checks both text fields remain at least 56 dp high; the rendered screenshot was visually reviewed. Desktop FBO evidence is now valid through six viewports; physical-device behavior remains unverified.
+
+Optional online translation clients now bound JSON response reads to 1 MiB + 1 byte and reject non-object JSON roots as provider-specific recoverable errors. No online request or credential was used. Regression tests cover Cloudflare and self-hosted paths.
+
+Local commits: `05d5608753c08980502f16fa352e76b5d074af8b` (compact portrait usability), `5d8ee03b227cd7fb5a1913e1b36625c83db8f082` (56 dp live viewport assertion), `240a5361b419dc3887fef84596c3f60917d84e69` (handoff record), `0cd520638aad45b97081d06ad0ea7b22b33c6c9a` (progress checkpoint), and `93aa1484ed63f21b8074e598973555a0a63a8876` (online response bounds). Latest full suite: 155 passed, 2 skipped, 208 subtests; Ruff, format, compileall, `pip check`, release-safety and diff checks passed. Everything remains local/unpublished. Goal remains ACTIVE — NOT FINISHED; external blockers and exact resolution actions remain in the progress board.
