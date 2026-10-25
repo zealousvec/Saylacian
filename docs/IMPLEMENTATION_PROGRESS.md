@@ -305,3 +305,11 @@ Verification: focused service tests `3 passed`; full suite `158 passed, 2 skippe
 Source audit reproduced `RecursionError` from Python's JSON parser using a well-formed, 18,000-byte deeply nested array, within the API's 20,000-byte request cap. The handler now reports malformed JSON as HTTP 400 for recursion-limit failures rather than dropping the request with an unhandled exception. Loopback regression also confirms translation is not invoked.
 
 Verification: focused service tests `4 passed`; full suite `159 passed, 2 skipped, 208 subtests`; Ruff check/format, compileall, `pip check`, release-safety and diff checks passed. Commit `d4c406e516dc056d2c38a090a110b2c598a88a0c`; no push. Goal remains ACTIVE — NOT FINISHED.
+
+## 2026-10-25 — Fresh pinned Somali benchmark rerun on current checkout
+
+Revalidated the isolated Somali pack `1-bfd6cf52bd69` before inference: all 10/10 receipt files match byte counts and SHA-256 (314,460,806 bytes). Reran the full pinned TICO-19 150-pair baseline from current source commit `d4c406e516dc056d2c38a090a110b2c598a88a0c`; the benchmark blocked `socket.socket.connect` during inference, and result/checkpoint/predictions stayed outside the repository under `%TEMP%\Saylacian-fresh-bench-6c779f9644504d058bfad7578a561c84\rerun-882833ad99324a81b88fac9a21fe7878`.
+
+Fixture SHA-256 remains `be58b2d350badb7e03b73906471453311a8843534e4a2a572a772c60c394c7f7`. Results reproduced EN→SO BLEU/chrF++ `5.287/25.282` and SO→EN `6.300/24.680`; synthetic candidate selected 97/150 times, with 53 fallback cases (47 unreadable-token, six output-length). Runtime 129.12 seconds; peak working set 548,409,344 bytes. This confirms reproducibility only; the low automatic EN→SO score and lack of fluent review remain material limitations.
+
+Queue re-screen: no new independent READY implementation task. Somali quality/model selection remains blocked on consented fluent review or the documented faster-host evaluation; other blockers remain unchanged. Goal ACTIVE — NOT FINISHED. No user data changed, no push or publication.

@@ -492,3 +492,9 @@ Latest service code commit: `889dfc1ff15d6362d883c8963f87a6ba39092e59`. Each acc
 ## 2026-10-25 continuation — malformed nested request recovery
 
 Latest service code commit: `d4c406e516dc056d2c38a090a110b2c598a88a0c`. A well-formed but deeply nested JSON array under the 20,000-byte body cap raised `RecursionError`; the API now returns HTTP 400, with a loopback test proving inference is not invoked. Full suite: `159 passed, 2 skipped, 208 subtests`; Ruff, format, compileall, dependency, release-safety and diff checks passed. Existing owner changes remain untouched; keep all work local and unpublished.
+
+## 2026-10-25 continuation — fresh Somali benchmark
+
+Latest pinned TICO-19 baseline rerun used current source `d4c406e516dc056d2c38a090a110b2c598a88a0c`. Before inference, the isolated Somali pack `1-bfd6cf52bd69` passed SHA-256 and byte-count checks for all 10 assets (314,460,806 bytes). The 150-pair fixture hash remained `be58b2d350badb7e03b73906471453311a8843534e4a2a572a772c60c394c7f7`; benchmark code blocked socket connects during inference and saved predictions/checkpoint under `%TEMP%\Saylacian-fresh-bench-...`, outside Git.
+
+Reproduced EN→SO BLEU/chrF++ 5.287/25.282; SO→EN 6.300/24.680. Candidate accepted 97/150, fallback 53 (47 unreadable marker, 6 output length). Runtime 129.12 s; peak working set 548,409,344 bytes. These automatic scores do not validate Somali quality. No new READY task appeared; keep goal active and consult progress board for blocker actions. No push.

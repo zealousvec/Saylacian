@@ -175,3 +175,9 @@ Verification: focused service tests `3 passed`; full suite `158 passed, 2 skippe
 A valid-size, deeply nested JSON array could raise `RecursionError` in the self-hosted API's decoder, escaping its malformed-request handling. The service now returns HTTP 400 for parser recursion failures. A localhost integration test confirms the request is rejected before translation runs.
 
 Verification: focused service tests `4 passed`; full suite `159 passed, 2 skipped, 208 subtests`; Ruff, format, compileall, `pip check`, release-safety and diff checks passed. Local code commit `d4c406e516dc056d2c38a090a110b2c598a88a0c`; no push. Goal remains ACTIVE — NOT FINISHED.
+
+## 22. Fresh pinned Somali benchmark rerun — 2026-10-25
+
+Rechecked all 10 files in isolated pack `1-bfd6cf52bd69` against the installed SHA-256/size receipt before inference (314,460,806 bytes). The exact 150-pair TICO-19 fixture hash was unchanged (`be58b2d350badb7e03b73906471453311a8843534e4a2a572a772c60c394c7f7`). Benchmark inference blocked all `socket.socket.connect` calls; full output and checkpoint stayed in a unique temp run folder outside Git.
+
+Metrics reproduced exactly: EN→SO BLEU/chrF++ 5.287/25.282; SO→EN 6.300/24.680. Synthetic candidate accepted 97 examples, fallback 53 (47 unreadable markers, six output length); runtime 129.12 s; peak working set 548,409,344 bytes. This verifies reproducibility, not semantic quality. No changes to model or predictions entered the repository. Goal remains ACTIVE — NOT FINISHED.
