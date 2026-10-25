@@ -43,7 +43,7 @@ I first evaluated all 37 rows marked `public` in the TICO-19 English–Somali **
 
 The larger sample supports the same limited conclusion: the experimental route scored higher on this medical-domain sample, at higher latency and with frequent fallback. The timing varied substantially between runs, so it should not be read as a stable device-performance estimate. The automatic scores do not establish that the output is natural or medically safe Somali. Some wording remains awkward, repeated ideas can pass the guard, and fluent-speaker review is still needed. Do not generalize this result beyond the sampled TICO-19 material.
 
-The guard rejects copied text, output that is unusually long for its input, and content words of four or more characters repeated three or more times. It does not recognize every paraphrased repetition: for example, the result for “do your relatives have the same symptoms” repeats a phrase about relatives. Other outputs are also awkward. The 37-row subset is retained here as an earlier checkpoint; the 120-row comparison above is the broader result. TICO-19 is medical-domain data, so neither result should be generalized to other topics.
+The guard rejects copied text, output that is unusually long for its input, and content words of four or more characters repeated three or more times. It also checks for duplicate sentences, repeated opening fragments and an unreadable SentencePiece marker. Fallback warnings now identify which check was triggered. These checks do not recognize every paraphrased repetition: for example, the result for “do your relatives have the same symptoms” repeats a phrase about relatives. Other outputs are also awkward. The 37-row subset is retained here as an earlier checkpoint; the 120-row comparison above is the broader result. TICO-19 is medical-domain data, so neither result should be generalized to other topics.
 
 ## Fine-tuned model screened, not selected
 
@@ -52,6 +52,10 @@ I also screened [`maanka2/opus-mt-en-so-finetuned`](https://huggingface.co/maank
 On the same 37 TICO-19 rows, the Transformers checkpoint scored BLEU 5.898 / chrF++ 36.656 at 537 ms per sentence. After conversion to CTranslate2 INT8 and running through Saylacian's actual route, it scored 3.673 / 30.691, fell back on 26 of 37 inputs and averaged 1,013 ms. The selected optional CTranslate2 pack scored 4.332 / 35.376 with 15 fallbacks at 770 ms on that sample. Because the converted candidate performed worse in the app runtime and its training data terms remain unchecked, it is not wired into the app or download list. These results are still small-sample automatic metrics, not fluent-speaker review.
 
 Other model candidates remain experimental until their outputs, dataset overlap, licence terms and runtime costs have been checked against the shipped pack.
+
+## Candidate for another comparison
+
+The [`Rogendo/mt-so-en-helpline-v1` model card](https://huggingface.co/Rogendo/mt-so-en-helpline-v1/tree/7b4608d45a4192976fd2de1fc3c7b502dfcd6ebe) reports BLEU 7.45 and chrF 33.07 on TICO-19 test. It says the model was fine-tuned on TICO-19 dev and declares Apache-2.0. These are publisher-reported results, not Saylacian measurements. The checkpoint is about 243 MB before conversion, and it is English-to-Somali only. Because it is based on [Helsinki-NLP's synthetic English-to-Somali model](https://huggingface.co/Helsinki-NLP/opus-mt-synthetic-en-so), its licence relationship needs review before redistribution. The current host received HTTP 401 when requesting the public model files, so the checkpoint could not be independently tested or converted to Saylacian's CTranslate2 pack format. Revisit it when the weights are accessible and the licence chain is clear.
 
 ## Held-out test-split check
 

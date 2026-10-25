@@ -149,6 +149,30 @@ class TranslationTests(unittest.TestCase):
                     translation._synthetic_candidate_is_degenerate(source, output)
                 )
 
+    def test_synthetic_guard_reports_each_rejection_reason(self):
+        cases = (
+            ("hi", "hi \u2047", "unknown_symbol"),
+            (
+                "A useful English sentence.",
+                "A useful English sentence.",
+                "copied_input",
+            ),
+            ("hi", "a b c d e f g h i j k l m", "overlong"),
+            ("a short sentence", "waxaan waxaan waxaan", "repeated_content_word"),
+            (
+                "a short sentence",
+                "Waxaan hayaa. Waxaan hayaa.",
+                "duplicate_sentence",
+            ),
+            ("hi", "Alpha alphabet", "repeated_fragment"),
+        )
+        for source, output, expected_reason in cases:
+            with self.subTest(reason=expected_reason):
+                self.assertEqual(
+                    translation._synthetic_candidate_rejection_reason(source, output),
+                    expected_reason,
+                )
+
     def test_long_offline_input_splits_at_sentence_boundary(self):
         engine = FakeEngine()
         tokenizers = (FakeTokenizer(), FakeTokenizer("translated text"))

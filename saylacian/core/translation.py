@@ -34,39 +34,48 @@ _LONG_INPUT_BOUNDARY = re.compile(r"(?<=[.!?…。！？])\s+|\n+")
 MAX_MODEL_INPUT_TOKENS = 400
 
 
-def _synthetic_candidate_is_degenerate(source, output):
-    """Reject copied, repeated, unreadable or unusually expanded candidate text."""
+def _synthetic_candidate_rejection_reason(source, output):
+    """Identify why candidate output should fall back to the standard model."""
     if _SENTENCEPIECE_UNKNOWN_SURFACE in output:
-        return True
+        return "unknown_symbol"
 
-    normalize = lambda value: " ".join(
-        "".join(
-            char
-            for char in unicodedata.normalize("NFKC", value).casefold()
-            if char.isalnum() or char.isspace()
-        ).split()
-    )
+    def normalize(value):
+        return " ".join(
+            "".join(
+                char
+                for char in unicodedata.normalize("NFKC", value).casefold()
+                if char.isalnum() or char.isspace()
+            ).split()
+        )
+
     if normalize(source) == normalize(output):
-        return True
+        return "copied_input"
     words = re.findall(r"[^\W_]+", output.casefold(), flags=re.UNICODE)
     source_word_count = len(re.findall(r"[^\W_]+", source.casefold(), flags=re.UNICODE))
     output_word_count = len(words)
 
     if output_word_count > source_word_count * 2 + 10:
-        return True
+        return "overlong"
     if _has_repeated_content_word(words):
-        return True
+        return "repeated_content_word"
     segments = [normalize(part) for part in _SENTENCE_SPLIT.split(output)]
     segments = [part for part in segments if part]
     if len(segments) != len(set(segments)):
-        return True
+        return "duplicate_sentence"
     words = normalize(output).split()
-    return bool(
+    if (
         len(words) > 1
         and len(words[0]) >= 3
         and words[0] in words[1]
         and words[0] != words[1]
-    )
+    ):
+        return "repeated_fragment"
+    return None
+
+
+def _synthetic_candidate_is_degenerate(source, output):
+    """Reject copied, repeated, unreadable or unusually expanded candidate text."""
+    return _synthetic_candidate_rejection_reason(source, output) is not None
 
 
 def _has_repeated_content_word(words):
@@ -321,35 +330,35 @@ def translate_meaning(text, source, target, model_root=None, *, provider_overrid
                 max_decoding_length=512,
             )[0]
             candidate_text = candidate_target.decode(candidate_result.hypotheses[0])
-            if _synthetic_candidate_is_degenerate(text, candidate_text):
+            rejection_reason = _synthetic_candidate_rejection_reason(
+                text, candidate_text
+            )
+            if rejection_reason is not None:
                 candidate_fallback = True
-                word_count = lambda value: len(
-                    re.findall(r"[^\W_]+", value.casefold(), flags=re.UNICODE)
-                )
-                source_words = word_count(text)
-                output_words = len(
-                    re.findall(
-                        r"[^\W_]+",
-                        candidate_text.casefold(),
-                        flags=re.UNICODE,
-                    )
-                )
-                if _SENTENCEPIECE_UNKNOWN_SURFACE in candidate_text:
-                    candidate_fallback_reason = "The first result contained an unreadable symbol; an alternative was used."
-                elif output_words > source_words * 2 + 10:
-                    candidate_fallback_reason = (
+                candidate_fallback_reason = {
+                    "unknown_symbol": (
+                        "The first result contained an unreadable symbol; "
+                        "an alternative was used."
+                    ),
+                    "copied_input": (
+                        "The first result repeated or copied the input; "
+                        "an alternative was used."
+                    ),
+                    "overlong": (
                         "The first result was unusually long; an alternative was used."
-                    )
-                elif _has_repeated_content_word(
-                    re.findall(
-                        r"[^\W_]+",
-                        candidate_text.casefold(),
-                        flags=re.UNICODE,
-                    )
-                ):
-                    candidate_fallback_reason = "The first result repeated a word several times; an alternative was used."
-                else:
-                    candidate_fallback_reason = "The first result repeated or copied the input; an alternative was used."
+                    ),
+                    "repeated_content_word": (
+                        "The first result repeated a word several times; "
+                        "an alternative was used."
+                    ),
+                    "duplicate_sentence": (
+                        "The first result repeated a sentence; an alternative was used."
+                    ),
+                    "repeated_fragment": (
+                        "The first result repeated an incomplete word; "
+                        "an alternative was used."
+                    ),
+                }[rejection_reason]
             else:
                 return Conversion(
                     candidate_text,

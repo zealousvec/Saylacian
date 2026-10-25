@@ -9,6 +9,7 @@ This is an experimental-alpha source snapshot, not a numbered app release. Chang
 - Long offline passages can be translated in sentence-sized sections instead of failing at the model's input limit. Meaning can shift where one section ends and the next begins.
 - An optional English-to-Somali model is available as a separate download. Saylacian checks its output and uses the standard Somali pack when a result appears incomplete or repetitive. On the 120-example TICO-19 sample, the optional route scored higher than the standard pack, but it was slower and fell back on 47 inputs. Somali still needs fluent-speaker review; the [quality notes](docs/TRANSLATION_QUALITY.md) explain the test and its limits.
 - The optional Somali detection pack can help identify Somali input. It does not improve translation quality.
+- When the optional Somali model falls back, the warning now names the checked issue, such as copied text, an unreadable token, excessive length or repeated output.
 
 ### Script reading and writing
 
