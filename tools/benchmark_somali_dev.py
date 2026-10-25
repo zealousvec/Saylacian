@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import csv
 import hashlib
+import importlib.metadata
 import io
 import json
 import os
@@ -111,7 +112,12 @@ def select_stratified_sample(
 
 
 def _checkpoint(
-    path: Path, archive_hash: str, model_hash: str, limit: int, sample_ids: list[str]
+    path: Path,
+    archive_hash: str,
+    model_hash: str,
+    limit: int,
+    sample_ids: list[str],
+    software_versions: dict[str, str],
 ) -> dict:
     empty = {
         "afrislm": {"en_so": [], "so_en": []},
@@ -125,6 +131,7 @@ def _checkpoint(
         "model_sha256": model_hash,
         "sample_limit": limit,
         "sample_ids": sample_ids,
+        "software_versions": software_versions,
     }
     if any(saved.get(key) != value for key, value in expected.items()):
         return empty
@@ -145,6 +152,7 @@ def _save_checkpoint(
     model_hash: str,
     limit: int,
     sample_ids: list[str],
+    software_versions: dict[str, str],
     results: dict,
 ) -> None:
     save_json_atomic(
@@ -154,6 +162,7 @@ def _save_checkpoint(
             "model_sha256": model_hash,
             "sample_limit": limit,
             "sample_ids": sample_ids,
+            "software_versions": software_versions,
             "results": results,
         },
     )
@@ -222,9 +231,28 @@ def main() -> int:
             "The standard Somali model pack did not expose any active model files."
         )
 
+    package_names = ("llama-cpp-python", "ctranslate2", "sentencepiece", "sacrebleu")
+    try:
+        software_versions = {
+            name: importlib.metadata.version(name) for name in package_names
+        }
+    except importlib.metadata.PackageNotFoundError as error:
+        parser.error(f"Required benchmark runtime is missing: {error.name}.")
+    expected_versions = {**installed["runtimes"], **manifest["runtimes"]}
+    if any(
+        software_versions.get(name) != version
+        for name, version in expected_versions.items()
+    ):
+        parser.error("Installed model runtimes do not match pinned manifest versions.")
+
     sample_ids = [row["id"] for row in samples]
     results = _checkpoint(
-        checkpoint_path, archive_hash, model_hash, args.limit, sample_ids
+        checkpoint_path,
+        archive_hash,
+        model_hash,
+        args.limit,
+        sample_ids,
+        software_versions,
     )
     from llama_cpp import Llama
 
@@ -301,6 +329,7 @@ def main() -> int:
                         model_hash,
                         args.limit,
                         sample_ids,
+                        software_versions,
                         results,
                     )
                     print(f"{system}: {index}/{len(samples)} pairs", flush=True)
@@ -325,6 +354,12 @@ def main() -> int:
             "sha256": model_hash,
         },
         "runtime": "llama-cpp-python 0.3.36 CPU; n_ctx=2048; temperature=0; socket connections blocked during inference.",
+        "software_versions": software_versions,
+        "standard_pack": {
+            "version": installed["installed_version"],
+            "runtimes": installed["runtimes"],
+            "bytes": installed["installed_bytes"],
+        },
         "inference_seconds": round(time.perf_counter() - start, 2),
         "systems": {},
         "quality_limits": "Automatic single-reference metrics on a small medical-domain sample; not human-rated or representative of general Somali fluency.",

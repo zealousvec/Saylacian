@@ -13,6 +13,8 @@ from unittest.mock import patch
 from tools.benchmark_somali_dev import (
     TICO_DEV_ARCHIVE_SHA256,
     TICO_DEV_MEMBER,
+    _checkpoint,
+    _save_checkpoint,
     load_dev_pairs,
     select_stratified_sample,
 )
@@ -95,6 +97,48 @@ class SomaliDevBenchmarkTests(unittest.TestCase):
             select_stratified_sample(rows, 4)
         with self.assertRaisesRegex(ValueError, "Not enough rows"):
             select_stratified_sample(rows, 3)
+
+    def test_checkpoint_is_not_reused_across_runtime_versions(self):
+        results = {
+            "afrislm": {"en_so": [], "so_en": []},
+            "standard": {"en_so": [], "so_en": []},
+        }
+        with tempfile.TemporaryDirectory() as temporary:
+            checkpoint_path = Path(temporary) / "checkpoint.json"
+            _save_checkpoint(
+                checkpoint_path,
+                TICO_DEV_ARCHIVE_SHA256,
+                "model-hash",
+                3,
+                ["one", "two", "three"],
+                {"llama-cpp-python": "0.3.36"},
+                results,
+            )
+            saved = _checkpoint(
+                checkpoint_path,
+                TICO_DEV_ARCHIVE_SHA256,
+                "model-hash",
+                3,
+                ["one", "two", "three"],
+                {"llama-cpp-python": "0.3.36"},
+            )
+            stale = _checkpoint(
+                checkpoint_path,
+                TICO_DEV_ARCHIVE_SHA256,
+                "model-hash",
+                3,
+                ["one", "two", "three"],
+                {"llama-cpp-python": "0.3.37"},
+            )
+
+        self.assertEqual(saved, results)
+        self.assertEqual(
+            stale,
+            {
+                "afrislm": {"en_so": [], "so_en": []},
+                "standard": {"en_so": [], "so_en": []},
+            },
+        )
 
 
 if __name__ == "__main__":
