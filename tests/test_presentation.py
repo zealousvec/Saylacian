@@ -25,13 +25,17 @@ class PresentationTests(unittest.TestCase):
             "Select a source language.",
         )
         self.assertEqual(
+            translation_error_message(ValueError("Choose English, French or Somali.")),
+            "Choose English, French or Somali.",
+        )
+        self.assertEqual(
             translation_error_message(
                 ValueError(
                     "No local model installed for this pair. "
                     "Download its offline language pack first."
                 )
             ),
-            "No offline pack is installed. Open Packs to download one, then try again.",
+            "Open Packs to download an offline pack.",
         )
         self.assertEqual(
             translation_error_message(
@@ -40,8 +44,7 @@ class PresentationTests(unittest.TestCase):
                     "No local model installed for this pair."
                 )
             ),
-            "Online translation failed and no offline pack is installed. "
-            "Open Packs to download one, then try again.",
+            "Online service unavailable. Open Packs for an offline pack.",
         )
         self.assertEqual(
             translation_error_message(
@@ -99,19 +102,17 @@ class PresentationTests(unittest.TestCase):
 
     def test_translation_picker_contains_only_meaning_routes(self):
         choices = picker_choices(list_capabilities(), "translation")
-        names = {name for name, _ in choices}
-        self.assertEqual(display_name(choices[0][0]), "Detect")
-        self.assertEqual(choices[0][1], "English, French or Somali")
+        names = set(choices)
+        self.assertEqual(display_name(choices[0]), "Detect")
         self.assertTrue({"English", "French", "Somali Latin"}.issubset(names))
         self.assertNotIn("Osmanya", names)
         self.assertNotIn("Nobiin (Nubian)", names)
-        self.assertIn(("Somali Latin", "Experimental translation"), choices)
+        self.assertNotIn("Experimental translation", names)
 
     def test_script_picker_keeps_old_nubian_separate_and_hides_modern_research(self):
         choices = picker_choices(list_capabilities(), "transliteration")
-        names = {name for name, _ in choices}
-        self.assertEqual(display_name(choices[0][0]), "Detect")
-        self.assertEqual(choices[0][1], "Languages and writing systems")
+        names = set(choices)
+        self.assertEqual(display_name(choices[0]), "Detect")
         self.assertTrue(
             {
                 "Somali Latin",
@@ -124,9 +125,7 @@ class PresentationTests(unittest.TestCase):
         )
         self.assertNotIn("Nobiin (Nubian)", names)
         self.assertNotIn("Dongolawi / Andaandi (Nubian)", names)
-        self.assertIn(
-            ("Old Nubian scholarly Latin", "Limited character readings"), choices
-        )
+        self.assertNotIn("Limited character readings", names)
 
 
 if __name__ == "__main__":

@@ -146,9 +146,7 @@ def clear_model_cache():
 
 def translate_meaning(text, source, target, model_root=None, *, provider_override=None):
     if get_capability(source, target, "translation") is None:
-        raise ValueError(
-            "Translation is unavailable for this pair. Choose English, French or Somali."
-        )
+        raise ValueError("Choose English, French or Somali.")
     if not text.strip():
         return Conversion("")
     if len(text) > 4000:

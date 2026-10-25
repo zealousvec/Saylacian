@@ -43,6 +43,8 @@ def start(app):
     )
     assert home.ids.brand_title.texture_size[1] <= home.ids.brand_title.height + 1
     assert home.ids.status_label.texture_size[1] <= home.ids.status_label.height + 1
+    assert home.ids.mode_toggle_slot.width == dp(136)
+    assert home.ids.old_nubian_read_button.width >= dp(64)
     original_home_size = tuple(home.size)
     try:
         for width, height, wide, controls in (
@@ -138,9 +140,7 @@ def start(app):
             ),
         ):
             app.convert("Tijaabo kooban.")
-        assert app.status == (
-            "No offline pack is installed. Open Packs to download one, then try again."
-        )
+        assert app.status == ("Open Packs to download an offline pack.")
         assert home.ids.output_text.text == ""
         app.mode = saved_mode
         with (
@@ -559,7 +559,7 @@ def start(app):
         )
         assert any(
             item.text.endswith("Latin reading")
-            and item.secondary_text == "Limited character readings"
+            and not getattr(item, "secondary_text", "")
             for item in app.root.get_screen("picker").ids.options.children
         )
         app.filter_languages("Nobiin")

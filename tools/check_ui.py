@@ -139,9 +139,8 @@ class CheckedApp(SaylacianApp):
                 button for name, button in self.picker_options if name == "Borama"
             ]
             assert len(route_options) == 1
-            assert route_options[0].secondary_text == (
-                "Limited conversion · needs Saylacian font"
-            )
+            assert route_options[0].text == "Borama"
+            assert not getattr(route_options[0], "secondary_text", "")
             chart_options = [
                 button
                 for name, button in self.picker_options
@@ -234,6 +233,8 @@ class CheckedApp(SaylacianApp):
         home = self.root.get_screen("home")
         assert home.ids.old_nubian_read_button.disabled
         assert home.ids.old_nubian_read_button.opacity == 0
+        assert home.ids.old_nubian_read_button.width >= dp(64)
+        assert home.ids.mode_toggle_slot.width == dp(136)
         panels = home.ids.translation_panels
         assert self.wide_layout is expected_wide, (Window.size, self.wide_layout)
         assert panels.orientation == ("horizontal" if expected_wide else "vertical")
@@ -251,6 +252,7 @@ class CheckedApp(SaylacianApp):
             )
             assert control.y >= controls.y - 1
             assert control.top <= controls.top + 1
+        self.check_mode_layout_stability(home)
         _, _, screenshot_name = self.viewport_cases[self.viewport_index]
         path = PREVIEW_DIR / f"{screenshot_name}.png"
         self.viewport_index += 1
@@ -258,6 +260,76 @@ class CheckedApp(SaylacianApp):
             capture_after_present(path, self.capture_next_viewport)
         else:
             self.capture_next_viewport()
+
+    def check_mode_layout_stability(self, home):
+        original = (
+            self.mode,
+            self.source,
+            self.target,
+            home.ids.input_text.text,
+        )
+        widgets = (
+            home.ids.app_header,
+            home.ids.mode_toggle_slot,
+            home.ids.old_nubian_read_button,
+            home.ids.language_controls,
+            home.ids.translation_panels,
+            home.ids.input_text.parent,
+            home.ids.output_text.parent,
+        )
+
+        def positions():
+            return tuple(
+                tuple(
+                    round(value, 1)
+                    for value in (widget.x, widget.y, widget.width, widget.height)
+                )
+                for widget in widgets
+            ) + (
+                (
+                    round(home.ids.mode_toggle_button.x, 1),
+                    round(home.ids.mode_toggle_button.y, 1),
+                ),
+                (
+                    round(home.ids.status_label.x, 1),
+                    round(home.ids.status_label.y, 1),
+                ),
+            )
+
+        def settle_layout():
+            for _ in range(3):
+                Clock.tick()
+
+        try:
+            self.source, self.target = "Somali Latin", "Borama"
+            self.mode = "Convert writing system"
+            home.ids.input_text.text = "dhag!"
+            self.convert(home.ids.input_text.text)
+            settle_layout()
+            assert self.status == "Partial chart mapping."
+            before = positions()
+            self.switch_mode()
+            settle_layout()
+            assert self.status
+            assert positions() == before, (
+                Window.size,
+                "translation mode",
+                before,
+                positions(),
+            )
+            self.switch_mode()
+            settle_layout()
+            assert positions() == before, (
+                Window.size,
+                "transliteration mode",
+                before,
+                positions(),
+            )
+        finally:
+            self.mode, self.source, self.target, input_text = original
+            self.refresh_fonts()
+            home.ids.input_text.text = input_text
+            self.convert(input_text)
 
     def capture_next_viewport(self, dt=0):
         if self.viewport_index < len(self.viewport_cases):

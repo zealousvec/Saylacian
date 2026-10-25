@@ -17,7 +17,7 @@ Saylacian is a free Python/Kivy language and script-preservation app. It combine
 | Old Nubian | Limited Coptic-script to scholarly Latin transliteration; reverse conversion is experimental. This does not translate Old Nubian meaning or cover all conventions. |
 | Modern Nubian varieties | Unsupported; each variety and orthography needs separate research and review. |
 
-Somali meaning translation has not had fluent-speaker review. Borama and Kaddare use partial mappings transcribed from historical charts; they are experimental, not standardized Unicode text, and do not establish accepted spelling or general orthography. The limited Old Nubian route is a character transliteration table, not evidence of complete or fluent Old Nubian support. Modern Nubian varieties are not implemented. These labels describe code and evidence, not validated translation quality. Full coverage and limitations: [support matrix](docs/SUPPORT_MATRIX.md), [script feasibility](docs/SCRIPT_FEASIBILITY.md), [quality evidence](docs/SOMALI_TRANSLATION_QUALITY.md), and [project status](docs/PROJECT_STATUS.md).
+Somali meaning translation has not had fluent-speaker review. Borama and Kaddare use partial mappings transcribed from historical charts; they are experimental, not standardized Unicode text, and do not establish accepted spelling or general orthography. The limited Old Nubian route is a character transliteration table, not evidence of complete or fluent Old Nubian support. Modern Nubian varieties are not implemented. These labels describe code and evidence, not validated translation quality. Start with the [user guide](docs/USER_GUIDE.md) for navigation and clipboard behavior, or browse the [documentation index](docs/README.md). Full coverage and limitations: [support matrix](docs/SUPPORT_MATRIX.md), [script feasibility](docs/SCRIPT_FEASIBILITY.md), [quality evidence](docs/SOMALI_TRANSLATION_QUALITY.md), and [project status](docs/PROJECT_STATUS.md).
 
 ## Install and run on Windows
 
@@ -62,6 +62,8 @@ py -3.12 -m venv .venv
 The test suite and CI do not download model weights. To reproduce a full local model install, run `tools/prepare_models.py` as documented in [RUN.md](RUN.md); this downloads large model files. Do not commit models or credentials.
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for code and linguistic review expectations. Historical models, datasets, and scripts require source, version, licence, and checksum evidence before inclusion.
+
+The [API reference](docs/API_REFERENCE.md) documents the Python core and optional self-hosted HTTP endpoints. No public Saylacian translation API is hosted.
 
 ## Privacy, platform, and release
 

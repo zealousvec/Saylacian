@@ -26,7 +26,7 @@
             size_hint: None, 1
             width: max(dp(288), min(dp(1120), root.width - dp(32)))
             padding: dp(16), dp(20)
-            spacing: dp(12)
+            spacing: dp(6) if root.height <= dp(520) else dp(12)
             BoxLayout:
                 id: app_header
                 orientation: "vertical" if root.width < dp(420) else "horizontal"
@@ -46,15 +46,22 @@
                     width: self.minimum_width
                     height: dp(44)
                     spacing: dp(12)
-                    MDFlatButton:
-                        id: mode_toggle_button
-                        text: "Transliterate" if app.mode == "Convert writing system" else "Translate"
-                        on_release: app.switch_mode()
+                    AnchorLayout:
+                        id: mode_toggle_slot
+                        anchor_x: "left"
+                        anchor_y: "center"
+                        size_hint: None, None
+                        size: dp(136), dp(44)
+                        MDFlatButton:
+                            id: mode_toggle_button
+                            text: "Transliterate" if app.mode == "Convert writing system" else "Translate"
+                            size_hint: None, None
+                            on_release: app.switch_mode()
                     MDFlatButton:
                         id: old_nubian_read_button
                         text: "Read"
                         size_hint_x: None
-                        width: dp(72) if app.mode == "Convert writing system" and ("Old Nubian" in app.source or "Old Nubian" in app.target) else 0
+                        width: dp(72)
                         disabled: not (app.mode == "Convert writing system" and ("Old Nubian" in app.source or "Old Nubian" in app.target))
                         opacity: 0 if self.disabled else 1
                         on_release: app.open_old_nubian_studio()
@@ -187,7 +194,7 @@
                 text: app.status + app.alternative_readings
                 font_style: "Caption"
                 size_hint_y: None
-                height: max(dp(64) if app.alternative_readings else dp(36), self.texture_size[1] + dp(8))
+                height: max(dp(58), self.texture_size[1] + dp(8))
                 text_size: self.width, None
 <PickerScreen>:
     name: "picker"

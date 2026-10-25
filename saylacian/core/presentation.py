@@ -12,49 +12,25 @@ DISPLAY_NAMES = {
     "Old Nubian scholarly Latin": "Latin reading",
 }
 
-CONTEXT_NOTES = {
-    "Somali Latin": "Latin script",
-    "Osmanya": "Somali script",
-    "Borama": "Limited conversion · needs Saylacian font",
-    "Kaddare": "Limited conversion · needs Saylacian font",
-    "Old Nubian (Coptic)": "Original Coptic-derived script",
-    "Old Nubian scholarly Latin": "Limited character readings",
-}
-
 
 def display_name(route_name: str) -> str:
     """Map an internal route name to concise UI copy without changing its ID."""
     return DISPLAY_NAMES.get(route_name, route_name)
 
 
-def picker_choices(capabilities, mode: str) -> list[tuple[str, str]]:
+def picker_choices(capabilities, mode: str) -> list[str]:
     """List implemented routes for one mode, plus script references when relevant."""
-    detection_note = (
-        "English, French or Somali"
-        if mode == "translation"
-        else "Languages and writing systems"
-    )
-    choices = [("Detect language/script", detection_note)]
+    choices = ["Detect language/script"]
     route_names = dict.fromkeys(
         name
         for route in capabilities
         if route["kind"] == "route" and route["mode"] == mode
         for name in (route["source"], route["target"])
     )
-    for name in route_names:
-        if mode == "transliteration":
-            note = CONTEXT_NOTES.get(name, "Writing system")
-        elif name == "Somali Latin":
-            note = "Experimental translation"
-        else:
-            note = "Language"
-        choices.append((name, note))
+    choices.extend(route_names)
 
     if mode == "transliteration":
-        choices.extend(
-            (name + " alphabet chart", "Alphabet reference")
-            for name in ("Borama", "Kaddare")
-        )
+        choices.extend(name + " alphabet chart" for name in ("Borama", "Kaddare"))
     return choices
 
 
@@ -93,11 +69,8 @@ def translation_error_message(error: Exception) -> str:
         details = str(error)
         if "no local model installed" in details.casefold():
             if "downloaded-model fallback unavailable" in details.casefold():
-                return (
-                    "Online translation failed and no offline pack is installed. "
-                    "Open Packs to download one, then try again."
-                )
-            return "No offline pack is installed. Open Packs to download one, then try again."
+                return "Online service unavailable. Open Packs for an offline pack."
+            return "Open Packs to download an offline pack."
         if details == "Local translation runtime is not installed.":
             return "Translation support is missing. Reinstall Saylacian's Python dependencies."
         return details

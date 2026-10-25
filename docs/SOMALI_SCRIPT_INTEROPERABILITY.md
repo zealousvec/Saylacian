@@ -25,6 +25,8 @@ The 2023 Unicode African-scripts update said no Borama or Kaddare encoding propo
 
 Other platforms currently support text and Latin via Kivy's text clipboard; image clipboard output is Windows-only. Pasting untagged private-use text does not infer Borama or Kaddare. Choose a source route explicitly or paste the tagged package. This prevents unrelated fonts that reuse the same private-use code points from being silently read as Saylacian.
 
+For plain-language instructions and examples, see the [Borama/Kaddare copy guide](USER_GUIDE.md#copy-borama-and-kaddare). The [API reference](API_REFERENCE.md#clipboard-interchange) documents the envelope's developer-facing role.
+
 ## Verification still required
 
 The live Kivy acceptance run checked generated Borama/Kaddare fonts, copy menu availability, clipboard payload construction, tagged import, app font selection and conversion. The repository also has a Windows clipboard test that uses the real clipboard plus a separate WinForms reader. Its existing recorded evidence predates the current menu labels and no longer proves the updated build.

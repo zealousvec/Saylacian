@@ -50,7 +50,7 @@ from kivymd.app import MDApp
 from kivymd.uix.button import MDFlatButton, MDIconButton
 from kivymd.uix.dialog import MDDialog
 from kivymd.uix.label import MDLabel
-from kivymd.uix.list import TwoLineListItem
+from kivymd.uix.list import OneLineListItem
 from kivymd.uix.menu import MDDropdownMenu
 from kivymd.uix.tooltip import MDTooltip
 
@@ -642,16 +642,15 @@ class SaylacianApp(MDApp):
         mode = "translation" if self.mode == "Translate meaning" else "transliteration"
         choices = picker_choices(list_capabilities(), mode)
         current = getattr(self, self.side)
-        for name, note in choices:
+        for name in choices:
             if self.side == "target" and name == "Detect language/script":
                 continue
-            if query.casefold() not in (name + note).casefold():
+            if query.casefold() not in (name + display_name(name)).casefold():
                 continue
-            button = TwoLineListItem(
-                text=("Selected: " if name == current else "") + display_name(name),
-                secondary_text=note,
+            button = OneLineListItem(
+                text=("[x] " if name == current else "") + display_name(name),
                 size_hint_x=1,
-                height=dp(72),
+                height=dp(56),
                 on_release=lambda b, n=name: self.choose(n),
             )
             box.add_widget(button)
@@ -661,7 +660,7 @@ class SaylacianApp(MDApp):
         current = getattr(self, self.side)
         for index, (name, button) in enumerate(self.picker_options):
             pointer = "› " if index == self.picker_index else ""
-            selected = "Selected: " if name == current else ""
+            selected = "[x] " if name == current else ""
             button.text = pointer + selected + display_name(name)
 
     def choose(self, name):
@@ -830,7 +829,16 @@ class SaylacianApp(MDApp):
                 "Borama",
                 "Kaddare",
             ):
-                self.status = detection_note + warnings
+                self.status = detection_note + "Partial chart mapping."
+                chart_details = [
+                    warning
+                    for warning in result.warnings
+                    if not warning.startswith("Limited conversion;")
+                    and warning
+                    != "Capitalization is not represented in the chart glyphs."
+                ]
+                if chart_details:
+                    self.status += " " + " ".join(chart_details)
             else:
                 self.status = (
                     detection_note
