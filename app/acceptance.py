@@ -29,6 +29,7 @@ def start(app):
     )
     folder.mkdir(parents=True, exist_ok=True)
     home = app.root.get_screen("home")
+    app_module = sys.modules[app.__class__.__module__]
     assert list(home.ids.input_text.hint_text_color) == [0.35, 0.35, 0.35, 1]
     assert list(home.ids.output_text.hint_text_color) == [0.35, 0.35, 0.35, 1]
     input_field = home.ids.input_text
@@ -118,11 +119,11 @@ def start(app):
         saved_mode = app.mode
         app.mode = "Translate meaning"
         app.source, app.target = "Somali Latin", "English"
-        app_module = app.__class__.__module__
         with (
-            patch(f"{app_module}.online_translation_enabled", return_value=False),
-            patch(
-                f"{app_module}.model_directory",
+            patch.object(app_module, "online_translation_enabled", return_value=False),
+            patch.object(
+                app_module,
+                "model_directory",
                 side_effect=ValueError(
                     "No local model installed for this pair. Download its offline language pack first."
                 ),
@@ -296,13 +297,12 @@ def start(app):
         saved_detected_language = app.detected_language
         app.mode = "Translate meaning"
         app.source, app.target = "Detect language/script", "English"
-        app_module = sys.modules[app.__class__.__module__]
         with patch.object(app_module, "model_directory"):
             app.convert("Waan ku jeclahay")
         assert app.detected_language[0] == "Somali Latin"
         assert "Detected Somali Latin" in app.status, repr(app.status)
         app.translate_trigger.cancel()
-        with patch("main.model_directory"):
+        with patch.object(app_module, "model_directory"):
             app.convert("Ou est la gare")
         assert app.detected_language[0] == "French"
         assert "Detected French (82% confidence)" in app.status
@@ -373,13 +373,12 @@ def start(app):
         borama = "\ue00a\ue000\ue00b!"
         assert home.ids.output_text.text == borama
         assert home.ids.output_text.font_name == "SaylacianBorama"
-        module = app.__class__.__module__
-        with patch(f"{module}.publish_windows_clipboard") as published:
+        with patch.object(app_module, "publish_windows_clipboard") as published:
             app.copy(borama)
             published.assert_not_called()
         assert "no script label" in app.status
         package = encode_saylacian_text(borama, "Borama")
-        with patch("main.Clipboard.paste", return_value=package):
+        with patch.object(app_module.Clipboard, "paste", return_value=package):
             app.source, app.target = "Somali Latin", "Osmanya"
             app.refresh_fonts()
             app.paste()
@@ -425,7 +424,7 @@ def start(app):
         kaddare = "\ue10d\ue100\ue10e!"
         assert home.ids.output_text.text == kaddare
         assert home.ids.output_text.font_name == "SaylacianKaddare"
-        with patch("kivy.core.clipboard.Clipboard.copy") as copied:
+        with patch.object(app_module.Clipboard, "copy") as copied:
             home.ids.output_text.select_all()
             home.ids.output_text.copy()
             assert copied.call_args is not None, (
@@ -436,14 +435,15 @@ def start(app):
                 app.status,
             )
             assert copied.call_args.args[0] == "shadh!"
-        with patch("main.Clipboard.paste", return_value=kaddare):
+        with patch.object(app_module.Clipboard, "paste", return_value=kaddare):
             app.source, app.target = "Somali Latin", "Osmanya"
             app.refresh_fonts()
             app.paste()
         assert (app.source, app.target) == ("Somali Latin", "Osmanya")
         assert "no script label" in app.status
-        with patch(
-            "main.Clipboard.paste",
+        with patch.object(
+            app_module.Clipboard,
+            "paste",
             return_value=encode_saylacian_text(kaddare, "Kaddare"),
         ):
             app.paste()
@@ -502,7 +502,7 @@ def start(app):
             "Copy image",
             "Copy Latin",
         ]
-        with patch(f"{module}.publish_windows_clipboard") as published:
+        with patch.object(app_module, "publish_windows_clipboard") as published:
             app.copy_menu.items[0]["on_release"]()
             assert [name for name, _ in published.call_args.args[0]] == [
                 "Saylacian Text v1",
@@ -511,7 +511,7 @@ def start(app):
                 "CF_UNICODETEXT",
             ]
         app.open_copy_menu(home.ids.output_copy_button, home.ids.output_text.text)
-        with patch(f"{module}.publish_windows_clipboard") as published:
+        with patch.object(app_module, "publish_windows_clipboard") as published:
             app.copy_menu.items[1]["on_release"]()
             assert [name for name, _ in published.call_args.args[0]] == [
                 "PNG",
@@ -519,7 +519,7 @@ def start(app):
                 "CF_UNICODETEXT",
             ]
         app.open_copy_menu(home.ids.output_copy_button, home.ids.output_text.text)
-        with patch(f"{module}.publish_windows_clipboard") as published:
+        with patch.object(app_module, "publish_windows_clipboard") as published:
             app.copy_menu.items[2]["on_release"]()
             assert (
                 dict(published.call_args.args[0])["CF_UNICODETEXT"]
@@ -560,7 +560,7 @@ def start(app):
             if result:
                 app.open_copy_menu(home.ids.output_copy_button, result)
                 assert [item["text"] for item in app.copy_menu.items] == ["Copy text"]
-                with patch(f"{module}.publish_windows_clipboard") as published:
+                with patch.object(app_module, "publish_windows_clipboard") as published:
                     app.copy_menu.items[0]["on_release"]()
                     assert (
                         dict(published.call_args.args[0])["CF_UNICODETEXT"]
@@ -632,14 +632,14 @@ def start(app):
         studio.ids.reader_alphabet.children[0].trigger_action(duration=0)
         assert "U+2CDF" in app.reader_detail
         saved_record = export_reading_record(make_reading_record("ⲁ\nⲃ"))
-        with patch("main.Clipboard.paste", return_value=saved_record):
+        with patch.object(app_module.Clipboard, "paste", return_value=saved_record):
             app.import_old_nubian_reading()
         assert studio.ids.reader_original.text == "ⲁ\nⲃ"
         assert studio.ids.reader_latin.text == "a\nb"
-        with patch("main.Clipboard.copy") as copied:
+        with patch.object(app_module.Clipboard, "copy") as copied:
             app.copy_old_nubian_reading("original")
             copied.assert_called_once_with("ⲁ\nⲃ")
-        with patch("main.Clipboard.copy") as copied:
+        with patch.object(app_module.Clipboard, "copy") as copied:
             app.copy_old_nubian_reading("latin")
             copied.assert_called_once_with("a\nb")
         studio.ids.reader_original.text = home.ids.input_text.text

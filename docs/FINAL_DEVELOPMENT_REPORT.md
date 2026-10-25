@@ -21,7 +21,7 @@ The campaign began at local `main` commit `c80f4e1`, 56 commits ahead of public 
 ## 4. Important changed files
 
 - `app/main.kv` — toolbar spacing and width for the Old Nubian Read action; added stable widget IDs for acceptance checks.
-- `app/acceptance.py` — live layout assertions for action width and separation.
+- `app/acceptance.py` — live layout assertions for action width and separation; model-path, clipboard and publisher fixtures now patch the running app module during acceptance.
 - `docs/SUPPORT_MATRIX.md` — accurate clipboard interoperability status.
 - `docs/DEVELOPMENT_ROADMAP.md` — removed stale Ruff count and reconciled the remaining queues.
 - `docs/IMPLEMENTATION_PROGRESS.md` — recorded this campaign and current blockers.
@@ -58,7 +58,7 @@ Environment: project `.venv`, Windows, Python project test suite, Kivy live self
 - `git diff --check` and `git diff --cached --check` — passed; Git reports existing CRLF-to-LF normalization warnings for edited files.
 - `.\.venv\Scripts\python.exe tools\check_release_safety.py` — passed; no recognized credential patterns found.
 - PowerShell parser — both clipboard scripts parsed successfully.
-- Isolated `main.py --self-test` — passed with a fresh temporary app/Kivy/pack directory; returned offline French output `Bonjour, comment allez-vous ?` and produced five screenshots. The self-test now patches the running app module and no longer depends on an installed Somali pack. It used a controlled clipboard fixture and blocked network access; it did not read or write the Windows clipboard.
+- Isolated `main.py --self-test` — passed with a fresh temporary app/Kivy/pack directory; returned offline French output `Bonjour, comment allez-vous ?` and produced five screenshots. The self-test patches model-path, clipboard and publisher fixtures on the running app module, so it does not depend on installed packs or access the host clipboard. Network access was blocked.
 - Clean clone of the final local source — live Kivy self-test passed with isolated app/Kivy/pack directories, a clean working tree and no network access.
 
 ## 10. Known failures, skips and blockers
