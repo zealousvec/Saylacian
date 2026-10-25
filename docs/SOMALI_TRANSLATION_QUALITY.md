@@ -16,7 +16,7 @@ The temporary benchmark output and checkpoint are under `%TEMP%` and are not com
 
 ### Reproduction on 2026-10-25
 
-Reinstalled the pinned Somali pack with `tools/verify_pack_integration.py --pack somali` into a new temporary store. The installer verified all 10 manifest assets and passed English→Somali and Somali→English offline smoke translations. Installed pack version: `1-bfdcf52bd69`; runtime versions: CTranslate2 4.8.3, SentencePiece 0.2.2, SacreBLEU 2.5.1. The 150-pair test fixture SHA-256 remained `be58b2d350badb7e03b73906471453311a8843534e4a2a572a772c60c394c7f7`.
+Reinstalled the pinned Somali pack with `tools/verify_pack_integration.py --pack somali` into a new temporary store. The installer verified all 10 manifest assets and passed English→Somali and Somali→English offline smoke translations. Installed pack version: `1-bfd6cf52bd69`; runtime versions: CTranslate2 4.8.3, SentencePiece 0.2.2, SacreBLEU 2.5.1. The 150-pair test fixture SHA-256 remained `be58b2d350badb7e03b73906471453311a8843534e4a2a572a772c60c394c7f7`.
 
 This run also used the already-present, ignored local Helsinki synthetic EN→SO candidate, independently checked against the tracked manifest: revision `49384e6b2c3ddd374f2cccc8efecb678724b739d`, CC-BY-4.0, `model.bin` SHA-256 `62aacb4ec5812ce20a1eb2563fe763d16d20858e2490d6d8bdd0a3a1f4f72c22`. It was not added to Git or the downloaded pack. The official pack's English→Somali and Somali→English models are Apache-2.0 declarations at revisions `89fdef87793d0b4a3860bd4d7c5e4cf77e7575b9` and `fb574c2082b1a49f89e55064aca6c1fba1125474`, respectively.
 
@@ -52,3 +52,9 @@ Raw per-example test predictions and benchmark metadata are in [`somali_translat
 - [Maanka2 fine-tuned EN-SO model](https://huggingface.co/maanka2/opus-mt-en-so-finetuned)
 - [QVAC AfriSLM model card](https://huggingface.co/qvac/TranslatePsy-AfriSLM-0.8B-Q4-GGUF)
 - [TICO-19 benchmark and splits](https://tico-19.github.io/testset.html)
+
+## Independent isolated re-run on 2026-10-25
+
+Reinstalled the Somali pack into a new temporary store: version `1-bfd6cf52bd69`, 314,460,806 verified bytes, all 10 pinned assets valid, and both offline smoke directions passed. The 150-pair fixture SHA-256 remained `be58b2d350badb7e03b73906471453311a8843534e4a2a572a772c60c394c7f7`. The local Helsinki candidate `model.bin` matched pinned SHA-256 `62aacb4ec5812ce20a1eb2563fe763d16d20858e2490d6d8bdd0a3a1f4f72c22`. Inference ran with `socket.socket.connect` blocked; the complete result and checkpoint stayed in isolated temporary storage outside the repository.
+
+Scores reproduced EN→SO BLEU/chrF++ `5.287/25.282` and SO→EN `6.300/24.680`. Route accounting: 97 synthetic selections and 53 fallbacks (47 unreadable-marker, six output-length, zero repeat/copy); no U+2047 in final EN→SO. Runtime was 115.26 seconds and peak working set 548,388,864 bytes. The outputs are not human-rated and do not establish Somali translation quality.

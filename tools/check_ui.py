@@ -14,10 +14,15 @@ sys.path.insert(0, str(PROJECT))
 from kivy.clock import Clock
 from kivy.core.window import Window
 
+import main as app_module
 from main import SaylacianApp
 from saylacian.core.history import History
+from tools.in_memory_clipboard import InMemoryClipboard
 
 checks = []
+test_clipboard = InMemoryClipboard()
+app_module.Clipboard = test_clipboard
+app_module.publish_windows_clipboard = test_clipboard.publish_windows_formats
 
 
 def capture_after_present(path, continuation):
@@ -149,11 +154,16 @@ class CheckedApp(SaylacianApp):
             self.refresh_fonts()
             self.convert(home.ids.input_text.text)
             self.copy(home.ids.input_text.text)
+            assert test_clipboard.paste() == "Dhagax!"
+            if os.name == "nt":
+                assert ("CF_UNICODETEXT", "Dhagax!\0".encode("utf-16-le")) in (
+                    test_clipboard.formats
+                )
             self.clear()
             assert not home.ids.output_text.text
             self.paste()
             assert home.ids.input_text.text == "Dhagax!"
-            checks.append("copy/clear/paste real clipboard")
+            checks.append("in-memory clipboard round trip; system clipboard untouched")
             self.swap()
             assert home.ids.output_text.text == "dhagax!"
             checks.append("swap/reverse")
