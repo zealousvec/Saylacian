@@ -19,12 +19,12 @@ class ModelPackTests(unittest.TestCase):
     def test_pinned_packs_include_reproducible_sources_and_sizes(self):
         first = get_pack_specs()
         second = get_pack_specs()
-        self.assertEqual(set(first), {"somali", "french"})
+        self.assertEqual(set(first), {"somali", "french", "somali_afrislm"})
         for pack_id in first:
             self.assertEqual(first[pack_id]["version"], second[pack_id]["version"])
             self.assertGreater(first[pack_id]["download_bytes"], 0)
             self.assertTrue(first[pack_id]["license"])
-            self.assertIn("ctranslate2", first[pack_id]["runtimes"])
+            self.assertTrue(first[pack_id]["runtimes"])
             self.assertTrue(first[pack_id]["model_repositories"])
             self.assertTrue(
                 all(
@@ -36,6 +36,27 @@ class ModelPackTests(unittest.TestCase):
         self.assertEqual(
             {asset["pair"] for asset in first["french"]["assets"]}, {"en_fr", "fr_en"}
         )
+        candidate = first["somali_afrislm"]
+        self.assertEqual(candidate["runtimes"], {"llama-cpp-python": "0.3.36"})
+        self.assertIn("experimental", candidate["title"])
+        self.assertEqual(candidate["license"], "Apache-2.0")
+        self.assertEqual(
+            candidate["training_data_license"],
+            "CC-BY-NC-4.0; training data is not included",
+        )
+        self.assertEqual(candidate["download_bytes"], 672329792)
+        self.assertEqual(
+            candidate["assets"][0]["sha256"],
+            "4af8ee1df3ec9008f763ebe95e6f21df3acd8d42c541feeb13314ca22e560afc",
+        )
+        with tempfile.TemporaryDirectory() as temporary:
+            candidate_row = next(
+                pack
+                for pack in ModelPackManager(temporary).list_packs()
+                if pack["id"] == "somali_afrislm"
+            )
+        self.assertIn("llama-cpp-python", candidate_row["description"])
+        self.assertIn("CC-BY-NC-4.0", candidate_row["description"])
 
     def test_download_verifies_hash_installs_version_and_reports_progress(self):
         content = b"model bytes"

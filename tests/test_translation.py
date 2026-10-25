@@ -8,10 +8,12 @@ import types
 import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
+from types import SimpleNamespace
 from unittest.mock import Mock, patch
 
 from saylacian.core.translation import (
     MODEL_ROOT,
+    _afrislm_model_path,
     _clean_model_markers,
     _join_model_segments,
     _model_token_segments,
@@ -60,6 +62,126 @@ class TranslationTests(unittest.TestCase):
             ["ALPHA  BETA", "GAMMA"], separators, leading, trailing
         )
         self.assertEqual(translated, "  ALPHA  BETA\tGAMMA\n  ")
+
+    def test_installed_afrislm_model_handles_somali_without_base_pack(self):
+        with TemporaryDirectory() as temporary:
+            model_path = Path(temporary) / "somali" / "afrislm" / "model.gguf"
+            model_path.parent.mkdir(parents=True)
+            model_path.touch()
+            model = Mock()
+            model.tokenize.return_value = [1, 2]
+            model.create_chat_completion.return_value = {
+                "choices": [{"message": {"content": "<think>notes</think>I love you."}}]
+            }
+
+            with (
+                patch(
+                    "saylacian.core.translation._model_roots",
+                    return_value=[Path(temporary)],
+                ),
+                patch(
+                    "saylacian.core.translation.load_afrislm_model",
+                    return_value=model,
+                ),
+                patch(
+                    "saylacian.core.translation.model_directory",
+                    side_effect=AssertionError("base pack should not load"),
+                ),
+            ):
+                result = translate_meaning(
+                    "Waan ku jeclahay.", "Somali Latin", "English"
+                )
+
+        self.assertEqual(result.text, "I love you.")
+        self.assertIn("Experimental AfriSLM", result.warnings[0])
+        model.create_chat_completion.assert_called_once()
+        self.assertEqual(
+            model.create_chat_completion.call_args.kwargs["temperature"], 0
+        )
+        self.assertEqual(
+            model.create_chat_completion.call_args.kwargs["max_tokens"], 160
+        )
+
+    def test_afrislm_reserves_context_for_longer_translations(self):
+        with TemporaryDirectory() as temporary:
+            model_path = Path(temporary) / "somali" / "afrislm" / "model.gguf"
+            model_path.parent.mkdir(parents=True)
+            model_path.touch()
+            model = Mock()
+            model.tokenize.return_value = [1] * 1600
+            model.create_chat_completion.return_value = {
+                "choices": [{"message": {"content": "Tarjumid."}}]
+            }
+
+            with (
+                patch(
+                    "saylacian.core.translation._model_roots",
+                    return_value=[Path(temporary)],
+                ),
+                patch(
+                    "saylacian.core.translation.load_afrislm_model",
+                    return_value=model,
+                ),
+            ):
+                result = translate_meaning("word " * 300, "English", "Somali Latin")
+
+        self.assertEqual(result.text, "Tarjumid.")
+        self.assertEqual(
+            model.create_chat_completion.call_args.kwargs["max_tokens"], 288
+        )
+
+    def test_afrislm_path_is_discovered_from_active_model_pack(self):
+        with TemporaryDirectory() as temporary:
+            model_path = Path(temporary) / "somali" / "afrislm" / "model.gguf"
+            model_path.parent.mkdir(parents=True)
+            model_path.touch()
+
+            with patch(
+                "saylacian.core.translation._model_roots",
+                return_value=[Path(temporary)],
+            ):
+                self.assertEqual(_afrislm_model_path(), model_path)
+
+    def test_unavailable_afrislm_runtime_falls_back_with_warning(self):
+        with TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            model_path = root / "somali" / "afrislm" / "model.gguf"
+            model_path.parent.mkdir(parents=True)
+            model_path.touch()
+            tokenizer = Mock()
+            tokenizer.encode.return_value = ["token"]
+            tokenizer.decode.return_value = "I love you."
+            engine = Mock()
+            engine.translate_batch.return_value = [
+                SimpleNamespace(hypotheses=[["token"]])
+            ]
+
+            with (
+                patch(
+                    "saylacian.core.translation._model_roots",
+                    return_value=[root],
+                ),
+                patch(
+                    "saylacian.core.translation.load_afrislm_model",
+                    side_effect=ValueError("runtime unavailable"),
+                ),
+                patch(
+                    "saylacian.core.translation.model_directory",
+                    return_value=root / "somali" / "so_en",
+                ),
+                patch(
+                    "saylacian.core.translation.load_model",
+                    return_value=((tokenizer, tokenizer), engine),
+                ),
+            ):
+                result = translate_meaning(
+                    "Waan ku jeclahay.", "Somali Latin", "English"
+                )
+
+        self.assertEqual(result.text, "I love you.")
+        self.assertTrue(
+            any("runtime unavailable" in warning for warning in result.warnings)
+        )
 
     def test_synthetic_candidate_unknown_token_marker_is_degenerate(self):
         self.assertTrue(

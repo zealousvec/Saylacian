@@ -22,6 +22,11 @@ MULTILINGUAL_PAIRS = {"en_so", "so_en"}
 MODEL_CACHE_SIZE = 3
 MODEL_TOKEN_LIMIT = 400
 MODEL_CHUNK_TOKEN_TARGET = 380
+AFRISLM_CONTEXT_LENGTH = 2048
+AFRISLM_MAX_INPUT_TOKENS = 1700
+AFRISLM_LONG_INPUT_THRESHOLD = 1200
+AFRISLM_MAX_OUTPUT_TOKENS = 512
+AFRISLM_PROMPT_TOKEN_RESERVE = 160
 
 PIVOT_ROUTES = {
     ("Somali Latin", "French"): "English",
@@ -195,9 +200,100 @@ def load_model(folder):
     return tokenizer, engine
 
 
+@lru_cache(maxsize=1)
+def load_afrislm_model(model_path):
+    try:
+        from llama_cpp import Llama
+    except ImportError as error:
+        raise ValueError(
+            "The optional Somali model runtime is not installed. Install llama-cpp-python 0.3.36."
+        ) from error
+    return Llama(
+        model_path=str(model_path),
+        n_ctx=AFRISLM_CONTEXT_LENGTH,
+        n_threads=max(2, min(8, os.cpu_count() or 2)),
+        n_gpu_layers=0,
+        verbose=False,
+    )
+
+
+def _afrislm_model_path():
+    return next(
+        (
+            root / "somali" / "afrislm" / "model.gguf"
+            for root in _model_roots()
+            if (root / "somali" / "afrislm" / "model.gguf").is_file()
+        ),
+        None,
+    )
+
+
+def _translate_afrislm(text, source, target, model_path):
+    try:
+        model = load_afrislm_model(str(model_path))
+        token_count = len(model.tokenize(text.encode("utf-8"), add_bos=False))
+        if token_count > AFRISLM_MAX_INPUT_TOKENS:
+            return (
+                None,
+                "Long text used the standard offline model to stay within context.",
+            )
+        max_tokens = 160
+        if token_count > AFRISLM_LONG_INPUT_THRESHOLD:
+            max_tokens = min(
+                AFRISLM_MAX_OUTPUT_TOKENS,
+                AFRISLM_CONTEXT_LENGTH - token_count - AFRISLM_PROMPT_TOKEN_RESERVE,
+            )
+        result = model.create_chat_completion(
+            messages=[
+                {
+                    "role": "system",
+                    "content": (
+                        f"You are a professional {source} to {target} translator. "
+                        f"Your goal is to accurately convey the meaning and nuances of "
+                        f"the original {source} text while adhering to {target} grammar, "
+                        "vocabulary, and cultural sensitivities. Produce only the "
+                        f"{target} translation, without any additional explanations "
+                        "or commentary."
+                    ),
+                },
+                {
+                    "role": "user",
+                    "content": (
+                        f"Please translate the following {source} text into "
+                        f"{target}: {text}\n\nTranslation:"
+                    ),
+                },
+            ],
+            max_tokens=max_tokens,
+            temperature=0,
+            top_p=1,
+        )
+    except MemoryError:
+        load_afrislm_model.cache_clear()
+        return (
+            None,
+            "Experimental model ran out of memory; used the standard offline model.",
+        )
+
+    content = result["choices"][0]["message"].get("content")
+    translated = content.strip() if isinstance(content, str) else ""
+    if "</think>" in translated:
+        translated = translated.rsplit("</think>", 1)[-1].strip()
+    if not translated:
+        return (
+            None,
+            "Experimental model returned no text; used the standard offline model.",
+        )
+    return Conversion(
+        translated,
+        ("Experimental AfriSLM translation; fluent Somali review is recommended.",),
+    ), None
+
+
 def clear_model_cache():
     """Release cached model engines after pack removal or memory recovery."""
     load_model.cache_clear()
+    load_afrislm_model.cache_clear()
 
 
 def translate_meaning(text, source, target, model_root=None, *, provider_override=None):
@@ -258,7 +354,37 @@ def translate_meaning(text, source, target, model_root=None, *, provider_overrid
             )
         )
         return Conversion(second.text, warnings)
-    folder = model_directory(source, target, model_root)
+    experimental_warning = None
+    experimental_path = (
+        _afrislm_model_path()
+        if (source, target)
+        in {
+            ("English", "Somali Latin"),
+            ("Somali Latin", "English"),
+        }
+        else None
+    )
+    if experimental_path is not None:
+        experimental = None
+        try:
+            experimental, experimental_warning = _translate_afrislm(
+                text, source, target, experimental_path
+            )
+        except ValueError:
+            experimental_warning = (
+                "Optional AfriSLM runtime unavailable; used the standard offline model."
+            )
+        if experimental is not None:
+            return experimental
+
+    try:
+        folder = model_directory(source, target, model_root)
+    except ValueError as error:
+        if experimental_warning:
+            raise ValueError(
+                f"{experimental_warning} Download the Somali / English offline pack or install the optional runtime."
+            ) from error
+        raise
     candidate_fallback = False
     candidate_fallback_reason = None
     if (source, target) == ("English", "Somali Latin"):
@@ -342,6 +468,8 @@ def translate_meaning(text, source, target, model_root=None, *, provider_overrid
         warnings = ["Somali translation may be inaccurate; check important details."]
         if candidate_fallback:
             warnings.append(candidate_fallback_reason)
+        if experimental_warning:
+            warnings.append(experimental_warning)
         if cleaned != decoded:
             warnings.append("An extra symbol was removed from the output.")
         if chunked:
@@ -362,6 +490,8 @@ def translate_meaning(text, source, target, model_root=None, *, provider_overrid
         trailing,
     )
     warnings = ["Machine translation; check important details."]
+    if experimental_warning:
+        warnings.append(experimental_warning)
     if chunked:
         warnings.append(
             "Long text was split into independent segments; context may change at the joins."

@@ -91,6 +91,9 @@ def get_pack_specs() -> dict[str, dict]:
     somali = json.loads(
         (DATA_ROOT / "somali_model_manifest.json").read_text(encoding="utf-8")
     )
+    afrislm = json.loads(
+        (DATA_ROOT / "afrislm_model_manifest.json").read_text(encoding="utf-8")
+    )
 
     somali_assets = []
     for item in somali:
@@ -164,12 +167,46 @@ def get_pack_specs() -> dict[str, dict]:
             "runtimes": french_manifest_items[0]["runtimes"],
             "assets": french_assets,
         },
+        "somali_afrislm": {
+            "title": "Somali experimental model (AfriSLM)",
+            "description": (
+                "Optional 641 MiB model; requires llama-cpp-python 0.3.36. "
+                "Output needs fluent review; CC-BY-NC-4.0 data is not included."
+            ),
+            "license": "Apache-2.0",
+            "training_data_license": afrislm[0]["training_data_license"],
+            "model_repositories": sorted({item["repository"] for item in afrislm}),
+            "runtimes": afrislm[0]["runtimes"],
+            "assets": [
+                {
+                    "kind": "file",
+                    "url": _huggingface_url(
+                        item["repository"], item["revision"], item["filename"]
+                    ),
+                    "bytes": item["bytes"],
+                    "sha256": item["sha256"],
+                    "destination": item["destination"],
+                    "license": item["license"],
+                    "repository": item["repository"],
+                    "revision": item["revision"],
+                    "runtimes": item["runtimes"],
+                }
+                for item in afrislm
+            ],
+        },
     }
     for pack_id, spec in specs.items():
         version_input = json.dumps(
             {
                 key: spec[key]
-                for key in ("license", "model_repositories", "runtimes", "assets")
+                for key in (
+                    "license",
+                    "training_data_license",
+                    "model_repositories",
+                    "runtimes",
+                    "assets",
+                )
+                if key in spec
             },
             sort_keys=True,
             separators=(",", ":"),
@@ -308,9 +345,11 @@ class ModelPackManager:
                     "installed_version": current_version,
                     "download_bytes": spec["download_bytes"],
                     "license": spec.get("license", "See upstream model metadata"),
+                    "training_data_license": spec.get("training_data_license"),
                     "runtimes": dict(spec.get("runtimes", {})),
                     "installed_bytes": installed_bytes,
                     "storage_bytes": self._directory_size(pack_home),
+                    "description": spec.get("description", ""),
                 }
             )
         return packs
@@ -493,6 +532,7 @@ class ModelPackManager:
                     "version": spec["version"],
                     "title": spec["title"],
                     "license": spec.get("license", "See upstream model metadata"),
+                    "training_data_license": spec.get("training_data_license"),
                     "model_repositories": list(spec.get("model_repositories", [])),
                     "runtimes": dict(spec.get("runtimes", {})),
                     "source_manifest_version": 2,
