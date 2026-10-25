@@ -43,14 +43,14 @@ class LanguageDetectionTests(unittest.TestCase):
                 return_value=FakeIdentifier("xx", 0.1),
             ),
             patch.object(
-                language_detection, "_openlid_somali_confidence", return_value=0.94
+                language_detection, "_openlid_somali_confidence", return_value=0.99
             ),
         ):
             self.assertEqual(
                 language_detection.detect_language(
                     "Waxaan rabaa inaan barto af Soomaali maanta."
                 ),
-                ("Somali Latin", 0.94, ""),
+                ("Somali Latin", 0.99, ""),
             )
 
     def test_candidate_below_threshold_does_not_force_somali(self):
@@ -61,7 +61,7 @@ class LanguageDetectionTests(unittest.TestCase):
                 return_value=FakeIdentifier("xx", 0.2),
             ),
             patch.object(
-                language_detection, "_openlid_somali_confidence", return_value=0.899
+                language_detection, "_openlid_somali_confidence", return_value=0.979
             ),
         ):
             language, confidence, message = language_detection.detect_language(
@@ -70,6 +70,24 @@ class LanguageDetectionTests(unittest.TestCase):
         self.assertIsNone(language)
         self.assertEqual(confidence, 0.2)
         self.assertIn("uncertain", message)
+
+    def test_openlid_confidence_at_threshold_is_accepted(self):
+        with (
+            patch.object(
+                language_detection,
+                "_identifier",
+                return_value=FakeIdentifier("xx", 0.1),
+            ),
+            patch.object(
+                language_detection, "_openlid_somali_confidence", return_value=0.98
+            ),
+        ):
+            self.assertEqual(
+                language_detection.detect_language(
+                    "Waxaan rabaa inaan barto af Soomaali maanta."
+                ),
+                ("Somali Latin", 0.98, ""),
+            )
 
     def test_missing_optional_model_preserves_baseline_abstention(self):
         with (

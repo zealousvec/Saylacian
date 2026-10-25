@@ -6,7 +6,7 @@ from functools import lru_cache
 from pathlib import Path
 
 SOMALI_DETECTION_PACK = "somali_detection_openlid"
-OPENLID_SOMALI_THRESHOLD = 0.90
+OPENLID_SOMALI_THRESHOLD = 0.98
 
 SUPPORTED = {"en": "English", "fr": "French", "so": "Somali Latin"}
 MIN_CHARACTERS = 20
