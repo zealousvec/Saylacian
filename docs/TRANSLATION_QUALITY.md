@@ -41,4 +41,10 @@ I then evaluated the app's single-sentence route on the public-labeled rows in t
 
 The guard rejects copied text, output that is unusually long for its input, and content words of four or more characters repeated three or more times. It improved both scores in this small sample, at a substantial latency cost. It does not recognize every paraphrased repetition: for example, the remaining result for “do your relatives have the same symptoms” repeats a phrase about relatives. Other outputs are also awkward. These automatic scores do not establish useful or fluent Somali; a larger held-out evaluation and fluent-speaker review are still needed. TICO-19 is medical-domain data, so this result must not be generalized to other topics.
 
+## Fine-tuned model screened, not selected
+
+I also screened [`maanka2/opus-mt-en-so-finetuned`](https://huggingface.co/maanka2/opus-mt-en-so-finetuned), pinned to revision `af92fdea79083bbb6c9d753bd56b117bedff4c11`. Its model card declares Apache-2.0 and names `maanka2/english-somali-parallel-corpus` as training data. I could not inspect that dataset's public metadata or terms, so I have not independently verified its training-data rights.
+
+On the same 37 TICO-19 rows, the Transformers checkpoint scored BLEU 5.898 / chrF++ 36.656 at 537 ms per sentence. After conversion to CTranslate2 INT8 and running through Saylacian's actual route, it scored 3.673 / 30.691, fell back on 26 of 37 inputs and averaged 1,013 ms. The selected optional CTranslate2 pack scored 4.332 / 35.376 with 15 fallbacks at 770 ms on that sample. Because the converted candidate performed worse in the app runtime and its training data terms remain unchecked, it is not wired into the app or download list. These results are still small-sample automatic metrics, not fluent-speaker review.
+
 Other model candidates remain experimental until their outputs, dataset overlap, licence terms and runtime costs have been checked against the shipped pack.
