@@ -1,6 +1,10 @@
 # Platform build evidence
 
-For the concise current gate-by-gate status, see [`PACKAGING_MATRIX.md`](PACKAGING_MATRIX.md). The evidence below is historical build detail and remains useful for reproducing/diagnosing prior builds.
+For current language and platform capability status, see [`SUPPORT_MATRIX.md`](SUPPORT_MATRIX.md). For Windows signing and application-control evidence, see [`WINDOWS_RELEASE_SECURITY.md`](WINDOWS_RELEASE_SECURITY.md). The build details below are historical evidence, not a claim that a binary is releasable.
+
+## Current source acceptance
+
+As of 2026-10-25, the local Windows Python source app passes 149 tests, 2 symlink-permission skips, and 200 subtests. The isolated live Kivy acceptance passed 19 checks with networking blocked and runtime data redirected to a temporary directory; a 320x640 viewport capture was visually checked. Clipboard tests use an in-memory adapter; real Windows/external-app delivery is unverified. The unsigned packaged app remains runtime-unverified under the host's enforced application-control policy. Do not bypass Windows security controls or distribute the candidate.
 
 ## Windows
 

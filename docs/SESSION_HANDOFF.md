@@ -397,3 +397,11 @@ Ran the actual Kivy acceptance script with isolated APPDATA, LOCALAPPDATA, Kivy 
 Full verification after the harness fix: `149 passed, 2 skipped, 200 subtests passed`; Ruff check and format, compileall, `pip check` pass. The two skipped tests require Windows symlink privilege. Owner edits in `docs/PROJECT_STATUS.md` and `docs/TECHNICAL_AUDIT.md` remain untouched. No host clipboard access, push or publication.
 
 ACTIVE: commit this focused harness correction and then reassess the next independently verifiable READY work. BLOCKED: fluent Somali review; Old Nubian rights/specialist review; Narrator/NVDA; external clipboard test in disposable VM; hosted CI workflow approval; clean-host Windows signing/packaging; full M2M100 development evaluation on suitable faster hardware. READY: none established beyond this verification/commit step; do not invent tasks.
+
+## 2026-10-25 — Release matrix reconciled with current clipboard/UI evidence
+
+Corrected stale Windows source claims in `docs/PACKAGING_MATRIX.md`: current live acceptance uses an in-memory clipboard, so actual system clipboard delivery remains unverified. Updated source test counts and Windows onedir wording to label historical unsigned artifacts accurately. Reconciled the roadmap queue: 320x640 compact capture is now verified from fresh isolated evidence; Narrator/NVDA, real clipboard VM, specialist/rights, hosted workflow approval and signed clean-host packaging remain blocked. No code runtime behavior or owner-owned project-status/audit files changed.
+
+## 2026-10-25 — Release documentation links and current evidence
+
+Fixed `docs/PACKAGING.md` to link to tracked `SUPPORT_MATRIX.md` and `WINDOWS_RELEASE_SECURITY.md` rather than the ignored, non-published `PACKAGING_MATRIX.md`; added a dated source/runtime gate summary distinguishing isolated in-memory clipboard checks from unverified system clipboard delivery. A repository-wide local-link scan checked 46 tracked Markdown files with no missing file targets. Full suite/Ruff/format were rerun before these Markdown-only edits and passed (149 passed, 2 symlink skips, 200 subtests); `git diff --check` passes. No source behavior changed. Roadmap re-screen found no new unblocked implementation item; keep goal active and reassess when evidence or a concrete acceptance task appears.
