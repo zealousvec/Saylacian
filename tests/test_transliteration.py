@@ -136,7 +136,7 @@ class TransliterationTests(unittest.TestCase):
 
         self.assertEqual(reading.text, "a\u0301")
         self.assertTrue(
-            any("Combining marks are preserved" in item for item in reading.warnings)
+            any("Other combining marks are preserved" in item for item in reading.warnings)
         )
 
     def test_old_nubian_supralinear_stroke_offers_i_reading(self):
@@ -164,7 +164,19 @@ class TransliterationTests(unittest.TestCase):
         self.assertEqual(reading.text, "a\u0307")
         self.assertFalse(reading.alternatives)
         self.assertTrue(
-            any("Combining marks are preserved" in w for w in reading.warnings)
+            any("Other combining marks are preserved" in w for w in reading.warnings)
+        )
+
+    def test_old_nubian_mixed_marks_explain_only_uninterpreted_marks(self):
+        reading = transliterate(
+            "ⲁ\u0304ⲃ\u0307",
+            "Old Nubian (Coptic)",
+            "Old Nubian scholarly Latin",
+        )
+
+        self.assertIn("iab\u0307", reading.alternatives)
+        self.assertTrue(
+            any("Other combining marks are preserved" in w for w in reading.warnings)
         )
 
     def test_old_nubian_mark_description_distinguishes_stroke_and_dot(self):

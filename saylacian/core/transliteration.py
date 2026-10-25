@@ -325,7 +325,7 @@ def transliterate(text: str, source: str, target: str) -> Conversion:
             previous_source_char = char
         if preserved_marks:
             warnings.append(
-                "Combining marks are preserved; their reading and placement with Latin are not interpreted."
+                "Other combining marks are preserved; their reading and placement with Latin are not interpreted."
             )
         if preserved_punctuation:
             warnings.append("Coptic punctuation is preserved without interpretation.")
