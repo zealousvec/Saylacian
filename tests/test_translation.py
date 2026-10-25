@@ -105,6 +105,57 @@ class TranslationTests(unittest.TestCase):
             model.create_chat_completion.call_args.kwargs["max_tokens"], 160
         )
 
+    def test_degenerate_afrislm_output_uses_standard_offline_model(self):
+        with TemporaryDirectory() as temporary:
+            model_root = Path(temporary)
+            model_path = model_root / "somali" / "afrislm" / "model.gguf"
+            model_path.parent.mkdir(parents=True)
+            model_path.touch()
+            model = Mock()
+            model.tokenize.return_value = [1]
+            model.create_chat_completion.return_value = {
+                "choices": [{"message": {"content": "This is the source text."}}]
+            }
+            source_tokenizer = Mock()
+            source_tokenizer.encode.return_value = ["source-token"]
+            target_tokenizer = Mock()
+            target_tokenizer.decode.return_value = "Tarjumid sax ah."
+            engine = Mock()
+            engine.translate_batch.return_value = [
+                SimpleNamespace(hypotheses=[["translated-token"]])
+            ]
+
+            with (
+                patch(
+                    "saylacian.core.translation._model_roots",
+                    return_value=[model_root],
+                ),
+                patch(
+                    "saylacian.core.translation.load_afrislm_model",
+                    return_value=model,
+                ),
+                patch(
+                    "saylacian.core.translation.model_directory",
+                    return_value=model_root / "somali" / "en_so",
+                ),
+                patch(
+                    "saylacian.core.translation.load_model",
+                    return_value=((source_tokenizer, target_tokenizer), engine),
+                ),
+            ):
+                result = translate_meaning(
+                    "This is the source text.", "English", "Somali Latin"
+                )
+
+        self.assertEqual(result.text, "Tarjumid sax ah.")
+        self.assertTrue(
+            any(
+                "unreadable or repetitive text" in warning
+                for warning in result.warnings
+            )
+        )
+        engine.translate_batch.assert_called_once()
+
     def test_afrislm_reserves_context_for_longer_translations(self):
         with TemporaryDirectory() as temporary:
             model_path = Path(temporary) / "somali" / "afrislm" / "model.gguf"
@@ -292,7 +343,7 @@ class TranslationTests(unittest.TestCase):
             small.touch()
             large.touch()
             small_result = SimpleNamespace(
-                text="Waan ku jeclahay.", warnings=("Experimental.",), alternatives=()
+                text="I love you.", warnings=("Experimental.",), alternatives=()
             )
 
             with (
@@ -316,7 +367,7 @@ class TranslationTests(unittest.TestCase):
                     "Waan ku jeclahay.", "Somali Latin", "English"
                 )
 
-        self.assertEqual(result.text, "Waan ku jeclahay.")
+        self.assertEqual(result.text, "I love you.")
         self.assertIn("used the smaller model", result.warnings[-1])
 
     def test_unavailable_afrislm_runtime_falls_back_with_warning(self):

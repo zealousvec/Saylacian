@@ -405,6 +405,14 @@ def translate_meaning(text, source, target, model_root=None, *, provider_overrid
             fallback_warning = (
                 "Optional AfriSLM runtime unavailable; used the standard offline model."
             )
+        if experimental is not None and _synthetic_candidate_is_degenerate(
+            text, experimental.text
+        ):
+            experimental = None
+            fallback_warning = (
+                "Experimental model returned unreadable or repetitive text; "
+                "used the standard offline model."
+            )
         if experimental is not None:
             if experimental_warning:
                 return Conversion(
