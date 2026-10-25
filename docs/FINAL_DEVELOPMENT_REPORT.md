@@ -163,3 +163,9 @@ Final live Kivy acceptance on the current code passed all 19 checks with network
 The local optional translation service now converts `MemoryError` raised during model inference into HTTP 503 with a generic temporary-busy message. The client surfaces that as a retryable busy error. An end-to-end loopback test injects the memory failure through the server and real client, and verifies the translation concurrency semaphore is released. A separate test confirms unauthorized requests do not run inference. These tests use only localhost and do not imply deployment or external-service validation.
 
 Verification: focused tests `2 passed`; full suite `157 passed, 2 skipped, 208 subtests`; Ruff, formatting, compileall and `pip check` passed. `git diff --check` passed with a CRLF normalization warning on `cloud/oci/service.py`. Goal remains ACTIVE — NOT FINISHED; no push or publication.
+
+## 20. Bound idle self-hosted API connections — 2026-10-25
+
+Accepted sockets in the optional self-hosted translation server now time out after 15 seconds of inactivity. This stops an idle client from retaining one of the bounded request workers indefinitely. A loopback regression confirms the connection closes and all 16 request slots become available. The memory-exhaustion semaphore test now synchronizes with handler cleanup rather than relying on response scheduling.
+
+Verification: focused service tests `3 passed`; full suite `158 passed, 2 skipped, 208 subtests`; Ruff, format, compileall, `pip check`, release-safety and diff checks passed. Local code commit `889dfc1ff15d6362d883c8963f87a6ba39092e59`; no push. Goal remains ACTIVE — NOT FINISHED.
