@@ -30,6 +30,8 @@ PIVOT_ROUTES = {
 _MODEL_LEADING_MARKERS = re.compile(r"^(?:[←▪❏▸○]\s*)+")
 _SENTENCE_SPLIT = re.compile(r"[.!?…]+")
 _SENTENCEPIECE_UNKNOWN_SURFACE = "\u2047"
+_LONG_INPUT_BOUNDARY = re.compile(r"(?<=[.!?…。！？])\s+|\n+")
+MAX_MODEL_INPUT_TOKENS = 400
 
 
 def _synthetic_candidate_is_degenerate(source, output):
@@ -81,6 +83,76 @@ def _model_roots(root=None):
     from .model_packs import ModelPackManager
 
     return [*ModelPackManager().active_model_roots(), MODEL_ROOT]
+
+
+def _sentence_chunks(text, tokenizers, token_overheads=()):
+    """Group complete sentences or paragraphs within each model's input limit."""
+    fragments = []
+    separators = []
+    start = 0
+    for match in _LONG_INPUT_BOUNDARY.finditer(text):
+        fragments.append(text[start : match.start()])
+        separators.append(match.group())
+        start = match.end()
+    fragments.append(text[start:])
+    overheads = (*token_overheads, *(0 for _ in tokenizers))[: len(tokenizers)]
+
+    def fits(value):
+        return all(
+            len(tokenizer.encode(value, out_type=str)) + overhead
+            <= MAX_MODEL_INPUT_TOKENS
+            for tokenizer, overhead in zip(tokenizers, overheads, strict=True)
+        )
+
+    if any(not fits(fragment) for fragment in fragments):
+        raise ValueError(
+            "A single sentence exceeds 400 model tokens; split it into shorter sentences."
+        )
+
+    chunks = []
+    boundaries = []
+    current = fragments[0]
+    for separator, fragment in zip(separators, fragments[1:], strict=True):
+        combined = current + separator + fragment
+        if fits(combined):
+            current = combined
+        else:
+            chunks.append(current)
+            boundaries.append(separator)
+            current = fragment
+    chunks.append(current)
+    return chunks, boundaries
+
+
+def _translate_long_input(
+    text, source, target, model_root, tokenizers, token_overheads=()
+):
+    chunks, boundaries = _sentence_chunks(text, tokenizers, token_overheads)
+    if len(chunks) == 1:
+        raise ValueError(
+            "Input exceeds this model's 400-token limit; split it into shorter sentences."
+        )
+    results = [
+        translate_meaning(
+            chunk,
+            source,
+            target,
+            model_root,
+            provider_override="offline",
+        )
+        for chunk in chunks
+    ]
+    translated = []
+    warnings = []
+    for index, result in enumerate(results):
+        translated.append(result.text)
+        warnings.extend(result.warnings)
+        if index < len(boundaries):
+            translated.append(boundaries[index])
+    warnings.append(
+        "Long text was split at sentence or paragraph boundaries; context between sections may change."
+    )
+    return Conversion("".join(translated), tuple(dict.fromkeys(warnings)))
 
 
 def model_directory(source, target, root=None):
@@ -226,9 +298,19 @@ def translate_meaning(text, source, target, model_root=None, *, provider_overrid
             candidate_tokenizer, candidate_engine = load_model(str(candidate))
             candidate_source, candidate_target = candidate_tokenizer
             candidate_tokens = candidate_source.encode(text, out_type=str)
-            if len(candidate_tokens) > 400:
-                raise ValueError(
-                    "Input exceeds this model's 400-token limit; split it into shorter passages."
+            if len(candidate_tokens) > MAX_MODEL_INPUT_TOKENS:
+                baseline_tokenizers, _baseline_engine = load_model(str(folder))
+                baseline_source = (
+                    baseline_tokenizers[0]
+                    if isinstance(baseline_tokenizers, tuple)
+                    else baseline_tokenizers
+                )
+                return _translate_long_input(
+                    text,
+                    source,
+                    target,
+                    model_root,
+                    (candidate_source, baseline_source),
                 )
             candidate_result = candidate_engine.translate_batch(
                 [candidate_tokens],
@@ -278,9 +360,14 @@ def translate_meaning(text, source, target, model_root=None, *, provider_overrid
         tokens = source_tokenizer.encode(text, out_type=str)
 
         tokens = [">>som<<", *tokens, "</s>"]
-        if len(tokens) > 400:
-            raise ValueError(
-                "Input exceeds this model's 400-token limit; split it into shorter passages."
+        if len(tokens) > MAX_MODEL_INPUT_TOKENS:
+            return _translate_long_input(
+                text,
+                source,
+                target,
+                model_root,
+                (source_tokenizer,),
+                token_overheads=(2,),
             )
         result = engine.translate_batch(
             [tokens],
@@ -299,10 +386,8 @@ def translate_meaning(text, source, target, model_root=None, *, provider_overrid
         return Conversion(cleaned, tuple(warnings))
     tokens = tokenizer.encode(text, out_type=str)
 
-    if len(tokens) > 400:
-        raise ValueError(
-            "Input exceeds this model's 400-token limit; split it into shorter passages."
-        )
+    if len(tokens) > MAX_MODEL_INPUT_TOKENS:
+        return _translate_long_input(text, source, target, model_root, (tokenizer,))
     result = engine.translate_batch(
         [tokens], max_input_length=0, max_decoding_length=512
     )[0]

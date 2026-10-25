@@ -21,10 +21,12 @@ class FakeTokenizer:
 class FakeEngine:
     def __init__(self):
         self.options = None
+        self.calls = []
 
-    def translate_batch(self, _tokens, **options):
+    def translate_batch(self, tokens, **options):
         self.options = options
-        return [SimpleNamespace(hypotheses=[["translated"]])]
+        self.calls.append(tokens)
+        return [SimpleNamespace(hypotheses=[["translated"]]) for _ in tokens]
 
 
 class TranslationTests(unittest.TestCase):
@@ -146,6 +148,49 @@ class TranslationTests(unittest.TestCase):
                 self.assertTrue(
                     translation._synthetic_candidate_is_degenerate(source, output)
                 )
+
+    def test_long_offline_input_splits_at_sentence_boundary(self):
+        engine = FakeEngine()
+        tokenizers = (FakeTokenizer(), FakeTokenizer("translated text"))
+        long_input = " ".join(["first"] * 201) + ". " + " ".join(["second"] * 201) + "."
+        with (
+            patch.object(translation, "model_directory", return_value=Path("en_so")),
+            patch.object(translation, "_model_roots", return_value=[]),
+            patch.object(translation, "load_model", return_value=(tokenizers, engine)),
+        ):
+            result = translation.translate_meaning(
+                long_input,
+                "English",
+                "Somali Latin",
+                provider_override="offline",
+            )
+
+        self.assertEqual(result.text, "translated text translated text")
+        self.assertEqual(len(engine.calls), 2)
+        self.assertTrue(
+            any(
+                "context between sections may change" in item
+                for item in result.warnings
+            )
+        )
+
+    def test_single_overlong_sentence_keeps_actionable_limit(self):
+        engine = FakeEngine()
+        tokenizers = (FakeTokenizer(), FakeTokenizer())
+        with (
+            patch.object(translation, "model_directory", return_value=Path("en_so")),
+            patch.object(translation, "_model_roots", return_value=[]),
+            patch.object(translation, "load_model", return_value=(tokenizers, engine)),
+            self.assertRaisesRegex(
+                ValueError, "single sentence exceeds 400 model tokens"
+            ),
+        ):
+            translation.translate_meaning(
+                " ".join(["word"] * 401),
+                "English",
+                "Somali Latin",
+                provider_override="offline",
+            )
 
 
 if __name__ == "__main__":

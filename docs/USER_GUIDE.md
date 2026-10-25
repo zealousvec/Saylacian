@@ -17,6 +17,8 @@ The button beside the Saylacian title switches between **Transliterate** and **T
 - **Transliterate** changes how text is written. It does not translate the meaning. Use it for Somali script conversion and the limited Old Nubian character-reading route.
 - **Translate** changes meaning between supported languages. Translation packs must be installed for offline use. Somali translation is experimental and needs fluent-speaker review.
 
+Long offline text is split at sentence or paragraph boundaries when needed. Context between the resulting sections may change. A single sentence beyond the model's input limit still needs to be shortened or split.
+
 Changing mode does not change the positions of the language controls or text panels. Use the dropdowns to choose a route supported by the selected mode. The picker shows short names only; detailed coverage is in the [support matrix](SUPPORT_MATRIX.md).
 
 ## Choose a language or script
