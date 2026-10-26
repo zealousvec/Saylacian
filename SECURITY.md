@@ -1,6 +1,6 @@
 # Security policy
 
-Saylacian is an experimental desktop application. Do not send credentials, private translation content, or vulnerability details through public issues.
+Saylacian is under active development. Do not send credentials, private translation content, or vulnerability details through public issues.
 
 GitHub private vulnerability reporting has not been verified for this repository. Do not include sensitive details in a public issue. A repository owner should enable private vulnerability reporting and confirm maintainer notifications before treating it as a monitored channel. If GitHub's private report option is unavailable, there is no verified private reporting channel. See GitHub's [private vulnerability reporting setup](https://docs.github.com/en/code-security/how-tos/report-and-fix-vulnerabilities/configure-vulnerability-reporting/configure-for-a-repository).
 

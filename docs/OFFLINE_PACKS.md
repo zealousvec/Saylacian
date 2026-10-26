@@ -6,8 +6,8 @@ Pack downloads are optional and begin only after you choose **Download** in Sayl
 |---|---|---:|---|
 | French / English | English ↔ French | about 166 MiB | MIT |
 | Somali / English | English ↔ Somali Latin | about 300 MiB | Apache-2.0 |
-| Somali translation (experimental) | English → Somali | about 62 MiB | CC BY 4.0 |
-| Somali detection (experimental) | Somali input detection | about 25 MiB | MIT model; GPL-3.0 training dataset |
+| Optional Somali translation model | English → Somali | about 62 MiB | CC BY 4.0 |
+| Optional Somali detection model | Somali input detection | about 25 MiB | MIT model; GPL-3.0 training dataset |
 
 Installed packs are stored in the user's application-data folder, outside the project checkout. Use **Offline language packs** to see installed packs, install updates, cancel downloads or remove a pack to reclaim storage. Updating creates a versioned install; old versions remain until removed, so an update can temporarily need extra disk space.
 
@@ -19,6 +19,6 @@ In Saylacian's first 120-pair FLORES-200 sample, the optional route with fallbac
 
 The optional detector is a fallback for uncertain short text; confident English or French results still take precedence. Its Somali threshold is 0.98. In a deterministic sample of 67 short, verified Somali texts from Qor, the integrated detector identified 38, compared with 33 from the existing route. In 11,386 short MASSIVE test texts from 52 non-Somali locales, it made no Somali predictions at that threshold. At 0.90, it identified 45 Qor texts but also made one Somali prediction in the MASSIVE sample. The higher threshold reduces that observed risk but misses some Somali inputs. Dataset labels are proxies, not specialist-verified language judgments; these samples do not establish general accuracy.
 
-Translation packs work locally without a network connection, account, per-request fee or artificial daily quota. Translation quality is not guaranteed: Somali remains experimental and needs fluent-speaker review. See the [support matrix](SUPPORT_MATRIX.md).
+Translation packs work locally without a network connection, account, per-request fee or artificial daily quota. Somali output has not had fluent-speaker review, so check important translations before relying on them. See the [support matrix](SUPPORT_MATRIX.md).
 
 The exact upstream repositories, revisions, hashes, sizes and licences are in `saylacian/core/data/model_manifest.json`, `saylacian/core/data/somali_model_manifest.json`, `saylacian/core/data/somali_synthetic_manifest.json` and `saylacian/core/data/somali_detection_manifest.json`. Model terms are separate from the Saylacian code licence; see [third-party notices](../THIRD_PARTY_NOTICES.md).

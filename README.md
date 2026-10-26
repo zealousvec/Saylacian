@@ -17,11 +17,11 @@ You do not need to activate the virtual environment. The app asks before downloa
 ## What you can do
 
 - Translate between English and French offline after installing the French/English pack.
-- Translate English and Somali with the Somali/English pack. Somali results are experimental and need review by fluent speakers.
-- Try an optional English-to-Somali model pack. Saylacian checks its output and uses the standard Somali pack when the result appears incomplete or repetitive. This add-on is experimental, takes more time, and has separate CC BY 4.0 terms.
+- Translate English and Somali with the Somali/English pack. Somali quality has not been reviewed by fluent speakers; check important translations before relying on them.
+- Try an optional English-to-Somali model pack. Saylacian checks its output and uses the standard Somali pack when the result appears incomplete or repetitive. This add-on takes more time and has separate CC BY 4.0 terms.
 - Identify English, French or Somali in longer Latin text. Short text may need a manual language choice.
 - Convert Somali Latin text to and from Osmanya.
-- Convert some Somali letters to Borama or Kaddare using chart-based mappings. These mappings are incomplete; editable script text needs a compatible Saylacian font.
+- Convert chart-mapped Somali letters to Borama or Kaddare. The mappings do not cover every letter or validate spelling; editable script text needs a compatible Saylacian font.
 - Read selected Old Nubian letters using a published character table. This is transliteration, not translation, and does not cover every manuscript convention.
 
 Modern Nubian varieties are not supported. See the [support matrix](docs/SUPPORT_MATRIX.md) for available routes and their limits, and the [script letter guide](docs/SCRIPT_LETTER_GUIDE.md) for mapped and unmatched letters.
@@ -30,7 +30,7 @@ Modern Nubian varieties are not supported. See the [support matrix](docs/SUPPORT
 
 The [user guide](docs/USER_GUIDE.md) explains language selection and copy options. [Sharing Borama and Kaddare](docs/SOMALI_SCRIPT_INTEROPERABILITY.md) explains why copied script may look different in other apps. Translation uses installed local packs by default. Optional online services send text to the selected provider; check that provider's privacy terms and any limits or costs.
 
-The [version history](CHANGELOG.md) describes changes and what they mean for app users. This repository is an experimental alpha; no numbered release has been published.
+The [version history](CHANGELOG.md) describes changes and what they mean for app users. This source repository has not yet had a numbered app release.
 
 ## Licence
 

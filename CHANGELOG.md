@@ -1,6 +1,6 @@
 # Version history
 
-This is an experimental-alpha source snapshot, not a numbered app release. Changes stay under **Unreleased** until a version is tagged.
+This is a source snapshot, not a numbered app release. Changes stay under **Unreleased** until a version is tagged.
 
 ## Unreleased
 
@@ -30,4 +30,4 @@ This is an experimental-alpha source snapshot, not a numbered app release. Chang
 - The optional Somali model pack requires the standard Somali/English pack for fallback. Install the standard pack first and remove the optional pack before removing its fallback.
 - Regression checks cover mapped and unmapped letters, ambiguous readings, long input and model fallback behavior.
 
-No Android or iOS build has been verified. Somali translation and the partial historical-script mappings remain experimental.
+No Android or iOS build has been verified. Somali translation has not had fluent-speaker review. Borama and Kaddare cover chart-listed characters only; Old Nubian transliteration covers selected table entries and needs specialist review.

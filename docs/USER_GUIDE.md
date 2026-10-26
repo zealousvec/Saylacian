@@ -15,7 +15,7 @@
 The button beside the Saylacian title switches between **Transliterate** and **Translate**. The button stays in the same place in both modes.
 
 - **Transliterate** changes how text is written. It does not translate the meaning. Use it for Somali script conversion and the limited Old Nubian character-reading route.
-- **Translate** changes meaning between supported languages. Translation packs must be installed for offline use. Somali translation is experimental and needs fluent-speaker review.
+- **Translate** changes meaning between supported languages. Translation packs must be installed for offline use. Somali output has not had fluent-speaker review; check important translations before relying on them.
 
 Long offline text is split at sentence or paragraph boundaries when needed. Context between the resulting sections may change. A single sentence beyond the model's input limit still needs to be shortened or split.
 
@@ -27,7 +27,7 @@ Use the left dropdown for the source and the right dropdown for the target. `[x]
 
 For Old Nubian, choose **Old Nubian** and **Latin reading**, then use **Read** to open the reading reference. Where the cited table lists another Latin reading for a character, it appears below the main reading. For long ambiguous text, Saylacian may show only some alternatives and will say when the list is incomplete. In Latin-to-script conversion, letters absent from the table stay Latin and are flagged. This is limited character transliteration, not translation or a complete reading of every manuscript convention. Modern Nubian varieties are not implemented. See [Old Nubian scope](OLD_NUBIAN_SCOPE.md).
 
-For Borama or Kaddare, choose a script route to convert the available chart-mapped letters. The mappings are partial and experimental; spelling and word-level use have not been reviewed. Capitalization is lost. Letters without a chart mapping stay in Latin and are reported; the Borama chart has no `q` entry. See [script interoperability](SOMALI_SCRIPT_INTEROPERABILITY.md).
+For Borama or Kaddare, choose a script route to convert chart-mapped letters. The mappings do not cover every letter or validate spelling and word-level use. Capitalization is lost. Letters without a chart mapping stay in Latin and are reported; the Borama chart has no `q` entry. See [script interoperability](SOMALI_SCRIPT_INTEROPERABILITY.md).
 
 For a side-by-side explanation of mapped and unmatched letters in Osmanya, Borama, Kaddare and Old Nubian, see [letter mappings and unmatched letters](SCRIPT_LETTER_GUIDE.md).
 
@@ -72,4 +72,4 @@ The Saylacian Text package preserves the glyph sequence and script label; it doe
 
 ## Feature limits
 
-Translation and transliteration are different features. Somali translation is experimental. Borama/Kaddare coverage is partial. Old Nubian support is limited to a cited character table whose reuse rights and specialist review remain unresolved. Modern Nubian varieties are unsupported. See the [support matrix](SUPPORT_MATRIX.md).
+Translation and transliteration are different features. Somali output has not had fluent-speaker review. Borama/Kaddare cover selected chart entries, and Old Nubian reading covers selected character-table entries; neither validates complete words or every historical convention. Modern Nubian varieties are unsupported. See the [support matrix](SUPPORT_MATRIX.md).

@@ -7,7 +7,7 @@ This note separates text encoding from how a font displays it. A successful conv
 | Script/route | Stored output | Portability | Current limitation |
 |---|---|---|---|
 | Somali Latin | Standard Latin Unicode | Broad text support | Somali spelling and translation quality still need fluent review |
-| Osmanya | Assigned Unicode characters U+10480–U+1049D | Text is standard Unicode; glyph display depends on the recipient font | Mapping is experimental; capitalization and some Somali vowel/semivowel distinctions are lost |
+| Osmanya | Assigned Unicode characters U+10480–U+1049D | Text is standard Unicode; glyph display depends on the recipient font | Mapping has not had community review; capitalization and some Somali vowel/semivowel distinctions are lost |
 | Borama | Saylacian chart mapping in private-use code points | Requires matching mapping/font for editable glyphs | No standard Unicode assignment in sources checked; word spelling unreviewed |
 | Kaddare | Saylacian chart mapping in private-use code points | Requires matching mapping/font for editable glyphs | No standard Unicode assignment in sources checked; chart variants do not establish word spelling |
 

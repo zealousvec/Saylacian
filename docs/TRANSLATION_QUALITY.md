@@ -1,6 +1,6 @@
 # Somali translation quality checks
 
-Somali translation is experimental. These reproducible checks compare shipped routes; they do not establish fluent or general-purpose translation quality.
+Somali translation is available, but these reproducible checks do not establish fluent or general-purpose quality.
 
 ## TICO-19 alignment warning
 
@@ -34,7 +34,7 @@ These automatic-score comparisons are invalid for ranking models because the aud
 
 ## Optional CTranslate2 pack
 
-Saylacian now offers `WindyWord/translate-synthetic-en-so` as a separate, optional download, pinned to revision `11427877b7864afad1b5e93e10d1e89661d8b0c0`. Its card provides a CPU INT8 CTranslate2 variant and CC BY 4.0 license, plus a bundled attribution notice. It derives from the Helsinki synthetic model above. The pack is about 62 MiB and is not bundled in the source repository. The standard Somali/English pack remains the fallback. The experimental model card publishes no quality score.
+Saylacian now offers `WindyWord/translate-synthetic-en-so` as a separate, optional download, pinned to revision `11427877b7864afad1b5e93e10d1e89661d8b0c0`. Its card provides a CPU INT8 CTranslate2 variant and CC BY 4.0 license, plus a bundled attribution notice. It derives from the Helsinki synthetic model above. The pack is about 62 MiB and is not bundled in the source repository. The standard Somali/English pack remains the fallback. The model card publishes no quality score.
 
 I installed the pinned pack through Saylacian's checksum-verifying installer and ran it through the app's English-to-Somali routing path. Smoke examples included “I need help finding the hospital.” → “Waxaan u baahanahay caawimaad si aan u helo isbitaalka.” and “Where is the nearest bus station?” → “Halkee buu ku yaal saldhigga baska ee ugu dhow?” The output guard rejected a repeated “Good morning” result and used the standard model instead. These few sentences verify installation and routing only; they are not a quality benchmark or evidence of fluent translation.
 
@@ -43,9 +43,9 @@ I first evaluated all 37 rows marked `public` in the TICO-19 English–Somali **
 | Sample and route | BLEU | chrF++ | Mean time per sentence | Candidate fallbacks |
 |---|---:|---:|---:|---:|
 | 37 public rows, standard pack | 2.197 | 27.427 | 207 ms | — |
-| 37 public rows, experimental model with guard | 4.332 | 35.376 | 770 ms | 15 of 37 |
+| 37 public rows, optional model with guard | 4.332 | 35.376 | 770 ms | 15 of 37 |
 | 120-row sample, standard pack | 2.142 | 22.005 | 632 ms | — |
-| 120-row sample, experimental model with guard | 4.894 | 25.961 | 834 ms | 47 of 120 |
+| 120-row sample, optional model with guard | 4.894 | 25.961 | 834 ms | 47 of 120 |
 
 These comparisons cannot establish that either route is more accurate because the source/reference alignment is unreliable. The timing varied between runs and should not be read as a stable device-performance estimate. Some wording remains awkward, repeated ideas can pass the guard, and fluent-speaker review is still needed.
 
@@ -57,7 +57,7 @@ I also screened [`maanka2/opus-mt-en-so-finetuned`](https://huggingface.co/maank
 
 On the same 37 TICO-19 rows, earlier runs recorded the scores and fallback counts below. Because the references are not reliably aligned, those values cannot establish that one checkpoint is better or worse. The candidate's training-data terms also remain unchecked, so it is not wired into the app or download list.
 
-Other model candidates remain experimental until their outputs, dataset overlap, licence terms and runtime costs have been checked against the shipped pack.
+Other model candidates remain unevaluated until their outputs, dataset overlap, licence terms and runtime costs have been checked against the shipped pack.
 
 ## Candidate for another comparison
 
@@ -75,7 +75,7 @@ To check whether the dev-split result carried over, I evaluated a deterministic 
 
 The table records earlier measurements only. Because source/reference alignment is unreliable, the score difference cannot support a quality conclusion. An output screen found repeated-content indicators in 12 of 120 raw candidate outputs; this is a mechanical warning count, not a judgment of Somali quality. The guard remains in place pending fluent-speaker review.
 
-This is one small medical-domain sample, not a general translation score. It does not assess fluency, meaning preservation or medical safety, and the candidate model's training/test overlap has not been independently audited. Somali remains experimental and needs fluent-speaker review.
+This is one small medical-domain sample, not a general translation score. It does not assess fluency, meaning preservation or medical safety, and the candidate model's training/test overlap has not been independently audited. Somali output still needs fluent-speaker review.
 
 ## FLORES-200 baseline
 
