@@ -10,6 +10,7 @@
 #:import MDTextField kivymd.uix.textfield.MDTextField
 #:import MDFillRoundFlatIconButton kivymd.uix.button.MDFillRoundFlatIconButton
 #:import ProgressBar kivy.uix.progressbar.ProgressBar
+#:import ScrollView kivy.uix.scrollview.ScrollView
 <HomeScreen>:
     name: "home"
     AnchorLayout:
@@ -189,13 +190,23 @@
                             theme_icon_color: "Custom"
                             icon_color: .2, .2, .2, 1
                             on_release: app.open_copy_menu(self, output_text.text)
-            MDLabel:
-                id: status_label
-                text: app.status + app.alternative_readings
-                font_style: "Caption"
+            ScrollView:
+                id: status_scroll
                 size_hint_y: None
-                height: max(dp(58), self.texture_size[1] + dp(8))
-                text_size: self.width, None
+                height: dp(58)
+                do_scroll_x: False
+                bar_width: dp(2)
+                bar_color: .7, .7, .7, .7
+                bar_inactive_color: .4, .4, .4, .35
+                scroll_type: ["bars", "content"]
+                MDLabel:
+                    id: status_label
+                    text: app.status + app.alternative_readings
+                    font_style: "Caption"
+                    size_hint_y: None
+                    height: max(dp(58), self.texture_size[1] + dp(8))
+                    text_size: self.width, None
+                    on_text: app.reset_status_scroll()
 <PickerScreen>:
     name: "picker"
     BoxLayout:
@@ -469,7 +480,7 @@
                     font_style: "Subtitle1"
                 MDTextField:
                     id: alphabet_search
-                    hint_text: "Search letter, reading or code point"
+                    hint_text: "Search letter, reading, sound or code point"
                     size_hint_y: None
                     height: dp(52)
                     on_text: app.filter_old_nubian_alphabet(self.text)

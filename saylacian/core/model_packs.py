@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import hashlib
+import importlib.util
 import json
 import os
 import re
@@ -97,6 +98,9 @@ def get_pack_specs() -> dict[str, dict]:
     synthetic = json.loads(
         (DATA_ROOT / "somali_synthetic_manifest.json").read_text(encoding="utf-8")
     )
+    afrislm = json.loads(
+        (DATA_ROOT / "afrislm_manifest.json").read_text(encoding="utf-8")
+    )
 
     somali_assets = []
     for item in somali:
@@ -188,6 +192,26 @@ def get_pack_specs() -> dict[str, dict]:
             }
         )
 
+    afrislm_assets = []
+    for filename, metadata in afrislm["files"].items():
+        afrislm_assets.append(
+            {
+                "kind": "file",
+                "url": _huggingface_url(
+                    afrislm["repository"],
+                    afrislm["revision"],
+                    metadata.get("repository_path", filename),
+                ),
+                "bytes": metadata["bytes"],
+                "sha256": metadata["sha256"],
+                "destination": f"somali/en_so_afrislm/{filename}",
+                "license": afrislm["license"],
+                "repository": afrislm["repository"],
+                "revision": afrislm["revision"],
+                "runtimes": afrislm["runtimes"],
+            }
+        )
+
     somali_manifest_item = somali[0]
     french_manifest_items = [
         item for item in argos if item.get("pair") in {"en_fr", "fr_en"}
@@ -210,26 +234,48 @@ def get_pack_specs() -> dict[str, dict]:
             "assets": french_assets,
         },
         "somali_detection_openlid": {
-            "title": "Somali detection (experimental)",
+            "title": "Somali detection",
             "license": detection["license"],
             "model_repositories": [detection["repository"]],
             "runtimes": detection["runtimes"],
             "assets": detection_assets,
         },
         "somali_synthetic_en_so": {
-            "title": "Somali translation (experimental)",
+            "title": "Optional Somali translation model",
             "requires": ["somali"],
             "license": synthetic["license"],
             "model_repositories": [synthetic["repository"]],
             "runtimes": synthetic["runtimes"],
             "assets": synthetic_assets,
         },
+        "somali_afrislm": {
+            "title": "AfriSLM Somali / English (672 MB)",
+            "requires": ["somali"],
+            "license": afrislm["license"],
+            "license_note": afrislm.get("license_note", ""),
+            "runtime_note": "Requires the optional llama-cpp-python CPU runtime.",
+            "runtime_module": afrislm.get("runtime_module"),
+            "runtime_install": afrislm.get("runtime_install"),
+            "model_repositories": [afrislm["repository"]],
+            "runtimes": afrislm["runtimes"],
+            "assets": afrislm_assets,
+        },
     }
     for pack_id, spec in specs.items():
         version_input = json.dumps(
             {
                 key: spec[key]
-                for key in ("license", "model_repositories", "runtimes", "assets")
+                for key in (
+                    "license",
+                    "license_note",
+                    "runtime_note",
+                    "runtime_module",
+                    "runtime_install",
+                    "model_repositories",
+                    "runtimes",
+                    "assets",
+                )
+                if key in spec
             },
             sort_keys=True,
             separators=(",", ":"),
@@ -369,7 +415,11 @@ class ModelPackManager:
                     "installed_version": current_version,
                     "download_bytes": spec["download_bytes"],
                     "license": spec.get("license", "See upstream model metadata"),
+                    "license_note": spec.get("license_note", ""),
+                    "runtime_note": spec.get("runtime_note", ""),
+                    "runtime_install": spec.get("runtime_install", ""),
                     "runtimes": dict(spec.get("runtimes", {})),
+                    "runtime_available": self._runtime_available(spec),
                     "installed_bytes": installed_bytes,
                     "storage_bytes": self._directory_size(pack_home),
                 }
@@ -381,6 +431,11 @@ class ModelPackManager:
         if not folder.exists():
             return 0
         return sum(path.stat().st_size for path in folder.rglob("*") if path.is_file())
+
+    @staticmethod
+    def _runtime_available(spec: dict) -> bool:
+        module = spec.get("runtime_module")
+        return not module or importlib.util.find_spec(module) is not None
 
     def active_model_roots(self, pack_ids: set[str] | None = None) -> list[Path]:
         roots = []
@@ -424,9 +479,19 @@ class ModelPackManager:
     def install(self, pack_id: str, progress=None, cancel_event=None) -> Path:
         if pack_id not in self.specs:
             raise ValueError("Unknown language pack.")
+        spec = self.specs[pack_id]
+        if not self._runtime_available(spec):
+            install = spec.get("runtime_install")
+            detail = (
+                f" Run `{install}` in Saylacian's Python environment first."
+                if install
+                else ""
+            )
+            raise ValueError(
+                "This pack needs an optional runtime that is not installed." + detail
+            )
         self._check_requirements(pack_id)
         with _lock_for(pack_id):
-            spec = self.specs[pack_id]
             _, home = _pack_home(self.store_root, pack_id)
             version = _safe_component(spec["version"], "version")
             home.mkdir(parents=True, exist_ok=True)
@@ -560,6 +625,9 @@ class ModelPackManager:
                     "version": spec["version"],
                     "title": spec["title"],
                     "license": spec.get("license", "See upstream model metadata"),
+                    "license_note": spec.get("license_note", ""),
+                    "runtime_note": spec.get("runtime_note", ""),
+                    "runtime_install": spec.get("runtime_install", ""),
                     "model_repositories": list(spec.get("model_repositories", [])),
                     "runtimes": dict(spec.get("runtimes", {})),
                     "source_manifest_version": 2,

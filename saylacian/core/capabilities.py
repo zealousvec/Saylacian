@@ -7,7 +7,7 @@ CAPABILITIES = (
         "source": "Somali Latin",
         "target": "Osmanya",
         "mode": "transliteration",
-        "status": "experimental",
+        "status": "implemented character transliteration",
         "offline": True,
     },
     {
@@ -15,7 +15,7 @@ CAPABILITIES = (
         "source": "Osmanya",
         "target": "Somali Latin",
         "mode": "transliteration",
-        "status": "experimental",
+        "status": "implemented character transliteration",
         "offline": True,
     },
     {
@@ -23,7 +23,7 @@ CAPABILITIES = (
         "source": "Old Nubian (Coptic)",
         "target": "Old Nubian scholarly Latin",
         "mode": "transliteration",
-        "status": "working",
+        "status": "limited table-based reading",
         "offline": True,
     },
     {
@@ -31,7 +31,7 @@ CAPABILITIES = (
         "source": "Old Nubian scholarly Latin",
         "target": "Old Nubian (Coptic)",
         "mode": "transliteration",
-        "status": "experimental",
+        "status": "limited table-based reverse transliteration",
         "offline": True,
     },
     {
@@ -39,7 +39,7 @@ CAPABILITIES = (
         "source": "Somali Latin",
         "target": "Borama",
         "mode": "transliteration",
-        "status": "experimental partial",
+        "status": "partial chart-label mapping",
         "offline": True,
     },
     {
@@ -47,7 +47,7 @@ CAPABILITIES = (
         "source": "Borama",
         "target": "Somali Latin",
         "mode": "transliteration",
-        "status": "experimental partial",
+        "status": "partial chart-label mapping",
         "offline": True,
     },
     {
@@ -55,7 +55,7 @@ CAPABILITIES = (
         "source": "Somali Latin",
         "target": "Kaddare",
         "mode": "transliteration",
-        "status": "experimental partial",
+        "status": "partial chart-label mapping",
         "offline": True,
     },
     {
@@ -63,7 +63,7 @@ CAPABILITIES = (
         "source": "Kaddare",
         "target": "Somali Latin",
         "mode": "transliteration",
-        "status": "experimental partial",
+        "status": "partial chart-label mapping",
         "offline": True,
     },
     {
@@ -71,7 +71,7 @@ CAPABILITIES = (
         "source": "English",
         "target": "French",
         "mode": "translation",
-        "status": "working",
+        "status": "available after pack installation",
         "offline": True,
     },
     {
@@ -79,7 +79,7 @@ CAPABILITIES = (
         "source": "French",
         "target": "English",
         "mode": "translation",
-        "status": "working",
+        "status": "available after pack installation",
         "offline": True,
     },
     {
@@ -87,7 +87,7 @@ CAPABILITIES = (
         "source": "English",
         "target": "Somali Latin",
         "mode": "translation",
-        "status": "experimental",
+        "status": "available after pack installation; unreviewed by fluent speakers",
         "offline": True,
     },
     {
@@ -95,7 +95,7 @@ CAPABILITIES = (
         "source": "Somali Latin",
         "target": "English",
         "mode": "translation",
-        "status": "experimental",
+        "status": "available after pack installation; unreviewed by fluent speakers",
         "offline": True,
     },
     {
@@ -103,7 +103,7 @@ CAPABILITIES = (
         "source": "Somali Latin",
         "target": "French",
         "mode": "translation",
-        "status": "experimental pivot",
+        "status": "through English; available after pack installation",
         "offline": True,
     },
     {
@@ -111,7 +111,7 @@ CAPABILITIES = (
         "source": "French",
         "target": "Somali Latin",
         "mode": "translation",
-        "status": "experimental pivot",
+        "status": "through English; available after pack installation",
         "offline": True,
     },
 )
@@ -129,13 +129,13 @@ SCRIPT_TARGETS = tuple(
     for label, status, offline, note in (
         (
             "Borama",
-            "chart-label conversion experimental",
+            "partial chart-label conversion",
             True,
             "Partial chart-label mapping; PUA output uses bundled font",
         ),
         (
             "Kaddare",
-            "chart-label conversion experimental",
+            "partial chart-label conversion",
             True,
             "Partial chart-label mapping; PUA output uses bundled font",
         ),

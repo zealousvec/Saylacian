@@ -1,11 +1,12 @@
-# Saylacian help
+# Documentation
 
-- [User guide](USER_GUIDE.md): choose modes and scripts, and copy Borama or Kaddare writing.
-- [Offline packs](OFFLINE_PACKS.md): download, update and remove translation packs.
-- [Somali translation quality](TRANSLATION_QUALITY.md): measured model checks and limits.
-- [Support matrix](SUPPORT_MATRIX.md): supported routes and their limits.
-- [Script letter guide](SCRIPT_LETTER_GUIDE.md): current mappings and unmatched letters.
-- [Script interoperability](SOMALI_SCRIPT_INTEROPERABILITY.md): Unicode, fonts and sharing.
-- [Old Nubian scope](OLD_NUBIAN_SCOPE.md): what the limited reading feature does.
-- [Online translation](ONLINE_TRANSLATION.md): optional provider privacy and configuration.
-- [Third-party notices](../THIRD_PARTY_NOTICES.md): licences for assets and model packs.
+- [User guide](USER_GUIDE.md): choose translation and script-conversion routes; copy Borama and Kaddare.
+- [Offline packs](OFFLINE_PACKS.md): install, update and remove language models.
+- [Supported routes](SUPPORT_MATRIX.md): language pairs, scripts and platform status.
+- [Translation quality](TRANSLATION_QUALITY.md): evaluation methods, results and limits for Somali models.
+- [Script letter guide](SCRIPT_LETTER_GUIDE.md): mapped letters and ambiguous readings.
+- [Sharing Borama and Kaddare](SOMALI_SCRIPT_INTEROPERABILITY.md): fonts, private-use characters and copy formats.
+- [Old Nubian scope](OLD_NUBIAN_SCOPE.md): source and limits of the character-reading table.
+- [Online translation](ONLINE_TRANSLATION.md): optional provider configuration and privacy.
+- [Release readiness](RELEASE_READINESS.md): platform and packaging status.
+- [Third-party notices](../THIRD_PARTY_NOTICES.md): asset and model licences.

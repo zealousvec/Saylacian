@@ -138,6 +138,10 @@ def publish_windows_clipboard(formats):
 
 
 class SaylacianTextInput(TextInput):
+    def on_focus(self, instance, focused):
+        if self.readonly and focused:
+            self.focus = False
+
     def copy(self, data=""):
         selected = data or self.selection_text
         app = MDApp.get_running_app()
@@ -155,7 +159,10 @@ class SaylacianTextInput(TextInput):
             selected_script = app.target
         portable, _ = clipboard_text(selected, selected_script)
         if portable is None:
-            app.status = "This script text has no label and was not copied."
+            app.status = (
+                "These private-use glyphs have no script label. "
+                "Select Borama or Kaddare before copying."
+            )
             return None
         return super().copy(portable)
 
@@ -196,6 +203,11 @@ class SaylacianApp(MDApp):
         self.font = str(PROJECT / "assets/NotoSansOsmanya.ttf")
         self.output_font = self.font
         self.side = "source"
+        self.mode_routes = {
+            "Convert writing system": (self.source, self.target),
+            "Translate meaning": ("English", "French"),
+        }
+        self.mode_routes_initialized = {self.mode}
         Window.bind(on_resize=self.update_layout)
         self.update_layout(Window, *Window.size)
         self.worker = ThreadPoolExecutor(
@@ -409,6 +421,8 @@ class SaylacianApp(MDApp):
                 note = f"Download {self._format_bytes(pack['download_bytes'])} · works offline"
             if pack.get("requires"):
                 note += " · Needs Somali / English pack for fallback"
+            if pack.get("runtime_note"):
+                note += f" · {pack['runtime_note']}"
             subtitle = MDLabel(
                 text=note,
                 theme_text_color="Custom",
@@ -646,6 +660,7 @@ class SaylacianApp(MDApp):
             return
         setattr(self, self.side, name)
         self.complete_supported_pair()
+        self.remember_mode_route()
         self.close_picker()
         self.refresh_fonts()
         self.convert(self.root.get_screen("home").ids.input_text.text)
@@ -666,6 +681,11 @@ class SaylacianApp(MDApp):
             ]
             if sources and self.source not in sources:
                 self.source = sources[0]
+
+    def remember_mode_route(self):
+        """Keep each mode's latest source and target when switching modes."""
+        self.mode_routes[self.mode] = (self.source, self.target)
+        self.mode_routes_initialized.add(self.mode)
 
     def font_for(self, language_or_script):
         chart_fonts = {
@@ -850,6 +870,7 @@ class SaylacianApp(MDApp):
                 input_widget = self.root.get_screen("home").ids.input_text
                 self.mode = "Convert writing system"
                 self.source, self.target = package.script, "Somali Latin"
+                self.remember_mode_route()
                 self.refresh_fonts()
                 self._importing_package = True
                 try:
@@ -859,7 +880,10 @@ class SaylacianApp(MDApp):
                 input_widget.font_name = self.input_font
                 input_widget._refresh_line_options()
                 self.convert(package.text)
-                self.status = f"Imported Saylacian Text v1 ({package.script}). Limited conversion; word spelling has not been reviewed."
+                self.status = (
+                    f"Saylacian Text v1 imported for {package.script}. "
+                    "Some letters may be unmapped; spelling has not been checked."
+                )
                 return
             if any(is_private_use_character(char) for char in text):
                 detected_chart = identify_chart_text(text)
@@ -876,7 +900,10 @@ class SaylacianApp(MDApp):
                 self.alternative_readings = ""
                 input_widget.font_name = "Roboto"
                 input_widget._refresh_line_options()
-                self.status = "This text has no script label. Paste a Saylacian Text package or choose Borama/Kaddare as source."
+                self.status = (
+                    "These private-use glyphs have no script label. Paste a "
+                    "Saylacian Text package or select Borama/Kaddare as source."
+                )
                 self.save_session(text, "")
                 return
         self.convert(text)
@@ -959,6 +986,17 @@ class SaylacianApp(MDApp):
             except OSError:
                 pass
 
+    def reset_status_scroll(self):
+        """Show the start of each new status message in the fixed footer."""
+        if not self.root:
+            return
+        Clock.schedule_once(
+            lambda _dt: setattr(
+                self.root.get_screen("home").ids.status_scroll, "scroll_y", 1
+            ),
+            0,
+        )
+
     def restore_session(self):
         """Restore a bounded local snapshot without rerunning translation."""
         try:
@@ -981,6 +1019,7 @@ class SaylacianApp(MDApp):
             ):
                 return
             self.mode, self.source, self.target = mode, source, target
+            self.remember_mode_route()
             self._restoring_session = True
             try:
                 self.refresh_fonts()
@@ -995,11 +1034,16 @@ class SaylacianApp(MDApp):
             return
 
     def on_stop(self):
+        self.save_session()
         self.generation += 1
         self.translate_trigger.cancel()
         self.worker.shutdown(wait=False, cancel_futures=True)
         if getattr(self, "diagnostics", None):
             self.diagnostics.close()
+
+    def on_pause(self):
+        self.save_session()
+        return True
 
     def swap(self):
         screen = self.root.get_screen("home")
@@ -1008,6 +1052,7 @@ class SaylacianApp(MDApp):
             return
         text = screen.ids.output_text.text
         self.source, self.target = self.target, self.source
+        self.remember_mode_route()
         self.refresh_fonts()
         if text:
             screen.ids.input_text.text = text
@@ -1015,11 +1060,67 @@ class SaylacianApp(MDApp):
             self.convert(screen.ids.input_text.text)
 
     def switch_mode(self):
-        self.mode = (
+        self.remember_mode_route()
+        next_mode = (
             "Translate meaning"
             if self.mode == "Convert writing system"
             else "Convert writing system"
         )
+        capability_mode = (
+            "translation" if next_mode == "Translate meaning" else "transliteration"
+        )
+        if next_mode in self.mode_routes_initialized:
+            next_source, next_target = self.mode_routes[next_mode]
+        else:
+            routes = [
+                route
+                for route in list_capabilities()
+                if route["kind"] == "route" and route["mode"] == capability_mode
+            ]
+            matching_detect_target = self.source == "Detect language/script" and any(
+                route["target"] == self.target for route in routes
+            )
+            matching_source = next(
+                (route for route in routes if route["source"] == self.source), None
+            )
+            matching_target = next(
+                (route for route in routes if route["target"] == self.target), None
+            )
+            if matching_detect_target:
+                next_source, next_target = self.source, self.target
+            elif matching_source:
+                next_source, next_target = (
+                    matching_source["source"],
+                    matching_source["target"],
+                )
+            elif matching_target:
+                next_source, next_target = (
+                    matching_target["source"],
+                    matching_target["target"],
+                )
+            else:
+                next_source, next_target = (
+                    ("English", "French")
+                    if next_mode == "Translate meaning"
+                    else ("Somali Latin", "Osmanya")
+                )
+        self.mode = next_mode
+        self.source, self.target = next_source, next_target
+        has_route = get_capability(self.source, self.target, capability_mode)
+        has_detect_target = self.source == "Detect language/script" and any(
+            route["kind"] == "route"
+            and route["mode"] == capability_mode
+            and route["target"] == self.target
+            for route in list_capabilities()
+        )
+        if not has_route and not has_detect_target:
+            self.source, self.target = (
+                ("English", "French")
+                if self.mode == "Translate meaning"
+                else ("Somali Latin", "Osmanya")
+            )
+        self.remember_mode_route()
+        self.refresh_fonts()
         self.convert(self.root.get_screen("home").ids.input_text.text)
 
     def paste(self):
@@ -1160,14 +1261,20 @@ class SaylacianApp(MDApp):
         self.reader_selected_glyph = str(entry["glyph"])
         ambiguity = " · reverse reading may be ambiguous" if entry["ambiguous"] else ""
         alternatives = entry.get("alternative_readings", ())
+        phonetic_values = entry.get("phonetic_values", ())
         other_readings = (
             " · other Latin reading: " + " / ".join(alternatives)
             if alternatives
             else ""
         )
+        phonetic_detail = (
+            " · phonetic value: [" + ", ".join(phonetic_values) + "]"
+            if phonetic_values
+            else ""
+        )
         self.reader_detail = (
             f"{entry['glyph']} · {entry['reading']} · {entry['codepoint']}\n"
-            f"{entry['name']}{ambiguity}{other_readings}\n"
+            f"{entry['name']}{ambiguity}{other_readings}{phonetic_detail}\n"
             f"{entry['confidence']} · {entry['convention']}"
         )
 
@@ -1249,7 +1356,10 @@ class SaylacianApp(MDApp):
             self.status = "Nothing to copy."
             return
         if portable is None:
-            self.status = "This text has no script label and was not copied."
+            self.status = (
+                "These private-use glyphs have no script label. "
+                "Select Borama or Kaddare before copying."
+            )
             return
         try:
             if os.name == "nt":
@@ -1491,6 +1601,7 @@ class SaylacianApp(MDApp):
         self.mode = item.get("mode", "Convert writing system")
         self.source = item["source"]
         self.target = item["target"]
+        self.remember_mode_route()
         self.refresh_fonts()
         self.root.current = "home"
         self.root.get_screen("home").ids.input_text.text = item["text"]
@@ -1508,6 +1619,8 @@ class SaylacianApp(MDApp):
         screen.ids.input_text.text = ""
         screen.ids.output_text.text = ""
         self.status = "Cleared."
+        self.alternative_readings = ""
+        self.save_session("", "")
 
 
 if __name__ == "__main__":

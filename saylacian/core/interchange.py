@@ -24,6 +24,7 @@ from .transliteration import (
 MAGIC = "SAYLACIAN-TEXT/1\n"
 ENCODING = "saylacian-chart-pua-v1"
 MAX_TEXT_LENGTH = 4000
+MAX_PACKAGE_LENGTH = 131_072
 SCRIPT_FONTS = {
     "Borama": "BoramaChart-Regular.ttf",
     "Kaddare": "KaddareChart-Regular.ttf",
@@ -85,10 +86,14 @@ def encode_saylacian_text(text: str, script: str) -> str:
 
 def decode_saylacian_text(value: str) -> SaylacianText | None:
     """Decode a Saylacian envelope; return None when input is ordinary text."""
+    if not isinstance(value, str):
+        return None
     if not value.startswith("SAYLACIAN-TEXT/"):
         return None
     if not value.startswith(MAGIC):
         raise ValueError("Unsupported Saylacian Text version.")
+    if len(value) > MAX_PACKAGE_LENGTH:
+        raise ValueError("Saylacian Text package is too large to import.")
     try:
         payload = json.loads(value[len(MAGIC) :])
     except (json.JSONDecodeError, TypeError) as error:

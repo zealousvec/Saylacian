@@ -2,18 +2,27 @@
 """Offline language identification with conservative abstention."""
 
 import json
+import os
 from functools import lru_cache
 from pathlib import Path
 
 SOMALI_DETECTION_PACK = "somali_detection_openlid"
 OPENLID_SOMALI_THRESHOLD = 0.98
+OPENLID_MAX_WORDS = 5
 
 SUPPORTED = {"en": "English", "fr": "French", "so": "Somali Latin"}
 MIN_CHARACTERS = 20
 MIN_SHORT_CHARACTERS = 12
+MIN_MIXED_CHUNK_CHARACTERS = 8
 MIN_WORDS = 3
 MIN_CONFIDENCE = 0.70
 MIN_SHORT_CONFIDENCE = 0.75
+
+
+def _inference_threads(cpu_count=None):
+    """Bound optional ONNX language detection on low-core devices."""
+    cpu_count = cpu_count or os.cpu_count() or 1
+    return 1 if cpu_count <= 4 else 2
 
 
 @lru_cache(maxsize=1)
@@ -48,7 +57,7 @@ class _OpenLIDDetector:
         self._tokenizer = Tokenizer.from_file(str(pack_root / "tokenizer.json"))
         self._tokenizer.enable_truncation(max_length=96)
         options = onnxruntime.SessionOptions()
-        options.intra_op_num_threads = 2
+        options.intra_op_num_threads = _inference_threads()
         options.inter_op_num_threads = 1
         self._session = onnxruntime.InferenceSession(
             str(pack_root / "model_quantized.onnx"),
@@ -105,6 +114,30 @@ def _openlid_somali_confidence(text: str) -> float | None:
         return None
 
 
+def _mixed_language_confidence(text: str, identifier) -> float | None:
+    words = text.split()
+    if len(words) < 6:
+        return None
+
+    chunks = (" ".join(words[:3]), " ".join(words[-3:]))
+    predictions = []
+    for chunk in chunks:
+        if len(chunk) < MIN_MIXED_CHUNK_CHARACTERS:
+            return None
+        code, confidence = identifier.classify(chunk)
+        threshold = (
+            MIN_SHORT_CONFIDENCE if len(chunk) < MIN_CHARACTERS else MIN_CONFIDENCE
+        )
+        language = SUPPORTED.get(code)
+        if language is None or confidence < threshold:
+            return None
+        predictions.append((language, confidence))
+
+    if predictions[0][0] != predictions[1][0]:
+        return min(predictions[0][1], predictions[1][1])
+    return None
+
+
 def detect_language(text):
     """Return (display name, confidence, message); abstain on short/uncertain text."""
     text = text.strip()
@@ -115,13 +148,26 @@ def detect_language(text):
             "Add at least 12 characters and three words for language detection.",
         )
 
-    code, confidence = _identifier().classify(text)
+    identifier = _identifier()
+    mixed_confidence = _mixed_language_confidence(text, identifier)
+    if mixed_confidence is not None:
+        return (
+            None,
+            mixed_confidence,
+            "Text may contain more than one language; choose the source language manually.",
+        )
+
+    code, confidence = identifier.classify(text)
     threshold = MIN_SHORT_CONFIDENCE if len(text) < MIN_CHARACTERS else MIN_CONFIDENCE
     language = SUPPORTED.get(code)
     if language is not None and confidence >= threshold:
         return language, confidence, ""
 
-    openlid_confidence = _openlid_somali_confidence(text)
+    openlid_confidence = (
+        _openlid_somali_confidence(text)
+        if len(text.split()) <= OPENLID_MAX_WORDS
+        else None
+    )
     if (
         openlid_confidence is not None
         and openlid_confidence >= OPENLID_SOMALI_THRESHOLD

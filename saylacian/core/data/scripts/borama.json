@@ -1,6 +1,6 @@
 {
   "language": "Somali",
-  "record_status": "partial experimental chart-label mapping",
+  "record_status": "partial chart-label mapping with source-cited vowel aliases",
   "encoding": {
     "kind": "private-use Unicode",
     "portable": false,
@@ -22,11 +22,30 @@
     "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
     "modification": "Selected glyphs cropped from the chart and converted to a bundled font; labels are transcribed as shown."
   },
-  "mapping_confidence": "The chart explicitly pairs each listed letter label with a glyph. This does not establish word-level spelling rules or a portable encoding.",
-  "unsupported_labels": [
-    "q"
+  "mapping_confidence": "The chart explicitly pairs each listed letter label with a glyph. Source-cited vowel aliases reuse those glyphs where the scholarly account reports shared signs. This does not establish word-level spelling rules or a portable encoding.",
+  "unsupported_labels": [],
+  "unmapped_latin_labels": ["x", "p", "v", "z"],
+  "unmapped_note": "These Latin labels have no matching record or source-cited shared-sign alias; input is preserved and flagged.",
+  "aliases": [
+    {
+      "grapheme": "aa",
+      "canonical": "a",
+      "confidence": "scholarly account reports no vowel-length distinction for /a/ and /aa/",
+      "source": "https://www.maurotosco.net/ewExternalFiles/TOSCO_2015_Somali_Previous_Scripts.pdf"
+    },
+    {
+      "grapheme": "ee",
+      "canonical": "e",
+      "confidence": "scholarly account reports no vowel-length distinction for /e/ and /ee/",
+      "source": "https://www.maurotosco.net/ewExternalFiles/TOSCO_2015_Somali_Previous_Scripts.pdf"
+    },
+    {
+      "grapheme": "o",
+      "canonical": "u",
+      "confidence": "scholarly account reports short /o/ and /u/ share one sign",
+      "source": "https://www.maurotosco.net/ewExternalFiles/TOSCO_2015_Somali_Previous_Scripts.pdf"
+    }
   ],
-  "unsupported_note": "LETTER Q is not present in this chart image; input q is preserved and flagged.",
   "records": [
     {
       "grapheme": "a",
@@ -409,9 +428,9 @@
       "reversible_in_subset": true
     },
     {
-      "grapheme": "o",
-      "display_label": "LETTER O",
-      "glyph_id": "borama.o",
+      "grapheme": "q",
+      "display_label": "LETTER Q",
+      "glyph_id": "borama.q",
       "pua": "U+E014",
       "chart_forms": [
         {

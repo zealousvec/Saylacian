@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
-"""Experimental Somali Latin/Osmanya conversion; never semantic translation."""
+"""Character-based Somali Latin/Osmanya conversion; never semantic translation."""
 
 import json
 import unicodedata
@@ -20,6 +20,10 @@ SCRIPT_DATA = {
     )
     for name in ("Borama", "Kaddare")
 }
+SCRIPT_LATIN_ALIASES = {
+    name: {alias["grapheme"]: alias["canonical"] for alias in data.get("aliases", ())}
+    for name, data in SCRIPT_DATA.items()
+}
 SCRIPT_LATIN_TO_PUA = {
     name: {
         record["grapheme"]: chr(int("0x" + record["pua"][2:], 0))
@@ -31,6 +35,15 @@ SCRIPT_PUA_TO_LATIN = {
     name: {glyph: grapheme for grapheme, glyph in mapping.items()}
     for name, mapping in SCRIPT_LATIN_TO_PUA.items()
 }
+SCRIPT_PUA_REVERSE_VARIANTS = {}
+for script, aliases in SCRIPT_LATIN_ALIASES.items():
+    variants = {}
+    for alias, canonical in aliases.items():
+        glyph = SCRIPT_LATIN_TO_PUA[script][canonical]
+        variants.setdefault(glyph, []).append(alias)
+    SCRIPT_PUA_REVERSE_VARIANTS[script] = {
+        glyph: tuple(readings) for glyph, readings in variants.items()
+    }
 SOMALI_TO_OSMANYA = RESOURCE["mapping"]
 OSMANYA_TO_SOMALI = {value: key for key, value in SOMALI_TO_OSMANYA.items()}
 OSMANYA_REVERSE_VARIANTS = {
@@ -59,19 +72,14 @@ OLD_NUBIAN_TO_LATIN = {
     "ⲧ": "t",
     "ⲩ": "u",
     "ⲫ": "ph",
-    "ⲭ": "ch",
+    "ⲭ": "kh",
     "ⲯ": "ps",
     "ⲱ": "ō",
-    "ϣ": "sh",
-    "ϥ": "f",
-    "ϩ": "h",
-    "ϫ": "dj",
-    "ϭ": "ky",
-    "ϯ": "ti",
-    "ⳟ": "ng",
-    "ⳡ": "ny",
-    "ⳣ": "w",
+    "ϣ": "š",
     "ⳝ": "j",
+    "ⳟ": "ŋ",
+    "ⳡ": "ñ",
+    "ⳣ": "w",
 }
 OLD_NUBIAN_CASED_TO_LATIN = dict(OLD_NUBIAN_TO_LATIN)
 for character, reading in OLD_NUBIAN_TO_LATIN.items():
@@ -79,21 +87,22 @@ for character, reading in OLD_NUBIAN_TO_LATIN.items():
     if len(uppercase) == 1 and uppercase != character:
         OLD_NUBIAN_CASED_TO_LATIN[uppercase] = reading.upper()
 
-OLD_NUBIAN_FORWARD_VARIANTS = {"ⳣ": ("ou",)}
+OLD_NUBIAN_FORWARD_VARIANTS = {
+    "ⲏ": ("i", "iː"),
+    "ⲩ": ("i",),
+}
+OLD_NUBIAN_FORWARD_DIGRAPHS = {
+    "ⲉⲓ": ("i", "iː", "j"),
+    "ⲟⲩ": ("u", "uː", "w", "wu"),
+}
 OLD_NUBIAN_SUPRALINEAR_STROKE = "\u0304"
 OLD_NUBIAN_REVERSE = {
     reading: character for character, reading in OLD_NUBIAN_TO_LATIN.items()
 }
-OLD_NUBIAN_REVERSE["ou"] = "ⳣ"
+OLD_NUBIAN_REVERSE["ou"] = "ⲟⲩ"
 OLD_NUBIAN_REVERSE_VARIANTS = {
-    "ou": ("ⲟⲩ",),
-    "ng": ("ⲛⲅ",),
-    "dj": ("ⲇⳝ",),
-    "sh": ("ⲥϩ",),
-    "th": ("ⲧϩ",),
-    "ph": ("ⲡϩ",),
+    "ou": ("ⳣ",),
     "ps": ("ⲡⲥ",),
-    "ti": ("ⲧⲓ",),
 }
 OLD_NUBIAN_REVERSE_TOKENS = tuple(sorted(OLD_NUBIAN_REVERSE, key=len, reverse=True))
 OLD_NUBIAN_AMBIGUOUS_TOKENS = frozenset(OLD_NUBIAN_REVERSE_VARIANTS)
@@ -134,9 +143,12 @@ def _chart_transliterate(text: str, source: str, target: str) -> Conversion:
     output = []
     if source == "Somali Latin":
         mapping = SCRIPT_LATIN_TO_PUA[target]
-        tokens = sorted(mapping, key=len, reverse=True)
+        aliases = SCRIPT_LATIN_ALIASES[target]
+        tokens = sorted((*mapping, *aliases), key=len, reverse=True)
+        ambiguous_tokens = set(aliases) | set(aliases.values())
         index = 0
         upper_seen = False
+        ambiguous_vowel_seen = False
         missing = []
         missing_seen = set()
         while index < len(text):
@@ -150,7 +162,9 @@ def _chart_transliterate(text: str, source: str, target: str) -> Conversion:
             )
             if token:
                 upper_seen |= text[index : index + len(token)] != token
-                output.append(mapping[token])
+                canonical = aliases.get(token, token)
+                output.append(mapping[canonical])
+                ambiguous_vowel_seen |= token in ambiguous_tokens
                 index += len(token)
                 continue
             char = text[index]
@@ -161,29 +175,50 @@ def _chart_transliterate(text: str, source: str, target: str) -> Conversion:
                 missing.append(char)
         if upper_seen:
             warnings.append("Capitalization is not represented in the chart glyphs.")
+        if ambiguous_vowel_seen:
+            warnings.append(
+                "Borama shares chart signs for a/aa, e/ee and short o/u; those vowel distinctions cannot be recovered."
+            )
         if missing:
             warnings.append(
                 "Unmapped letters preserved: " + " ".join(dict.fromkeys(missing)) + "."
             )
-        if target == "Borama":
-            warnings.append(
-                "The supplied chart has no Q label; q stays Latin and is flagged."
-            ) if "q" in {char.casefold() for char in missing} else None
         return Conversion("".join(output), tuple(w for w in warnings if w))
 
     mapping = SCRIPT_PUA_TO_LATIN[source]
     unknown_glyphs = set()
+    readings = []
+    ambiguous_vowel_seen = False
     for char in text:
         if char in mapping:
-            output.append(mapping[char])
+            reading = mapping[char]
+            output.append(reading)
+            variants = SCRIPT_PUA_REVERSE_VARIANTS[source].get(char, ())
+            readings.append((reading, *variants))
+            ambiguous_vowel_seen |= bool(variants)
         else:
             output.append(char)
+            readings.append((char,))
             if is_private_use_character(char) and char not in unknown_glyphs:
                 unknown_glyphs.add(char)
                 warnings.append(
                     f"No {source} chart entry for U+{ord(char):04X}; preserved."
                 )
-    return Conversion("".join(output), tuple(dict.fromkeys(warnings)))
+    alternatives = ()
+    if ambiguous_vowel_seen:
+        candidates, alternatives_truncated = _bounded_reading_candidates(readings)
+        primary = "".join(output)
+        alternatives = tuple(
+            candidate for candidate in candidates if candidate != primary
+        )
+        warnings.append(
+            f"{source} has shared vowel signs; the main reading uses chart labels and alternatives show other readings."
+        )
+        if alternatives_truncated:
+            warnings.append(
+                "Only some alternative readings are shown; other combinations may exist."
+            )
+    return Conversion("".join(output), tuple(dict.fromkeys(warnings)), alternatives)
 
 
 def _old_nubian_reverse_candidates(
@@ -239,6 +274,37 @@ def _osmanya_reverse_candidates(
     return candidates[:limit], len(candidates) > limit
 
 
+def _bounded_reading_candidates(
+    readings: list[tuple[str, ...]], limit: int = 12
+) -> tuple[tuple[str, ...], bool]:
+    """Prioritize each local reading before combinations of ambiguous tokens."""
+    primary_parts = [choices[0] for choices in readings]
+    candidates = ["".join(primary_parts)]
+    seen = set(candidates)
+
+    for index, choices in enumerate(readings):
+        for choice in choices[1:]:
+            candidate = "".join(
+                choice if position == index else part
+                for position, part in enumerate(primary_parts)
+            )
+            if candidate not in seen:
+                seen.add(candidate)
+                candidates.append(candidate)
+                if len(candidates) > limit:
+                    return tuple(candidates[: limit + 1]), True
+
+    for combination in islice(product(*readings), limit * 2 + 1):
+        candidate = "".join(combination)
+        if candidate not in seen:
+            seen.add(candidate)
+            candidates.append(candidate)
+            if len(candidates) > limit:
+                return tuple(candidates[: limit + 1]), True
+
+    return tuple(candidates), False
+
+
 def detect_chart_script(text):
     private = [c for c in text if is_private_use_character(c)]
     if private:
@@ -250,9 +316,14 @@ def detect_chart_script(text):
                 )
 
 
+def _is_coptic_character(character):
+    codepoint = ord(character)
+    return 0x03E2 <= codepoint <= 0x03EF or 0x2C80 <= codepoint <= 0x2CFF
+
+
 def detect_script(text):
     letters = [c for c in text if c.isalpha()]
-    if letters and all(0x2C80 <= ord(c) <= 0x2CFF for c in letters):
+    if letters and all(_is_coptic_character(c) for c in letters):
         return "Coptic script", "Coptic script detected; language is not inferred."
     alphanumeric = [c for c in text if c.isalnum()]
     if alphanumeric and all(
@@ -282,8 +353,36 @@ def transliterate(text: str, source: str, target: str) -> Conversion:
         preserved_marks = False
         preserved_punctuation = False
         supralinear_stroke_seen = False
+        digraph_reading_seen = False
         previous_source_char = None
-        for char in text:
+        index = 0
+        while index < len(text):
+            pair = text[index : index + 2]
+            can_read_digraph = (
+                pair.casefold() in OLD_NUBIAN_FORWARD_DIGRAPHS
+                and previous_source_char != OLD_NUBIAN_SUPRALINEAR_STROKE
+                and (
+                    index + 2 == len(text)
+                    or text[index + 2] != OLD_NUBIAN_SUPRALINEAR_STROKE
+                )
+            )
+            if can_read_digraph:
+                first, second = pair
+                primary_reading = (
+                    OLD_NUBIAN_CASED_TO_LATIN[first] + OLD_NUBIAN_CASED_TO_LATIN[second]
+                )
+                alternatives = tuple(
+                    _match_case(pair, reading)
+                    for reading in OLD_NUBIAN_FORWARD_DIGRAPHS[pair.casefold()]
+                )
+                output.append(primary_reading)
+                readings.append((primary_reading, *alternatives))
+                previous_source_char = second
+                digraph_reading_seen = True
+                index += 2
+                continue
+
+            char = text[index]
             if char in OLD_NUBIAN_CASED_TO_LATIN:
                 reading = OLD_NUBIAN_CASED_TO_LATIN[char]
                 output.append(reading)
@@ -317,12 +416,13 @@ def transliterate(text: str, source: str, target: str) -> Conversion:
                 output.append(char)
                 readings.append((char,))
                 preserved_marks |= unicodedata.category(char).startswith("M")
-                if char.isalpha() and 0x2C80 <= ord(char) <= 0x2CFF:
+                if char.isalpha() and _is_coptic_character(char):
                     warnings.append(f"No verified table entry for {char}; preserved.")
                 elif 0x2C80 <= ord(char) <= 0x2CFF:
                     category = unicodedata.category(char)
                     preserved_punctuation |= category.startswith("P")
             previous_source_char = char
+            index += 1
         if preserved_marks:
             warnings.append(
                 "Other combining marks are preserved; their reading and placement with Latin are not interpreted."
@@ -333,14 +433,16 @@ def transliterate(text: str, source: str, target: str) -> Conversion:
             warnings.append(
                 "Supralinear stroke may be read as i in another scholarly convention; see alternatives."
             )
+        if digraph_reading_seen:
+            warnings.append(
+                "Old Nubian digraphs have multiple published phonetic readings; see alternatives."
+            )
         primary = "".join(output)
-        candidates = tuple(
-            "".join(reading) for reading in islice(product(*readings), 13)
-        )
+        candidates, alternatives_truncated = _bounded_reading_candidates(readings)
         alternatives = tuple(
             candidate for candidate in candidates if candidate != primary
         )[:12]
-        if len(candidates) > 12:
+        if alternatives_truncated:
             warnings.append(
                 "Only some alternative readings are shown; other combinations may exist."
             )
@@ -348,6 +450,7 @@ def transliterate(text: str, source: str, target: str) -> Conversion:
             warnings.append("Other scholarly readings are available; see alternatives.")
         return Conversion(primary, tuple(warnings), alternatives)
     if (source, target) == ("Old Nubian scholarly Latin", "Old Nubian (Coptic)"):
+        text = unicodedata.normalize("NFC", text)
         output = []
         index = 0
         matched_tokens = []
@@ -368,7 +471,7 @@ def transliterate(text: str, source: str, target: str) -> Conversion:
                 index += len(token)
                 continue
             output.append(text[index])
-            if text[index].isalpha():
+            if text[index].isalpha() and "LATIN" in unicodedata.name(text[index], ""):
                 unmapped_letters.append(text[index])
             index += 1
         primary = "".join(output)

@@ -12,11 +12,13 @@ The Unicode Standard describes Osmanya as having 22 consonants and 8 vowels, and
 
 ## Borama
 
-The current chart-derived table contains these graphemes:
+The current table maps all 27 letter labels shown in the bundled Borama chart:
 
-`a, e, i, ii, u, uu, oo, b, t, j, dh, g, h, kh, d, r, s, sh, c, f, o, k, l, m, n, w, y`
+`a, e, i, ii, u, uu, oo, b, t, j, dh, g, h, kh, d, r, s, sh, c, f, q, k, l, m, n, w, y`
 
-The chart explicitly lists `q` as unsupported. The current records also have no `x` entry. `p`, `v` and `z` likewise have no mapping in this table. Any of these characters stay Latin in converted output. The app's glyphs use private-use code points: they need Saylacian's matching font/table, or use **Copy Latin** / **Copy image** when sharing outside the app. This is a partial chart transcription; do not infer a complete Borama alphabet or reviewed spelling from it.
+The chart has seven vowel labels and twenty consonant labels, including `q`. A previous record misread the chart's `LETTER Q` row as `o`; Saylacian now maps that chart glyph to `q`.
+
+Saylacian also applies three source-cited aliases to existing glyphs: `aa` uses the `a` sign, `ee` uses the `e` sign, and `o` uses the `u` sign. Mauro Tosco's discussion of Lewis's Gadabuursi chart reports that vowel length is not distinguished for `/a/` and `/aa/` or `/e/` and `/ee/`, and that short `/o/` and `/u/` share a sign ([2015 proceedings, discussion of Table 16](https://www.maurotosco.net/ewExternalFiles/TOSCO_2015_Somali_Previous_Scripts.pdf)). These are aliases to the existing chart glyphs, not extra glyphs. When reading the glyph back, Saylacian uses the chart label as the main reading and shows the alias as an alternative; the original vowel distinction cannot be recovered. `x`, `p`, `v` and `z` remain unmapped and stay Latin. The app's glyphs use private-use code points: they need Saylacian's matching font/table, or use **Copy Latin** / **Copy image** when sharing outside the app. The [Writing Systems Technical Resources Borama page](https://writingsystems.info/scrlang/scripts/x-borama/) also describes the script inventory as twenty consonants and seven vowels. A chart label does not establish word-level spelling.
 
 ## Kaddare
 
@@ -28,7 +30,7 @@ The current chart-derived table contains:
 
 ## Old Nubian
 
-Old Nubian is different: Saylacian has a 34-entry character-to-scholarly-reading table, not a complete A-to-Z alphabet conversion or meaning translator. The current source pairs are:
+Old Nubian is different: Saylacian has a limited 29-entry character-to-scholarly-reading table, not a meaning translator. The letter reference also shows the published phonetic values. The source pairs are:
 
 | Old Nubian/Coptic-derived character | App's Latin reading |
 |---|---|
@@ -53,23 +55,20 @@ Old Nubian is different: Saylacian has a 34-entry character-to-scholarly-reading
 | `ⲧ` | `t` |
 | `ⲩ` | `u` |
 | `ⲫ` | `ph` |
-| `ⲭ` | `ch` |
+| `ⲭ` | `kh` |
 | `ⲯ` | `ps` |
 | `ⲱ` | `ō` |
-| `ϣ` | `sh` |
-| `ϥ` | `f` |
-| `ϩ` | `h` |
-| `ϫ` | `dj` |
-| `ϭ` | `ky` |
-| `ϯ` | `ti` |
-| `ⳟ` | `ng` |
-| `ⳡ` | `ny` |
-| `ⳣ` | `w` |
+| `ϣ` | `š` |
 | `ⳝ` | `j` |
+| `ⳟ` | `ŋ` |
+| `ⳡ` | `ñ` |
+| `ⳣ` | `w` |
 
-The DBMNT table gives `ⳣ` two Latin readings, `w` and `ou`; Saylacian shows `w` as the main reading and `ou` as an alternative. This does not mean a modern Latin alphabet maps directly to Old Nubian. For example, `c` is not a standalone table entry, while `ch` is the reading assigned to `ⲭ`. Latin-to-script sequences can still be ambiguous where multiple table entries line up; alternatives do not establish the original spelling. Latin letters absent from the table, such as `v`, are kept as Latin and flagged; they are not guessed. Source reuse permission and specialist review remain unresolved; see the [Old Nubian scope](OLD_NUBIAN_SCOPE.md).
+This table and its phonetic-value column are adapted from van Gerven Oei's peer-reviewed 2024 [Old Nubian overview](https://doi.org/10.5070/G9.3919), Table 1, under CC BY 4.0; attribution is in [third-party notices](../THIRD_PARTY_NOTICES.md). Its digraphs `ⲉⲓ` and `ⲟⲩ` have several published phonetic values (`i`, `iː`, `j`; `u`, `uː`, `w`, `wu`), shown by Saylacian as alternatives to the direct character-by-character readings (`ei`, `ou`). Latin `ou` may be read back as `ⲟⲩ` or `ⳣ`; the app lists both. This is not meaning translation, complete manuscript reading or a modern Latin alphabet. Letters absent from this 29-entry table are preserved and flagged. Specialist review is still needed.
 
-For the combining macron used as a supralinear stroke, Saylacian keeps the mark in its main reading and also offers an `i`-based alternative. For example, `ⲧⲗ̄ⲗⲛ̄` is shown as `tl̄ln̄`, with `tillin` among the alternatives. This reflects one published scholarly convention; editions differ in how they represent and interpret the stroke, so the alternative is not a universal reading. Other combining marks, including a dot above, remain in the text with a warning rather than being guessed. Alternative lists are capped at 12. See [The Old Nubian Language, “Script: Reconstruction of the Phonological System”](https://books.punctumbooks.com/10.21983/P3.0180.1.00.pdf) and the [DBMNT transliteration table](https://dbmnt.uw.edu.pl/static/pdf/transliteration_tables.pdf).
+For the combining macron used as a supralinear stroke, Saylacian keeps the mark in its main reading and also offers an `i`-based alternative. For example, `ⲧⲗ̄ⲗⲛ̄` is shown as `tl̄ln̄`, with `tillin` among the alternatives. This reflects the 2024 overview; editions differ in how they represent and interpret the stroke, so the alternative is not universal. Other combining marks, including a dot above, remain in the text with a warning rather than being guessed. Alternative lists are capped at 12. See the [Old Nubian overview](https://doi.org/10.5070/G9.3919).
+
+The 2024 peer-reviewed overview's phonetic table gives `ⲏ` possible values `[i, i:]` and `ⲩ` `[i, u]`. Saylacian keeps its existing main readings (`ē`, `u`) and includes `i`/`iː` and `i` as alternatives. These are reading possibilities, not one-to-one spelling rules. See the [Old Nubian scope and sources](OLD_NUBIAN_SCOPE.md).
 
 ## Sharing and limits
 
@@ -81,4 +80,4 @@ Osmanya uses Unicode, although recipient font coverage can vary. Current Borama 
 - Borama and Kaddare: `saylacian/core/data/scripts/borama.json` and `kaddare.json`.
 - Old Nubian: `OLD_NUBIAN_TO_LATIN` in `saylacian/core/transliteration.py`.
 
-The script-table inventory documents current application behavior, not a community-approved standard. See [Old Nubian scope](OLD_NUBIAN_SCOPE.md) for its review and rights limitations.
+The script-table inventory documents current application behavior, not a community-approved standard. See [Old Nubian scope](OLD_NUBIAN_SCOPE.md) for specialist-review limits.

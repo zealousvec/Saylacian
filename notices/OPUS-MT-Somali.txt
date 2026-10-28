@@ -7,4 +7,4 @@ The local English-to-Somali and Somali-to-English CTranslate2 model files are fr
 
 Both model cards declare Apache-2.0 and identify Helsinki-NLP OPUS-MT and CTranslate2 as upstream work. The complete Apache License 2.0 text is included as Apache-2.0.txt. File hashes are in docs/SOMALI_TRANSLATION_EVIDENCE.json; aggregate test results are in docs/SOMALI_TRANSLATION_QUALITY.md. The weights are unchanged; the English-to-multilingual CTranslate2 config sets layer_norm_epsilon to 1e-5 because the upstream null value is rejected by the installed runtime.
 
-The models are experimental; their presence does not imply Somali translation quality has received fluent community review.
+The models have not received fluent community review; their presence does not establish Somali translation quality.

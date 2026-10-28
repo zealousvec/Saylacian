@@ -27,7 +27,7 @@ Use the left dropdown for the source and the right dropdown for the target. `[x]
 
 For Old Nubian, choose **Old Nubian** and **Latin reading**, then use **Read** to open the reading reference. Where the cited table lists another Latin reading for a character, it appears below the main reading. For long ambiguous text, Saylacian may show only some alternatives and will say when the list is incomplete. In Latin-to-script conversion, letters absent from the table stay Latin and are flagged. This is limited character transliteration, not translation or a complete reading of every manuscript convention. Modern Nubian varieties are not implemented. See [Old Nubian scope](OLD_NUBIAN_SCOPE.md).
 
-For Borama or Kaddare, choose a script route to convert chart-mapped letters. The mappings do not cover every letter or validate spelling and word-level use. Capitalization is lost. Letters without a chart mapping stay in Latin and are reported; the Borama chart has no `q` entry. See [script interoperability](SOMALI_SCRIPT_INTEROPERABILITY.md).
+For Borama or Kaddare, choose a script route to convert chart-mapped letters. The mappings do not validate spelling or word-level use. Capitalization is lost. Letters without a chart mapping stay in Latin and are reported. See [script interoperability](SOMALI_SCRIPT_INTEROPERABILITY.md).
 
 For a side-by-side explanation of mapped and unmatched letters in Osmanya, Borama, Kaddare and Old Nubian, see [letter mappings and unmatched letters](SCRIPT_LETTER_GUIDE.md).
 

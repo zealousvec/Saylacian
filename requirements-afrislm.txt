@@ -1,0 +1,4 @@
+# Optional CPU runtime for the AfriSLM Somali/English model pack.
+# Install in the same environment as Saylacian after installing the model pack.
+--extra-index-url https://abetlen.github.io/llama-cpp-python/whl/cpu
+llama-cpp-python==0.3.36

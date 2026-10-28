@@ -14,11 +14,44 @@ from saylacian.core.transliteration import (
     transliterate,
 )
 
-CONVENTION = "DBMNT transliteration table, page 1"
-SOURCE_URL = "https://dbmnt.uw.edu.pl/static/pdf/transliteration_tables.pdf"
+CONVENTION = "van Gerven Oei 2024, Old Nubian alphabet, Table 1"
+SOURCE_URL = "https://doi.org/10.5070/G9.3919"
+LEGACY_CONVENTION = "DBMNT transliteration table, page 1"
+LEGACY_SOURCE_URL = "https://dbmnt.uw.edu.pl/static/pdf/transliteration_tables.pdf"
 FORMAT = "saylacian-old-nubian-reading"
-FORMAT_VERSION = 1
+FORMAT_VERSION = 2
 MAX_RECORD_BYTES = 128_000
+PHONETIC_VALUES = {
+    "ⲁ": ("a", "aː"),
+    "ⲃ": ("b", "w"),
+    "ⲅ": ("g",),
+    "ⲇ": ("d", "r"),
+    "ⲉ": ("e", "eː"),
+    "ⲍ": ("s",),
+    "ⲏ": ("i", "iː"),
+    "ⲑ": ("t",),
+    "ⲓ": ("i", "iː"),
+    "ⲕ": ("k", "g"),
+    "ⲗ": ("l",),
+    "ⲙ": ("m",),
+    "ⲛ": ("n",),
+    "ⲝ": ("(k)s",),
+    "ⲟ": ("o", "oː"),
+    "ⲡ": ("b",),
+    "ⲣ": ("r",),
+    "ⲥ": ("s",),
+    "ⲧ": ("t",),
+    "ⲩ": ("i", "u"),
+    "ⲫ": ("b", "f"),
+    "ⲭ": ("k", "g", "h"),
+    "ⲯ": ("(p)s",),
+    "ⲱ": ("o", "oː"),
+    "ϣ": ("ʃ",),
+    "ⳝ": ("ɟ",),
+    "ⳟ": ("ŋ",),
+    "ⳡ": ("ɲ",),
+    "ⳣ": ("w",),
+}
 
 
 @dataclass(frozen=True)
@@ -49,11 +82,14 @@ def alphabet_entries(query: str = "") -> tuple[dict[str, object], ...]:
             "name": name,
             "convention": CONVENTION,
             "source_url": SOURCE_URL,
-            "confidence": "Listed in cited table; not independently reviewed",
+            "confidence": "Listed in peer-reviewed CC BY 4.0 table; needs specialist review",
             "ambiguous": reverse_ambiguous,
             "alternative_readings": OLD_NUBIAN_FORWARD_VARIANTS.get(glyph, ()),
+            "phonetic_values": PHONETIC_VALUES[glyph],
         }
-        searchable = f"{glyph} {reading} {codepoint} {name}".casefold()
+        searchable = (
+            f"{glyph} {reading} {' '.join(PHONETIC_VALUES[glyph])} {codepoint} {name}"
+        ).casefold()
         if not needle or needle in searchable:
             rows.append(row)
     return tuple(rows)
@@ -156,7 +192,7 @@ def import_reading_record(payload: str) -> ReadingRecord:
     }
     if not isinstance(envelope, dict) or set(envelope) != required:
         raise ValueError("Reading record fields are not recognized.")
-    if envelope["format"] != FORMAT or envelope["version"] != FORMAT_VERSION:
+    if envelope["format"] != FORMAT or envelope["version"] not in {1, FORMAT_VERSION}:
         raise ValueError("Reading record format is not supported.")
     body = {key: envelope[key] for key in required - {"sha256"}}
     canonical = json.dumps(
@@ -169,13 +205,40 @@ def import_reading_record(payload: str) -> ReadingRecord:
         raise ValueError("Reading record checksum does not match.")
     if not isinstance(body["original"], str) or not isinstance(body["latin"], str):
         raise TypeError("Reading record text fields must be strings.")
-    if body["convention"] != CONVENTION or body["source_url"] != SOURCE_URL:
+    legacy_record = (
+        envelope["version"] == 1
+        and body["convention"] == LEGACY_CONVENTION
+        and body["source_url"] == LEGACY_SOURCE_URL
+    )
+    current_record = (
+        envelope["version"] == FORMAT_VERSION
+        and body["convention"] == CONVENTION
+        and body["source_url"] == SOURCE_URL
+    )
+    if not (legacy_record or current_record):
         raise ValueError("Reading record uses an unrecognized convention or source.")
     if not isinstance(body["warnings"], list) or not all(
         isinstance(warning, str) for warning in body["warnings"]
     ):
         raise ValueError("Reading record warnings are invalid.")
     record = make_reading_record(body["original"])
+    if legacy_record:
+        return ReadingRecord(
+            original=record.original,
+            latin=record.latin,
+            lines=record.lines,
+            warnings=tuple(
+                dict.fromkeys(
+                    (
+                        *record.warnings,
+                        "Reading updated to the current cited table; the earlier Latin reading was replaced.",
+                    )
+                )
+            ),
+            alternatives=record.alternatives,
+            convention=record.convention,
+            source_url=record.source_url,
+        )
     if record.latin != body["latin"] or list(record.warnings) != body["warnings"]:
         raise ValueError("Reading record Latin text does not match its original.")
     return record

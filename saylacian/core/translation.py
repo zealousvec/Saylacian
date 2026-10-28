@@ -8,6 +8,9 @@ from collections import Counter
 from functools import lru_cache
 from pathlib import Path
 
+from .afrislm import clear_model_cache as clear_afrislm_cache
+from .afrislm import should_use_large_model as should_use_large_afrislm
+from .afrislm import translate as translate_afrislm
 from .capabilities import get_capability
 from .online_translation import (
     SERVICE_URL_ENV,
@@ -18,10 +21,23 @@ from .online_translation import (
 from .transliteration import Conversion
 
 LANGUAGE_CODES = {"English": "en", "French": "fr", "Somali Latin": "so"}
+LINE_SEPARATORS = re.compile(r"(\r\n|[\r\n\u2028\u2029])")
 MODEL_ROOT = Path(__file__).resolve().parents[2] / "models"
 MULTILINGUAL_PAIRS = {"en_so", "so_en"}
-MODEL_CACHE_SIZE = 3
 SOMALI_NO_REPEAT_NGRAM_SIZE = 3
+MULTILINE_BATCH_SIZE = 16
+MULTILINE_WARNING = "Line breaks were preserved; each line was translated separately, so context may change."
+
+
+def _inference_profile(cpu_count=None):
+    """Return a small CPU and model-cache profile for low-resource devices."""
+    cpu_count = cpu_count or os.cpu_count() or 1
+    if cpu_count <= 4:
+        return 1, 2, 2
+    return 2, 4, 3
+
+
+INFERENCE_THREADS, INFERENCE_BEAM_SIZE, MODEL_CACHE_SIZE = _inference_profile()
 
 PIVOT_ROUTES = {
     ("Somali Latin", "French"): "English",
@@ -220,14 +236,20 @@ def load_model(folder):
             model_file=str(folder / "target.spm")
         )
         engine = ctranslate2.Translator(
-            str(folder), device="cpu", compute_type="int8", intra_threads=2
+            str(folder),
+            device="cpu",
+            compute_type="int8",
+            intra_threads=INFERENCE_THREADS,
         )
         return (source_tokenizer, target_tokenizer), engine
     tokenizer = sentencepiece.SentencePieceProcessor(
         model_file=str(folder / "sentencepiece.model")
     )
     engine = ctranslate2.Translator(
-        str(folder / "model"), device="cpu", compute_type="int8", intra_threads=2
+        str(folder / "model"),
+        device="cpu",
+        compute_type="int8",
+        intra_threads=INFERENCE_THREADS,
     )
     return tokenizer, engine
 
@@ -235,6 +257,65 @@ def load_model(folder):
 def clear_model_cache():
     """Release cached model engines after pack removal or memory recovery."""
     load_model.cache_clear()
+    clear_afrislm_cache()
+
+
+def _translate_offline_multiline(text, source, target, model_root):
+    """Batch independent French/English lines without changing their order."""
+    parts = LINE_SEPARATORS.split(text)
+    records = []
+    for index in range(0, len(parts), 2):
+        line = parts[index]
+        if not line.strip():
+            continue
+        leading = line[: len(line) - len(line.lstrip(" \t"))]
+        trailing = line[len(line.rstrip(" \t")) :]
+        content_end = len(line) - len(trailing) if trailing else len(line)
+        records.append((index, leading, trailing, line[len(leading) : content_end]))
+
+    if not records:
+        return Conversion(text, (MULTILINE_WARNING,))
+
+    folder = model_directory(source, target, model_root)
+    tokenizer, engine = load_model(str(folder))
+    encoded_lines = [
+        tokenizer.encode(content, out_type=str)
+        for _index, _leading, _trailing, content in records
+    ]
+    if any(len(tokens) > MAX_MODEL_INPUT_TOKENS for tokens in encoded_lines):
+        return None
+
+    translated_lines = []
+    for start in range(0, len(encoded_lines), MULTILINE_BATCH_SIZE):
+        token_batch = encoded_lines[start : start + MULTILINE_BATCH_SIZE]
+        try:
+            results = engine.translate_batch(
+                token_batch,
+                max_input_length=0,
+                max_decoding_length=512,
+            )
+        except (MemoryError, RuntimeError):
+            return None
+        if len(results) != len(token_batch):
+            return None
+        translated_lines.extend(
+            tokenizer.decode(result.hypotheses[0]) for result in results
+        )
+
+    translated_by_index = {
+        index: leading + translated + trailing
+        for (index, leading, trailing, _content), translated in zip(
+            records, translated_lines, strict=True
+        )
+    }
+    output = []
+    for index, part in enumerate(parts):
+        output.append(translated_by_index.get(index, part))
+
+    return Conversion(
+        "".join(output),
+        ("Machine translation; check important details.", MULTILINE_WARNING),
+    )
 
 
 def translate_meaning(text, source, target, model_root=None, *, provider_override=None):
@@ -245,6 +326,40 @@ def translate_meaning(text, source, target, model_root=None, *, provider_overrid
     if len(text) > 4000:
         raise ValueError("Maximum 4,000 characters.")
     provider = provider_override or selected_provider()
+    if LINE_SEPARATORS.search(text):
+        if provider == "offline" and (source, target) in {
+            ("English", "French"),
+            ("French", "English"),
+        }:
+            batched = _translate_offline_multiline(text, source, target, model_root)
+            if batched is not None:
+                return batched
+
+        parts = LINE_SEPARATORS.split(text)
+        translated_parts = []
+        warnings = []
+        for index in range(0, len(parts), 2):
+            line = parts[index]
+            if line.strip():
+                leading = line[: len(line) - len(line.lstrip(" \t"))]
+                trailing = line[len(line.rstrip(" \t")) :]
+                content_end = len(line) - len(trailing) if trailing else len(line)
+                content = line[len(leading) : content_end]
+                result = translate_meaning(
+                    content,
+                    source,
+                    target,
+                    model_root,
+                    provider_override=provider,
+                )
+                translated_parts.extend((leading, result.text, trailing))
+                warnings.extend(result.warnings)
+            else:
+                translated_parts.append(line)
+            if index + 1 < len(parts):
+                translated_parts.append(parts[index + 1])
+        warnings.append(MULTILINE_WARNING)
+        return Conversion("".join(translated_parts), tuple(dict.fromkeys(warnings)))
     if provider in {"auto", "selfhosted", "cloudflare"}:
         failures = []
         candidates = []
@@ -298,6 +413,43 @@ def translate_meaning(text, source, target, model_root=None, *, provider_overrid
     folder = model_directory(source, target, model_root)
     candidate_fallback = False
     candidate_fallback_reason = None
+    afrislm_folder = next(
+        (
+            root / "somali" / "en_so_afrislm"
+            for root in _model_roots(model_root)
+            if (root / "somali" / "en_so_afrislm" / "model.gguf").is_file()
+        ),
+        None,
+    )
+    if afrislm_folder is not None and (source, target) in {
+        ("English", "Somali Latin"),
+        ("Somali Latin", "English"),
+    }:
+        if not should_use_large_afrislm():
+            candidate_fallback = True
+            candidate_fallback_reason = "AfriSLM was skipped on this low-core device; a smaller Somali model was used."
+        else:
+            try:
+                candidate_text = translate_afrislm(text, source, target, afrislm_folder)
+            except (OSError, RuntimeError, TypeError, ValueError):
+                candidate_fallback = True
+                candidate_fallback_reason = "AfriSLM could not handle this request; another installed Somali model was used."
+            else:
+                rejection_reason = _synthetic_candidate_rejection_reason(
+                    text, candidate_text
+                )
+                if rejection_reason is None:
+                    return Conversion(
+                        candidate_text,
+                        (
+                            "Somali translation may be inaccurate; check important details.",
+                        ),
+                    )
+                candidate_fallback = True
+                candidate_fallback_reason = (
+                    "AfriSLM output was flagged as incomplete or repetitive; "
+                    "another installed Somali model was used."
+                )
     if (source, target) == ("English", "Somali Latin"):
         candidate = next(
             (
@@ -308,69 +460,86 @@ def translate_meaning(text, source, target, model_root=None, *, provider_overrid
             None,
         )
         if candidate is not None:
-            candidate_tokenizer, candidate_engine = load_model(str(candidate))
-            candidate_source, candidate_target = candidate_tokenizer
-            candidate_tokens = candidate_source.encode(text, out_type=str)
-            if len(candidate_tokens) > MAX_MODEL_INPUT_TOKENS:
-                baseline_tokenizers, _baseline_engine = load_model(str(folder))
-                baseline_source = (
-                    baseline_tokenizers[0]
-                    if isinstance(baseline_tokenizers, tuple)
-                    else baseline_tokenizers
-                )
-                return _translate_long_input(
-                    text,
-                    source,
-                    target,
-                    model_root,
-                    (candidate_source, baseline_source),
-                    token_overheads=(0, 2),
-                )
-            candidate_result = candidate_engine.translate_batch(
-                [candidate_tokens],
-                beam_size=4,
-                no_repeat_ngram_size=SOMALI_NO_REPEAT_NGRAM_SIZE,
-                max_input_length=0,
-                max_decoding_length=512,
-            )[0]
-            candidate_text = candidate_target.decode(candidate_result.hypotheses[0])
-            rejection_reason = _synthetic_candidate_rejection_reason(
-                text, candidate_text
-            )
-            if rejection_reason is not None:
+            try:
+                candidate_tokenizer, candidate_engine = load_model(str(candidate))
+                candidate_source, candidate_target = candidate_tokenizer
+                candidate_tokens = candidate_source.encode(text, out_type=str)
+                if len(candidate_tokens) <= MAX_MODEL_INPUT_TOKENS:
+                    candidate_result = candidate_engine.translate_batch(
+                        [candidate_tokens],
+                        beam_size=INFERENCE_BEAM_SIZE,
+                        no_repeat_ngram_size=SOMALI_NO_REPEAT_NGRAM_SIZE,
+                        max_input_length=0,
+                        max_decoding_length=512,
+                    )[0]
+                    candidate_text = candidate_target.decode(
+                        candidate_result.hypotheses[0]
+                    )
+            except (IndexError, OSError, RuntimeError, TypeError, ValueError):
                 candidate_fallback = True
-                candidate_fallback_reason = {
-                    "unknown_symbol": (
-                        "The first result contained an unreadable symbol; "
-                        "an alternative was used."
-                    ),
-                    "trailing_ellipsis": (
-                        "The first result appeared unfinished; an alternative was used."
-                    ),
-                    "copied_input": (
-                        "The first result repeated or copied the input; "
-                        "an alternative was used."
-                    ),
-                    "overlong": (
-                        "The first result was unusually long; an alternative was used."
-                    ),
-                    "repeated_content_word": (
-                        "The first result repeated a word several times; "
-                        "an alternative was used."
-                    ),
-                    "duplicate_sentence": (
-                        "The first result repeated a sentence; an alternative was used."
-                    ),
-                    "repeated_fragment": (
-                        "The first result repeated an incomplete word; "
-                        "an alternative was used."
-                    ),
-                }[rejection_reason]
-            else:
-                return Conversion(
-                    candidate_text,
-                    ("Somali translation may be inaccurate; check important details.",),
+                candidate_fallback_reason = (
+                    "Optional Somali model could not run; the standard model was used."
                 )
+            else:
+                if len(candidate_tokens) > MAX_MODEL_INPUT_TOKENS:
+                    baseline_tokenizers, _baseline_engine = load_model(str(folder))
+                    baseline_source = (
+                        baseline_tokenizers[0]
+                        if isinstance(baseline_tokenizers, tuple)
+                        else baseline_tokenizers
+                    )
+                    return _translate_long_input(
+                        text,
+                        source,
+                        target,
+                        model_root,
+                        (candidate_source, baseline_source),
+                        token_overheads=(0, 2),
+                    )
+                rejection_reason = _synthetic_candidate_rejection_reason(
+                    text, candidate_text
+                )
+                if rejection_reason is not None:
+                    candidate_fallback = True
+                    candidate_fallback_reason = {
+                        "unknown_symbol": (
+                            "The first result contained an unreadable symbol; "
+                            "an alternative was used."
+                        ),
+                        "trailing_ellipsis": (
+                            "The first result appeared unfinished; an alternative was used."
+                        ),
+                        "copied_input": (
+                            "The first result repeated or copied the input; "
+                            "an alternative was used."
+                        ),
+                        "overlong": (
+                            "The first result was unusually long; an alternative was used."
+                        ),
+                        "repeated_content_word": (
+                            "The first result repeated a word several times; "
+                            "an alternative was used."
+                        ),
+                        "duplicate_sentence": (
+                            "The first result repeated a sentence; an alternative was used."
+                        ),
+                        "repeated_fragment": (
+                            "The first result repeated an incomplete word; "
+                            "an alternative was used."
+                        ),
+                    }[rejection_reason]
+                else:
+                    return Conversion(
+                        candidate_text,
+                        tuple(
+                            warning
+                            for warning in (
+                                candidate_fallback_reason,
+                                "Somali translation may be inaccurate; check important details.",
+                            )
+                            if warning
+                        ),
+                    )
     tokenizer, engine = load_model(str(folder))
     if folder.name in MULTILINGUAL_PAIRS:
         source_tokenizer, target_tokenizer = tokenizer
@@ -391,7 +560,7 @@ def translate_meaning(text, source, target, model_root=None, *, provider_overrid
             )
         result = engine.translate_batch(
             [tokens],
-            beam_size=4,
+            beam_size=INFERENCE_BEAM_SIZE,
             no_repeat_ngram_size=SOMALI_NO_REPEAT_NGRAM_SIZE,
             max_input_length=0,
             max_decoding_length=512,

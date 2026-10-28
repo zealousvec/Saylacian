@@ -1,10 +1,12 @@
 # Saylacian
 
-Saylacian is a Python and Kivy app for translating text and converting it between Somali and selected writing systems. It runs on Windows and can translate offline after you install the language packs you need.
+Saylacian is a Python and Kivy desktop app for translating text and converting it between Somali and selected writing systems. It runs on Windows. Translation can run locally after you install the language packs you need.
 
-## Get started on Windows
+![Saylacian desktop interface](assets/screenshots/saylacian-desktop.png)
 
-Install 64-bit Python 3.12, open this folder in PowerShell, then run:
+## Run on Windows
+
+Install 64-bit Python 3.12, open the project folder in PowerShell, and run:
 
 ```powershell
 py -3.12 -m venv .venv
@@ -12,26 +14,30 @@ py -3.12 -m venv .venv
 .\.venv\Scripts\python.exe main.py
 ```
 
-You do not need to activate the virtual environment. The app asks before downloading language packs. See [Offline language packs](docs/OFFLINE_PACKS.md) for download sizes and storage details.
+The app asks before downloading a pack. See [Offline packs](docs/OFFLINE_PACKS.md) for sizes, storage and model details.
 
-## What you can do
+## What it supports
 
-- Translate between English and French offline after installing the French/English pack.
-- Translate English and Somali with the Somali/English pack. Somali quality has not been reviewed by fluent speakers; check important translations before relying on them.
-- Try an optional English-to-Somali model pack. Saylacian checks its output and uses the standard Somali pack when the result appears incomplete or repetitive. This add-on takes more time and has separate CC BY 4.0 terms.
-- Identify English, French or Somali in longer Latin text. Short text may need a manual language choice.
-- Convert Somali Latin text to and from Osmanya.
-- Convert chart-mapped Somali letters to Borama or Kaddare. The mappings do not cover every letter or validate spelling; editable script text needs a compatible Saylacian font.
-- Read selected Old Nubian letters using a published character table. This is transliteration, not translation, and does not cover every manuscript convention.
+- English ↔ French translation offline.
+- English ↔ Somali translation with local packs. Somali output has not had fluent-speaker review, so treat it as experimental and check important translations.
+- Optional local Somali translation models. They need extra downloads and may take longer to run; details and evaluation limits are in [Translation quality](docs/TRANSLATION_QUALITY.md).
+- English, French and Somali language detection for longer Latin text. Short or mixed text may need a manual choice.
+- Somali Latin ↔ Osmanya conversion.
+- Partial, chart-based Somali Latin ↔ Borama and Kaddare conversion. These tables cover selected letters, not complete spelling rules. Borama and Kaddare text uses private-use characters and needs Saylacian's matching font to display as editable script.
+- Limited Old Nubian character transliteration. This is not translation or complete manuscript reading. Modern Nubian varieties are not supported.
 
-Modern Nubian varieties are not supported. See the [support matrix](docs/SUPPORT_MATRIX.md) for available routes and their limits, and the [script letter guide](docs/SCRIPT_LETTER_GUIDE.md) for mapped and unmatched letters.
+## Help and project details
 
-## Help and version history
+- [User guide](docs/USER_GUIDE.md): choose routes and copy Borama or Kaddare text.
+- [Supported routes](docs/SUPPORT_MATRIX.md): what works and where coverage stops.
+- [Script letter guide](docs/SCRIPT_LETTER_GUIDE.md): mapped letters and ambiguities.
+- [Sharing Borama and Kaddare](docs/SOMALI_SCRIPT_INTEROPERABILITY.md): what each copy option preserves.
+- [Optional online translation](docs/ONLINE_TRANSLATION.md): provider setup and privacy.
+- [Version history](CHANGELOG.md): changes in the current source snapshot.
+- [Third-party notices](THIRD_PARTY_NOTICES.md): separate licences for fonts, models and other assets.
 
-The [user guide](docs/USER_GUIDE.md) explains language selection and copy options. [Sharing Borama and Kaddare](docs/SOMALI_SCRIPT_INTEROPERABILITY.md) explains why copied script may look different in other apps. Translation uses installed local packs by default. Optional online services send text to the selected provider; check that provider's privacy terms and any limits or costs.
-
-The [version history](CHANGELOG.md) describes changes and what they mean for app users. This source repository has not yet had a numbered app release.
+This is an experimental source snapshot, not a numbered app release. Android and iOS builds have not been tested. See [release status](docs/RELEASE_READINESS.md).
 
 ## Licence
 
-Original Saylacian code is offered under [GNU AGPL-3.0-or-later](LICENSE). Fonts, chart images and model packs have separate licences; see [third-party notices](THIRD_PARTY_NOTICES.md). Windows is the only platform checked so far; Android and iOS builds have not been tested.
+Original Saylacian code is licensed under [GNU AGPL-3.0-or-later](LICENSE). Third-party fonts, charts and model packs retain their own licences, listed in [third-party notices](THIRD_PARTY_NOTICES.md).

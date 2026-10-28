@@ -1,6 +1,14 @@
+import hashlib
+import json
 import unittest
 
 from saylacian.core.old_nubian_reader import (
+    CONVENTION,
+    FORMAT,
+    LEGACY_CONVENTION,
+    LEGACY_SOURCE_URL,
+    PHONETIC_VALUES,
+    SOURCE_URL,
     alphabet_entries,
     describe_combining_marks,
     export_reading_record,
@@ -11,6 +19,7 @@ from saylacian.core.transliteration import (
     OLD_NUBIAN_TO_LATIN,
     SCRIPT_DATA,
     SOMALI_TO_OSMANYA,
+    detect_script,
     transliterate,
 )
 
@@ -61,6 +70,78 @@ class TransliterationTests(unittest.TestCase):
                     reading = transliterate(glyph, script, "Somali Latin")
                     self.assertEqual(reading.text, grapheme)
 
+    def test_somali_scripts_preserve_mixed_punctuation_and_whitespace(self):
+        source = "qurux\tbadan, 123!\r\n"
+
+        for script in ("Osmanya", "Borama", "Kaddare"):
+            with self.subTest(script=script):
+                encoded = transliterate(source, "Somali Latin", script)
+                decoded = transliterate(encoded.text, script, "Somali Latin")
+
+                self.assertEqual(decoded.text, source)
+
+    def test_somali_script_case_loss_and_unmapped_letters_are_reported(self):
+        expected_readings = {
+            "Osmanya": "qurux V!",
+            "Borama": "quruX V!",
+            "Kaddare": "qurux V!",
+        }
+
+        for script, expected in expected_readings.items():
+            with self.subTest(script=script):
+                converted = transliterate("QURUX V!", "Somali Latin", script)
+                reading = transliterate(converted.text, script, "Somali Latin")
+
+                self.assertEqual(reading.text, expected)
+                self.assertTrue(
+                    any("Capitalization" in warning for warning in converted.warnings)
+                )
+                self.assertTrue(
+                    any("Unmapped" in warning for warning in converted.warnings)
+                )
+
+    def test_borama_q_uses_the_chart_glyph_and_o_uses_the_shared_u_sign(self):
+        record = next(
+            item for item in SCRIPT_DATA["Borama"]["records"] if item["grapheme"] == "q"
+        )
+        glyph = transliterate("q", "Somali Latin", "Borama").text
+
+        self.assertEqual(record["pua"], f"U+{ord(glyph):04X}")
+        self.assertEqual(transliterate(glyph, "Borama", "Somali Latin").text, "q")
+        result = transliterate("o", "Somali Latin", "Borama")
+        u_glyph = transliterate("u", "Somali Latin", "Borama").text
+        self.assertEqual(result.text, u_glyph)
+        self.assertTrue(any("short o/u" in w for w in result.warnings))
+        reading = transliterate(result.text, "Borama", "Somali Latin")
+        self.assertEqual(reading.text, "u")
+        self.assertIn("o", reading.alternatives)
+
+    def test_borama_vowel_aliases_reuse_chart_glyphs_and_report_reading_loss(self):
+        cases = (("aa", "a"), ("ee", "e"), ("o", "u"))
+
+        for alias, canonical in cases:
+            with self.subTest(alias=alias):
+                alias_glyph = transliterate(alias, "Somali Latin", "Borama")
+                canonical_glyph = transliterate(canonical, "Somali Latin", "Borama")
+
+                self.assertEqual(alias_glyph.text, canonical_glyph.text)
+                self.assertTrue(
+                    any("short o/u" in warning for warning in alias_glyph.warnings)
+                )
+                reading = transliterate(alias_glyph.text, "Borama", "Somali Latin")
+                self.assertEqual(reading.text, canonical)
+                self.assertIn(alias, reading.alternatives)
+
+    def test_borama_ambiguous_vowel_readings_are_bounded_and_local_first(self):
+        glyphs = transliterate("a e u", "Somali Latin", "Borama").text
+        reading = transliterate(glyphs, "Borama", "Somali Latin")
+
+        self.assertEqual(reading.text, "a e u")
+        self.assertIn("aa e u", reading.alternatives)
+        self.assertIn("a ee u", reading.alternatives)
+        self.assertIn("a e o", reading.alternatives)
+        self.assertLessEqual(len(reading.alternatives), 12)
+
     def test_unmapped_private_use_glyphs_are_preserved_and_flagged(self):
         glyphs = "".join(chr(codepoint) for codepoint in (0xE200, 0xF0000, 0x100000))
         for script in ("Borama", "Kaddare"):
@@ -92,6 +173,14 @@ class TransliterationTests(unittest.TestCase):
         self.assertIn("Unmapped letters preserved: p.", result.warnings)
 
     def test_every_old_nubian_table_reading_keeps_its_source_as_an_option(self):
+        self.assertEqual(len(alphabet_entries()), 29)
+        self.assertEqual(set(PHONETIC_VALUES), set(OLD_NUBIAN_TO_LATIN))
+        self.assertEqual(
+            next(item for item in alphabet_entries("ⳟ") if item["glyph"] == "ⳟ")[
+                "phonetic_values"
+            ],
+            ("ŋ",),
+        )
         for character, expected in OLD_NUBIAN_TO_LATIN.items():
             with self.subTest(character=character):
                 reading = transliterate(
@@ -107,23 +196,122 @@ class TransliterationTests(unittest.TestCase):
                 )
                 self.assertIn(character, (reverse.text, *reverse.alternatives))
 
-    def test_old_nubian_w_glyph_shows_both_cited_readings(self):
+    def test_old_nubian_w_glyph_uses_the_open_table_reading(self):
         reading = transliterate(
             "ⳣ", "Old Nubian (Coptic)", "Old Nubian scholarly Latin"
         )
         self.assertEqual(reading.text, "w")
-        self.assertIn("ou", reading.alternatives)
+        self.assertFalse(reading.alternatives)
         entry = next(item for item in alphabet_entries() if item["glyph"] == "ⳣ")
-        self.assertEqual(entry["alternative_readings"], ("ou",))
+        self.assertEqual(entry["alternative_readings"], ())
+        self.assertEqual(entry["phonetic_values"], ("w",))
 
-    def test_old_nubian_keeps_case_spaces_and_punctuation(self):
+    def test_old_nubian_digraphs_show_published_phonetic_readings(self):
+        cases = (
+            ("ⲉⲓ", "ei", ("i", "iː", "j")),
+            ("ⲟⲩ", "ou", ("u", "uː", "w", "wu")),
+        )
+
+        for source, primary, alternatives in cases:
+            with self.subTest(source=source):
+                reading = transliterate(
+                    source,
+                    "Old Nubian (Coptic)",
+                    "Old Nubian scholarly Latin",
+                )
+
+                self.assertEqual(reading.text, primary)
+                for alternative in alternatives:
+                    self.assertIn(alternative, reading.alternatives)
+                self.assertTrue(
+                    any(
+                        "digraphs have multiple published" in warning
+                        for warning in reading.warnings
+                    )
+                )
+
+    def test_old_nubian_digraph_readings_preserve_case_and_context(self):
         reading = transliterate(
-            "Ⲁ ⳣ, Ϯ!",
+            "ⲈⲒⲛ ⲟⲩⲣ",
             "Old Nubian (Coptic)",
             "Old Nubian scholarly Latin",
         )
-        self.assertEqual(reading.text, "A w, TI!")
-        self.assertIn("A ou, TI!", reading.alternatives)
+
+        self.assertEqual(reading.text, "EIn our")
+        self.assertIn("In our", reading.alternatives)
+        self.assertIn("Iːn our", reading.alternatives)
+        self.assertIn("Jn our", reading.alternatives)
+
+    def test_old_nubian_digraph_ending_before_supralinear_stroke_is_not_grouped(self):
+        reading = transliterate(
+            "ⲉⲓ\u0304",
+            "Old Nubian (Coptic)",
+            "Old Nubian scholarly Latin",
+        )
+
+        self.assertEqual(reading.text, "ei\u0304")
+        self.assertFalse(
+            any(
+                "digraphs have multiple published" in warning
+                for warning in reading.warnings
+            )
+        )
+
+    def test_old_nubian_lists_readings_from_a_second_scholarly_table(self):
+        cases = (
+            ("ⲭ", "kh"),
+            ("ϣ", "š"),
+            ("ⳟ", "ŋ"),
+            ("ⳡ", "ñ"),
+        )
+        for glyph, primary in cases:
+            with self.subTest(glyph=glyph):
+                reading = transliterate(
+                    glyph, "Old Nubian (Coptic)", "Old Nubian scholarly Latin"
+                )
+                self.assertEqual(reading.text, primary)
+                self.assertFalse(reading.alternatives)
+                reverse = transliterate(
+                    primary, "Old Nubian scholarly Latin", "Old Nubian (Coptic)"
+                )
+                self.assertEqual(reverse.text, glyph)
+
+    def test_old_nubian_characters_outside_the_open_29_entry_table_are_flagged(self):
+        for glyph in ("ϥ", "ϩ", "ϫ", "ϭ", "ϯ"):
+            with self.subTest(glyph=glyph):
+                reading = transliterate(
+                    glyph, "Old Nubian (Coptic)", "Old Nubian scholarly Latin"
+                )
+                self.assertEqual(reading.text, glyph)
+                self.assertTrue(
+                    any(
+                        "No verified table entry" in warning
+                        for warning in reading.warnings
+                    )
+                )
+                self.assertEqual(detect_script(glyph)[0], "Coptic script")
+
+    def test_old_nubian_vowels_show_published_phonetic_alternatives(self):
+        cases = (
+            ("ⲏ", "ē", ("i", "iː")),
+            ("ⲩ", "u", ("i",)),
+        )
+        for glyph, primary, alternatives in cases:
+            with self.subTest(glyph=glyph):
+                reading = transliterate(
+                    glyph, "Old Nubian (Coptic)", "Old Nubian scholarly Latin"
+                )
+                self.assertEqual(reading.text, primary)
+                for alternative in alternatives:
+                    self.assertIn(alternative, reading.alternatives)
+
+    def test_old_nubian_keeps_case_spaces_and_punctuation(self):
+        reading = transliterate(
+            "Ⲁ ⳣ, ⳝ!",
+            "Old Nubian (Coptic)",
+            "Old Nubian scholarly Latin",
+        )
+        self.assertEqual(reading.text, "A w, j!")
 
     def test_old_nubian_preserves_and_flags_combining_diacritics(self):
         source = "ⲁ\u0301"
@@ -136,7 +324,10 @@ class TransliterationTests(unittest.TestCase):
 
         self.assertEqual(reading.text, "a\u0301")
         self.assertTrue(
-            any("Other combining marks are preserved" in item for item in reading.warnings)
+            any(
+                "Other combining marks are preserved" in item
+                for item in reading.warnings
+            )
         )
 
     def test_old_nubian_supralinear_stroke_offers_i_reading(self):
@@ -203,10 +394,40 @@ class TransliterationTests(unittest.TestCase):
         )
 
     def test_old_nubian_reader_keeps_alternative_after_record_round_trip(self):
-        record = make_reading_record("ⳣ")
-        self.assertIn("ou", record.alternatives)
+        record = make_reading_record("ⲏ")
+        self.assertIn("i", record.alternatives)
         restored = import_reading_record(export_reading_record(record))
-        self.assertIn("ou", restored.alternatives)
+        self.assertIn("i", restored.alternatives)
+
+    def test_legacy_old_nubian_record_imports_with_current_reading(self):
+        body = {
+            "format": FORMAT,
+            "version": 1,
+            "original": "ⳣ",
+            "latin": "ou",
+            "convention": LEGACY_CONVENTION,
+            "source_url": LEGACY_SOURCE_URL,
+            "warnings": [],
+        }
+        canonical = json.dumps(
+            body, ensure_ascii=False, sort_keys=True, separators=(",", ":")
+        )
+        payload = json.dumps(
+            {
+                **body,
+                "sha256": hashlib.sha256(canonical.encode("utf-8")).hexdigest(),
+            },
+            ensure_ascii=False,
+        )
+
+        record = import_reading_record(payload)
+
+        self.assertEqual(record.latin, "w")
+        self.assertEqual(record.convention, CONVENTION)
+        self.assertEqual(record.source_url, SOURCE_URL)
+        self.assertTrue(
+            any("updated to the current cited table" in w for w in record.warnings)
+        )
 
     def test_old_nubian_reader_exposes_stroke_reading_alternative(self):
         record = make_reading_record("ⲧⲗ\u0304ⲗⲛ\u0304")
@@ -217,7 +438,7 @@ class TransliterationTests(unittest.TestCase):
         self.assertIn("tillin", restored.alternatives)
 
     def test_old_nubian_only_warns_for_sequences_with_a_real_alternative(self):
-        unique_sequences = ("ch", "ky", "ny")
+        unique_sequences = ("kh", "š", "ŋ", "ñ")
         for text in unique_sequences:
             with self.subTest(text=text):
                 result = transliterate(
@@ -232,20 +453,20 @@ class TransliterationTests(unittest.TestCase):
                 )
 
         ambiguous = transliterate(
-            "ng", "Old Nubian scholarly Latin", "Old Nubian (Coptic)"
+            "ou", "Old Nubian scholarly Latin", "Old Nubian (Coptic)"
         )
         self.assertTrue(ambiguous.alternatives)
         self.assertTrue(
             any("letter boundaries can be ambiguous" in w for w in ambiguous.warnings)
         )
+        self.assertIn("ⳣ", ambiguous.alternatives)
 
     def test_old_nubian_preserves_unmapped_latin_and_keeps_other_readings(self):
         result = transliterate(
-            "ng v", "Old Nubian scholarly Latin", "Old Nubian (Coptic)"
+            "ŋ v", "Old Nubian scholarly Latin", "Old Nubian (Coptic)"
         )
 
         self.assertEqual(result.text, "ⳟ v")
-        self.assertIn("ⲛⲅ v", result.alternatives)
         self.assertTrue(
             any(
                 "Unmapped Latin letters preserved: v." in item
@@ -253,9 +474,43 @@ class TransliterationTests(unittest.TestCase):
             )
         )
 
+    def test_old_nubian_mixed_script_does_not_call_coptic_latin(self):
+        result = transliterate(
+            "ŋ V—ⲁ", "Old Nubian scholarly Latin", "Old Nubian (Coptic)"
+        )
+
+        self.assertEqual(result.text, "ⳟ V—ⲁ")
+        self.assertTrue(
+            any(
+                "Unmapped Latin letters preserved: V." in item
+                for item in result.warnings
+            )
+        )
+        self.assertFalse(any("ⲁ" in item for item in result.warnings))
+
+    def test_old_nubian_case_round_trip_keeps_coptic_letter_case(self):
+        latin = transliterate("Ⲃⲁ", "Old Nubian (Coptic)", "Old Nubian scholarly Latin")
+        coptic = transliterate(
+            latin.text, "Old Nubian scholarly Latin", "Old Nubian (Coptic)"
+        )
+
+        self.assertEqual(latin.text, "Ba")
+        self.assertEqual(coptic.text, "Ⲃⲁ")
+
+    def test_old_nubian_reverse_accepts_decomposed_macron_vowel(self):
+        composed = transliterate(
+            "ē", "Old Nubian scholarly Latin", "Old Nubian (Coptic)"
+        )
+        decomposed = transliterate(
+            "e\u0304", "Old Nubian scholarly Latin", "Old Nubian (Coptic)"
+        )
+
+        self.assertEqual(decomposed, composed)
+        self.assertEqual(decomposed.text, "ⲏ")
+
     def test_old_nubian_flags_truncated_alternative_lists(self):
         result = transliterate(
-            "ng ng ng ng ng",
+            "ou ou ou ou ou",
             "Old Nubian scholarly Latin",
             "Old Nubian (Coptic)",
         )
