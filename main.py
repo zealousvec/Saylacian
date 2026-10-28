@@ -197,7 +197,7 @@ class SaylacianApp(MDApp):
     pack_cancel_requested = BooleanProperty(False)
 
     def build(self):
-        self.title = "Saylacian"
+        self.title = "Saylacian — Alpha testing"
         self.theme_cls.theme_style = "Dark"
         self.theme_cls.primary_palette = "Gray"
         self.font = str(PROJECT / "assets/NotoSansOsmanya.ttf")

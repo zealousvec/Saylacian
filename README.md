@@ -19,7 +19,7 @@ The app asks before downloading a pack. See [Offline packs](docs/OFFLINE_PACKS.m
 ## What it supports
 
 - English ↔ French translation offline.
-- English ↔ Somali translation with local packs. Somali output has not had fluent-speaker review, so treat it as experimental and check important translations.
+- English ↔ Somali translation with local packs. Somali output has not had fluent-speaker review, so check important translations.
 - Optional local Somali translation models. They need extra downloads and may take longer to run; details and evaluation limits are in [Translation quality](docs/TRANSLATION_QUALITY.md).
 - English, French and Somali language detection for longer Latin text. Short or mixed text may need a manual choice.
 - Somali Latin ↔ Osmanya conversion.
@@ -36,7 +36,7 @@ The app asks before downloading a pack. See [Offline packs](docs/OFFLINE_PACKS.m
 - [Version history](CHANGELOG.md): changes in the current source snapshot.
 - [Third-party notices](THIRD_PARTY_NOTICES.md): separate licences for fonts, models and other assets.
 
-This is an experimental source snapshot, not a numbered app release. Android and iOS builds have not been tested. See [release status](docs/RELEASE_READINESS.md).
+Saylacian is in alpha testing. This source checkout is not a Microsoft Store release. Somali and historical-script features retain the limits above. Android and iOS builds have not been tested. See [Windows build status](docs/RELEASE_READINESS.md).
 
 ## Licence
 

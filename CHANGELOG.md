@@ -20,4 +20,4 @@ This repository has no numbered app release yet. Changes are listed under **Unre
 - Old Nubian reading shows documented alternatives for selected letters and digraphs. It remains a limited character table and needs specialist review.
 - Borama and Kaddare copy options explain which forms preserve the writing. Editable text uses private-use characters, so display outside Saylacian needs compatible mapping and fonts.
 
-Somali translation and historical-script features remain experimental. Modern Nubian varieties are not supported. Android and iOS builds have not been tested. See the [support matrix](docs/SUPPORT_MATRIX.md) for current coverage.
+Saylacian is in alpha testing. Somali translation and historical-script features retain the limits above. Modern Nubian varieties are not supported. Android and iOS builds have not been tested. See the [support matrix](docs/SUPPORT_MATRIX.md) for current coverage.

@@ -1,6 +1,6 @@
 # Somali translation quality
 
-Somali translation is available, but it has not been reviewed by fluent Somali speakers. Treat the results as experimental and check important translations before relying on them.
+Somali translation is available in alpha testing, but it has not been reviewed by fluent Somali speakers. Check important translations before relying on them.
 
 ## What has been measured
 

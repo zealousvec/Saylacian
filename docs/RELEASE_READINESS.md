@@ -1,6 +1,6 @@
 # Platform and release status
 
-Saylacian is an experimental Windows source app, not a finished cross-platform release.
+Saylacian is in alpha testing for Windows. The source app has not been prepared as a Store-ready package.
 
 ## Windows
 
