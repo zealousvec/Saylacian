@@ -36,7 +36,7 @@ The app asks before downloading a pack. See [Offline packs](docs/OFFLINE_PACKS.m
 - [Version history](CHANGELOG.md): changes in the current source snapshot.
 - [Third-party notices](THIRD_PARTY_NOTICES.md): separate licences for fonts, models and other assets.
 
-Saylacian is in alpha testing. This source checkout is not a Microsoft Store release. Somali and historical-script features retain the limits above. Android and iOS builds have not been tested. See [Windows build status](docs/RELEASE_READINESS.md).
+Saylacian is in alpha testing. The Windows app and offline routes passed a clean-clone check, but this source checkout is not a Microsoft Store release. Somali and historical-script features retain the limits above. Android and iOS builds have not been tested. See [Windows build status](docs/RELEASE_READINESS.md).
 
 ## Licence
 

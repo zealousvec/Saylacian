@@ -4,9 +4,9 @@ Saylacian is in alpha testing for Windows. The source app has not been prepared 
 
 ## Windows
 
-The Python and Kivy app has been run on Windows with Python 3.12. Offline translation works after the required packs are installed. The current source has not had a fresh-clone setup and first-time pack download repeated as part of this update.
+The public source branch was cloned into a clean test folder with Python 3.12 and its pinned dependencies. French and Somali packs were downloaded to isolated test data and passed their size and SHA-256 checks. Translation, script-conversion, mode-switching and session-restore flows passed; the offline checks also passed with network access blocked.
 
-No signed Windows installer is available. Windows Smart App Control blocked an earlier unsigned executable. Keep Windows security enabled; do not bypass the warning to run that build.
+No signed Windows installer or Store package is available on this branch. Windows Smart App Control blocked an earlier unsigned executable. Keep Windows security enabled; do not bypass the warning to run that build.
 
 ## Other platforms
 
