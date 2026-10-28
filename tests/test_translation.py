@@ -343,7 +343,9 @@ class TranslationTests(unittest.TestCase):
 
             return result, candidate_engine, baseline_engine
 
-    def run_with_afrislm_output(self, candidate_output, source="English"):
+    def run_with_afrislm_output(
+        self, candidate_output, source="English", allow_large_model=True
+    ):
         with TemporaryDirectory() as temporary:
             root = Path(temporary)
             baseline_folder = root / "somali" / "en_so"
@@ -370,6 +372,11 @@ class TranslationTests(unittest.TestCase):
                         (FakeTokenizer(), FakeTokenizer("baseline result")),
                         baseline_engine,
                     ),
+                ),
+                patch.object(
+                    translation,
+                    "should_use_large_afrislm",
+                    return_value=allow_large_model,
                 ),
                 patch.object(
                     translation, "translate_afrislm", return_value=candidate_output
@@ -418,10 +425,10 @@ class TranslationTests(unittest.TestCase):
         afrislm.assert_called_once()
 
     def test_installed_afrislm_is_skipped_on_low_core_devices(self):
-        with patch.object(translation, "should_use_large_afrislm", return_value=False):
-            result, baseline_engine, afrislm = self.run_with_afrislm_output(
-                "candidate Somali result"
-            )
+        result, baseline_engine, afrislm = self.run_with_afrislm_output(
+            "candidate Somali result",
+            allow_large_model=False,
+        )
 
         self.assertEqual(result.text, "baseline result")
         self.assertIsNotNone(baseline_engine.options)
@@ -465,6 +472,9 @@ class TranslationTests(unittest.TestCase):
                         (FakeTokenizer(), FakeTokenizer("baseline result")),
                         baseline_engine,
                     ),
+                ),
+                patch.object(
+                    translation, "should_use_large_afrislm", return_value=True
                 ),
                 patch.object(
                     translation,
