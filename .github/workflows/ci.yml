@@ -21,9 +21,11 @@ jobs:
       - name: Install runtime and lint dependencies
         run: |
           python -m pip install -r requirements-runtime-lock.txt
-          python -m pip install ruff==0.14.2
+          python -m pip install ruff==0.14.2 pip-audit==2.10.1
       - name: Check dependencies
         run: python -m pip check
+      - name: Check known runtime dependency vulnerabilities
+        run: pip-audit -r requirements-runtime-lock.txt --progress-spinner off
       - name: Compile Python sources
         run: python -m compileall -q main.py app saylacian tests
       - name: Check formatting
