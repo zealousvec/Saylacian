@@ -13,9 +13,12 @@ import sys
 import zipfile
 from pathlib import Path
 
+ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
 from saylacian import __version__
 
-ROOT = Path(__file__).resolve().parents[1]
 DOCS_TO_COPY = {
     ROOT / "LICENSE": "LICENSE.txt",
     ROOT / "docs" / "THIRD_PARTY_NOTICES.md": "THIRD_PARTY_NOTICES.txt",

@@ -1,6 +1,8 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
 import os
+import subprocess
+import sys
 import tempfile
 import unittest
 import zipfile
@@ -8,6 +10,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 from tools.build_windows_portable import (
+    ROOT,
     build_environment,
     payload_manifest,
     restore_legacy_font_path,
@@ -18,6 +21,22 @@ from tools.build_windows_portable import (
 
 
 class PortablePackageTests(unittest.TestCase):
+    def test_builder_cli_imports_when_launched_outside_checkout(self):
+        with tempfile.TemporaryDirectory() as folder:
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    str(ROOT / "tools" / "build_windows_portable.py"),
+                    "--help",
+                ],
+                cwd=folder,
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("PyInstaller spec", result.stdout)
+
     def test_manifest_records_tree_fingerprint_and_dirty_state(self):
         metadata = source_metadata()
         self.assertEqual(len(metadata["source_commit"]), 40)
