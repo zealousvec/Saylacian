@@ -2,6 +2,21 @@
 
 Somali translation is available in alpha testing, but it has not been reviewed by fluent Somali speakers. Check important translations before relying on them.
 
+## InfoFinland continuation candidate
+
+A private candidate was continued from the previously screened Qor-trained checkpoint for one epoch on 10,921 filtered English–Somali InfoFinland pairs. The document-held-out validation set contains 1,077 pairs from 26 documents, with no document overlap. InfoFinland permits reuse under [CC BY 4.0](https://infofinland.fi/en/open-data); the inherited Qor corpus is [CC BY-SA 4.0](https://huggingface.co/datasets/unkadlabs/qor-af-soomaali). Candidate weights remain private while derived-weight obligations are reviewed.
+
+The real Saylacian route was scored on deterministic 120-item samples. These figures compare the continuation only with its Qor starting checkpoint; they do not compare against a newly run installed-model baseline:
+
+| Held-out sample | Route | BLEU | chrF++ | Guarded fallbacks | Mean warm time |
+|---|---|---:|---:|---:|---:|
+| InfoFinland | Qor starting checkpoint | 6.807 | 36.888 | 73 / 120 | 436.7 ms |
+| InfoFinland | Qor + InfoFinland continuation | 7.575 | 38.622 | 62 / 120 | 383.5 ms |
+| FLORES-200 devtest | Qor starting checkpoint | 10.619 | 40.583 | 2 / 120 | 188.3 ms |
+| FLORES-200 devtest | Qor + InfoFinland continuation | 10.966 | 40.486 | 3 / 120 | 196.3 ms |
+
+The continuation improves both automatic scores on its InfoFinland sample and slightly raises FLORES BLEU, while FLORES chrF++ falls slightly and one more output triggers fallback. This is a modest, mixed screening result, not evidence of fluency or a reason to replace an installed model. A separate direct fine-tune from the standard base scored 9.785 BLEU / 41.290 chrF++ on the same InfoFinland sample, versus 11.583 / 41.071 for that run's standard-model route; it also was not promoted. No candidate weights or raw evaluation text are included in the repository.
+
 ## Qor-trained candidate cross-check
 
 A private English→Somali candidate trained on 3,470 synthetic pairs from verified Qor Somali text was tested through Saylacian's guarded route. The training text and weights stayed outside the repository. On the same deterministic 120-row sample from each benchmark, it improved over the installed standard route:
