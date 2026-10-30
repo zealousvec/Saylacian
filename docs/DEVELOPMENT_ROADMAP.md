@@ -97,3 +97,11 @@ Do not create a generic “Nubian” converter from the presence of a Coptic fon
 
 
 **Current queue (2026-10-25, rechecked after local commit `8b748ab1fca48408355759545079f3c7b5a50c6e`):** ACTIVE: no implementation item remains after the verified benchmark-output safeguards, UI wording cleanup, and live UI acceptance; keep the goal unfinished and select the next independent evidence-backed task when resources arrive. BLOCKED: independent LID accuracy needs reviewer-adjudicated short text with reuse terms; Somali quality needs consented fluent review; Old Nubian expansion needs written DBMNT rights and specialist review; screen-reader behavior needs manual Narrator/NVDA observation; real clipboard delivery needs a disposable VM; hosted workflow requires push approval; Windows binary release needs code-signing/package trust and authorized clean-host runtime testing. FBO-based isolated Kivy captures at all six acceptance viewports are valid and visually reviewed; physical-device and broader platform review remain unverified. READY: none identified after current code and roadmap review. See `docs/IMPLEMENTATION_PROGRESS.md` for exact unblock actions; do not add speculative tasks.
+
+## Current queue — 2026-10-30
+
+**ACTIVE:** prepare the final portable ZIP from the committed `0.1.0a1` source and inspect the manifest and GitHub Actions artifact workflow. Source commit `bab24a31b699c53601c6bfe780ede6bb7f43fbcb` was tested in a fresh local clone and fresh venv: 185 passed, 11 skipped, 191 subtests; Kivy self-test passed. French and Somali packs downloaded and passed offline smoke inference in both directions with network blocked during inference.
+
+**BLOCKED:** clean-host EXE launch and install require an isolated Windows host; real clipboard interchange and Narrator/NVDA require a disposable VM and screen-reader review; stronger Somali claims require a fluent reviewer; Old Nubian expansion requires specialist review and evidence. Do not bypass Windows security or use the owner's clipboard.
+
+**READY:** rebuild the final ZIP from the final local commit, check payload licensing and hashes, run local source checks, and prepare the exact future CI run command. Windows CI, public upload and GitHub release wait for push approval. No Store or mobile work in this source-release pass.

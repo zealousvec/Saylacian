@@ -633,3 +633,11 @@ Rechecked the 131,266,198-byte FastText `lid.176.bin` candidate on the same data
 **BLOCKED:** use a disposable Windows VM with clipboard sharing disabled to test Saylacian Text, image and Latin pastes in an external app; test keyboard/screen-reader behavior with Narrator/NVDA; obtain fluent Somali and Old Nubian specialist review. The Obsidian vault was not found in the top-level Documents/OneDrive directories checked; these repository progress/handoff files remain the active knowledge base.
 
 **READY:** inspect CI YAML and local links, rerun checks after the clean clone, commit verified follow-up locally. No push, release, tag or Store submission.
+
+## 2026-10-30 continuation — clean clone passed
+
+The current code commit is `bab24a31b699c53601c6bfe780ede6bb7f43fbcb`; public GitHub remains unchanged. The commit was cloned locally into a clean source directory, installed into a fresh venv from `requirements-dev.txt`, and tested there. Results: 185 passed, 11 skipped, 191 subtests. Skips were model-dependent before pack installation. Ruff check/format, compileall, `pip check`, release-safety scan and clean Git status passed. The Kivy source-app self-test passed with a temporary profile.
+
+The fresh clone downloaded the pinned French and Somali packs to a separate temporary data directory. Their SHA-256 asset checks and version receipts passed; both directions per pack returned output with socket connects blocked during inference. Sample Somali outputs demonstrate quality limits; fluency is not claimed. The initial portable candidate was superseded by these source/docs updates and must be rebuilt from the final commit.
+
+**ACTIVE:** run final checks, build final portable ZIP from the committed tree, verify all payload hashes and version metadata, and record the artifact SHA-256. **BLOCKED:** clean-host binary launch (unsigned), real clipboard tests in a disposable VM, Narrator/NVDA observation, fluent Somali review and Old Nubian specialist review. **READY:** validate the manual CI artifact job, then stop at the explicit push gate. No push, tag or release.

@@ -24,9 +24,11 @@ This page distinguishes public state from the current local cleanup. It must be 
 - The Old Nubian converter now uses the 29 single-character readings in van Gerven Oei (2024), Table 1, CC BY 4.0, with attribution recorded in `docs/THIRD_PARTY_NOTICES.md`. Unmapped Coptic letters remain unchanged and receive a warning. This replaces the prior 34-entry DBMNT-derived mapping; no DBMNT table content is bundled.
 - User-facing app, website, README and support labels use alpha-testing language and state remaining language/script limits directly.
 - Changes are local and unpushed. On 2026-10-30, the working branch was `main` at `527df1569da68a5dadb758eafd9f0693aff983db`, 112 commits ahead of public `main`; the working tree also contained the release-campaign edits listed by `git status`. No push was made.
+- Local source commit `bab24a31b699c53601c6bfe780ede6bb7f43fbcb` prepares the alpha source, packaging recipe and documentation. Public `main` remains unchanged. A pre-existing edit to `docs/TECHNICAL_AUDIT.md` was left unstaged and preserved.
 - Built and verified a portable Windows ZIP candidate during development. It contained 616 manifest-listed payload files, a single app EXE, third-party notices and user/setup docs; no model weights or Poppler files. Later source edits make that draft checksum stale, so the candidate will be rebuilt from the final committed tree. Its manifest records `runtime_verified: false`; it is a build candidate, not a verified end-user release.
 - The Kivy source-app self-test passed in an isolated temporary profile. The website headless Edge check passed its eight API, conversion, clipboard-double and responsive-layout checks. The package itself was not launched because it is unsigned; Windows Smart App Control and clean-machine behavior remain unverified.
 - Full suite: **194 passed, 2 skipped, 191 subtests**. Ruff lint and formatting, compileall, `pip check`, release-safety scan, package-manifest hash verification and `git diff --check` passed. No external clipboard was accessed.
+- A fresh local clone of `bab24a3` installed from `requirements-dev.txt` and passed **185 tests, 11 skips, 191 subtests**. The skips are model-dependent tests before any packs were installed. Kivy self-test passed in that clone. The pinned French and Somali packs were then downloaded to isolated temporary storage, SHA-256/version receipts verified, and both translation directions per pack returned non-empty output with socket connections blocked during inference. Somali sample output remains visibly imperfect and is not human-validated.
 
 - Published `main` is now `ca0ef3e40215762f8e8cfb4da0c839680764d6c8`. The one-line normalization in `saylacian/core/model_packs.py` is included in that commit; download-security logic is unchanged.
 - GitHub Actions run `40086510600` for that commit failed one test: `test_installed_pack_is_used_by_offline_route_and_removal_is_scoped`. Windows compared the resolved `runneradmin` path returned by the route with the same temporary directory written using its `RUNNER~1` alias.
@@ -43,9 +45,10 @@ In the current local checkout, the full test suite passed with **80 tests and 66
 
 ## Still open
 
-1. Finish the clean-source setup and pack-install check; run Windows CI on the pending source changes after an approved push.
-2. Verify screen-reader/keyboard accessibility and real clipboard formats in a disposable Windows VM; no such VM is available in this session.
-3. Obtain fluent Somali review and specialist/community review for historical-script tables before making stronger quality claims.
-4. Check native DLL distribution terms and validate the portable app on a clean Windows host; the current unsigned build is not ready for ordinary-user distribution.
-5. Ask a repository administrator to correct the public project description and review account-level security settings.
-6. Android/iOS builds and Store submission remain out of scope.
+1. Build the final portable ZIP from the final committed tree and verify manifest/checksum; inspect the workflow artifact job.
+2. Run Windows CI on the pending source changes after an approved push.
+3. Verify screen-reader/keyboard accessibility and real clipboard formats in a disposable Windows VM; no such VM is available in this session.
+4. Obtain fluent Somali review and specialist/community review for historical-script tables before making stronger quality claims.
+5. Check native DLL distribution terms and validate the portable app on a clean Windows host; the current unsigned build is not ready for ordinary-user distribution.
+6. Ask a repository administrator to correct the public project description and review account-level security settings.
+7. Android/iOS builds and Store submission remain out of scope.
