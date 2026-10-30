@@ -105,3 +105,11 @@ Do not create a generic “Nubian” converter from the presence of a Coptic fon
 **BLOCKED:** clean-host EXE launch and install require an isolated Windows host; real clipboard interchange and Narrator/NVDA require a disposable VM and screen-reader review; stronger Somali claims require a fluent reviewer; Old Nubian expansion requires specialist review and evidence. Do not bypass Windows security or use the owner's clipboard.
 
 **READY:** rebuild the final ZIP from the final local commit, check payload licensing and hashes, run local source checks, and prepare the exact future CI run command. Windows CI, public upload and GitHub release wait for push approval. No Store or mobile work in this source-release pass.
+
+## Current queue — 2026-10-30 update
+
+**ACTIVE:** commit the current release verification notes and rebuild the portable ZIP from that final clean source commit. The outside-directory builder invocation and package hash checks now pass.
+
+**BLOCKED:** validate the unsigned executable on an isolated clean Windows host; test live clipboard in a disposable VM; observe Narrator/NVDA; obtain Somali and Old Nubian human reviews; finish binary dependency licence review before any binary distribution.
+
+**READY:** run final clean-tree tests and security/link checks after the documentation commit. Keep GitHub Actions, upload, tags and release gated on owner approval.

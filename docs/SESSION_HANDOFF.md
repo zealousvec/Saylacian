@@ -641,3 +641,19 @@ The current code commit is `bab24a31b699c53601c6bfe780ede6bb7f43fbcb`; public Gi
 The fresh clone downloaded the pinned French and Somali packs to a separate temporary data directory. Their SHA-256 asset checks and version receipts passed; both directions per pack returned output with socket connects blocked during inference. Sample Somali outputs demonstrate quality limits; fluency is not claimed. The initial portable candidate was superseded by these source/docs updates and must be rebuilt from the final commit.
 
 **ACTIVE:** run final checks, build final portable ZIP from the committed tree, verify all payload hashes and version metadata, and record the artifact SHA-256. **BLOCKED:** clean-host binary launch (unsigned), real clipboard tests in a disposable VM, Narrator/NVDA observation, fluent Somali review and Old Nubian specialist review. **READY:** validate the manual CI artifact job, then stop at the explicit push gate. No push, tag or release.
+
+## 2026-10-30 handoff — clean source and portable build
+
+Latest code commit: `eebe9e9cb927d3e0cc834ee4ed689399798187bb`. Local `main` was 115 commits ahead of `origin/main`; public `main` was last read-only verified at `c4f2f87270c22a05e772816ce98e57a99b871b18`. No push, tag, release or setting change occurred. Preserve the existing unstaged `docs/TECHNICAL_AUDIT.md` edit; it was intentionally excluded from local commits.
+
+Clean clone tests: 186 passed, 11 skipped, 191 subtests. The fresh clone installed `requirements-dev.txt`, launched the source Kivy app's `--self-test`, passed Ruff/format/compile/pip/release-safety gates, and had a clean git status. French and Somali packs were installed with SHA-256/version checks in isolated temporary storage and both directions per pack returned non-empty output with socket connections blocked during inference. Somali output examples still show semantic errors; no fluency claim is made.
+
+Portable build recipe and pinned build lock are committed. `eebe9e9` produced a clean-tree candidate through an invocation from outside the source directory. It contained 607 manifest files; candidate size 68,453,261 bytes; SHA-256 `3cde0801f06fcca55846e65cb1bb71357d9032cc8dbd6086f6bb0d6ff0c30b01`; app version `0.1.0a1`; manifest `runtime_verified=false`, source tree clean. ZIP and manifest checks passed; no weights or Poppler files. Rebuild from the next documentation commit so the final manifest points to the final local source revision. Do not launch the unsigned EXE on the owner's Windows host.
+
+A privacy-safe history scan covered 122 main commits and 732 unique text blobs for recognized credential strings and local Windows profile paths; no match. Website headless Edge checks passed eight API/conversion/clipboard-double/layout checks. Kivy source self-test passed. No external clipboard was accessed.
+
+**ACTIVE:** finish the progress/handoff record, commit that docs-only update, rebuild and verify the portable ZIP from a clean clone of the latest commit, then run final source quality checks.
+
+**BLOCKED:** unsigned package launch/installation on clean Windows requires an isolated host; actual Saylacian Text/image/Latin clipboard verification and Narrator/NVDA require a disposable VM and screen-reader; Somali translation needs a fluent-speaker review; Old Nubian table expansion needs specialist review. Native dependency/binary distribution terms remain separate from source licensing. Obsidian vault was not located in the top-level Documents/OneDrive folders checked; repo docs are the active handoff.
+
+**READY:** after the clean artifact rebuild, confirm final workflow config and checksum. Stop before push, public release, Store submission or account-setting changes.
