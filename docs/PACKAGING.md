@@ -104,3 +104,9 @@ Rebuilt the current source, including privacy-safe startup diagnostics and the s
 - `IdentityPending` and `Publisher-PENDING` must be replaced by exact values from Partner Center. No account or app name has been reserved.
 - Runtime, offline UI use, fonts, clipboard and installation remain unverified because this unsigned build is not installable under the active Windows policy. Source-app tests are not package-runtime evidence.
 - Microsoft's current onboarding has no registration fee; individual onboarding requires government ID and selfie verification. Store certification and publisher approval are still required. See `STORE_SUBMISSION.md`.
+
+## Portable alpha candidate — 2026-10-30
+
+Built from a clean clone of commit `bea5ec1f393e7ff634db81b98ca6d048c5202247` with the pinned portable-build recipe. The ZIP is 69,945,461 bytes (SHA-256 `43aaf3efbc54b29ee8c56b01c78eb3351d9bb5d5bbc0c7eb9c0adee846e557f7`). Its manifest covers 629 payload files; the ZIP also contains the checksum index. Manifest hashes, archive entries and the sidecar all verified. It contains one EXE, no offline translation packs, no cuDNN DLL and no Poppler files. It does include py3langid's 4.59 MiB language-detection model, CPython licence and all 13 SDL2 wheel licence texts. The builder excludes cuDNN because the app uses CTranslate2 on CPU.
+
+The manifest deliberately records `runtime_verified: false`. No isolated Windows VM was available, so the EXE was not launched and clipboard/screen-reader checks were not performed. Microsoft VC runtime distribution terms, Intel OpenMP redistribution terms, GLEW wheel provenance and exact Material Design Icons font provenance remain binary-release gates. The candidate is local and unpublished; do not distribute it until these checks pass.

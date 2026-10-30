@@ -8,7 +8,7 @@ Changes are recorded after local verification. The source is in alpha testing; n
 - Preserved the English-to-Somali output safeguard and made route labels clear for alpha testing.
 - Replaced the Old Nubian letter table with the 29 entries in a CC BY 4.0 scholarly source and added attribution.
 - Added offline pack manifest metadata for model licence, upstream repository, runtime versions, and integrity-derived version IDs.
-- Added Windows CI for Python syntax, repository credential-pattern scanning, and tests without downloading model weights.
+- Added Windows CI for Python syntax, repository credential-pattern scanning, and tests without downloading offline translation packs.
 - Added a pinned portable Windows ZIP build recipe with a file manifest and SHA-256 checksums. Runtime verification on a clean Windows host remains outstanding.
 - Added release documentation and kept weights, generated build output, caches, and editor settings out of the repository candidate.
 

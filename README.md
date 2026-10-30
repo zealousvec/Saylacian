@@ -62,7 +62,7 @@ py -3.12 -m venv .venv
 .\.venv\Scripts\python.exe tools\check_release_safety.py
 ```
 
-The test suite and CI do not download model weights. To reproduce a full local model install, run `tools/prepare_models.py` as documented in [RUN.md](RUN.md); this downloads large model files. Do not commit models or credentials.
+The test suite and CI do not download offline translation pack weights. The runtime dependency `py3langid` includes a small classifier model for language detection. To reproduce a full local translation pack install, run `tools/prepare_models.py` as documented in [RUN.md](RUN.md); this downloads large model files. Do not commit models or credentials.
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for code and linguistic review expectations. Historical models, datasets, and scripts require source, version, licence, and checksum evidence before inclusion.
 

@@ -36,7 +36,7 @@ Offline detection covers English, French and Somali Latin with confidence/short-
 | Platform | Status |
 |---|---|
 | Windows source app | Kivy app and widget workflows checked |
-| Windows packaged app | Latest all-pairs onedir build and bundled model/font/data hashes verified; runtime not verified because host Application Control blocked an earlier unsigned executable |
+| Windows packaged app | Portable alpha ZIP and per-file hashes verified; the manifest says `runtime_verified: false`. The unsigned candidate was not launched in a clean Windows environment. |
 | Android | Not built or device-tested |
 | iOS | Not built or device-tested; toolchain/signing requirements remain |
 | Website | Local Flask app and shared-core tests; no public deployment |

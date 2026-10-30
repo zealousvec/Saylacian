@@ -4,6 +4,14 @@ Saylacian's initial alpha-testing source snapshot is public at [github.com/zealo
 
 This page distinguishes public state from the current local cleanup. It must be updated again after a future approved push.
 
+## Final local release-candidate verification — 2026-10-30
+
+- Public `main` remained at `c4f2f87270c22a05e772816ce98e57a99b871b18` in the read-only remote check. Local `main` contained 119 commits beyond that public point before this verification record; nothing was pushed.
+- A clean clone of local commit `bea5ec1f393e7ff634db81b98ca6d048c5202247` built the latest portable candidate. It has 629 manifest-listed files plus the checksum index, one EXE, and a 69,945,461-byte ZIP with SHA-256 `43aaf3efbc54b29ee8c56b01c78eb3351d9bb5d5bbc0c7eb9c0adee846e557f7`. No translation pack weights, cuDNN DLL or Poppler files are included. The 4.59 MiB py3langid language-detection model is included. The manifest records `runtime_verified: false`.
+- The dependency-rich checkout and a fresh clone each passed 195 tests, 2 skips and 191 subtests. Ruff, compilation, dependency consistency and release-safety checks passed. French and Somali pack download/hash/inference checks were previously run in isolated temporary storage with network denied during inference; they do not verify the packaged EXE.
+- No disposable Windows VM is available. Packaged EXE launch, true external clipboard delivery and screen-reader behavior remain unverified. Binary licensing still needs confirmation for Microsoft VC runtime files, Intel `libiomp5md.dll`, GLEW wheel provenance and the Material Design Icons binary. See the current [release checklist](GITHUB_RELEASE_CHECKLIST.md).
+- The pre-existing unstaged edit to `docs/TECHNICAL_AUDIT.md` remains outside the candidate commits and is preserved.
+
 ## Verified implementation status
 
 - Current source version: `0.1.0a1` (alpha testing); version history is in `CHANGELOG.md`.
@@ -25,7 +33,7 @@ This page distinguishes public state from the current local cleanup. It must be 
 - User-facing app, website, README and support labels use alpha-testing language and state remaining language/script limits directly.
 - Changes are local and unpushed. On 2026-10-30, the working branch was `main` at `527df1569da68a5dadb758eafd9f0693aff983db`, 112 commits ahead of public `main`; the working tree also contained the release-campaign edits listed by `git status`. No push was made.
 - Local commits `bab24a31b699c53601c6bfe780ede6bb7f43fbcb`, `11c4a9eba28739fb701fd5b1e870625b63472bbf`, and `eebe9e9cb927d3e0cc834ee4ed689399798187bb` prepare the alpha source, record clean-clone verification and make the portable builder independent of the caller's working directory. The local branch is 115 commits ahead of public `main`; no push was made. A pre-existing edit to `docs/TECHNICAL_AUDIT.md` remains unstaged and preserved.
-- Built the portable Windows candidate from a clean clone of commit `5a749ad169f78cd5f4693f80c183fd431990d95c`. It contains 607 manifest-listed payload files plus the checksum index, a single app EXE, notices and user/setup docs; no model weights or Poppler files. ZIP SHA-256: `7d76075865ed0137fa4a70fda40378f059c5072dd5b93fb7e3a23f18de892472`. The manifest records version `0.1.0a1`, a clean source tree and `runtime_verified: false`; it is a verified build candidate, not a clean-host-tested end-user release.
+- The superseded portable candidate from commit `5a749ad169f78cd5f4693f80c183fd431990d95c` contained no offline translation pack weights and no Poppler files. It did include py3langid's 4.59 MiB language-detection model; earlier notes saying “no model weights” omitted that classifier. Its runtime was not verified.
 - The Kivy source-app self-test passed in an isolated temporary profile. The website headless Edge check passed its eight API, conversion, clipboard-double and responsive-layout checks. The package itself was not launched because it is unsigned; Windows Smart App Control and clean-machine behavior remain unverified.
 - Full suite in the dependency-rich checkout: **195 passed, 2 skipped, 191 subtests**. Ruff lint and formatting, compileall, `pip check`, release-safety scan, package-manifest hash verification and `git diff --check` passed. No external clipboard was accessed.
 - Fresh local clone `eebe9e9` installed from `requirements-dev.txt` passed **186 tests, 11 skips, 191 subtests**. The skips are model-dependent tests before packs were installed. Kivy self-test passed. Pinned French and Somali packs were downloaded to isolated temporary storage; SHA-256/version receipts passed and both directions per pack returned output with socket connections blocked during inference. Somali sample output remains imperfect and is not human-validated.
