@@ -1,6 +1,8 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 # -*- mode: python ; coding: utf-8 -*-
-# Builds the Windows app bundle; verified language packs install separately after setup.
+# Builds a CPU-only Windows app bundle; verified language packs install separately.
+import os
+
 from PyInstaller.utils.hooks import collect_all
 
 datas = [
@@ -25,7 +27,11 @@ binaries += tmp_ret[1]
 hiddenimports += tmp_ret[2]
 tmp_ret = collect_all("ctranslate2")
 datas += tmp_ret[0]
-binaries += tmp_ret[1]
+binaries += [
+    binary
+    for binary in tmp_ret[1]
+    if os.path.basename(binary[0]).casefold() != "cudnn64_9.dll"
+]
 hiddenimports += tmp_ret[2]
 tmp_ret = collect_all("sentencepiece")
 datas += tmp_ret[0]

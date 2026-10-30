@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import importlib.metadata
 import json
 import os
 import shutil
@@ -30,10 +31,12 @@ INSTALL_NOTES = f"""Saylacian for Windows — alpha testing
 Version: {__version__}
 
 Extract the complete Saylacian folder, then run Saylacian.exe. Keep the folder
-contents together. No model weights are included in this ZIP.
+contents together. No offline translation model packs are included in this ZIP.
+It does include py3langid's small language-identification model for detection.
 
 Open Offline language packs in the app to download the models you want. The app
 checks each download before using it. Once installed, supported packs run locally.
+The app runs its translation models on the CPU; GPU libraries are not bundled.
 The 4B Somali-to-English pack needs substantial memory (about 5 GB in one test).
 
 Somali translation needs fluent-speaker review. Borama and Kaddare cover selected
@@ -155,6 +158,44 @@ def restore_legacy_font_path(payload: Path) -> Path:
     return destination
 
 
+def collect_runtime_notices(payload: Path) -> None:
+    """Copy Python and SDL2 runtime licence texts into the portable payload."""
+    notice_root = payload / "_internal" / "notices"
+    notice_root.mkdir(parents=True, exist_ok=True)
+    python_license = Path(sys.base_prefix) / "LICENSE.txt"
+    if not python_license.is_file():
+        raise FileNotFoundError(f"Python runtime licence is missing: {python_license}")
+    shutil.copy2(python_license, notice_root / "CPython-LICENSE.txt")
+
+    distribution = importlib.metadata.distribution("kivy-deps-sdl2")
+    distribution_root = Path(sys.prefix).resolve()
+    sdl_notice_root = (
+        notice_root / "runtime-dependencies" / f"kivy-deps-sdl2-{distribution.version}"
+    )
+    sdl_notice_root.mkdir(parents=True, exist_ok=True)
+    copied = 0
+    for entry in distribution.files or ():
+        relative = Path(str(entry))
+        if not relative.name.casefold().startswith("license"):
+            continue
+        source = Path(distribution.locate_file(entry)).resolve()
+        if not source.is_file():
+            continue
+        try:
+            relative_source = source.relative_to(distribution_root)
+        except ValueError as error:
+            raise ValueError(
+                f"SDL2 notice path escapes the build environment: {source}"
+            ) from error
+        destination = sdl_notice_root / relative_source.name
+        shutil.copy2(source, destination)
+        copied += 1
+    if copied == 0:
+        raise FileNotFoundError(
+            "The pinned kivy-deps-sdl2 package supplied no redistributable licence files."
+        )
+
+
 def verify_zip(archive: Path, manifest: dict) -> None:
     expected = {item["path"]: item["sha256"] for item in manifest["files"]}
     with zipfile.ZipFile(archive) as bundle:
@@ -234,9 +275,19 @@ def build(args: argparse.Namespace) -> tuple[Path, Path, Path]:
     executable = payload / "Saylacian.exe"
     if not executable.is_file():
         raise FileNotFoundError(f"PyInstaller did not produce {executable}")
+    runtime_files = {
+        path.name.casefold() for path in payload.rglob("*") if path.is_file()
+    }
+    if "cudnn64_9.dll" in runtime_files:
+        raise RuntimeError(
+            "CPU-only candidate unexpectedly contains the cuDNN runtime."
+        )
+    if "ctranslate2.dll" not in runtime_files or "libiomp5md.dll" not in runtime_files:
+        raise RuntimeError("The CPU translation runtime is incomplete.")
     for source, destination in DOCS_TO_COPY.items():
         shutil.copy2(source, payload / destination)
     restore_legacy_font_path(payload)
+    collect_runtime_notices(payload)
     (payload / "INSTALL.txt").write_text(INSTALL_NOTES, encoding="utf-8")
     manifest = payload_manifest(payload)
     manifest_path.write_text(

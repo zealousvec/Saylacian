@@ -11,3 +11,9 @@ Changes are recorded after local verification. The source is in alpha testing; n
 - Added Windows CI for Python syntax, repository credential-pattern scanning, and tests without downloading model weights.
 - Added a pinned portable Windows ZIP build recipe with a file manifest and SHA-256 checksums. Runtime verification on a clean Windows host remains outstanding.
 - Added release documentation and kept weights, generated build output, caches, and editor settings out of the repository candidate.
+
+## Unreleased release-candidate corrections
+
+- Corrected the portable setup note to distinguish offline translation packs from the bundled language-identification model.
+- Included the active CPython licence and exact SDL2 wheel notices in portable builds.
+- Corrected Pillow's licence label and added the GLEW 2.3.1 upstream notice; binary provenance and Intel runtime redistribution checks remain release gates.
