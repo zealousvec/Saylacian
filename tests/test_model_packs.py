@@ -47,7 +47,7 @@ class ModelPackTests(unittest.TestCase):
         )
         candidate = first["somali_afrislm"]
         self.assertEqual(candidate["runtimes"], {"llama-cpp-python": "0.3.36"})
-        self.assertIn("experimental", candidate["title"])
+        self.assertEqual(candidate["title"], "Somali model (AfriSLM 0.8B)")
         self.assertEqual(candidate["license"], "Apache-2.0")
         self.assertEqual(
             candidate["training_data_license"],
@@ -69,7 +69,7 @@ class ModelPackTests(unittest.TestCase):
 
         larger = first["somali_afrislm_2b"]
         self.assertIn("Somali → English", larger["title"])
-        self.assertIn("experimental", larger["title"])
+        self.assertIn("Alpha testing", larger["description"])
         self.assertEqual(larger["runtimes"], {"llama-cpp-python": "0.3.36"})
         self.assertEqual(larger["license"], "Apache-2.0")
         self.assertEqual(
@@ -84,7 +84,7 @@ class ModelPackTests(unittest.TestCase):
 
         largest = first["somali_afrislm_4b"]
         self.assertIn("Somali → English", largest["title"])
-        self.assertIn("experimental", largest["title"])
+        self.assertIn("Alpha testing", largest["description"])
         self.assertIn("about 5 GB", largest["description"])
         self.assertEqual(largest["runtimes"], {"llama-cpp-python": "0.3.36"})
         self.assertEqual(largest["license"], "Apache-2.0")

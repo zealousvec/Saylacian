@@ -294,13 +294,13 @@ def _translate_afrislm(text, source, target, model_path):
         load_afrislm_model.cache_clear()
         return (
             None,
-            "Experimental model ran out of memory; used the standard offline model.",
+            "The optional Somali model ran out of memory; used the standard offline model.",
         )
     except (OSError, RuntimeError):
         load_afrislm_model.cache_clear()
         return (
             None,
-            "Experimental model could not run; used the standard offline model.",
+            "The optional Somali model could not run; used the standard offline model.",
         )
 
     content = result["choices"][0]["message"].get("content")
@@ -310,11 +310,11 @@ def _translate_afrislm(text, source, target, model_path):
     if not translated:
         return (
             None,
-            "Experimental model returned no text; used the standard offline model.",
+            "The optional Somali model returned no text; used the standard offline model.",
         )
     return Conversion(
         translated,
-        ("Experimental AfriSLM translation; fluent Somali review is recommended.",),
+        ("Alpha testing: have a fluent Somali speaker check important translations.",),
     ), None
 
 
@@ -382,11 +382,11 @@ def translate_meaning(text, source, target, model_root=None, *, provider_overrid
             )
         )
         return Conversion(second.text, warnings)
-    experimental_paths = []
+    candidate_paths = []
     if (source, target) == ("English", "Somali Latin"):
-        experimental_paths.append(_afrislm_model_path())
+        candidate_paths.append(_afrislm_model_path())
     elif (source, target) == ("Somali Latin", "English"):
-        experimental_paths.extend(
+        candidate_paths.extend(
             (
                 _afrislm_4b_model_path(),
                 _afrislm_2b_model_path(),
@@ -394,44 +394,44 @@ def translate_meaning(text, source, target, model_root=None, *, provider_overrid
             )
         )
 
-    experimental_warning = None
-    for experimental_path in filter(None, experimental_paths):
+    candidate_warning = None
+    for candidate_path in filter(None, candidate_paths):
         try:
-            experimental, fallback_warning = _translate_afrislm(
-                text, source, target, experimental_path
+            candidate, fallback_warning = _translate_afrislm(
+                text, source, target, candidate_path
             )
         except ValueError:
-            experimental = None
+            candidate = None
             fallback_warning = (
                 "Optional AfriSLM runtime unavailable; used the standard offline model."
             )
-        if experimental is not None and _synthetic_candidate_is_degenerate(
-            text, experimental.text
+        if candidate is not None and _synthetic_candidate_is_degenerate(
+            text, candidate.text
         ):
-            experimental = None
+            candidate = None
             fallback_warning = (
-                "Experimental model returned unreadable or repetitive text; "
+                "The optional Somali model returned unreadable or repetitive text; "
                 "used the standard offline model."
             )
-        if experimental is not None:
-            if experimental_warning:
+        if candidate is not None:
+            if candidate_warning:
                 return Conversion(
-                    experimental.text,
+                    candidate.text,
                     (
-                        *experimental.warnings,
-                        "The larger experimental model could not run; used the smaller model.",
+                        *candidate.warnings,
+                        "The larger Somali model could not run; used the smaller model.",
                     ),
-                    experimental.alternatives,
+                    candidate.alternatives,
                 )
-            return experimental
-        experimental_warning = fallback_warning
+            return candidate
+        candidate_warning = fallback_warning
 
     try:
         folder = model_directory(source, target, model_root)
     except ValueError as error:
-        if experimental_warning:
+        if candidate_warning:
             raise ValueError(
-                f"{experimental_warning} Download the Somali / English offline pack or install the optional runtime."
+                f"{candidate_warning} Download the Somali / English offline pack or install the optional runtime."
             ) from error
         raise
     candidate_fallback = False
@@ -517,8 +517,8 @@ def translate_meaning(text, source, target, model_root=None, *, provider_overrid
         warnings = ["Somali translation may be inaccurate; check important details."]
         if candidate_fallback:
             warnings.append(candidate_fallback_reason)
-        if experimental_warning:
-            warnings.append(experimental_warning)
+        if candidate_warning:
+            warnings.append(candidate_warning)
         if cleaned != decoded:
             warnings.append("An extra symbol was removed from the output.")
         if chunked:
@@ -539,8 +539,8 @@ def translate_meaning(text, source, target, model_root=None, *, provider_overrid
         trailing,
     )
     warnings = ["Machine translation; check important details."]
-    if experimental_warning:
-        warnings.append(experimental_warning)
+    if candidate_warning:
+        warnings.append(candidate_warning)
     if chunked:
         warnings.append(
             "Long text was split into independent segments; context may change at the joins."

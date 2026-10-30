@@ -8,8 +8,13 @@ Saylacian's model-pack manager downloads only after the user chooses **Download*
 |---|---|---:|---|---|
 | Somali / English | English↔Somali Latin | 314,460,609 bytes (~300 MiB) | Apache-2.0 | CTranslate2 4.8.3, SentencePiece 0.2.2 |
 | French / English | English↔French | 174,530,568 bytes (~166 MiB) | MIT | CTranslate2 4.8.3, SentencePiece 0.2.2 |
+| Somali model (AfriSLM 0.8B) | English→Somali; fallback for Somali→English | 672,329,792 bytes (~641 MiB) | Apache-2.0 weights; CC-BY-NC-4.0 training data not included | Optional llama-cpp-python 0.3.36 |
+| Somali → English model (AfriSLM 2B) | Somali Latin→English only | 1,560,461,376 bytes (~1.45 GiB) | Apache-2.0 weights; CC-BY-NC-4.0 training data not included | Optional llama-cpp-python 0.3.36 |
+| Somali → English model (AfriSLM 4B) | Somali Latin→English only; tried before 2B when installed | 3,066,385,344 bytes (~2.86 GiB) | Apache-2.0 weights; CC-BY-NC-4.0 and ODC-By-1.0 training data not included | Optional llama-cpp-python 0.3.36 |
 
-Model repository, exact revision, file size, SHA-256, licence, and runtime pins are recorded in `saylacian/core/data/model_manifest.json` and `somali_model_manifest.json`. The app builds each pack's version from the canonical metadata and asset manifest. Installed `installed.json` records the installed files and their hashes and provenance.
+AfriSLM packs are optional and separately downloaded. Install their Python runtime with `python -m pip install -r requirements-afrislm.txt`. The 0.8B pack remains the English→Somali choice. For Somali→English, installed models are tried in this order: 4B, 2B, then 0.8B; if none can run, Saylacian uses the standard Somali/English pack when installed. The 4B pack used about 5 GB of working memory on one 32 GB Windows computer and was slower on CPU than smaller packs; actual requirements vary by device. Somali output is in alpha testing and needs fluent review.
+
+Model repository, exact revision, file size, SHA-256, licence, and runtime pins are recorded in `saylacian/core/data/model_manifest.json`, `somali_model_manifest.json`, `afrislm_model_manifest.json`, `afrislm_2b_model_manifest.json`, and `afrislm_4b_model_manifest.json`. The app builds each pack's version from the canonical metadata and asset manifest. Installed `installed.json` records the installed files and their hashes and provenance.
 
 ## Safety and storage behavior
 

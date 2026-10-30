@@ -90,9 +90,7 @@ def create_app():
             return (
                 jsonify(error=error)
                 if error
-                else jsonify(
-                    text=result.text, warnings=result.warnings, status="experimental"
-                )
+                else jsonify(text=result.text, warnings=result.warnings, status="alpha")
             ), status
         return (
             render_template("index.html", result=result, error=error, values=values),

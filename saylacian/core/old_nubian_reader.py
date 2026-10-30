@@ -9,12 +9,15 @@ from dataclasses import dataclass
 
 from saylacian.core.transliteration import (
     OLD_NUBIAN_AMBIGUOUS_TOKENS,
+    OLD_NUBIAN_LATIN_VARIANTS,
     OLD_NUBIAN_TO_LATIN,
     transliterate,
 )
 
-CONVENTION = "DBMNT transliteration table, page 1"
-SOURCE_URL = "https://dbmnt.uw.edu.pl/static/pdf/transliteration_tables.pdf"
+CONVENTION = "van Gerven Oei, Old Nubian (2024), Table 1"
+SOURCE_URL = "https://escholarship.org/uc/item/03x6d68h"
+LEGACY_CONVENTION = "DBMNT transliteration table, page 1"
+LEGACY_SOURCE_URL = "https://dbmnt.uw.edu.pl/static/pdf/transliteration_tables.pdf"
 FORMAT = "saylacian-old-nubian-reading"
 FORMAT_VERSION = 1
 MAX_RECORD_BYTES = 128_000
@@ -28,6 +31,7 @@ class ReadingRecord:
     warnings: tuple[str, ...]
     convention: str = CONVENTION
     source_url: str = SOURCE_URL
+    alternatives: tuple[str, ...] = ()
 
 
 def alphabet_entries(query: str = "") -> tuple[dict[str, object], ...]:
@@ -39,18 +43,21 @@ def alphabet_entries(query: str = "") -> tuple[dict[str, object], ...]:
     for glyph, reading in OLD_NUBIAN_TO_LATIN.items():
         codepoint = f"U+{ord(glyph):04X}"
         name = unicodedata.name(glyph, "UNKNOWN CHARACTER")
-        reverse_ambiguous = reading in OLD_NUBIAN_AMBIGUOUS_TOKENS
+        variants = OLD_NUBIAN_LATIN_VARIANTS.get(glyph, ())
+        reading_label = " / ".join((reading, *variants))
+        reverse_ambiguous = reading in OLD_NUBIAN_AMBIGUOUS_TOKENS or bool(variants)
         row = {
             "glyph": glyph,
             "reading": reading,
+            "reading_label": reading_label,
             "codepoint": codepoint,
             "name": name,
             "convention": CONVENTION,
             "source_url": SOURCE_URL,
-            "confidence": "Listed in cited table; not independently reviewed",
+            "confidence": "Listed in the attributed 2024 table; not independently reviewed",
             "ambiguous": reverse_ambiguous,
         }
-        searchable = f"{glyph} {reading} {codepoint} {name}".casefold()
+        searchable = f"{glyph} {reading_label} {codepoint} {name}".casefold()
         if not needle or needle in searchable:
             rows.append(row)
     return tuple(rows)
@@ -99,6 +106,7 @@ def make_reading_record(original: str) -> ReadingRecord:
         latin=converted.text,
         lines=lines,
         warnings=converted.warnings,
+        alternatives=converted.alternatives,
     )
 
 
@@ -159,12 +167,34 @@ def import_reading_record(payload: str) -> ReadingRecord:
         raise ValueError("Reading record checksum does not match.")
     if not isinstance(body["original"], str) or not isinstance(body["latin"], str):
         raise TypeError("Reading record text fields must be strings.")
-    if body["convention"] != CONVENTION or body["source_url"] != SOURCE_URL:
+    legacy_record = (
+        body["convention"] == LEGACY_CONVENTION
+        and body["source_url"] == LEGACY_SOURCE_URL
+    )
+    if not legacy_record and (
+        body["convention"] != CONVENTION or body["source_url"] != SOURCE_URL
+    ):
         raise ValueError("Reading record uses an unrecognized convention or source.")
     if not isinstance(body["warnings"], list) or not all(
         isinstance(warning, str) for warning in body["warnings"]
     ):
         raise ValueError("Reading record warnings are invalid.")
+    if legacy_record:
+        warnings = tuple(body["warnings"]) + (
+            "Imported saved reading from the older DBMNT table; Saylacian preserved it without recalculating.",
+        )
+        original_lines = body["original"].splitlines(keepends=True)
+        latin_lines = body["latin"].splitlines(keepends=True)
+        if len(original_lines) != len(latin_lines):
+            raise ValueError("Legacy reading lines do not match the saved original.")
+        return ReadingRecord(
+            original=body["original"],
+            latin=body["latin"],
+            lines=tuple(zip(original_lines, latin_lines, strict=True)),
+            warnings=warnings,
+            convention=LEGACY_CONVENTION,
+            source_url=LEGACY_SOURCE_URL,
+        )
     record = make_reading_record(body["original"])
     if record.latin != body["latin"] or list(record.warnings) != body["warnings"]:
         raise ValueError("Reading record Latin text does not match its original.")

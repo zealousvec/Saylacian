@@ -1,6 +1,6 @@
 {
   "language": "Somali",
-  "record_status": "partial experimental chart-label mapping",
+  "record_status": "partial chart-label mapping; alpha testing",
   "encoding": {
     "kind": "private-use Unicode",
     "portable": false,

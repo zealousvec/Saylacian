@@ -48,7 +48,7 @@
       if (!response.ok) throw new Error(result.error || "Conversion failed.");
       output.value = result.text;
       resultSelection = [source.value, target.value, mode.value];
-      status.textContent = "Experimental. " + (result.warnings.join(" ") || "Conversion completed.");
+      status.textContent = "Alpha testing. " + (result.warnings.join(" ") || "Conversion completed.");
     } catch (error) {
       if (current !== generation || error.name === "AbortError") return;
       output.value = "";

@@ -10,7 +10,7 @@
   <script src="{{ url_for('static',filename='translator.js') }}" defer></script>
 </head>
 <body><main>
-  <header><h1>Saylacian</h1><p>Language and script preservation. Experimental tools.</p></header>
+  <header><h1>Saylacian</h1><p>Language and script tools · alpha testing</p></header>
   <form id="translator" method="post" action="/process">
     <div class="selectors">
       <label for="source">From<select id="source" name="source">
@@ -48,6 +48,6 @@
     {% endfor %}</div>
     <p>Reference: <a href="https://www.unicode.org/versions/Unicode16.0.0/core-spec/chapter-19/">Unicode 16.0, section 19.2.1</a>. Somali-speaker review is still needed.</p>
   </details>
-  <section><h2>Support and privacy</h2><p>Somali Latin / Osmanya conversion is experimental. English ↔ French and English ↔ Somali meaning models run locally. Somali output needs fluent review. Somali ↔ French uses English as an intermediate step, so errors can compound. This website does not offer Borama or Kaddare. Old Nubian support is limited to character transliteration from Coptic-derived writing to scholarly Latin; reverse conversion is experimental. Neither route translates Old Nubian meaning or covers every convention. Modern Nubian varieties are not implemented.</p><p>The server processes text only when you choose Convert and does not save translation history on this development site. Public hosting is not set up.</p></section>
+  <section><h2>Support and privacy</h2><p>English ↔ French and English ↔ Somali meaning models run locally. Somali translation is in alpha testing and needs fluent-speaker review. Somali ↔ French uses English as an intermediate step, so errors can compound. Somali Latin / Osmanya changes the writing system, not meaning. This website does not offer Borama or Kaddare. Old Nubian support is a limited 29-character transliteration table from Coptic-derived writing to scholarly Latin; reverse conversion can have ambiguous letter boundaries. Neither route translates Old Nubian meaning or covers every convention. Modern Nubian varieties are not supported.</p><p>The server processes text only when you choose Convert and does not save translation history on this development site. Public hosting is not set up.</p></section>
   <noscript><p>JavaScript is off. Form conversion still works; copy/paste and swap helpers require JavaScript.</p></noscript>
 </main></body></html>

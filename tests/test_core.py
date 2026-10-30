@@ -130,12 +130,10 @@ class CoreTests(unittest.TestCase):
             "ⲗⲙⲛ": "lmn",
             "ⲝⲟⲡ": "xop",
             "ⲣⲥⲧ": "rst",
-            "ⲩⲫⲭ": "uphch",
+            "ⲩⲫⲭ": "uphkh",
             "ⲯⲱ": "psō",
-            "ϣϥϩ": "shfh",
-            "ϫϭϯ": "djkyti",
-            "ⳟⳡⳣⳝ": "ngnywj",
-            "ⲁ, ⲃ!\nϣ": "a, b!\nsh",
+            "ϣⳟⳡⳣⳝ": "šŋñwj",
+            "ⲁ, ⲃ!\nϣ": "a, b!\nš",
         }
         for source, expected in cases.items():
             with self.subTest(source=source):
@@ -153,15 +151,15 @@ class CoreTests(unittest.TestCase):
             transliterate(
                 "ⳝⳟⳡⳣ", "Old Nubian (Coptic)", "Old Nubian scholarly Latin"
             ).text,
-            "jngnyw",
+            "jŋñw",
         )
 
     def test_old_nubian_capitals_follow_unicode_pairs_and_preserve_latin_case(self):
         cases = {
             "ⲀⲂⲄ": "ABG",
             "ⲀⲃⲄ": "AbG",
-            "ⳜⳞⳠⳢ": "JNGNYW",
-            "ϢϤϨϪϬϮ": "SHFHDJKYTI",
+            "ⳜⳞⳠⳢ": "JŊÑW",
+            "Ϣ": "Š",
         }
         for source, expected in cases.items():
             with self.subTest(source=source):
@@ -189,7 +187,7 @@ class CoreTests(unittest.TestCase):
         reverse_cases = {
             "ABG": "ⲀⲂⲄ",
             "AbG": "ⲀⲃⲄ",
-            "NG": "Ⳟ",
+            "Ŋ": "Ⳟ",
         }
         for source, expected in reverse_cases.items():
             with self.subTest(source=source):
@@ -202,11 +200,12 @@ class CoreTests(unittest.TestCase):
                     expected,
                 )
 
-        uppercase_ng = transliterate(
-            "NG", "Old Nubian scholarly Latin", "Old Nubian (Coptic)"
+        ambiguous = transliterate(
+            "PH", "Old Nubian scholarly Latin", "Old Nubian (Coptic)"
         )
-        self.assertIn("ⲚⲄ", uppercase_ng.alternatives)
-        self.assertTrue(uppercase_ng.warnings)
+        self.assertEqual(ambiguous.text, "Ⲫ")
+        self.assertIn("ⲠH", ambiguous.alternatives)
+        self.assertTrue(ambiguous.warnings)
 
     def test_old_nubian_combining_marks_and_line_breaks_are_preserved(self):
         text = "ⲁ⳯⳰⳱\nⲃ⳹⳺⳻⳼"
@@ -243,30 +242,17 @@ class CoreTests(unittest.TestCase):
 
     def test_old_nubian_reverse_and_ambiguity_notice(self):
         result = transliterate(
-            "ng, ny! dj", "Old Nubian scholarly Latin", "Old Nubian (Coptic)"
+            "ph, kh, ps", "Old Nubian scholarly Latin", "Old Nubian (Coptic)"
         )
-        self.assertEqual(result.text, "ⳟ, ⳡ! ϫ")
-        self.assertTrue(result.warnings)
-        self.assertIn("ⲛⲅ, ⳡ! ϫ", result.alternatives)
-        self.assertIn("ⳟ, ⳡ! ⲇⳝ", result.alternatives)
-        self.assertEqual(
-            transliterate(
-                "ou", "Old Nubian scholarly Latin", "Old Nubian (Coptic)"
-            ).text,
-            "ⳣ",
-        )
-        self.assertIn(
-            "ⲟⲩ",
-            transliterate(
-                "ou", "Old Nubian scholarly Latin", "Old Nubian (Coptic)"
-            ).alternatives,
-        )
+        self.assertEqual(result.text, "ⲫ, ⲭ, ⲯ")
+        self.assertIn("ⲡh, ⲭ, ⲯ", result.alternatives)
+        self.assertTrue(any("segmentations" in warning for warning in result.warnings))
 
     def test_unlisted_coptic_letters_are_preserved_and_warned(self):
         result = transliterate(
-            "Ⲳ!", "Old Nubian (Coptic)", "Old Nubian scholarly Latin"
+            "Ⲳϥ!", "Old Nubian (Coptic)", "Old Nubian scholarly Latin"
         )
-        self.assertEqual(result.text, "Ⲳ!")
+        self.assertEqual(result.text, "Ⲳϥ!")
         self.assertTrue(result.warnings)
 
     def test_capability_registry_labels_specific_routes(self):
@@ -278,7 +264,7 @@ class CoreTests(unittest.TestCase):
             for route in routes
             if route.get("kind") == "script" and route.get("source") == "Borama"
         )
-        self.assertIn("experimental", borama_reference["status"])
+        self.assertIn("alpha", borama_reference["status"])
         self.assertIsNotNone(
             get_capability("Borama", "Somali Latin", "transliteration")
         )

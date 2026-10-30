@@ -81,7 +81,7 @@ class HistoricalChartScriptTests(unittest.TestCase):
     def test_partial_chart_routes_are_registered_both_ways(self):
         self.assertEqual(
             get_capability("Somali Latin", "Borama", "transliteration")["status"],
-            "experimental partial",
+            "alpha limited",
         )
         self.assertIsNotNone(
             get_capability("Kaddare", "Somali Latin", "transliteration")

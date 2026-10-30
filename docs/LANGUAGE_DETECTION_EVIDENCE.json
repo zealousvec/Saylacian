@@ -49,7 +49,7 @@
     "test": "offline Somali-to-English through Kivy Detect language/script source",
     "input": "Salaan, sidee tahay?",
     "output": "How are you?",
-    "status": "Detected Somali Latin (80% confidence). Experimental offline Somali output; fluent human review pending.",
+    "status": "Detected Somali Latin (80% model confidence). Somali output is in alpha testing; fluent human review is pending.",
     "screen_capture": "previews/enhanced-meaning-somali0006.png",
     "test_result": "passed with socket.connect blocked"
   },

@@ -1,4 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
+import hashlib
 import json
 import unittest
 
@@ -10,6 +11,7 @@ from saylacian.core.old_nubian_reader import (
     import_reading_record,
     make_reading_record,
 )
+from saylacian.core.transliteration import OLD_NUBIAN_TO_LATIN
 
 
 class OldNubianReaderTests(unittest.TestCase):
@@ -38,12 +40,13 @@ class OldNubianReaderTests(unittest.TestCase):
 
     def test_alphabet_is_limited_to_cited_entries_and_searchable(self):
         entries = alphabet_entries()
-        self.assertEqual(len(entries), 34)
+        self.assertEqual(len(entries), 29)
         ngi = alphabet_entries("2cdf")
         self.assertEqual(len(ngi), 1)
-        self.assertEqual((ngi[0]["glyph"], ngi[0]["reading"]), ("ⳟ", "ng"))
+        self.assertEqual((ngi[0]["glyph"], ngi[0]["reading"]), ("ⳟ", "ŋ"))
         self.assertEqual(
-            ngi[0]["confidence"], "Listed in cited table; not independently reviewed"
+            ngi[0]["confidence"],
+            "Listed in the attributed 2024 table; not independently reviewed",
         )
         self.assertEqual(alphabet_entries("not-a-letter"), ())
 
@@ -51,8 +54,16 @@ class OldNubianReaderTests(unittest.TestCase):
         original = "ⲙⲏⲛⲁ\nⳟⳡⳣ\n"
         record = make_reading_record(original)
         self.assertEqual(record.original, original)
-        self.assertEqual(record.latin, "mēna\nngnyw\n")
-        self.assertEqual(record.lines, (("ⲙⲏⲛⲁ\n", "mēna\n"), ("ⳟⳡⳣ\n", "ngnyw\n")))
+        self.assertEqual(record.latin, "mēna\nŋñw\n")
+        self.assertEqual(record.lines, (("ⲙⲏⲛⲁ\n", "mēna\n"), ("ⳟⳡⳣ\n", "ŋñw\n")))
+
+    def test_alphabet_contains_only_the_29_attributed_table_entries(self):
+        entries = alphabet_entries()
+        self.assertEqual(len(entries), 29)
+        self.assertEqual(
+            {entry["glyph"] for entry in entries}, set(OLD_NUBIAN_TO_LATIN)
+        )
+        self.assertNotIn("ϥ", {entry["glyph"] for entry in entries})
 
     def test_versioned_record_roundtrips_and_checksum_detects_edits(self):
         payload = export_reading_record(make_reading_record("ⲁ\nⲃ"))
@@ -73,6 +84,28 @@ class OldNubianReaderTests(unittest.TestCase):
             import_reading_record("\ud800")
         with self.assertRaisesRegex(TypeError, "must be text"):
             import_reading_record(None)
+
+    def test_legacy_dbmnt_record_roundtrips_without_recalculation(self):
+        body = {
+            "format": FORMAT,
+            "version": 1,
+            "original": "ⲭ",
+            "latin": "ch",
+            "convention": "DBMNT transliteration table, page 1",
+            "source_url": "https://dbmnt.uw.edu.pl/static/pdf/transliteration_tables.pdf",
+            "warnings": [],
+        }
+        canonical = json.dumps(
+            body, ensure_ascii=False, sort_keys=True, separators=(",", ":")
+        )
+        envelope = {
+            **body,
+            "sha256": hashlib.sha256(canonical.encode("utf-8")).hexdigest(),
+        }
+        restored = import_reading_record(json.dumps(envelope, ensure_ascii=False))
+        self.assertEqual((restored.original, restored.latin), ("ⲭ", "ch"))
+        self.assertIn("preserved it without recalculating", restored.warnings[-1])
+        self.assertEqual(restored.convention, body["convention"])
 
 
 if __name__ == "__main__":

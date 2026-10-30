@@ -2,7 +2,7 @@
 
 ## Current baseline
 
-English↔French is smoke-tested with installed offline packs. English↔Somali uses multilingual OPUS models and remains experimental; Somali↔French pivots through English and may compound errors. Model metadata and aggregate benchmark results live in `SOMALI_TRANSLATION_EVIDENCE.json`, `SOMALI_TRANSLATION_QUALITY.md`, `TRANSLATION_FEASIBILITY.md`, and the model manifests. Raw generated predictions stay in local app data and are not checked into source. These records are software/model smoke evidence, not fluent-speaker validation.
+English↔French is smoke-tested with installed offline packs. English↔Somali uses multilingual OPUS models and is in alpha testing; Somali↔French pivots through English and may compound errors. Model metadata and aggregate benchmark results live in `SOMALI_TRANSLATION_EVIDENCE.json`, `SOMALI_TRANSLATION_QUALITY.md`, `TRANSLATION_FEASIBILITY.md`, and the model manifests. Raw generated predictions stay in local app data and are not checked into source. These records are software/model smoke evidence, not fluent-speaker validation.
 
 ## Evaluation data
 
@@ -21,4 +21,4 @@ Run fixed examples against pinned model/runtime revisions, with deterministic pr
 
 ## Acceptance before quality claims
 
-Publish per-route sample size, domain, model/version, test revision and human-review status. Somali features remain labelled experimental until reviewers confirm the intended meaning across an appropriately broad set. Preserve all test input/output artifacts needed for reproducibility while redacting private user content.
+Publish per-route sample size, domain, model/version, test revision and human-review status. Keep Somali translation labelled as alpha testing and show that fluent-speaker review is still needed. Preserve reproducible test inputs and outputs while redacting private user content.

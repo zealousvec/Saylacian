@@ -174,7 +174,7 @@ def get_pack_specs() -> dict[str, dict]:
             "assets": french_assets,
         },
         "somali_afrislm": {
-            "title": "Somali experimental model (AfriSLM)",
+            "title": "Somali model (AfriSLM 0.8B)",
             "description": (
                 "Optional 641 MiB model preferred for English-to-Somali; "
                 "requires llama-cpp-python 0.3.36. Output needs fluent review; "
@@ -202,10 +202,10 @@ def get_pack_specs() -> dict[str, dict]:
             ],
         },
         "somali_afrislm_2b": {
-            "title": "Somali → English experimental model (AfriSLM 2B)",
+            "title": "Somali → English model (AfriSLM 2B)",
             "description": (
                 "Optional 1.46 GiB model used for Somali-to-English only; "
-                "requires llama-cpp-python 0.3.36. Results remain experimental; "
+                "Requires llama-cpp-python 0.3.36. Alpha testing; "
                 "training data is not included."
             ),
             "license": "Apache-2.0",
@@ -230,11 +230,11 @@ def get_pack_specs() -> dict[str, dict]:
             ],
         },
         "somali_afrislm_4b": {
-            "title": "Somali → English experimental model (AfriSLM 4B)",
+            "title": "Somali → English model (AfriSLM 4B)",
             "description": (
                 "Optional 3.07 GB Somali-to-English model; tries before AfriSLM 2B. "
                 "Requires llama-cpp-python 0.3.36 and more memory; about 5 GB was "
-                "used on one 32 GB Windows computer. Output remains experimental; "
+                "used on one 32 GB Windows computer. Alpha testing; "
                 "training data is not included."
             ),
             "license": "Apache-2.0",

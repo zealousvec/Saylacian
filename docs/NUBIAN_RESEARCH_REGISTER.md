@@ -4,7 +4,7 @@ Old Nubian is a historical written language. It must not be used as a proxy for 
 
 | Variety | Identity / orthography evidence | Saylacian state | Safe next step |
 |---|---|---|---|
-| Old Nubian | Historical language; current app has a small Coptic-derived scholarly transliteration table | Limited forward table; experimental reverse; no meaning translation | Expand only from cited sources; create reader plan and obtain specialist review |
+| Old Nubian | Historical language; app has a cited 29-character Coptic-derived reading table | Limited character reading and reverse parsing; no meaning translation | Keep the source attribution visible and request specialist review before expanding readings |
 | Nobiin | Distinct modern language; Latin orthography research exists, with community-specific practice | No implemented route; hidden from normal selector | Compare documented orthographies and licensed text resources; do not reuse Old Nubian rules |
 | Kenzi / Mattokki | Distinct modern variety, often discussed with Kenuzi/Dongolawi; naming/classification must cite source | No implemented route; hidden from normal selector | Establish preferred language name and orthography from primary/community sources |
 | Dongolawi / Andaandi | Distinct modern variety; do not merge with Nobiin | No implemented route; hidden from normal selector | Identify source-backed orthography and dataset rights separately |

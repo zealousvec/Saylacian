@@ -32,7 +32,7 @@ translation = translate_meaning("Hello.", "English", "French")
 - `encode_saylacian_text(text, script)` creates a validated ASCII envelope for Borama or Kaddare chart text.
 - `decode_saylacian_text(value)` returns a `SaylacianText` record for a supported envelope, `None` for ordinary text, and raises `ValueError` for an invalid or unsupported package.
 
-Route coverage, model status, font behavior and research limits are listed in the [support matrix](SUPPORT_MATRIX.md). Treat Somali, Osmanya, Borama, Kaddare and reverse Old Nubian results as experimental or limited where indicated.
+Route coverage, model status, font behavior and known limits are listed in the [support matrix](SUPPORT_MATRIX.md). The capability status field marks routes in alpha testing or with limited mappings; it is not a language-quality score.
 
 ## Optional self-hosted HTTP API
 
@@ -70,7 +70,7 @@ The `Authorization` header is required when the server is configured with `SAYLA
 
 ## Clipboard interchange
 
-Saylacian Text v1 is a portable ASCII envelope for the current experimental Borama/Kaddare mapping. It preserves the app's private-use character sequence and script label so Saylacian can restore them. It is not a public Unicode assignment and does not guarantee glyph rendering in third-party apps. The clipboard's RTF/HTML formats also require a compatible font and an app that accepts those formats. See [the user guide](USER_GUIDE.md) and [interoperability details](SOMALI_SCRIPT_INTEROPERABILITY.md).
+Saylacian Text v1 is a portable ASCII envelope for the current Borama/Kaddare chart mappings. It preserves the app's private-use character sequence and script label so Saylacian can restore them. It is not a public Unicode assignment and does not guarantee glyph rendering in third-party apps. The clipboard's RTF/HTML formats also require a compatible font and an app that accepts those formats. See [the user guide](USER_GUIDE.md) and [interoperability details](SOMALI_SCRIPT_INTEROPERABILITY.md).
 
 ## Operational limits
 

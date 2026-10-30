@@ -1,6 +1,6 @@
 # Script engineering evidence
 
-## Osmanya — experimental conversion
+## Osmanya — conversion available for alpha testing
 
 The mapping is an inspectable JSON resource at `saylacian/core/data/osmanya.json`. Unicode 16.0 chapter 19.2.1 documents Osmanya and its vowel/semivowel ambiguities. The Unicode chart establishes the assigned letter positions, but is not by itself a validated transliteration dictionary.
 

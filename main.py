@@ -36,7 +36,6 @@ from kivy.core.clipboard import Clipboard
 from kivy.core.text import LabelBase
 from kivy.core.window import Keyboard, Window
 from kivy.factory import Factory
-from kivy.graphics import Color, Line
 from kivy.lang import Builder
 from kivy.metrics import dp
 from kivy.properties import BooleanProperty, NumericProperty, StringProperty
@@ -88,6 +87,7 @@ from saylacian.core.presentation import (
     translation_error_message,
 )
 from saylacian.core.script_info import osmanya_letters
+from saylacian.core.session import read_session, write_session
 from saylacian.core.translation import (
     clear_model_cache,
     model_directory,
@@ -147,25 +147,6 @@ def publish_windows_clipboard(formats):
 
 
 class SaylacianTextInput(TextInput):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        with self.canvas.after:
-            self._focus_outline_color = Color(rgba=(0, 0, 0, 0))
-            self._focus_outline = Line(width=dp(2))
-        self.bind(focus=self._update_focus_outline)
-        self.bind(pos=self._update_focus_outline, size=self._update_focus_outline)
-        self._update_focus_outline()
-
-    def _update_focus_outline(self, *_args):
-        self._focus_outline_color.rgba = (0, 0, 0, 1 if self.focus else 0)
-        inset = dp(1)
-        self._focus_outline.rectangle = (
-            self.x + inset,
-            self.y + inset,
-            max(0, self.width - 2 * inset),
-            max(0, self.height - 2 * inset),
-        )
-
     def copy(self, data=""):
         selected = data or self.selection_text
         app = MDApp.get_running_app()
@@ -253,6 +234,8 @@ class SaylacianApp(MDApp):
         except OSError:
             self.diagnostics = None
         self.history = History(Path(self.user_data_dir) / "history-v1.json")
+        self.session_path = Path(self.user_data_dir) / "last-session-v1.json"
+        self.restore_session()
         if "--self-test" in sys.argv:
             from app.acceptance import start
 
@@ -437,6 +420,8 @@ class SaylacianApp(MDApp):
                 note = f"Update available · {self._format_bytes(pack['download_bytes'])} download"
             else:
                 note = f"Download {self._format_bytes(pack['download_bytes'])} · works offline"
+            if pack.get("description"):
+                note += " · " + pack["description"]
             subtitle = MDLabel(
                 text=note,
                 theme_text_color="Custom",
@@ -742,9 +727,11 @@ class SaylacianApp(MDApp):
         output.text = ""
         if not text.strip():
             self.status = "Enter text to begin."
+            self.save_session(text, "")
             return
         if len(text) > 4000:
             self.status = "Maximum 4,000 characters."
+            self.save_session(text, "")
             return
         if self.mode == "Translate meaning":
             translation_source = self.source
@@ -759,10 +746,12 @@ class SaylacianApp(MDApp):
                     self.status = (
                         script_message + " Script detection is not meaning translation."
                     )
+                    self.save_session(text, "")
                     return
                 translation_source, confidence, message = detect_language(text)
                 if translation_source is None:
                     self.status = message
+                    self.save_session(text, "")
                     return
                 self.detected_language = (translation_source, confidence)
             try:
@@ -781,8 +770,10 @@ class SaylacianApp(MDApp):
                 )
                 self.status = detected + route
                 self.translate_trigger()
+                self.save_session(text, "")
             except ValueError as error:
                 self.status = translation_error_message(error)
+                self.save_session(text, "")
             return
         source = self.source
         detection_note = ""
@@ -793,6 +784,7 @@ class SaylacianApp(MDApp):
                 source, confidence, message = detect_language(text)
                 if source is None:
                     self.status = message
+                    self.save_session(text, "")
                     return
             else:
                 coptic_script = source == "Coptic script"
@@ -811,19 +803,22 @@ class SaylacianApp(MDApp):
                         if coptic_script
                         else f"Detected {source}. Choose another target to convert this text."
                     )
+                    self.save_session(text, "")
                     return
                 if self.target == source:
                     self.status = (
                         f"Detected {source}; choose a different script as target."
                     )
+                    self.save_session(text, "")
                     return
         try:
             result = transliterate(text, source, self.target)
             output.text = result.text
             warnings = " ".join(result.warnings)
             if result.alternatives:
-                self.alternative_readings = "\nOther Coptic readings: " + " / ".join(
-                    result.alternatives[:3]
+                self.alternative_readings = (
+                    "\nOther letter segmentations: "
+                    + " / ".join(result.alternatives[:3])
                 )
             if source in ("Borama", "Kaddare") or self.target in (
                 "Borama",
@@ -845,12 +840,16 @@ class SaylacianApp(MDApp):
                     + (warnings + " " if warnings else "")
                     + "Writing converted; meaning unchanged."
                 )
+            self.save_session(text, output.text)
         except ValueError as error:
             self.status = str(error)
+            self.save_session(text, "")
 
     def on_input_text(self, text):
         """Import tagged script text and reject unlabelled private-use text."""
-        if getattr(self, "_importing_package", False):
+        if getattr(self, "_importing_package", False) or getattr(
+            self, "_restoring_session", False
+        ):
             return
         if text:
             try:
@@ -859,6 +858,7 @@ class SaylacianApp(MDApp):
                 self.root.get_screen("home").ids.output_text.text = ""
                 self.alternative_readings = ""
                 self.status = str(error)
+                self.save_session(text, "")
                 return
             if package:
                 input_widget = self.root.get_screen("home").ids.input_text
@@ -891,6 +891,7 @@ class SaylacianApp(MDApp):
                 input_widget.font_name = "Roboto"
                 input_widget._refresh_line_options()
                 self.status = "This text has no script label. Paste a Saylacian Text package or choose Borama/Kaddare as source."
+                self.save_session(text, "")
                 return
         self.convert(text)
 
@@ -942,6 +943,57 @@ class SaylacianApp(MDApp):
             language, confidence = self.detected_language
             warnings = f"Detected {language} ({confidence:.0%} confidence). " + warnings
         self.status = warnings
+        self.save_session(self.root.get_screen("home").ids.input_text.text, result.text)
+
+    def save_session(self, input_text=None, output_text=None):
+        """Keep the last visible conversion so reopening the app restores it."""
+        if not getattr(self, "session_path", None) or not self.root:
+            return
+        home = self.root.get_screen("home")
+        snapshot = {
+            "version": 1,
+            "mode": self.mode,
+            "source": self.source,
+            "target": self.target,
+            "input": home.ids.input_text.text if input_text is None else input_text,
+            "output": home.ids.output_text.text if output_text is None else output_text,
+            "status": self.status,
+            "alternatives": self.alternative_readings,
+        }
+        write_session(self.session_path, snapshot)
+
+    def restore_session(self):
+        """Restore a bounded local snapshot without rerunning translation."""
+        snapshot = read_session(self.session_path)
+        if snapshot is None:
+            return
+        try:
+            mode = snapshot.get("mode")
+            source = snapshot.get("source")
+            target = snapshot.get("target")
+            input_text = snapshot.get("input")
+            output_text = snapshot.get("output")
+            if (
+                mode not in ("Convert writing system", "Translate meaning")
+                or not isinstance(source, str)
+                or not isinstance(target, str)
+                or not isinstance(input_text, str)
+                or not isinstance(output_text, str)
+            ):
+                return
+            self.mode, self.source, self.target = mode, source, target
+            self._restoring_session = True
+            try:
+                self.refresh_fonts()
+                home = self.root.get_screen("home")
+                home.ids.input_text.text = input_text
+                home.ids.output_text.text = output_text
+                self.status = str(snapshot.get("status", self.status))[:1000]
+                self.alternative_readings = str(snapshot.get("alternatives", ""))[:2000]
+            finally:
+                self._restoring_session = False
+        except (OSError, ValueError, TypeError, AttributeError):
+            return
 
     def on_stop(self):
         self.generation += 1
@@ -1073,7 +1125,12 @@ class SaylacianApp(MDApp):
             self.reader_status = str(error)
             return
         studio.ids.reader_latin.text = record.latin
-        self.reader_mark_details = describe_combining_marks(record.original)
+        detail_lines = [describe_combining_marks(record.original)]
+        if record.alternatives:
+            detail_lines.append(
+                "Other table-based readings: " + " / ".join(record.alternatives[:3])
+            )
+        self.reader_mark_details = "\n".join(line for line in detail_lines if line)
         self.reader_status = (
             "Limited character reading · "
             + record.convention
@@ -1087,7 +1144,7 @@ class SaylacianApp(MDApp):
         grid.clear_widgets()
         for entry in alphabet_entries(query):
             button = Button(
-                text=f"{entry['glyph']}  {entry['reading']}",
+                text=f"{entry['glyph']}  {entry['reading_label']}",
                 size_hint_y=None,
                 height=dp(52),
                 font_name=self.font_for("Old Nubian (Coptic)"),
@@ -1101,9 +1158,9 @@ class SaylacianApp(MDApp):
 
     def show_old_nubian_letter(self, entry):
         self.reader_selected_glyph = str(entry["glyph"])
-        ambiguity = " · reverse reading may be ambiguous" if entry["ambiguous"] else ""
+        ambiguity = " · multiple readings are listed" if entry["ambiguous"] else ""
         self.reader_detail = (
-            f"{entry['glyph']} · {entry['reading']} · {entry['codepoint']}\n"
+            f"{entry['glyph']} · {entry['reading_label']} · {entry['codepoint']}\n"
             f"{entry['name']}{ambiguity}\n"
             f"{entry['confidence']} · {entry['convention']}"
         )

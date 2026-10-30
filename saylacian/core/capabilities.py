@@ -7,7 +7,7 @@ CAPABILITIES = (
         "source": "Somali Latin",
         "target": "Osmanya",
         "mode": "transliteration",
-        "status": "experimental",
+        "status": "alpha",
         "offline": True,
     },
     {
@@ -15,7 +15,7 @@ CAPABILITIES = (
         "source": "Osmanya",
         "target": "Somali Latin",
         "mode": "transliteration",
-        "status": "experimental",
+        "status": "alpha",
         "offline": True,
     },
     {
@@ -31,7 +31,7 @@ CAPABILITIES = (
         "source": "Old Nubian scholarly Latin",
         "target": "Old Nubian (Coptic)",
         "mode": "transliteration",
-        "status": "experimental",
+        "status": "alpha limited",
         "offline": True,
     },
     {
@@ -39,7 +39,7 @@ CAPABILITIES = (
         "source": "Somali Latin",
         "target": "Borama",
         "mode": "transliteration",
-        "status": "experimental partial",
+        "status": "alpha limited",
         "offline": True,
     },
     {
@@ -47,7 +47,7 @@ CAPABILITIES = (
         "source": "Borama",
         "target": "Somali Latin",
         "mode": "transliteration",
-        "status": "experimental partial",
+        "status": "alpha limited",
         "offline": True,
     },
     {
@@ -55,7 +55,7 @@ CAPABILITIES = (
         "source": "Somali Latin",
         "target": "Kaddare",
         "mode": "transliteration",
-        "status": "experimental partial",
+        "status": "alpha limited",
         "offline": True,
     },
     {
@@ -63,7 +63,7 @@ CAPABILITIES = (
         "source": "Kaddare",
         "target": "Somali Latin",
         "mode": "transliteration",
-        "status": "experimental partial",
+        "status": "alpha limited",
         "offline": True,
     },
     {
@@ -87,7 +87,7 @@ CAPABILITIES = (
         "source": "English",
         "target": "Somali Latin",
         "mode": "translation",
-        "status": "experimental",
+        "status": "alpha",
         "offline": True,
     },
     {
@@ -95,7 +95,7 @@ CAPABILITIES = (
         "source": "Somali Latin",
         "target": "English",
         "mode": "translation",
-        "status": "experimental",
+        "status": "alpha",
         "offline": True,
     },
     {
@@ -103,7 +103,7 @@ CAPABILITIES = (
         "source": "Somali Latin",
         "target": "French",
         "mode": "translation",
-        "status": "experimental pivot",
+        "status": "alpha pivot",
         "offline": True,
     },
     {
@@ -111,7 +111,7 @@ CAPABILITIES = (
         "source": "French",
         "target": "Somali Latin",
         "mode": "translation",
-        "status": "experimental pivot",
+        "status": "alpha pivot",
         "offline": True,
     },
 )
@@ -129,13 +129,13 @@ SCRIPT_TARGETS = tuple(
     for label, status, offline, note in (
         (
             "Borama",
-            "chart-label conversion experimental",
+            "partial chart-label conversion; alpha testing",
             True,
             "Partial chart-label mapping; PUA output uses bundled font",
         ),
         (
             "Kaddare",
-            "chart-label conversion experimental",
+            "partial chart-label conversion; alpha testing",
             True,
             "Partial chart-label mapping; PUA output uses bundled font",
         ),

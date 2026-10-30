@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
-"""Experimental Somali Latin/Osmanya conversion; never semantic translation."""
+"""Somali script conversion helpers; conversions do not translate meaning."""
 
 import json
 import unicodedata
@@ -54,20 +54,16 @@ OLD_NUBIAN_TO_LATIN = {
     "ⲧ": "t",
     "ⲩ": "u",
     "ⲫ": "ph",
-    "ⲭ": "ch",
+    "ⲭ": "kh",
     "ⲯ": "ps",
     "ⲱ": "ō",
-    "ϣ": "sh",
-    "ϥ": "f",
-    "ϩ": "h",
-    "ϫ": "dj",
-    "ϭ": "ky",
-    "ϯ": "ti",
-    "ⳟ": "ng",
-    "ⳡ": "ny",
+    "ϣ": "š",
+    "ⳟ": "ŋ",
+    "ⳡ": "ñ",
     "ⳣ": "w",
     "ⳝ": "j",
 }
+OLD_NUBIAN_LATIN_VARIANTS = {}
 OLD_NUBIAN_CASED_TO_LATIN = dict(OLD_NUBIAN_TO_LATIN)
 for character, reading in OLD_NUBIAN_TO_LATIN.items():
     uppercase = character.upper()
@@ -77,20 +73,9 @@ for character, reading in OLD_NUBIAN_TO_LATIN.items():
 OLD_NUBIAN_REVERSE = {
     reading: character for character, reading in OLD_NUBIAN_TO_LATIN.items()
 }
-OLD_NUBIAN_REVERSE["ou"] = "ⳣ"
-OLD_NUBIAN_REVERSE_VARIANTS = {
-    "ou": ("ⲟⲩ",),
-    "ng": ("ⲛⲅ",),
-    "dj": ("ⲇⳝ",),
-    "sh": ("ⲥϩ",),
-    "th": ("ⲧϩ",),
-    "ph": ("ⲡϩ",),
-    "ps": ("ⲡⲥ",),
-    "ti": ("ⲧⲓ",),
-}
 OLD_NUBIAN_REVERSE_TOKENS = tuple(sorted(OLD_NUBIAN_REVERSE, key=len, reverse=True))
 OLD_NUBIAN_AMBIGUOUS_TOKENS = frozenset(
-    {"dj", "ky", "ng", "ny", "sh", "th", "ch", "ph", "ps", "ti", "ou"}
+    reading for reading in OLD_NUBIAN_TO_LATIN.values() if len(reading) > 1
 )
 SOMALI_FORWARD_TOKENS = tuple(sorted(SOMALI_TO_OSMANYA, key=len, reverse=True))
 
@@ -133,6 +118,7 @@ def _chart_transliterate(text: str, source: str, target: str) -> Conversion:
         index = 0
         upper_seen = False
         missing = []
+        missing_keys = set()
         while index < len(text):
             token = next(
                 (
@@ -151,7 +137,10 @@ def _chart_transliterate(text: str, source: str, target: str) -> Conversion:
             output.append(char)
             index += 1
             if char.isalpha():
-                missing.append(char)
+                key = char.casefold()
+                if key not in missing_keys:
+                    missing.append(char)
+                    missing_keys.add(key)
         if upper_seen:
             warnings.append("Capitalization is not represented in the chart glyphs.")
         if missing:
@@ -162,6 +151,10 @@ def _chart_transliterate(text: str, source: str, target: str) -> Conversion:
             warnings.append(
                 "The supplied chart has no Q label; q stays Latin and is flagged."
             ) if "q" in {char.casefold() for char in missing} else None
+        elif target == "Kaddare":
+            warnings.append(
+                "The chart shows two Kaddare forms for each listed label; conversion uses one label glyph and does not choose a word form."
+            )
         return Conversion("".join(output), tuple(w for w in warnings if w))
 
     mapping = SCRIPT_PUA_TO_LATIN[source]
@@ -195,13 +188,7 @@ def _old_nubian_reverse_candidates(text: str, limit: int = 12) -> tuple[str, ...
         outputs = []
         for token in matches:
             source_token = text[index : index + len(token)]
-            readings = tuple(
-                _match_case(source_token, reading)
-                for reading in (
-                    OLD_NUBIAN_REVERSE[token],
-                    *OLD_NUBIAN_REVERSE_VARIANTS.get(token, ()),
-                )
-            )
+            readings = (_match_case(source_token, OLD_NUBIAN_REVERSE[token]),)
             for reading in readings:
                 outputs.extend(reading + tail for tail in paths[index + len(token)])
                 if len(outputs) >= limit * 2:
@@ -252,14 +239,30 @@ def transliterate(text: str, source: str, target: str) -> Conversion:
     if (source, target) == ("Old Nubian (Coptic)", "Old Nubian scholarly Latin"):
         output = []
         warnings = []
+        candidate_outputs = [""]
         preserved_marks = False
         preserved_punctuation = False
         for char in text:
             if char in OLD_NUBIAN_CASED_TO_LATIN:
-                output.append(OLD_NUBIAN_CASED_TO_LATIN[char])
+                reading = OLD_NUBIAN_CASED_TO_LATIN[char]
+                output.append(reading)
+                variants = OLD_NUBIAN_LATIN_VARIANTS.get(char.lower(), ())
+                choices = (
+                    reading,
+                    *(_match_case(reading, variant) for variant in variants),
+                )
+                candidate_outputs = [
+                    prefix + choice
+                    for prefix in candidate_outputs
+                    for choice in choices
+                ][:12]
             else:
                 output.append(char)
-                if char.isalpha() and 0x2C80 <= ord(char) <= 0x2CFF:
+                candidate_outputs = [prefix + char for prefix in candidate_outputs]
+                if char.isalpha() and (
+                    "COPTIC" in unicodedata.name(char, "")
+                    or 0x2C80 <= ord(char) <= 0x2CFF
+                ):
                     warnings.append(f"No verified table entry for {char}; preserved.")
                 elif 0x2C80 <= ord(char) <= 0x2CFF:
                     category = unicodedata.category(char)
@@ -271,7 +274,11 @@ def transliterate(text: str, source: str, target: str) -> Conversion:
             )
         if preserved_punctuation:
             warnings.append("Coptic punctuation is preserved without interpretation.")
-        return Conversion("".join(output), tuple(warnings))
+        primary = "".join(output)
+        alternatives = tuple(
+            value for value in dict.fromkeys(candidate_outputs) if value != primary
+        )
+        return Conversion(primary, tuple(dict.fromkeys(warnings)), alternatives)
     if (source, target) == ("Old Nubian scholarly Latin", "Old Nubian (Coptic)"):
         output = []
         index = 0
@@ -304,7 +311,9 @@ def transliterate(text: str, source: str, target: str) -> Conversion:
                 "Latin-to-script conversion follows cited scholarly table; letter boundaries can be ambiguous."
             )
         if alternatives:
-            warnings.append("Other Coptic readings are available; see alternatives.")
+            warnings.append(
+                "Other character segmentations are shown; they do not establish historical spelling."
+            )
         return Conversion(primary, tuple(warnings), alternatives)
     if (source, target) not in {
         ("Somali Latin", "Osmanya"),

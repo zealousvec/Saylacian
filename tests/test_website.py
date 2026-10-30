@@ -32,6 +32,7 @@ class WebsiteTests(unittest.TestCase):
         self.assertEqual(r.status_code, 200)
         self.assertIn(b"Content-Security-Policy", str(r.headers).encode())
         self.assertIn(b"Saylacian", r.data)
+        self.assertIn(b"alpha testing", r.data)
 
     def test_core_conversion(self):
         r = self.client.post(
@@ -39,6 +40,7 @@ class WebsiteTests(unittest.TestCase):
             json={"text": "dhagax!", "source": "Somali Latin", "target": "Osmanya"},
         )
         self.assertEqual(r.json["text"], "𐒊𐒖𐒌𐒖𐒄!")
+        self.assertEqual(r.json["status"], "alpha")
 
     @unittest.skipUnless(
         _has_local_route("Somali Latin", "English"),

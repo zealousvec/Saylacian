@@ -7,6 +7,7 @@ import sys
 import threading
 import time
 from pathlib import Path
+from tempfile import TemporaryDirectory
 from unittest.mock import Mock, patch
 
 from kivy.clock import Clock
@@ -30,14 +31,60 @@ def start(app):
     folder.mkdir(parents=True, exist_ok=True)
     home = app.root.get_screen("home")
     app_module = sys.modules[app.__class__.__module__]
+    original_session = (
+        app.session_path,
+        app.mode,
+        app.source,
+        app.target,
+        home.ids.input_text.text,
+        home.ids.output_text.text,
+        app.status,
+        app.alternative_readings,
+    )
+    app._restoring_session = True
+    try:
+        with TemporaryDirectory() as temporary:
+            app.session_path = Path(temporary) / "last-session-v1.json"
+            app.mode = "Translate meaning"
+            app.source, app.target = "English", "French"
+            app.status = "Alpha testing: check important translations."
+            home.ids.input_text.text = "Hello"
+            home.ids.output_text.text = "Bonjour"
+            app._restoring_session = False
+            app.save_session()
+            app._restoring_session = True
+            home.ids.input_text.text = ""
+            home.ids.output_text.text = ""
+            app._restoring_session = False
+            app.restore_session()
+            assert home.ids.input_text.text == "Hello"
+            assert home.ids.output_text.text == "Bonjour"
+            assert (app.mode, app.source, app.target) == (
+                "Translate meaning",
+                "English",
+                "French",
+            )
+    finally:
+        app._restoring_session = True
+        (
+            app.session_path,
+            app.mode,
+            app.source,
+            app.target,
+            input_text,
+            output_text,
+            app.status,
+            app.alternative_readings,
+        ) = original_session
+        app._restoring_session = True
+        home.ids.input_text.text = input_text
+        home.ids.output_text.text = output_text
+        app._restoring_session = False
+        app.refresh_fonts()
     assert list(home.ids.input_text.hint_text_color) == [0.35, 0.35, 0.35, 1]
     assert list(home.ids.output_text.hint_text_color) == [0.35, 0.35, 0.35, 1]
     input_field = home.ids.input_text
-    assert input_field._focus_outline.width == dp(2)
-    assert list(input_field._focus_outline_color.rgba) == [0, 0, 0, 0]
-    input_field.focus = True
-    assert list(input_field._focus_outline_color.rgba) == [0, 0, 0, 1]
-    input_field.focus = False
+    assert not hasattr(input_field, "_focus_outline")
     assert home.ids.app_header.orientation == (
         "vertical" if home.width < dp(420) else "horizontal"
     )
@@ -541,14 +588,14 @@ def start(app):
 
         app.source, app.target = "Old Nubian scholarly Latin", "Old Nubian (Coptic)"
         app.refresh_fonts()
-        home.ids.input_text.text = "ng dj"
-        assert home.ids.output_text.text == "ⳟ ϫ"
-        assert "Other Coptic readings" in app.alternative_readings
+        home.ids.input_text.text = "ŋ ph"
+        assert home.ids.output_text.text == "ⳟ ⲫ"
+        assert "Other letter segmentations" in app.alternative_readings
 
         app.source, app.target = "Old Nubian (Coptic)", "Old Nubian scholarly Latin"
         app.refresh_fonts()
         home.ids.input_text.text = "ⲀⲂⲄ\nⳜⳞⳠⳢ\nⲁ⳯⳰⳱"
-        assert home.ids.output_text.text == "ABG\nJNGNYW\na⳯⳰⳱"
+        assert home.ids.output_text.text == "ABG\nJŊÑW\na⳯⳰⳱"
         assert home.ids.output_text.font_name == app.font_for("Old Nubian (Coptic)")
         assert "placement with Latin are not interpreted" in app.status
         app.open_picker("target")
@@ -643,6 +690,7 @@ def start(app):
                 Window.screenshot(name=str(folder / "packaged-meaning.png"))
                 checks = [
                     "live Kivy UI",
+                    "last translation and mode restore from an isolated session file",
                     "mode-specific picker labels",
                     "standard-text copy menu",
                     "Osmanya",
@@ -695,7 +743,7 @@ def start(app):
         Window.screenshot(name=str(folder / "old-nubian-reading.png"))
         app.open_old_nubian_studio()
         studio = app.root.get_screen("old_nubian_studio")
-        assert studio.ids.reader_latin.text == "ABG\nJNGNYW\na⳯⳰⳱"
+        assert studio.ids.reader_latin.text == "ABG\nJŊÑW\na⳯⳰⳱"
         assert studio.ids.reader_latin.font_name == app.font_for("Old Nubian (Coptic)")
         assert "U+2CEF COPTIC COMBINING NI ABOVE" in app.reader_mark_details
         assert "code point 11" in app.reader_mark_details
@@ -737,7 +785,7 @@ def start(app):
         app.refresh_fonts()
         read_button = app.root.get_screen("home").ids.old_nubian_read_button
         mode_button = app.root.get_screen("home").ids.mode_toggle_button
-        assert read_button.width >= dp(72)
+        assert read_button.width >= dp(64)
         assert not read_button.disabled and read_button.opacity == 1
         assert read_button.x - mode_button.right >= dp(8), (
             read_button.x,

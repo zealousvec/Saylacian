@@ -3,7 +3,9 @@
 ## Contents
 
 - [Choose a mode](#choose-a-mode)
+- [Install an optional Somali model](#install-an-optional-somali-model)
 - [Choose a language or script](#choose-a-language-or-script)
+- [Letter mappings and unmatched letters](#letter-mappings-and-unmatched-letters)
 - [Copy Borama and Kaddare](#copy-borama-and-kaddare)
 - [What other apps can display](#what-other-apps-can-display)
 - [Troubleshoot copied writing](#troubleshoot-copied-writing)
@@ -14,9 +16,17 @@
 The button beside the Saylacian title switches between **Transliterate** and **Translate**. The button stays in the same place in both modes.
 
 - **Transliterate** changes how text is written. It does not translate the meaning. Use it for Somali script conversion and the limited Old Nubian character-reading route.
-- **Translate** changes meaning between supported languages. Translation packs must be installed for offline use. Somali translation is experimental and needs fluent-speaker review.
+- **Translate** changes meaning between supported languages. Translation packs must be installed for offline use. Somali routes are in alpha testing and need fluent-speaker review.
 
 Changing mode does not change the positions of the language controls or text panels. Use the dropdowns to choose a route supported by the selected mode. The picker shows short names only; detailed coverage is in the [support matrix](SUPPORT_MATRIX.md).
+
+Saylacian saves the latest input, output, mode and language pair in your per-user application data folder and restores them when you reopen the app. The saved session is local to your Windows account. To remove it, close Saylacian and delete `last-session-v1.json` from the Saylacian application-data folder.
+
+## Install an optional Somali model
+
+Open **Offline language packs** and download **Somali model (AfriSLM 0.8B)** to add the 641 MiB model. For Somali→English, the 2B pack is about 1.45 GiB and the 4B pack is about 2.86 GiB. The 4B model scored higher on one fresh automatic test sample but used about 5 GB of working memory on a 32 GB Windows computer and ran more slowly on CPU. These packs are separate from the standard Somali / English pack. Install the optional CPU runtime from the project folder with `python -m pip install -r requirements-afrislm.txt`, then restart Saylacian. The 0.8B pack remains the English→Somali choice. For Somali→English, Saylacian tries installed packs in order: 4B, 2B, then 0.8B; if a model cannot run, it falls back to the next installed model, then the standard Somali pack if available. Remove a pack from the same screen to reclaim storage.
+
+On a 60-pair FLORES-200 devtest sample, 0.8B scored higher on English→Somali and 2B scored higher on Somali→English against both the 0.8B and standard routes. This small automatic comparison has not had fluent-speaker review and does not prove general quality. Somali routes remain in alpha testing. Model weights are declared Apache-2.0; the training dataset is CC-BY-NC-4.0 and is not included in the download. See [translation evidence and limitations](TRANSLATION_FEASIBILITY.md).
 
 ## Choose a language or script
 
@@ -24,7 +34,11 @@ Use the left dropdown for the source and the right dropdown for the target. `[x]
 
 For Old Nubian, choose **Old Nubian** and **Latin reading**, then use **Read** to open the reading reference. This is limited character transliteration, not translation or a complete reading of every manuscript convention. Modern Nubian varieties are not implemented. See [Old Nubian reading scope](OLD_NUBIAN_READER_PLAN.md).
 
-For Borama or Kaddare, choose a script route to convert the available chart-mapped letters. The mappings are partial and experimental; spelling and word-level use have not been reviewed. Capitalization is lost. Letters without a chart mapping stay in Latin and are reported; the Borama chart has no `q` entry. See [script interoperability](SOMALI_SCRIPT_INTEROPERABILITY.md).
+For Borama or Kaddare, choose a script route to convert the available chart-mapped letters. The mappings cover selected chart entries; spelling and word-level use have not been reviewed. Capitalization is lost. Letters without a chart mapping stay in Latin and are reported; the Borama chart has no `q` entry. The Kaddare chart shows two forms per label; conversion uses one glyph and cannot choose a word-level form. See [script interoperability](SOMALI_SCRIPT_INTEROPERABILITY.md).
+
+For a side-by-side explanation of mapped and unmatched letters in Osmanya, Borama, Kaddare and Old Nubian, see [letter mappings and unmatched letters](SCRIPT_LETTER_GUIDE.md).
+
+The guide identifies table entries and ambiguities, including why a Latin `v` remains unchanged in these current Somali mappings. It does not claim missing Latin letters are missing from a historical script.
 
 
 ## Copy Borama and Kaddare
@@ -63,4 +77,6 @@ The Saylacian Text package preserves the glyph sequence and script label; it doe
 
 ## Feature limits
 
-Translation and transliteration are different features. Somali translation is experimental. Borama/Kaddare coverage is partial. Old Nubian support is limited to a cited character table whose reuse rights and specialist review remain unresolved. Modern Nubian varieties are unsupported. See the [support matrix](SUPPORT_MATRIX.md) and [project status](PROJECT_STATUS.md).
+Translation and transliteration are different features. Somali routes are in alpha testing. Borama/Kaddare coverage follows selected chart entries. Old Nubian uses a limited, attributed character table; it is not meaning translation or complete manuscript coverage, and specialist review remains open. Modern Nubian varieties are unsupported. See the [support matrix](SUPPORT_MATRIX.md) and [project status](PROJECT_STATUS.md).
+
+Offline translation accepts up to 4,000 characters. If a passage exceeds a model's token window, Saylacian splits it at whitespace and joins the translated segments; context can change at those joins. A single unbroken segment that exceeds the model window must be shortened manually.

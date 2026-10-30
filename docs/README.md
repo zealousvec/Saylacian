@@ -6,8 +6,10 @@ Start here, then follow the guide that matches what you want to do.
 
 - [User guide](USER_GUIDE.md): switch between translation and transliteration, pick languages and scripts, and copy Borama or Kaddare writing.
 - [Offline language packs](OFFLINE_PACKS.md): download, verify, update and remove translation packs.
+- [Translation feasibility](TRANSLATION_FEASIBILITY.md): model routes, install limits and quality evidence.
 - [Support matrix](SUPPORT_MATRIX.md): see implemented routes and their limits.
 - [Script interoperability](SOMALI_SCRIPT_INTEROPERABILITY.md): Unicode, fonts and sharing behavior.
+- [Letter mapping guide](SCRIPT_LETTER_GUIDE.md): supported readings, unmatched letters and ambiguities across the four scripts.
 
 ## Build or integrate
 

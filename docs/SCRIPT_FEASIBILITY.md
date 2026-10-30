@@ -6,17 +6,17 @@ This document distinguishes language, script, transliteration, translation, enco
 
 ### Somali Latin ↔ Osmanya
 
-Somali is the language; Latin and Osmanya are writing systems. Saylacian maps Somali Latin digraphs and letters to Unicode Osmanya U+10480–U+1049D and back. Unicode documents 22 consonants and eight vowels, but `w`/`uu` and `y`/`ii` share letters. Reverse conversion therefore warns about lost vowel/semivowel distinction. Capitalization is not encoded. Punctuation and whitespace pass through. This remains **experimental** because the community has not reviewed the whole table. The bundled Noto Sans Osmanya font is OFL 1.1; Unicode characters are portable, although recipient font support varies.
+Somali is the language; Latin and Osmanya are writing systems. Saylacian maps Somali Latin digraphs and letters to Unicode Osmanya U+10480–U+1049D and back. Unicode documents 22 consonants and eight vowels, but `w`/`uu` and `y`/`ii` share letters. Reverse conversion therefore warns about lost vowel/semivowel distinction. Capitalization is not encoded. Punctuation and whitespace pass through. The route is available during alpha testing; its full table has not had community review. The bundled Noto Sans Osmanya font is OFL 1.1; Unicode characters are portable, although recipient font support varies.
 
 Source: [Unicode Core Specification, Osmanya](https://unicode.org/versions/Unicode17.0.0/core-spec/chapter-19/).
 
-### Old Nubian Coptic script → scholarly Latin; reverse is experimental
+### Old Nubian Coptic script → scholarly Latin; reverse readings are limited
 
-Old Nubian is a historical language, not a name for modern Nubian varieties. This route transliterates the encoded Coptic/Greek-derived Old Nubian letters; it does not translate Old Nubian. The table is grounded in the published comparative transliteration table linked below. It covers its explicitly listed ordinary letters and Old Nubian additions `ⳟ`, `ⳡ`, `ⳣ`, and `ⳝ`; the corresponding outputs follow that table (`ng`, `ny`, `w`, `j`). The table notes that some letters have other conventions under ALA-LC. Unlisted Coptic letters are preserved and warned about, not guessed. Reverse parsing is longest-match and experimental because Latin digraphs may also occur across letter boundaries and romanization conventions differ.
+Old Nubian is a historical language, not a name for modern Nubian varieties. This route transliterates listed Coptic/Greek-derived Old Nubian letters; it does not translate Old Nubian. The active 29-character table follows Table 1 in van Gerven Oei (2024), linked below. Unlisted Coptic letters are preserved and warned about, not guessed. Reverse parsing uses longest matches, but Latin digraphs can also occur across character boundaries and romanization conventions differ; treat reverse results as possible readings, not confirmed spellings. The table has not received independent specialist review.
 
 Noto Sans Coptic is bundled under SIL OFL 1.1. Its cmap was checked for all characters used by the converter, including U+2CDF, U+2CE1, U+2CE3, U+2CDD and Greek/Coptic letters. Copy/paste emits standard Unicode, but this is a script transliteration and glyph appearance depends on fonts and platform shaping.
 
-Sources: [Old Nubian/Coptic transliteration table](https://dbmnt.uw.edu.pl/static/pdf/transliteration_tables.pdf), [Noto Coptic source and license](https://github.com/notofonts/coptic), [Noto Coptic glyph sample](https://notofonts.github.io/coptic/).
+Sources: van Gerven Oei, [“Old Nubian,” UCLA Encyclopedia of Egyptology (2024)](https://doi.org/10.5070/G9.3919), [CC BY 4.0 license](https://creativecommons.org/licenses/by/4.0/), [Noto Coptic source and license](https://github.com/notofonts/coptic), [Noto Coptic glyph sample](https://notofonts.github.io/coptic/).
 
 ## Research targets; not enabled as converters
 

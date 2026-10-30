@@ -96,7 +96,7 @@ class TranslationTests(unittest.TestCase):
                 )
 
         self.assertEqual(result.text, "I love you.")
-        self.assertIn("Experimental AfriSLM", result.warnings[0])
+        self.assertIn("Alpha testing", result.warnings[0])
         model.create_chat_completion.assert_called_once()
         self.assertEqual(
             model.create_chat_completion.call_args.kwargs["temperature"], 0

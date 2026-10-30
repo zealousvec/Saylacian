@@ -6,7 +6,7 @@ No Python runtime package was added for this functionality pass. The application
 
 - `assets/NotoSansOsmanya.ttf` and `assets/OFL-Osmanya.txt`: existing Noto Project font, SIL OFL 1.1.
 - `assets/NotoSansCoptic-Regular.ttf` and `assets/OFL-Coptic.txt`: Noto Sans Coptic from the official Noto Coptic project; SIL OFL 1.1. Used to render Old Nubian's Coptic-derived script. Font cmap coverage for the route's codepoints is tested locally.
-- `assets/research/Borama_Alphabet_Chart.jpg` and `Kaddare_Alphabet_Chart.jpg` are by Jugydmort under CC BY-SA 4.0. Related chart-derived mapping data and display fonts are adaptations under CC BY-SA 4.0; attribution, hashes, and modifications are in `notices/HISTORICAL_SCRIPT_CHARTS.md`. These mappings are experimental and do not establish word-level orthography.
+- `assets/research/Borama_Alphabet_Chart.jpg` and `Kaddare_Alphabet_Chart.jpg` are by Jugydmort under CC BY-SA 4.0. Related chart-derived mapping data and display fonts are adaptations under CC BY-SA 4.0; attribution, hashes, and modifications are in `notices/HISTORICAL_SCRIPT_CHARTS.md`. These partial mappings are for selected chart entries and do not establish word-level orthography.
 
 Sources: [Noto Coptic repository/license](https://github.com/notofonts/coptic), [Noto Coptic font proof](https://notofonts.github.io/coptic/).
 

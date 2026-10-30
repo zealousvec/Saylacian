@@ -6,7 +6,14 @@ from PyInstaller.utils.hooks import collect_all
 datas = [
     ("app/main.kv", "app"),
     ("app/original.kv", "app"),
-    ("assets", "assets"),
+    ("assets/BoramaChart-Regular.ttf", "assets"),
+    ("assets/KaddareChart-Regular.ttf", "assets"),
+    ("assets/NotoSansCoptic-Regular.ttf", "assets"),
+    ("assets/NotoSansOsmanya.ttf", "assets"),
+    ("assets/OFL-Coptic.txt", "assets"),
+    ("assets/OFL-Osmanya.txt", "assets"),
+    ("assets/research/Borama_Alphabet_Chart.jpg", "assets/research"),
+    ("assets/research/Kaddare_Alphabet_Chart.jpg", "assets/research"),
     ("notices", "notices"),
     ("saylacian/core/data", "saylacian/core/data"),
 ]
