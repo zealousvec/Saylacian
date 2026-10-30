@@ -1,12 +1,16 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 """Separate Flask website using the same local language core as Kivy."""
 
-from flask import Flask, jsonify, render_template, request
+from flask import Flask
+from flask import jsonify
+from flask import render_template
+from flask import request
 
 from saylacian.core.language_detection import detect_language
 from saylacian.core.script_info import osmanya_letters
 from saylacian.core.translation import translate_meaning
-from saylacian.core.transliteration import detect_script, transliterate
+from saylacian.core.transliteration import detect_script
+from saylacian.core.transliteration import transliterate
 
 
 def create_app():
@@ -21,7 +25,8 @@ def create_app():
     def headers(response):
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["Content-Security-Policy"] = (
-            "default-src 'self'; style-src 'self'; form-action 'self'; frame-ancestors 'none'"
+            "default-src 'self'; style-src 'self'; form-action 'self'; "
+            "frame-ancestors 'none'"
         )
         response.headers["Cache-Control"] = "no-store"
         return response
@@ -53,7 +58,8 @@ def create_app():
                 detected_script, _ = detect_script(text)
                 if mode == "meaning" and detected_script:
                     raise ValueError(
-                        "Osmanya script detected; script recognition is not meaning translation."
+                        "Osmanya script detected; script recognition is not "
+                        "meaning translation."
                     )
                 if detected_script:
                     source = detected_script
@@ -64,7 +70,9 @@ def create_app():
                         raise ValueError(message)
                     if mode == "transliterate" and source != "Somali Latin":
                         raise ValueError(
-                            f"Detected {source} ({confidence:.0%} confidence), but only Somali Latin ↔ Osmanya writing conversion is implemented."
+                            f"Detected {source} ({confidence:.0%} confidence), "
+                            "but only Somali Latin ↔ Osmanya writing conversion "
+                            "is implemented."
                         )
             result = (
                 translate_meaning(text, source, target)

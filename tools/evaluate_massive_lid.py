@@ -7,7 +7,8 @@ import heapq
 import json
 import sys
 import tarfile
-from pathlib import Path, PurePosixPath
+from pathlib import Path
+from pathlib import PurePosixPath
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
@@ -74,13 +75,15 @@ def load_test_samples(
                             row = json.loads(line)
                         except (UnicodeDecodeError, json.JSONDecodeError) as error:
                             raise ValueError(
-                                f"Invalid MASSIVE row in {locale} at line {line_number}."
+                                f"Invalid MASSIVE row in {locale} at line "
+                                f"{line_number}."
                             ) from error
                         if not isinstance(row, dict) or not REQUIRED_FIELDS.issubset(
                             row
                         ):
                             raise ValueError(
-                                f"MASSIVE row in {locale} at line {line_number} has an invalid schema."
+                                f"MASSIVE row in {locale} at line {line_number} "
+                                "has an invalid schema."
                             )
                         if row["partition"] != partition:
                             continue
@@ -89,11 +92,13 @@ def load_test_samples(
                         row_id = row["id"]
                         if not isinstance(text, str) or not isinstance(row_id, str):
                             raise TypeError(
-                                f"MASSIVE row in {locale} at line {line_number} has invalid text or ID."
+                                f"MASSIVE row in {locale} at line {line_number} "
+                                "has invalid text or ID."
                             )
                         if row["locale"] != locale:
                             raise ValueError(
-                                f"MASSIVE row in {locale} at line {line_number} has a mismatched locale."
+                                f"MASSIVE row in {locale} at line {line_number} "
+                                "has a mismatched locale."
                             )
                         text = text.strip()
                         if not 12 <= len(text) < 20 or len(text.split()) < 3:
@@ -233,18 +238,26 @@ def main() -> int:
                 "split": arguments.partition,
                 "source_stats_by_locale": dict(sorted(source_stats.items())),
                 "supported_source_labels": SUPPORTED_LABELS,
-                "criteria": "12-19 Unicode code points, at least three words, and selected split locale label",
-                "sampling": "Lowest SHA-256 ranks of locale and row ID, capped per locale.",
+                "criteria": (
+                    "12-19 Unicode code points, at least three words, and selected "
+                    "split locale label"
+                ),
+                "sampling": (
+                    "Lowest SHA-256 ranks of locale and row ID, capped per locale."
+                ),
                 "per_language_limit": arguments.per_language_limit,
                 "thresholds": results,
                 "interpretation": (
-                    f"MASSIVE {arguments.partition} locale is the source label; raw archive has no per-row "
+                    f"MASSIVE {arguments.partition} locale is the source label; "
+                    "raw archive has no per-row "
                     "language-identification judgments. Only English and French are "
                     "supported source classes; Somali is absent. Intent-domain and "
                     "localized phrases do not establish fluent-Somali quality or "
                     "general translation quality."
                 ),
-                "data_handling": "Aggregate results only; corpus text is not emitted or bundled.",
+                "data_handling": (
+                    "Aggregate results only; corpus text is not emitted or bundled."
+                ),
             },
             ensure_ascii=False,
             indent=2,

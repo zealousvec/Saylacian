@@ -9,7 +9,8 @@ from pathlib import Path
 from fontTools.ttLib import TTFont
 
 from saylacian.core.capabilities import get_capability
-from saylacian.core.transliteration import detect_chart_script, transliterate
+from saylacian.core.transliteration import detect_chart_script
+from saylacian.core.transliteration import transliterate
 
 ROOT = Path(__file__).resolve().parents[1]
 

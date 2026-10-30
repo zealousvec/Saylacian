@@ -336,7 +336,8 @@ class CheckedApp(SaylacianApp):
             Clock.schedule_once(self.capture, 0.2)
             return
         checks.append(
-            "responsive layouts at 320x500, 320x640, 390x780, 780x390, 768x1024 and 1366x768"
+            "responsive layouts at 320x500, 320x640, 390x780, 780x390, "
+            "768x1024 and 1366x768"
         )
         (EVIDENCE_DIR / "ui-test-results.json").write_text(
             json.dumps(

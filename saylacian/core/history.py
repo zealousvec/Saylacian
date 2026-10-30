@@ -81,7 +81,8 @@ class History:
             self._write([])
         except OSError as error:
             raise OSError(
-                f"Could not reset saved history; original remains. Backup: {backup_path.name}. {error}"
+                f"Could not reset saved history; original remains. "
+                f"Backup: {backup_path.name}. {error}"
             ) from error
         return backup_path
 

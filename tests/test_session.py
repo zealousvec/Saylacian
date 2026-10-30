@@ -5,7 +5,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from saylacian.core.session import read_session, write_session
+from saylacian.core.session import read_session
+from saylacian.core.session import write_session
 
 
 class SessionTests(unittest.TestCase):

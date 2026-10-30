@@ -9,3 +9,9 @@ testpaths = ["tests"]
 
 [tool.ruff]
 target-version = "py312"
+
+[tool.ruff.lint]
+extend-select = ["E401", "E501", "I"]
+
+[tool.ruff.lint.isort]
+force-single-line = true

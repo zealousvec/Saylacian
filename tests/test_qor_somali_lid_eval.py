@@ -8,7 +8,8 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from tools.evaluate_qor_somali_lid import evaluate, load_short_somali_rows
+from tools.evaluate_qor_somali_lid import evaluate
+from tools.evaluate_qor_somali_lid import load_short_somali_rows
 
 
 class FakeIdentifier:
@@ -47,7 +48,10 @@ class QorSomaliLidEvaluatorTests(unittest.TestCase):
             },
             {
                 "id": "4",
-                "text_so": "A much longer sentence that does not meet the short input length criteria",
+                "text_so": (
+                    "A much longer sentence that does not meet the short input "
+                    "length criteria"
+                ),
                 "verified": True,
                 "license": "CC-BY-SA-4.0",
             },

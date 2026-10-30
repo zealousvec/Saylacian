@@ -5,20 +5,21 @@
 import unittest
 
 from saylacian.core.capabilities import list_capabilities
-from saylacian.core.presentation import (
-    display_name,
-    pack_download_error_message,
-    pack_removal_error_message,
-    picker_choices,
-    translation_error_message,
-)
+from saylacian.core.presentation import display_name
+from saylacian.core.presentation import pack_download_error_message
+from saylacian.core.presentation import pack_removal_error_message
+from saylacian.core.presentation import picker_choices
+from saylacian.core.presentation import translation_error_message
 
 
 class PresentationTests(unittest.TestCase):
     def test_translation_errors_suggest_recovery_for_memory_failure(self):
         self.assertEqual(
             translation_error_message(MemoryError()),
-            "Not enough memory for this translation. Try a shorter passage or close other apps.",
+            (
+                "Not enough memory for this translation. Try a shorter passage "
+                "or close other apps."
+            ),
         )
         self.assertEqual(
             translation_error_message(ValueError("Select a source language.")),
@@ -40,7 +41,8 @@ class PresentationTests(unittest.TestCase):
         self.assertEqual(
             translation_error_message(
                 ValueError(
-                    "Online service unavailable. Downloaded-model fallback unavailable: "
+                    "Online service unavailable. Downloaded-model fallback "
+                    "unavailable: "
                     "No local model installed for this pair."
                 )
             ),
@@ -50,7 +52,10 @@ class PresentationTests(unittest.TestCase):
             translation_error_message(
                 ValueError("Local translation runtime is not installed.")
             ),
-            "Translation support is missing. Reinstall Saylacian's Python dependencies.",
+            (
+                "Translation support is missing. Reinstall Saylacian's Python "
+                "dependencies."
+            ),
         )
         self.assertEqual(
             translation_error_message(RuntimeError()),
@@ -66,7 +71,10 @@ class PresentationTests(unittest.TestCase):
         )
         self.assertEqual(
             pack_download_error_message(OSError("C:\\Users\\private\\pack.zip")),
-            "Download failed. Check your connection and available storage, then try again.",
+            (
+                "Download failed. Check your connection and available storage, "
+                "then try again."
+            ),
         )
         self.assertEqual(
             pack_download_error_message(

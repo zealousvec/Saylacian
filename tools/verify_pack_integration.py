@@ -35,7 +35,7 @@ def verify_pack(
     translator: Callable = translate_meaning,
     progress: Callable | None = None,
 ) -> list[tuple[str, str, int]]:
-    """Install one selected pack, validate its active receipt, and run offline routes."""
+    "Install one selected pack, validate its active receipt, and run offline routes."
     if pack_id not in SAMPLES:
         raise ValueError(f"Unsupported pack: {pack_id}")
     manager = manager or ModelPackManager()

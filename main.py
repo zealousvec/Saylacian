@@ -34,11 +34,14 @@ from concurrent.futures import ThreadPoolExecutor
 from kivy.clock import Clock
 from kivy.core.clipboard import Clipboard
 from kivy.core.text import LabelBase
-from kivy.core.window import Keyboard, Window
+from kivy.core.window import Keyboard
+from kivy.core.window import Window
 from kivy.factory import Factory
 from kivy.lang import Builder
 from kivy.metrics import dp
-from kivy.properties import BooleanProperty, NumericProperty, StringProperty
+from kivy.properties import BooleanProperty
+from kivy.properties import NumericProperty
+from kivy.properties import StringProperty
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from kivy.uix.image import Image
@@ -46,58 +49,49 @@ from kivy.uix.label import Label
 from kivy.uix.screenmanager import Screen
 from kivy.uix.textinput import TextInput
 from kivymd.app import MDApp
-from kivymd.uix.button import MDFlatButton, MDIconButton
+from kivymd.uix.button import MDFlatButton
+from kivymd.uix.button import MDIconButton
 from kivymd.uix.dialog import MDDialog
 from kivymd.uix.label import MDLabel
 from kivymd.uix.list import OneLineListItem
 from kivymd.uix.menu import MDDropdownMenu
 from kivymd.uix.tooltip import MDTooltip
 
-from saylacian.core.capabilities import get_capability, list_capabilities
-from saylacian.core.clipboard_repr import (
-    formats_as_image,
-    formats_as_latin,
-    formats_as_saylacian_text,
-)
-from saylacian.core.diagnostics import PrivateDiagnostics, install_exception_hooks
-from saylacian.core.history import DamagedHistoryError, History
-from saylacian.core.interchange import (
-    decode_saylacian_text,
-    encode_saylacian_text,
-    identify_chart_text,
-)
+from saylacian.core.capabilities import get_capability
+from saylacian.core.capabilities import list_capabilities
+from saylacian.core.clipboard_repr import formats_as_image
+from saylacian.core.clipboard_repr import formats_as_latin
+from saylacian.core.clipboard_repr import formats_as_saylacian_text
+from saylacian.core.diagnostics import PrivateDiagnostics
+from saylacian.core.diagnostics import install_exception_hooks
+from saylacian.core.history import DamagedHistoryError
+from saylacian.core.history import History
+from saylacian.core.interchange import decode_saylacian_text
+from saylacian.core.interchange import encode_saylacian_text
+from saylacian.core.interchange import identify_chart_text
 from saylacian.core.language_detection import detect_language
 from saylacian.core.model_packs import ModelPackManager
-from saylacian.core.old_nubian_reader import (
-    alphabet_entries,
-    describe_combining_marks,
-    export_reading_record,
-    import_reading_record,
-    make_reading_record,
-)
-from saylacian.core.online_translation import (
-    online_provider_label,
-    online_translation_enabled,
-)
-from saylacian.core.presentation import (
-    display_name,
-    pack_download_error_message,
-    pack_removal_error_message,
-    picker_choices,
-    translation_error_message,
-)
+from saylacian.core.old_nubian_reader import alphabet_entries
+from saylacian.core.old_nubian_reader import describe_combining_marks
+from saylacian.core.old_nubian_reader import export_reading_record
+from saylacian.core.old_nubian_reader import import_reading_record
+from saylacian.core.old_nubian_reader import make_reading_record
+from saylacian.core.online_translation import online_provider_label
+from saylacian.core.online_translation import online_translation_enabled
+from saylacian.core.presentation import display_name
+from saylacian.core.presentation import pack_download_error_message
+from saylacian.core.presentation import pack_removal_error_message
+from saylacian.core.presentation import picker_choices
+from saylacian.core.presentation import translation_error_message
 from saylacian.core.script_info import osmanya_letters
-from saylacian.core.session import read_session, write_session
-from saylacian.core.translation import (
-    clear_model_cache,
-    model_directory,
-    translate_meaning,
-)
-from saylacian.core.transliteration import (
-    detect_script,
-    is_private_use_character,
-    transliterate,
-)
+from saylacian.core.session import read_session
+from saylacian.core.session import write_session
+from saylacian.core.translation import clear_model_cache
+from saylacian.core.translation import model_directory
+from saylacian.core.translation import translate_meaning
+from saylacian.core.transliteration import detect_script
+from saylacian.core.transliteration import is_private_use_character
+from saylacian.core.transliteration import transliterate
 from saylacian.core.windows_clipboard import publish as _publish_windows_clipboard
 
 
@@ -415,11 +409,20 @@ class SaylacianApp(MDApp):
             if damaged:
                 note = "Files changed · remove and download again"
             elif pack["installed"]:
-                note = f"Installed · {self._format_bytes(pack['installed_bytes'])} on device"
+                note = (
+                    f"Installed · {self._format_bytes(pack['installed_bytes'])} "
+                    "on device"
+                )
             elif available_update:
-                note = f"Update available · {self._format_bytes(pack['download_bytes'])} download"
+                note = (
+                    f"Update available · {self._format_bytes(pack['download_bytes'])} "
+                    "download"
+                )
             else:
-                note = f"Download {self._format_bytes(pack['download_bytes'])} · works offline"
+                note = (
+                    f"Download {self._format_bytes(pack['download_bytes'])} "
+                    "· works offline"
+                )
             if pack.get("description"):
                 note += " · " + pack["description"]
             subtitle = MDLabel(
@@ -799,9 +802,13 @@ class SaylacianApp(MDApp):
                 input_widget._refresh_line_options()
                 if get_capability(source, self.target, "transliteration") is None:
                     self.status = (
-                        "Coptic-derived writing found; language is unknown. Choose Latin reading to use the Old Nubian table."
+                        (
+                            "Coptic-derived writing found; language is unknown. Choose "
+                            "Latin reading to use the Old Nubian table."
+                        )
                         if coptic_script
-                        else f"Detected {source}. Choose another target to convert this text."
+                        else f"Detected {source}. Choose another target "
+                        "to convert this text."
                     )
                     self.save_session(text, "")
                     return
@@ -873,7 +880,10 @@ class SaylacianApp(MDApp):
                 input_widget.font_name = self.input_font
                 input_widget._refresh_line_options()
                 self.convert(package.text)
-                self.status = f"Imported Saylacian Text v1 ({package.script}). Limited conversion; word spelling has not been reviewed."
+                self.status = (
+                    f"Imported Saylacian Text v1 ({package.script}). "
+                    "Limited conversion; word spelling has not been reviewed."
+                )
                 return
             if any(is_private_use_character(char) for char in text):
                 detected_chart = identify_chart_text(text)
@@ -890,7 +900,10 @@ class SaylacianApp(MDApp):
                 self.alternative_readings = ""
                 input_widget.font_name = "Roboto"
                 input_widget._refresh_line_options()
-                self.status = "This text has no script label. Paste a Saylacian Text package or choose Borama/Kaddare as source."
+                self.status = (
+                    "This text has no script label. Paste a Saylacian Text package "
+                    "or choose Borama/Kaddare as source."
+                )
                 self.save_session(text, "")
                 return
         self.convert(text)
@@ -1030,7 +1043,10 @@ class SaylacianApp(MDApp):
     def show_alphabet(self):
         screen = self.root.get_screen("alphabet")
         self.script_heading = "Osmanya alphabet"
-        self.script_note = "Somali script. W/uu and y/ii share letters, so reverse readings can differ."
+        self.script_note = (
+            "Somali script. W/uu and y/ii share letters, so reverse "
+            "readings can differ."
+        )
         grid = screen.ids.letters
         grid.cols = 3
         grid.clear_widgets()
@@ -1082,7 +1098,10 @@ class SaylacianApp(MDApp):
         grid.cols = 1
         chart = PROJECT / "assets/research" / f"{script}_Alphabet_Chart.jpg"
         if not chart.is_file():
-            screen.ids.chart_status.text = "Chart image unavailable. You can still enter text for limited conversion."
+            screen.ids.chart_status.text = (
+                "Chart image unavailable. You can still enter text for limited "
+                "conversion."
+            )
             self.root.get_screen("home").ids.input_text.focus = False
             self.root.current = "alphabet"
             return
@@ -1173,7 +1192,8 @@ class SaylacianApp(MDApp):
         field.insert_text(self.reader_selected_glyph)
 
     def export_old_nubian_reading(self):
-        from datetime import UTC, datetime
+        from datetime import UTC
+        from datetime import datetime
 
         studio = self.root.get_screen("old_nubian_studio")
         try:
@@ -1378,7 +1398,10 @@ class SaylacianApp(MDApp):
                     )
                 else:
                     Clipboard.copy(encode_saylacian_text(glyphs, script))
-                self.status = f"Copied {script} text package. Paste it here to restore the script."
+                self.status = (
+                    f"Copied {script} text package. "
+                    "Paste it here to restore the script."
+                )
         except (OSError, ValueError) as error:
             self.status = "Clipboard copy failed: " + str(error)
 

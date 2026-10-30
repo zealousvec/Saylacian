@@ -9,7 +9,8 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from tools.evaluate_massive_lid import load_test_samples, score_thresholds
+from tools.evaluate_massive_lid import load_test_samples
+from tools.evaluate_massive_lid import score_thresholds
 
 
 def massive_row(row_id, locale="en-US", text="Find nearby cafe"):

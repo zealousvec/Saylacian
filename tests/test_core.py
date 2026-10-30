@@ -5,14 +5,13 @@
 import unicodedata
 import unittest
 
-from saylacian.core.capabilities import get_capability, list_capabilities
-from saylacian.core.transliteration import (
-    OLD_NUBIAN_TO_LATIN,
-    SOMALI_TO_OSMANYA,
-    detect_chart_script,
-    detect_script,
-    transliterate,
-)
+from saylacian.core.capabilities import get_capability
+from saylacian.core.capabilities import list_capabilities
+from saylacian.core.transliteration import OLD_NUBIAN_TO_LATIN
+from saylacian.core.transliteration import SOMALI_TO_OSMANYA
+from saylacian.core.transliteration import detect_chart_script
+from saylacian.core.transliteration import detect_script
+from saylacian.core.transliteration import transliterate
 
 
 class CoreTests(unittest.TestCase):

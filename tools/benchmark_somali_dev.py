@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
-"""Compare AfriSLM with Saylacian's standard offline route on pinned TICO-19 dev data."""
+"Compare AfriSLM with Saylacian's standard offline route on pinned TICO-19 dev data."
 
 from __future__ import annotations
 
@@ -20,18 +20,14 @@ from unittest.mock import patch
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from tools.benchmark_output import (
-    checkpoint_for,
-    new_benchmark_output,
-    require_external_output,
-    save_json_atomic,
-)
-from tools.benchmark_somali_quality import (
-    diagnostic_flags,
-    get_qvac_translation,
-    model_file_sha256,
-    score,
-)
+from tools.benchmark_output import checkpoint_for
+from tools.benchmark_output import new_benchmark_output
+from tools.benchmark_output import require_external_output
+from tools.benchmark_output import save_json_atomic
+from tools.benchmark_somali_quality import diagnostic_flags
+from tools.benchmark_somali_quality import get_qvac_translation
+from tools.benchmark_somali_quality import model_file_sha256
+from tools.benchmark_somali_quality import score
 
 TICO_DEV_ARCHIVE_SHA256 = (
     "0e82fc7ceaa877606c8934f32ead185716c9d2c54b3818f2a7ae655f5e7a08d8"
@@ -75,7 +71,8 @@ def load_dev_pairs(archive_path: Path) -> tuple[list[dict[str, str]], str]:
     ]
     if len(pairs) != TICO_DEV_ROW_COUNT:
         raise ValueError(
-            f"Expected {TICO_DEV_ROW_COUNT} pinned English-Somali dev pairs; found {len(pairs)}."
+            f"Expected {TICO_DEV_ROW_COUNT} pinned English-Somali dev pairs; "
+            f"found {len(pairs)}."
         )
     return pairs, archive_hash
 
@@ -207,7 +204,8 @@ def main() -> int:
         or model_hash != manifest["sha256"]
     ):
         parser.error(
-            "Candidate model size or SHA-256 does not match the pinned AfriSLM manifest."
+            "Candidate model size or SHA-256 does not match the pinned "
+            "AfriSLM manifest."
         )
     try:
         all_rows, archive_hash = load_dev_pairs(archive_path)
@@ -223,7 +221,8 @@ def main() -> int:
     installed = next(pack for pack in manager.list_packs() if pack["id"] == "somali")
     if not installed.get("installed_version") or installed.get("damaged"):
         parser.error(
-            "A complete, verified standard Somali pack must be installed in --packs-dir."
+            "A complete, verified standard Somali pack must be installed in "
+            "--packs-dir."
         )
     roots = manager.active_model_roots()
     if not roots:
@@ -342,9 +341,14 @@ def main() -> int:
             "upstream_row_count": len(all_rows),
             "sample_count": len(samples),
             "sample_seed": TICO_SAMPLE_SEED,
-            "sampling": "Equal counts from <=10, 11-22, and >22 whitespace-token English-source bands; SHA-256 rank by seed and stringID.",
+            "sampling": (
+                "Equal counts from <=10, 11-22, and >22 whitespace-token "
+                "English-source bands; SHA-256 rank by seed and stringID."
+            ),
             "sample_ids": sample_ids,
-            "directions": "English to Somali and Somali to English on the same parallel pairs.",
+            "directions": (
+                "English to Somali and Somali to English on the same parallel pairs."
+            ),
         },
         "candidate_model": {
             "repository": manifest["repository"],
@@ -353,7 +357,10 @@ def main() -> int:
             "bytes": model_path.stat().st_size,
             "sha256": model_hash,
         },
-        "runtime": "llama-cpp-python 0.3.36 CPU; n_ctx=2048; temperature=0; socket connections blocked during inference.",
+        "runtime": (
+            "llama-cpp-python 0.3.36 CPU; n_ctx=2048; temperature=0; socket "
+            "connections blocked during inference."
+        ),
         "software_versions": software_versions,
         "standard_pack": {
             "version": installed["installed_version"],
@@ -362,7 +369,11 @@ def main() -> int:
         },
         "inference_seconds": round(time.perf_counter() - start, 2),
         "systems": {},
-        "quality_limits": "Automatic single-reference metrics on a small medical-domain sample; not human-rated or representative of general Somali fluency.",
+        "quality_limits": (
+            "Automatic single-reference metrics on a small medical-domain "
+            "sample; not human-rated or representative of general Somali "
+            "fluency."
+        ),
     }
     for system in ("afrislm", "standard"):
         report["systems"][system] = {

@@ -9,22 +9,21 @@ import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from types import SimpleNamespace
-from unittest.mock import Mock, patch
+from unittest.mock import Mock
+from unittest.mock import patch
 
-from saylacian.core.translation import (
-    MODEL_ROOT,
-    _afrislm_2b_model_path,
-    _afrislm_4b_model_path,
-    _afrislm_model_path,
-    _clean_model_markers,
-    _join_model_segments,
-    _model_token_segments,
-    _synthetic_candidate_is_degenerate,
-    _translate_afrislm,
-    clear_model_cache,
-    load_model,
-    translate_meaning,
-)
+from saylacian.core.translation import MODEL_ROOT
+from saylacian.core.translation import _afrislm_2b_model_path
+from saylacian.core.translation import _afrislm_4b_model_path
+from saylacian.core.translation import _afrislm_model_path
+from saylacian.core.translation import _clean_model_markers
+from saylacian.core.translation import _join_model_segments
+from saylacian.core.translation import _model_token_segments
+from saylacian.core.translation import _synthetic_candidate_is_degenerate
+from saylacian.core.translation import _translate_afrislm
+from saylacian.core.translation import clear_model_cache
+from saylacian.core.translation import load_model
+from saylacian.core.translation import translate_meaning
 
 
 class TranslationTests(unittest.TestCase):

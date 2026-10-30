@@ -3,14 +3,12 @@ import hashlib
 import json
 import unittest
 
-from saylacian.core.old_nubian_reader import (
-    FORMAT,
-    alphabet_entries,
-    describe_combining_marks,
-    export_reading_record,
-    import_reading_record,
-    make_reading_record,
-)
+from saylacian.core.old_nubian_reader import FORMAT
+from saylacian.core.old_nubian_reader import alphabet_entries
+from saylacian.core.old_nubian_reader import describe_combining_marks
+from saylacian.core.old_nubian_reader import export_reading_record
+from saylacian.core.old_nubian_reader import import_reading_record
+from saylacian.core.old_nubian_reader import make_reading_record
 from saylacian.core.transliteration import OLD_NUBIAN_TO_LATIN
 
 

@@ -157,7 +157,10 @@ def main() -> int:
         "--per-language-limit",
         type=int,
         default=500,
-        help="Maximum deterministic short test rows evaluated per language (default: 500).",
+        help=(
+            "Maximum deterministic short test rows evaluated per language "
+            "(default: 500)."
+        ),
     )
     arguments = parser.parse_args()
     try:
@@ -175,10 +178,19 @@ def main() -> int:
                 "license": "CC0-1.0",
                 "file_sha256": digest,
                 "split": "test",
-                "criteria": "12-19 Unicode code points and at least three whitespace-separated words",
-                "sampling": "Lowest SHA-256 ranks of language code and row ID, with a fixed per-language cap.",
+                "criteria": (
+                    "12-19 Unicode code points and at least three "
+                    "whitespace-separated words"
+                ),
+                "sampling": (
+                    "Lowest SHA-256 ranks of language code and row ID, with a fixed "
+                    "per-language cap."
+                ),
                 "per_language_limit": arguments.per_language_limit,
-                "label_note": "Dataset language code is a source label, not a human review of each app prediction.",
+                "label_note": (
+                    "Dataset language code is a source label, not a human review of "
+                    "each app prediction."
+                ),
                 "thresholds": results,
                 "eligible_counts_by_language": dict(sorted(eligible_counts.items())),
                 "sampled_counts_by_language": {

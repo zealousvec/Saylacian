@@ -5,7 +5,8 @@ import ctypes
 import unittest
 from unittest.mock import patch
 
-from saylacian.core.windows_clipboard import CF_UNICODETEXT, publish
+from saylacian.core.windows_clipboard import CF_UNICODETEXT
+from saylacian.core.windows_clipboard import publish
 
 
 class FakeUser32:

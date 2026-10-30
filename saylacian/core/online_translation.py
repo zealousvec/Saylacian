@@ -5,9 +5,12 @@ from __future__ import annotations
 
 import json
 import os
-from urllib.error import HTTPError, URLError
-from urllib.parse import quote, urlparse
-from urllib.request import Request, urlopen
+from urllib.error import HTTPError
+from urllib.error import URLError
+from urllib.parse import quote
+from urllib.parse import urlparse
+from urllib.request import Request
+from urllib.request import urlopen
 
 LANGUAGE_CODES = {
     "English": "english",
@@ -38,7 +41,8 @@ def selected_provider():
     value = os.environ.get(PROVIDER_ENV, "offline").strip().casefold()
     if value not in {"auto", "selfhosted", "cloudflare", "offline"}:
         raise ValueError(
-            "SAYLACIAN_TRANSLATION_PROVIDER must be auto, selfhosted, cloudflare or offline."
+            "SAYLACIAN_TRANSLATION_PROVIDER must be auto, selfhosted, "
+            "cloudflare or offline."
         )
     return value
 
@@ -235,6 +239,9 @@ def translate_cloudflare(text, source, target, *, opener=None, timeout=45):
     warnings = [
         "Cloudflare Workers AI used open Meta M2M100; text was sent to Cloudflare.",
         "Somali translation quality varies; fluent-speaker review recommended.",
-        "Free Workers AI allowance: 10,000 neurons per day; excess requests fail unless account is upgraded.",
+        (
+            "Free Workers AI allowance: 10,000 neurons per day; excess "
+            "requests fail unless account is upgraded."
+        ),
     ]
     return translated.strip(), tuple(warnings)

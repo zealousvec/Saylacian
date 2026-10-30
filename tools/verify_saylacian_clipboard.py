@@ -21,10 +21,12 @@ def main():
     package = decode_saylacian_text(evidence["unicode_fallback"])
     if package.script != args.script or package.latin != args.expected_latin:
         raise SystemExit(
-            "External clipboard package did not decode to the expected script and Latin reading."
+            "External clipboard package did not decode to the expected "
+            "script and Latin reading."
         )
     print(
-        f"Clipboard round-trip: {package.script}, {len(package.text)} glyphs, {package.latin}"
+        f"Clipboard round-trip: {package.script}, {len(package.text)} glyphs, "
+        f"{package.latin}"
     )
 
 

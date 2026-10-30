@@ -118,7 +118,9 @@ def main() -> int:
                     "overall accuracy, translation quality, or specialist review "
                     "of each short sentence."
                 ),
-                "data_handling": "Aggregate results only; do not publish sentence text.",
+                "data_handling": (
+                    "Aggregate results only; do not publish sentence text."
+                ),
             },
             ensure_ascii=False,
             indent=2,

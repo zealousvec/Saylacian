@@ -12,14 +12,14 @@ from dataclasses import dataclass
 from io import BytesIO
 from pathlib import Path
 
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image
+from PIL import ImageDraw
+from PIL import ImageFont
 
-from .transliteration import (
-    SCRIPT_PUA_TO_LATIN,
-    detect_chart_script,
-    is_private_use_character,
-    transliterate,
-)
+from .transliteration import SCRIPT_PUA_TO_LATIN
+from .transliteration import detect_chart_script
+from .transliteration import is_private_use_character
+from .transliteration import transliterate
 
 MAGIC = "SAYLACIAN-TEXT/1\n"
 ENCODING = "saylacian-chart-pua-v1"
@@ -184,7 +184,7 @@ def html_for_chart(text: str, script: str, latin: str) -> bytes:
 
 
 def render_chart_png(text: str, script: str, latin: str) -> bytes:
-    """Rasterize script glyphs with licensed bundled font for font-independent sharing."""
+    "Rasterize script glyphs with licensed bundled font for font-independent sharing."
     _validate_script_text(text, script)
     font_path = PROJECT_ROOT / "assets" / SCRIPT_FONTS[script]
     glyph_font = ImageFont.truetype(str(font_path), 46)

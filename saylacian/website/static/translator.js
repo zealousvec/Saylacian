@@ -12,7 +12,9 @@
   const submit = document.querySelector("#convert");
   let request = null;
   let generation = 0;
-  let resultSelection = output.value ? [source.value, target.value, mode.value] : null;
+  let resultSelection = output.value
+    ? [source.value, target.value, mode.value]
+    : null;
 
   function invalidate() {
     generation += 1;
@@ -24,10 +26,12 @@
   }
   function changed() {
     invalidate();
-    status.textContent = "Text or selection changed. Choose Convert for a new result.";
+    status.textContent =
+      "Text or selection changed. Choose Convert for a new result.";
   }
   input.addEventListener("input", changed);
-  for (const control of [source, target, mode]) control.addEventListener("change", changed);
+  for (const control of [source, target, mode])
+    control.addEventListener("change", changed);
 
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
@@ -39,20 +43,28 @@
     try {
       const response = await fetch(form.action, {
         method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({text: input.value, source: source.value, target: target.value, mode: mode.value}),
-        signal: request.signal
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          text: input.value,
+          source: source.value,
+          target: target.value,
+          mode: mode.value,
+        }),
+        signal: request.signal,
       });
       const result = await response.json();
       if (current !== generation) return;
       if (!response.ok) throw new Error(result.error || "Conversion failed.");
       output.value = result.text;
       resultSelection = [source.value, target.value, mode.value];
-      status.textContent = "Alpha testing. " + (result.warnings.join(" ") || "Conversion completed.");
+      status.textContent =
+        "Alpha testing. " +
+        (result.warnings.join(" ") || "Conversion completed.");
     } catch (error) {
       if (current !== generation || error.name === "AbortError") return;
       output.value = "";
-      status.textContent = error.message || "Could not reach this server. Input is preserved.";
+      status.textContent =
+        error.message || "Could not reach this server. Input is preserved.";
     } finally {
       if (current === generation) {
         submit.disabled = false;
@@ -80,36 +92,58 @@
     input.focus();
   });
   document.querySelector("#copy").addEventListener("click", async () => {
-    if (!output.value) { status.textContent = "No result to copy."; return; }
+    if (!output.value) {
+      status.textContent = "No result to copy.";
+      return;
+    }
     try {
       await navigator.clipboard.writeText(output.value);
       status.textContent = "Result copied.";
     } catch {
       output.focus();
       output.select();
-      status.textContent = "Clipboard access unavailable. Result selected for manual copy.";
+      status.textContent =
+        "Clipboard access unavailable. Result selected for manual copy.";
     }
   });
   document.querySelector("#paste").addEventListener("click", async () => {
     try {
       const text = await navigator.clipboard.readText();
-      if (text.length > 4000) { status.textContent = "Clipboard exceeds 4,000 characters. Input preserved."; return; }
+      if (text.length > 4000) {
+        status.textContent =
+          "Clipboard exceeds 4,000 characters. Input preserved.";
+        return;
+      }
       input.value = text;
       changed();
     } catch {
-      status.textContent = "Clipboard access unavailable. Paste directly into the input field.";
+      status.textContent =
+        "Clipboard access unavailable. Paste directly into the input field.";
       input.focus();
     }
   });
   for (const button of document.querySelectorAll("[data-glyph]")) {
     button.addEventListener("click", () => {
-      if (source.value !== "Osmanya") { status.textContent = "Choose Osmanya as source before inserting letters."; return; }
+      if (source.value !== "Osmanya") {
+        status.textContent =
+          "Choose Osmanya as source before inserting letters.";
+        return;
+      }
       const start = input.selectionStart;
       const end = input.selectionEnd;
-      const value = input.value.slice(0, start) + button.dataset.glyph + input.value.slice(end);
-      if (value.length > 4000) { status.textContent = "Maximum 4,000 characters."; return; }
+      const value =
+        input.value.slice(0, start) +
+        button.dataset.glyph +
+        input.value.slice(end);
+      if (value.length > 4000) {
+        status.textContent = "Maximum 4,000 characters.";
+        return;
+      }
       input.value = value;
-      input.setSelectionRange(start + button.dataset.glyph.length, start + button.dataset.glyph.length);
+      input.setSelectionRange(
+        start + button.dataset.glyph.length,
+        start + button.dataset.glyph.length,
+      );
       changed();
     });
   }

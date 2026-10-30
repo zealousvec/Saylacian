@@ -197,7 +197,10 @@ def main() -> int:
         json.dumps(
             {
                 "source": "Tatoeba per-language sentence exports",
-                "attribution": "Tatoeba (https://tatoeba.org); see license_by_language for each export",
+                "attribution": (
+                    "Tatoeba (https://tatoeba.org); see license_by_language for "
+                    "each export"
+                ),
                 "license_by_language": {
                     code: license_name
                     for code, (
@@ -207,8 +210,14 @@ def main() -> int:
                         license_name,
                     ) in DATASETS.items()
                 },
-                "criteria": "12-19 Unicode code points, at least three whitespace-separated words",
-                "holdout": "Every fifth eligible sentence after sorting IDs numerically, within each language",
+                "criteria": (
+                    "12-19 Unicode code points, at least three whitespace-separated "
+                    "words"
+                ),
+                "holdout": (
+                    "Every fifth eligible sentence after sorting IDs numerically, "
+                    "within each language"
+                ),
                 "thresholds": results,
                 "counts_by_language": {
                     code: len(records) for code, records in datasets.items()

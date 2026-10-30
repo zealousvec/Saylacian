@@ -8,7 +8,9 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from saylacian.core.history import MAX_HISTORY_BYTES, DamagedHistoryError, History
+from saylacian.core.history import MAX_HISTORY_BYTES
+from saylacian.core.history import DamagedHistoryError
+from saylacian.core.history import History
 
 
 class HistoryTests(unittest.TestCase):

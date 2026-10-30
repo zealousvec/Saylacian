@@ -17,7 +17,9 @@ import tempfile
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image
+from PIL import ImageDraw
+from PIL import ImageFont
 
 ROOT = Path(__file__).resolve().parents[1]
 TEMPLATE = ROOT / "tools" / "msix" / "AppxManifest.xml"
@@ -184,7 +186,10 @@ def main() -> int:
     parser.add_argument(
         "--verify-existing",
         action="store_true",
-        help="verify an existing output without replacing the MSIX; refresh its manifest only after all checks pass",
+        help=(
+            "verify an existing output without replacing the MSIX; refresh "
+            "its manifest only after all checks pass"
+        ),
     )
     args = parser.parse_args()
 
@@ -199,13 +204,15 @@ def main() -> int:
         )
     if output.exists() and not args.verify_existing:
         parser.error(
-            f"output already exists; use --verify-existing or choose a new path: {output}"
+            "output already exists; use --verify-existing or choose a "
+            f"new path: {output}"
         )
     if args.verify_existing and not output.is_file():
         parser.error("--verify-existing requires an existing output file")
     count = verify_candidate(candidate, manifest_path)
     print(
-        f"Verified clean candidate: {count} files; source manifest marks runtime unverified.",
+        f"Verified clean candidate: {count} files; "
+        "source manifest marks runtime unverified.",
         flush=True,
     )
 
@@ -243,7 +250,8 @@ def main() -> int:
         }
         if packaged != expected:
             raise RuntimeError(
-                f"Unpacked package file-set mismatch: {len(packaged ^ expected)} entries"
+                "Unpacked package file-set mismatch: "
+                f"{len(packaged ^ expected)} entries"
             )
         for relative in expected:
             if sha256(layout / relative) != sha256(unpacked / relative):
@@ -273,7 +281,9 @@ def main() -> int:
             "publisher": args.publisher,
             "identity_pending": "PENDING"
             in (args.identity_name + args.publisher).upper(),
-            "signature": "unsigned; Store identity placeholder unless explicitly overridden",
+            "signature": (
+                "unsigned; Store identity placeholder unless explicitly overridden"
+            ),
             "runtime_verified": False,
         }
         result_manifest.write_text(

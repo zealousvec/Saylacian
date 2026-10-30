@@ -15,7 +15,8 @@ MIN_SHORT_CONFIDENCE = 0.70
 @lru_cache(maxsize=1)
 def _identifier():
     try:
-        from py3langid.langid import MODEL_FILE, LanguageIdentifier
+        from py3langid.langid import MODEL_FILE
+        from py3langid.langid import LanguageIdentifier
     except ImportError as error:
         raise ValueError("Offline language detection is not installed.") from error
     return LanguageIdentifier.from_model_file(MODEL_FILE, norm_probs=True)
@@ -32,7 +33,10 @@ def detect_language(text):
         return (
             None,
             0.0,
-            "Add at least 12 characters, three words and five letters for language detection.",
+            (
+                "Add at least 12 characters, three words and five letters for "
+                "language detection."
+            ),
         )
 
     code, confidence = _identifier().classify(text)
@@ -49,6 +53,9 @@ def detect_language(text):
         return (
             None,
             confidence,
-            "Detected language is not supported for local translation. Choose manually.",
+            (
+                "Detected language is not supported for local translation. "
+                "Choose manually."
+            ),
         )
     return language, confidence, ""

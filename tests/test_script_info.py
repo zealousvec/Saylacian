@@ -7,7 +7,8 @@ import unittest
 from pathlib import Path
 
 from saylacian.core.script_info import osmanya_letters
-from saylacian.core.transliteration import OLD_NUBIAN_CASED_TO_LATIN, transliterate
+from saylacian.core.transliteration import OLD_NUBIAN_CASED_TO_LATIN
+from saylacian.core.transliteration import transliterate
 
 
 class ScriptInfoTests(unittest.TestCase):

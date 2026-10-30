@@ -15,7 +15,9 @@ import urllib.request
 import uuid
 import zipfile
 from functools import lru_cache
-from pathlib import Path, PurePosixPath, PureWindowsPath
+from pathlib import Path
+from pathlib import PurePosixPath
+from pathlib import PureWindowsPath
 
 DATA_ROOT = Path(__file__).resolve().parent / "data"
 _SAFE_COMPONENT = re.compile(r"[A-Za-z0-9][A-Za-z0-9._-]{0,127}\Z")
@@ -487,7 +489,8 @@ class ModelPackManager:
                             "raw.githubusercontent.com",
                         }:
                             raise ValueError(
-                                "Model pack manifest contains an untrusted download host."
+                                "Model pack manifest contains an untrusted "
+                                "download host."
                             )
                         destination = staging / _safe_relative(asset["destination"])
                         destination.parent.mkdir(parents=True, exist_ok=True)
@@ -506,7 +509,8 @@ class ModelPackManager:
                             or checksum.lower() != asset["sha256"].lower()
                         ):
                             raise ValueError(
-                                f"Model file failed size/SHA-256 verification: {asset['destination']}"
+                                "Model file failed size/SHA-256 verification: "
+                                f"{asset['destination']}"
                             )
                         verified_files.append(
                             {
@@ -530,7 +534,8 @@ class ModelPackManager:
                             or hashlib.sha256(data).hexdigest() != asset["sha256"]
                         ):
                             raise ValueError(
-                                f"Generated model config failed its pinned checksum: {asset['destination']}"
+                                "Generated model config failed its pinned "
+                                f"checksum: {asset['destination']}"
                             )
                         destination.write_bytes(data)
                         verified_files.append(
@@ -551,7 +556,8 @@ class ModelPackManager:
                             "raw.githubusercontent.com",
                         }:
                             raise ValueError(
-                                "Model pack manifest contains an untrusted download host."
+                                "Model pack manifest contains an untrusted "
+                                "download host."
                             )
                         archive = staging / (asset["pair"] + ".argosmodel")
                         self._download(
@@ -564,7 +570,8 @@ class ModelPackManager:
                             or checksum.lower() != asset["sha256"].lower()
                         ):
                             raise ValueError(
-                                f"Argos archive failed size/SHA-256 verification: {asset['pair']}"
+                                "Argos archive failed size/SHA-256 verification: "
+                                f"{asset['pair']}"
                             )
                         for installed_file in self._extract_argos(
                             archive, staging, asset["pair"]

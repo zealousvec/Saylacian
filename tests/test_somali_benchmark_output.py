@@ -5,21 +5,18 @@ import tempfile
 import types
 import unittest
 from pathlib import Path
-from unittest.mock import Mock, patch
+from unittest.mock import Mock
+from unittest.mock import patch
 
 from tools import benchmark_somali_en_candidate as candidate_tool
-from tools.benchmark_output import (
-    ROOT,
-    checkpoint_for,
-    new_benchmark_output,
-    require_external_output,
-)
-from tools.benchmark_somali_quality import (
-    en_to_so_route_audit,
-    load_checkpoint,
-    save_checkpoint,
-    save_result,
-)
+from tools.benchmark_output import ROOT
+from tools.benchmark_output import checkpoint_for
+from tools.benchmark_output import new_benchmark_output
+from tools.benchmark_output import require_external_output
+from tools.benchmark_somali_quality import en_to_so_route_audit
+from tools.benchmark_somali_quality import load_checkpoint
+from tools.benchmark_somali_quality import save_checkpoint
+from tools.benchmark_somali_quality import save_result
 
 
 class SomaliBenchmarkOutputTests(unittest.TestCase):
@@ -143,7 +140,10 @@ class SomaliBenchmarkOutputTests(unittest.TestCase):
         samples = [
             {
                 "warnings": [
-                    "The first result contained an unreadable symbol; an alternative was used."
+                    (
+                        "The first result contained an unreadable symbol; an "
+                        "alternative was used."
+                    )
                 ]
             },
             {
@@ -154,7 +154,10 @@ class SomaliBenchmarkOutputTests(unittest.TestCase):
             },
             {
                 "warnings": [
-                    "The first result repeated or copied the input; an alternative was used."
+                    (
+                        "The first result repeated or copied the input; an alternative "
+                        "was used."
+                    )
                 ]
             },
             {

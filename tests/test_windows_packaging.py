@@ -9,15 +9,13 @@ import zipfile
 from pathlib import Path
 from unittest.mock import patch
 
-from tools.build_windows_portable import (
-    ROOT,
-    build_environment,
-    payload_manifest,
-    restore_legacy_font_path,
-    source_metadata,
-    verify_zip,
-    write_checksums,
-)
+from tools.build_windows_portable import ROOT
+from tools.build_windows_portable import build_environment
+from tools.build_windows_portable import payload_manifest
+from tools.build_windows_portable import restore_legacy_font_path
+from tools.build_windows_portable import source_metadata
+from tools.build_windows_portable import verify_zip
+from tools.build_windows_portable import write_checksums
 
 
 class PortablePackageTests(unittest.TestCase):

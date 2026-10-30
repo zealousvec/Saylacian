@@ -8,7 +8,8 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from tools.evaluate_common_voice_lid import load_test_sentences, score_thresholds
+from tools.evaluate_common_voice_lid import load_test_sentences
+from tools.evaluate_common_voice_lid import score_thresholds
 
 
 class FakeIdentifier:

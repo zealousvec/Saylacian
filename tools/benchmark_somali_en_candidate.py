@@ -24,7 +24,8 @@ ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "tests/data/somali_translation_tico19_test_150.jsonl"
 sys.path.insert(0, str(ROOT))
 
-from tools.benchmark_output import require_external_output, save_json_atomic
+from tools.benchmark_output import require_external_output
+from tools.benchmark_output import save_json_atomic
 
 MODEL_REPOSITORY = "maanka2/opus-mt-en-so-finetuned"
 MODEL_REVISION = "af92fdea79083bbb6c9d753bd56b117bedff4c11"
@@ -68,7 +69,8 @@ def main() -> int:
         "--license-note",
         default=(
             "Upstream card reports Apache-2.0; base checkpoint card reports CC-BY-4.0. "
-            "Both permit commercial use with attribution; retain both notices pending maintainer confirmation."
+            "Both permit commercial use with attribution; retain both "
+            "notices pending maintainer confirmation."
         ),
     )
     parser.add_argument("--no-repeat-ngram-size", type=int, default=0)
@@ -91,7 +93,8 @@ def main() -> int:
     import ctranslate2
     import sentencepiece
 
-    from tools.benchmark_somali_quality import diagnostic_flags, score
+    from tools.benchmark_somali_quality import diagnostic_flags
+    from tools.benchmark_somali_quality import score
 
     samples = [
         json.loads(line) for line in DATA.read_text(encoding="utf-8").splitlines()
@@ -153,7 +156,9 @@ def main() -> int:
         "model_revision": args.model_revision,
         "license": args.license,
         "license_note": args.license_note,
-        "source_framework": "Transformers Marian checkpoint converted locally to CTranslate2 int8",
+        "source_framework": (
+            "Transformers Marian checkpoint converted locally to CTranslate2 int8"
+        ),
         "candidate_files": tree_manifest(model_dir),
         "software": {
             "ctranslate2": importlib.metadata.version("ctranslate2"),
@@ -167,7 +172,9 @@ def main() -> int:
             "max_decoding_length": 512,
             "no_repeat_ngram_size": args.no_repeat_ngram_size,
         },
-        "network": "blocked: socket.socket.connect raises; model loaded from local files",
+        "network": (
+            "blocked: socket.socket.connect raises; model loaded from local files"
+        ),
         "sample_count": len(samples),
         "sample_ids": [row["id"] for row in samples],
         "startup_seconds": round(startup_seconds, 3),
@@ -193,7 +200,9 @@ def main() -> int:
                 for row in predictions
                 for flag in row["review_flags"]
             ),
-            "semantic_errors_omissions_hallucinations": "not human-rated; per-example outputs retained",
+            "semantic_errors_omissions_hallucinations": (
+                "not human-rated; per-example outputs retained"
+            ),
         },
         "same_examples_as_current_app_route": len(samples),
         "paired_baseline_metrics": {
@@ -213,7 +222,8 @@ def main() -> int:
     print(f"candidate BLEU={metric['bleu']} chrF++={metric['chrf_plus_plus']}")
     print(f"current   BLEU={current['bleu']} chrF++={current['chrf_plus_plus']}")
     print(
-        f"startup={candidate['startup_seconds']}s wall={candidate['wall_seconds']}s latency={candidate['latency_ms']}"
+        f"startup={candidate['startup_seconds']}s "
+        f"wall={candidate['wall_seconds']}s latency={candidate['latency_ms']}"
     )
     return 0
 

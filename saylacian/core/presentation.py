@@ -35,17 +35,23 @@ def picker_choices(capabilities, mode: str) -> list[str]:
 
 
 def pack_download_error_message(error: Exception) -> str:
-    """Show recovery guidance without exposing local paths or hiding integrity failures."""
+    "Show recovery guidance without exposing local paths or hiding integrity failures."
     if isinstance(error, ValueError):
         details = str(error)
         integrity_terms = ("sha-256", "checksum", "integrity", "unexpected size")
         if any(term in details.casefold() for term in integrity_terms):
-            return "The downloaded pack failed an integrity check. Try downloading it again."
+            return (
+                "The downloaded pack failed an integrity check. Try downloading "
+                "it again."
+            )
         return details
     if isinstance(error, zipfile.BadZipFile):
         return "The downloaded pack is damaged or incomplete. Try downloading it again."
     if isinstance(error, OSError):
-        return "Download failed. Check your connection and available storage, then try again."
+        return (
+            "Download failed. Check your connection and available storage, "
+            "then try again."
+        )
     return (
         "Could not install the pack. Close other apps using its files, then try again."
     )
@@ -62,9 +68,12 @@ def pack_removal_error_message(error: Exception) -> str:
 
 
 def translation_error_message(error: Exception) -> str:
-    """Give translation failures a next step without hiding explicit validation errors."""
+    "Give translation failures a next step without hiding explicit validation errors."
     if isinstance(error, MemoryError):
-        return "Not enough memory for this translation. Try a shorter passage or close other apps."
+        return (
+            "Not enough memory for this translation. Try a shorter passage "
+            "or close other apps."
+        )
     if isinstance(error, ValueError):
         details = str(error)
         if "no local model installed" in details.casefold():
@@ -72,6 +81,9 @@ def translation_error_message(error: Exception) -> str:
                 return "Online service unavailable. Open Packs for an offline pack."
             return "Open Packs to download an offline pack."
         if details == "Local translation runtime is not installed.":
-            return "Translation support is missing. Reinstall Saylacian's Python dependencies."
+            return (
+                "Translation support is missing. Reinstall Saylacian's Python "
+                "dependencies."
+            )
         return details
     return "Could not translate. Check your connection or installed language packs."

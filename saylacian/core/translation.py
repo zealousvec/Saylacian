@@ -8,12 +8,10 @@ from functools import lru_cache
 from pathlib import Path
 
 from .capabilities import get_capability
-from .online_translation import (
-    SERVICE_URL_ENV,
-    selected_provider,
-    translate_cloudflare,
-    translate_self_hosted,
-)
+from .online_translation import SERVICE_URL_ENV
+from .online_translation import selected_provider
+from .online_translation import translate_cloudflare
+from .online_translation import translate_self_hosted
 from .transliteration import Conversion
 
 LANGUAGE_CODES = {"English": "en", "French": "fr", "Somali Latin": "so"}
@@ -101,7 +99,8 @@ def _model_token_segments(text, tokenizer):
             current_tokens = tokenizer.encode(current, out_type=str)
             if len(current_tokens) > MODEL_TOKEN_LIMIT:
                 raise ValueError(
-                    "A single unbroken input segment exceeds this model's 400-token limit; split it manually."
+                    "A single unbroken input segment exceeds this model's "
+                    "400-token limit; split it manually."
                 )
             chunks.append(current_tokens)
             separators.append(separator or " ")
@@ -111,7 +110,8 @@ def _model_token_segments(text, tokenizer):
     current_tokens = tokenizer.encode(current, out_type=str)
     if len(current_tokens) > MODEL_TOKEN_LIMIT:
         raise ValueError(
-            "A single unbroken input segment exceeds this model's 400-token limit; split it manually."
+            "A single unbroken input segment exceeds this model's 400-token "
+            "limit; split it manually."
         )
     chunks.append(current_tokens)
     return tuple(chunks), tuple(separators), prefix, suffix, True
@@ -139,7 +139,8 @@ def _model_roots(root=None):
 def model_directory(source, target, root=None):
     if source not in LANGUAGE_CODES or target not in LANGUAGE_CODES:
         raise ValueError(
-            "Meaning translation unavailable for this language or script. Choose English, French or Somali Latin."
+            "Meaning translation unavailable for this language or script. "
+            "Choose English, French or Somali Latin."
         )
     pair = LANGUAGE_CODES[source] + "_" + LANGUAGE_CODES[target]
     if (source, target) in PIVOT_ROUTES:
@@ -168,7 +169,8 @@ def model_directory(source, target, root=None):
         if available:
             return folder
     raise ValueError(
-        "No local model installed for this pair. Download its offline language pack first."
+        "No local model installed for this pair. Download its offline "
+        "language pack first."
     )
 
 
@@ -206,7 +208,8 @@ def load_afrislm_model(model_path):
         from llama_cpp import Llama
     except ImportError as error:
         raise ValueError(
-            "The optional Somali model runtime is not installed. Install llama-cpp-python 0.3.36."
+            "The optional Somali model runtime is not installed. Install "
+            "llama-cpp-python 0.3.36."
         ) from error
     return Llama(
         model_path=str(model_path),
@@ -272,7 +275,8 @@ def _translate_afrislm(text, source, target, model_path):
                     "content": (
                         f"You are a professional {source} to {target} translator. "
                         f"Your goal is to accurately convey the meaning and nuances of "
-                        f"the original {source} text while adhering to {target} grammar, "
+                        f"the original {source} text while adhering to "
+                        f"{target} grammar, "
                         "vocabulary, and cultural sensitivities. Produce only the "
                         f"{target} translation, without any additional explanations "
                         "or commentary."
@@ -294,7 +298,10 @@ def _translate_afrislm(text, source, target, model_path):
         load_afrislm_model.cache_clear()
         return (
             None,
-            "The optional Somali model ran out of memory; used the standard offline model.",
+            (
+                "The optional Somali model ran out of memory; used the standard "
+                "offline model."
+            ),
         )
     except (OSError, RuntimeError):
         load_afrislm_model.cache_clear()
@@ -310,7 +317,10 @@ def _translate_afrislm(text, source, target, model_path):
     if not translated:
         return (
             None,
-            "The optional Somali model returned no text; used the standard offline model.",
+            (
+                "The optional Somali model returned no text; used the standard "
+                "offline model."
+            ),
         )
     return Conversion(
         translated,
@@ -377,7 +387,10 @@ def translate_meaning(text, source, target, model_root=None, *, provider_overrid
                 (
                     *first.warnings,
                     *second.warnings,
-                    "Somali and French are translated through English, so some meaning may change.",
+                    (
+                        "Somali and French are translated through English, so some "
+                        "meaning may change."
+                    ),
                 )
             )
         )
@@ -419,7 +432,10 @@ def translate_meaning(text, source, target, model_root=None, *, provider_overrid
                     candidate.text,
                     (
                         *candidate.warnings,
-                        "The larger Somali model could not run; used the smaller model.",
+                        (
+                            "The larger Somali model could not run; "
+                            "used the smaller model."
+                        ),
                     ),
                     candidate.alternatives,
                 )
@@ -431,7 +447,8 @@ def translate_meaning(text, source, target, model_root=None, *, provider_overrid
     except ValueError as error:
         if candidate_warning:
             raise ValueError(
-                f"{candidate_warning} Download the Somali / English offline pack or install the optional runtime."
+                f"{candidate_warning} Download the Somali / English offline "
+                "pack or install the optional runtime."
             ) from error
         raise
     candidate_fallback = False
@@ -474,20 +491,27 @@ def translate_meaning(text, source, target, model_root=None, *, provider_overrid
                 source_words = word_count(text)
                 output_words = word_count(candidate_text)
                 if _SENTENCEPIECE_UNKNOWN_SURFACE in candidate_text:
-                    candidate_fallback_reason = "The first result contained an unreadable symbol; an alternative was used."
+                    candidate_fallback_reason = (
+                        "The first result contained an unreadable symbol; an "
+                        "alternative was used."
+                    )
                 elif output_words > source_words * 2 + 10:
                     candidate_fallback_reason = (
                         "The first result was unusually long; an alternative was used."
                     )
                 else:
-                    candidate_fallback_reason = "The first result repeated or copied the input; an alternative was used."
+                    candidate_fallback_reason = (
+                        "The first result repeated or copied the input; an alternative "
+                        "was used."
+                    )
             else:
                 warnings = [
                     "Somali translation may be inaccurate; check important details."
                 ]
                 if chunked:
                     warnings.append(
-                        "Long text was split into independent segments; context may change at the joins."
+                        "Long text was split into independent segments; "
+                        "context may change at the joins."
                     )
                 return Conversion(
                     candidate_text,
@@ -502,7 +526,8 @@ def translate_meaning(text, source, target, model_root=None, *, provider_overrid
         token_batch = [[">>som<<", *segment, "</s>"] for segment in segments]
         if any(len(segment) > MODEL_TOKEN_LIMIT for segment in token_batch):
             raise ValueError(
-                "A segmented input still exceeds this model's 400-token limit; split it manually."
+                "A segmented input still exceeds this model's 400-token limit; "
+                "split it manually."
             )
         results = engine.translate_batch(
             token_batch, beam_size=4, max_input_length=0, max_decoding_length=512
@@ -523,7 +548,8 @@ def translate_meaning(text, source, target, model_root=None, *, provider_overrid
             warnings.append("An extra symbol was removed from the output.")
         if chunked:
             warnings.append(
-                "Long text was split into independent segments; context may change at the joins."
+                "Long text was split into independent segments; context may "
+                "change at the joins."
             )
         return Conversion(cleaned, tuple(warnings))
     segments, separators, leading, trailing, chunked = _model_token_segments(
@@ -543,7 +569,8 @@ def translate_meaning(text, source, target, model_root=None, *, provider_overrid
         warnings.append(candidate_warning)
     if chunked:
         warnings.append(
-            "Long text was split into independent segments; context may change at the joins."
+            "Long text was split into independent segments; context may "
+            "change at the joins."
         )
     return Conversion(
         translated,

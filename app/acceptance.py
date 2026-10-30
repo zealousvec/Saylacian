@@ -8,7 +8,8 @@ import threading
 import time
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from unittest.mock import Mock, patch
+from unittest.mock import Mock
+from unittest.mock import patch
 
 from kivy.clock import Clock
 from kivy.core.window import Window
@@ -17,10 +18,8 @@ from kivy.uix.button import Button
 
 from saylacian.core.history import History
 from saylacian.core.interchange import encode_saylacian_text
-from saylacian.core.old_nubian_reader import (
-    export_reading_record,
-    make_reading_record,
-)
+from saylacian.core.old_nubian_reader import export_reading_record
+from saylacian.core.old_nubian_reader import make_reading_record
 from saylacian.core.transliteration import Conversion
 
 
@@ -182,7 +181,8 @@ def start(app):
                 app_module,
                 "model_directory",
                 side_effect=ValueError(
-                    "No local model installed for this pair. Download its offline language pack first."
+                    "No local model installed for this pair. Download its offline "
+                    "language pack first."
                 ),
             ),
         ):
@@ -428,7 +428,8 @@ def start(app):
             app.finish_pack_download(failed_download, "somali")
         clear_model_cache.assert_not_called()
         assert app.pack_status == (
-            "Download failed. Check your connection and available storage, then try again."
+            "Download failed. Check your connection and available storage, "
+            "then try again."
         )
         successful_download = Mock()
         successful_download.result.return_value = Path("isolated-pack")
@@ -695,13 +696,25 @@ def start(app):
                     "standard-text copy menu",
                     "Osmanya",
                     "Borama/Kaddare bundled font rendering",
-                    "Borama/Kaddare tagged-package import, font selection, and reverse conversion",
+                    (
+                        "Borama/Kaddare tagged-package import, font selection, and "
+                        "reverse conversion"
+                    ),
                     "three Borama/Kaddare copy actions",
                     "offline pack cancellation control and request state",
-                    "keyboard-only mode, language, offline-pack, safe removal, and pack-update actions",
+                    (
+                        "keyboard-only mode, language, offline-pack, safe removal, and "
+                        "pack-update actions"
+                    ),
                     "missing-pack recovery and estimated offline download guidance",
-                    "direct Open Packs recovery for missing offline translation support",
-                    "translator hint contrast, visible keyboard focus, text-scale fit, and compact/wide/short-landscape breakpoints",
+                    (
+                        "direct Open Packs recovery for missing offline translation "
+                        "support"
+                    ),
+                    (
+                        "translator hint contrast, visible keyboard focus, text-scale "
+                        "fit, and compact/wide/short-landscape breakpoints"
+                    ),
                     "Old Nubian reverse alternatives",
                     "Old Nubian paired reading with case and line-break preservation",
                     "Old Nubian searchable alphabet and reading studio",
@@ -713,7 +726,10 @@ def start(app):
                     "clear chart-image recovery guidance in the alphabet screen",
                     "limited-coverage wording in the Old Nubian Latin-reading picker",
                     "safe recovery guidance for pack download and removal failures",
-                    "successful pack install/removal clears cached engines; failures keep cache",
+                    (
+                        "successful pack install/removal clears cached engines; "
+                        "failures keep cache"
+                    ),
                 ]
                 (folder / "result.json").write_text(
                     json.dumps(

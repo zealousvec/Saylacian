@@ -8,7 +8,8 @@ import json
 import os
 import secrets
 import threading
-from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from http.server import BaseHTTPRequestHandler
+from http.server import ThreadingHTTPServer
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
@@ -145,7 +146,8 @@ class TranslationServer(ThreadingHTTPServer):
 def main():
     if not SERVICE_TOKEN:
         raise SystemExit(
-            "Set SAYLACIAN_SERVICE_TOKEN to a long random secret before exposing this API. "
+            "Set SAYLACIAN_SERVICE_TOKEN to a long random secret before "
+            "exposing this API. "
             f"Example: {secrets.token_urlsafe(36)}"
         )
     server = TranslationServer(("0.0.0.0", PORT), TranslationHandler)

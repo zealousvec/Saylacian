@@ -11,7 +11,8 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from saylacian.core.model_packs import ModelPackManager, get_pack_specs
+from saylacian.core.model_packs import ModelPackManager
+from saylacian.core.model_packs import get_pack_specs
 from saylacian.core.translation import model_directory
 
 
@@ -90,7 +91,10 @@ class ModelPackTests(unittest.TestCase):
         self.assertEqual(largest["license"], "Apache-2.0")
         self.assertEqual(
             largest["training_data_license"],
-            "CC-BY-NC-4.0 (synthetic mix), ODC-By-1.0 (Dolci-Instruct); training data is not included",
+            (
+                "CC-BY-NC-4.0 (synthetic mix), ODC-By-1.0 (Dolci-Instruct); "
+                "training data is not included"
+            ),
         )
         self.assertEqual(largest["download_bytes"], 3066385344)
         self.assertEqual(

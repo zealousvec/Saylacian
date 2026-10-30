@@ -8,7 +8,8 @@ Run once per system so peak memory and cold-start time stay interpretable:
   python tools/benchmark_somali_quality.py --system afrislm --candidate-model PATH
   python tools/benchmark_somali_en_candidate.py --model-dir PATH --results BASELINE_JSON
 
-Raw outputs default to unique files under local application data, outside the repository.
+Raw outputs default to unique files under local application data, outside the
+repository.
 """
 
 from __future__ import annotations
@@ -30,12 +31,10 @@ ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "tests/data/somali_translation_tico19_test_150.jsonl"
 sys.path.insert(0, str(ROOT))
 
-from tools.benchmark_output import (
-    checkpoint_for,
-    new_benchmark_output,
-    require_external_output,
-    save_json_atomic,
-)
+from tools.benchmark_output import checkpoint_for
+from tools.benchmark_output import new_benchmark_output
+from tools.benchmark_output import require_external_output
+from tools.benchmark_output import save_json_atomic
 
 OUTPUT = new_benchmark_output("somali-translation-quality")
 CHECKPOINT = checkpoint_for(OUTPUT, "somali-quality-checkpoint")
@@ -91,14 +90,18 @@ def get_qvac_translation(llm, text: str, source: str, target: str) -> str:
             "content": (
                 f"You are a professional {source} to {target} translator. "
                 f"Your goal is to accurately convey the meaning and nuances of the "
-                f"original {source} text while adhering to {target} grammar, vocabulary, "
+                f"original {source} text while adhering to {target} grammar, "
+                "vocabulary, "
                 f"and cultural sensitivities. Produce only the {target} translation, "
                 "without any additional explanations or commentary."
             ),
         },
         {
             "role": "user",
-            "content": f"Please translate the following {source} text into {target}: {text}\n\nTranslation:",
+            "content": (
+                f"Please translate the following {source} text into {target}: "
+                f"{text}\n\nTranslation:"
+            ),
         },
     ]
     result = llm.create_chat_completion(
@@ -271,7 +274,10 @@ def model_runtime_metadata(system: str, model_path: Path | None = None) -> dict:
         "candidate_model": {
             "repository": "qvac/TranslatePsy-AfriSLM-0.8B-Q4-GGUF",
             "revision": "14d6fd1e24c9f94a5e40c2e91c066241aede0dce",
-            "license": "Apache-2.0 declared by model card; synthetic training mix is CC-BY-NC-4.0; distribution rights need review",
+            "license": (
+                "Apache-2.0 declared by model card; synthetic training mix is "
+                "CC-BY-NC-4.0; distribution rights need review"
+            ),
             "file": model_path.name,
             "bytes": model_path.stat().st_size,
             "sha256": model_file_sha256(model_path),
@@ -280,7 +286,8 @@ def model_runtime_metadata(system: str, model_path: Path | None = None) -> dict:
 
 
 def score(references: list[str], predictions: list[str]) -> dict:
-    from sacrebleu.metrics import BLEU, CHRF
+    from sacrebleu.metrics import BLEU
+    from sacrebleu.metrics import CHRF
 
     bleu = BLEU()
     chrf = CHRF(word_order=2)
@@ -339,7 +346,8 @@ def main() -> int:
         )[: args.limit]
 
     if args.system == "baseline":
-        from saylacian.core.translation import _model_roots, translate_meaning
+        from saylacian.core.translation import _model_roots
+        from saylacian.core.translation import translate_meaning
 
         data_hash = hashlib.sha256(DATA.read_bytes()).hexdigest()
         checkpoint = load_checkpoint(
@@ -396,7 +404,10 @@ def main() -> int:
                     )
                     print(f"baseline: {i}/{len(samples)} pairs", flush=True)
         system = {
-            "model": "current Saylacian route (synthetic Helsinki EN→SO first; multilingual OPUS fallback)",
+            "model": (
+                "current Saylacian route (synthetic Helsinki EN→SO first; "
+                "multilingual OPUS fallback)"
+            ),
             **model_runtime_metadata("baseline"),
             "network": "blocked: socket.socket.connect raises",
             "sample_count": len(samples),
@@ -436,7 +447,9 @@ def main() -> int:
                         for sample in outputs[key]
                         for flag in sample.get("review_flags", [])
                     ),
-                    "semantic_errors_omissions_hallucinations": "not human-rated; see per-example review fields",
+                    "semantic_errors_omissions_hallucinations": (
+                        "not human-rated; see per-example review fields"
+                    ),
                 }
                 for key in ("en_so", "so_en")
             },
@@ -530,7 +543,9 @@ def main() -> int:
             "model_bytes": model.stat().st_size,
             **model_runtime_metadata("afrislm", model),
             "runtime": "llama-cpp-python 0.3.36; CPU only; n_ctx=2048; temperature=0",
-            "network": "blocked: socket.socket.connect raises; model loaded from a local file",
+            "network": (
+                "blocked: socket.socket.connect raises; model loaded from a local file"
+            ),
             "sample_count": len(samples),
             "sample_ids": [row["id"] for row in samples],
             "startup_seconds": round(load_seconds, 2),
@@ -569,7 +584,9 @@ def main() -> int:
                         for sample in outputs[key]
                         for flag in sample.get("review_flags", [])
                     ),
-                    "semantic_errors_omissions_hallucinations": "not human-rated; see per-example review fields",
+                    "semantic_errors_omissions_hallucinations": (
+                        "not human-rated; see per-example review fields"
+                    ),
                 }
                 for key in ("en_so", "so_en")
             },
@@ -612,10 +629,14 @@ def main() -> int:
         {
             "dataset": "TICO-19 Somali test set",
             "data_file": "tests/data/somali_translation_tico19_test_150.jsonl",
-            "metadata_file": "tests/data/somali_translation_tico19_test_150.metadata.json",
+            "metadata_file": (
+                "tests/data/somali_translation_tico19_test_150.metadata.json"
+            ),
             "sample_count": len(all_samples),
             "sample_sha256": hashlib.sha256(DATA.read_bytes()).hexdigest(),
-            "directions": "English↔Somali; reverse references use the parallel English originals",
+            "directions": (
+                "English↔Somali; reverse references use the parallel English originals"
+            ),
         },
     )
     prior.setdefault("systems", {})[args.system] = system
@@ -624,10 +645,13 @@ def main() -> int:
     print(f"Saved {args.system} results: {output_path}")
     for direction, metric in system["metrics"].items():
         print(
-            f"{args.system} {direction}: BLEU={metric['bleu']} chrF++={metric['chrf_plus_plus']}"
+            f"{args.system} {direction}: BLEU={metric['bleu']} "
+            f"chrF++={metric['chrf_plus_plus']}"
         )
     print(
-        f"wall={system['wall_seconds']}s startup={system.get('startup_seconds', 0)}s peak_rss={system['peak_working_set_bytes']} bytes"
+        f"wall={system['wall_seconds']}s "
+        f"startup={system.get('startup_seconds', 0)}s "
+        f"peak_rss={system['peak_working_set_bytes']} bytes"
     )
     return 0
 

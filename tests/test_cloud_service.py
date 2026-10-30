@@ -8,14 +8,13 @@ import threading
 import unittest
 from unittest.mock import patch
 from urllib.error import HTTPError
-from urllib.request import Request, urlopen
+from urllib.request import Request
+from urllib.request import urlopen
 
 from cloud.oci import service
-from saylacian.core.online_translation import (
-    SERVICE_TOKEN_ENV,
-    SERVICE_URL_ENV,
-    translate_self_hosted,
-)
+from saylacian.core.online_translation import SERVICE_TOKEN_ENV
+from saylacian.core.online_translation import SERVICE_URL_ENV
+from saylacian.core.online_translation import translate_self_hosted
 
 
 class QuietTranslationHandler(service.TranslationHandler):

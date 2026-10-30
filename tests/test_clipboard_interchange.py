@@ -9,21 +9,17 @@ from io import BytesIO
 
 from PIL import Image
 
-from saylacian.core.clipboard_repr import (
-    formats_as_image,
-    formats_as_saylacian_text,
-    unicode_clipboard_bytes,
-)
-from saylacian.core.interchange import (
-    MAGIC,
-    decode_saylacian_text,
-    encode_saylacian_text,
-    html_for_chart,
-    identify_chart_text,
-    png_to_dib,
-    render_chart_png,
-    rtf_for_chart,
-)
+from saylacian.core.clipboard_repr import formats_as_image
+from saylacian.core.clipboard_repr import formats_as_saylacian_text
+from saylacian.core.clipboard_repr import unicode_clipboard_bytes
+from saylacian.core.interchange import MAGIC
+from saylacian.core.interchange import decode_saylacian_text
+from saylacian.core.interchange import encode_saylacian_text
+from saylacian.core.interchange import html_for_chart
+from saylacian.core.interchange import identify_chart_text
+from saylacian.core.interchange import png_to_dib
+from saylacian.core.interchange import render_chart_png
+from saylacian.core.interchange import rtf_for_chart
 from saylacian.core.transliteration import transliterate
 
 

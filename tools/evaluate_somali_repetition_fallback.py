@@ -19,11 +19,9 @@ from unittest.mock import patch
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from tools.benchmark_output import (
-    new_benchmark_output,
-    require_external_output,
-    save_json_atomic,
-)
+from tools.benchmark_output import new_benchmark_output
+from tools.benchmark_output import require_external_output
+from tools.benchmark_output import save_json_atomic
 
 OUTPUT = new_benchmark_output("somali-repetition-dev")
 
@@ -152,14 +150,18 @@ def main() -> int:
 
     result = {
         "dataset": "TICO-19 dev / validation, separate from held-out test sample",
-        "dataset_source": "gmnlp/tico19 CC0 mirror of TICO-19; en-so validation Parquet",
+        "dataset_source": (
+            "gmnlp/tico19 CC0 mirror of TICO-19; en-so validation Parquet"
+        ),
         "data_sha256": hashlib.sha256(args.parquet.read_bytes()).hexdigest(),
         "population_rows": len(rows),
         "sample_count": len(selected),
         "sample_ids": [row["stringID"] for row in selected],
         "runtime_seconds": round(time.perf_counter() - started, 2),
         "network": "blocked during inference",
-        "candidate_route": "Saylacian synthetic EN->SO, then current multilingual OPUS fallback",
+        "candidate_route": (
+            "Saylacian synthetic EN->SO, then current multilingual OPUS fallback"
+        ),
         "results": results,
         "samples": [
             {
@@ -172,7 +174,10 @@ def main() -> int:
             }
             for row, candidate, rescue in zip(selected, current, fallback)
         ],
-        "review_limit": "Automatic metrics and repetition cues only; no fluent-speaker semantic rating.",
+        "review_limit": (
+            "Automatic metrics and repetition cues only; no fluent-speaker "
+            "semantic rating."
+        ),
     }
     save_json_atomic(output_path, result)
     for name, stats in results.items():

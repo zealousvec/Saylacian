@@ -7,12 +7,10 @@ import json
 import unicodedata
 from dataclasses import dataclass
 
-from saylacian.core.transliteration import (
-    OLD_NUBIAN_AMBIGUOUS_TOKENS,
-    OLD_NUBIAN_LATIN_VARIANTS,
-    OLD_NUBIAN_TO_LATIN,
-    transliterate,
-)
+from saylacian.core.transliteration import OLD_NUBIAN_AMBIGUOUS_TOKENS
+from saylacian.core.transliteration import OLD_NUBIAN_LATIN_VARIANTS
+from saylacian.core.transliteration import OLD_NUBIAN_TO_LATIN
+from saylacian.core.transliteration import transliterate
 
 CONVENTION = "van Gerven Oei, Old Nubian (2024), Table 1"
 SOURCE_URL = "https://escholarship.org/uc/item/03x6d68h"
@@ -54,7 +52,9 @@ def alphabet_entries(query: str = "") -> tuple[dict[str, object], ...]:
             "name": name,
             "convention": CONVENTION,
             "source_url": SOURCE_URL,
-            "confidence": "Listed in the attributed 2024 table; not independently reviewed",
+            "confidence": (
+                "Listed in the attributed 2024 table; not independently reviewed"
+            ),
             "ambiguous": reverse_ambiguous,
         }
         searchable = f"{glyph} {reading_label} {codepoint} {name}".casefold()
@@ -181,7 +181,10 @@ def import_reading_record(payload: str) -> ReadingRecord:
         raise ValueError("Reading record warnings are invalid.")
     if legacy_record:
         warnings = tuple(body["warnings"]) + (
-            "Imported saved reading from the older DBMNT table; Saylacian preserved it without recalculating.",
+            (
+                "Imported saved reading from the older DBMNT table; Saylacian "
+                "preserved it without recalculating."
+            ),
         )
         original_lines = body["original"].splitlines(keepends=True)
         latin_lines = body["latin"].splitlines(keepends=True)

@@ -24,7 +24,9 @@ posts = []
 try:
     with sync_playwright() as automation:
         browser = automation.chromium.launch(
-            executable_path=r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe",
+            executable_path=(
+                "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe"
+            ),
             headless=True,
         )
         context = browser.new_context(viewport={"width": 1280, "height": 900})
@@ -49,7 +51,9 @@ try:
         page.wait_for_function("() => (document.fonts.status==='loaded')")
         assert page.locator("[data-glyph]").count() == 30
         page.evaluate(
-            "document.querySelector('#input').value='Dhagax!';document.querySelector('#input').dispatchEvent(new Event('input',{bubbles:true}));"
+            "document.querySelector('#input').value='Dhagax!';document.quer"
+            "ySelector('#input').dispatchEvent(new "
+            "Event('input',{bubbles:true}));"
         )
         assert not posts
         page.evaluate("document.querySelector('#convert').click()")
@@ -73,7 +77,10 @@ try:
         )
         checks.append("copy/clear/paste DOM controls with isolated clipboard double")
         page.evaluate(
-            "document.querySelector('#source').value='Osmanya';document.querySelector('#target').value='Somali Latin';document.querySelector('#source').dispatchEvent(new Event('change'));document.querySelector('#convert').click()"
+            "document.querySelector('#source').value='Osmanya';document.que"
+            "rySelector('#target').value='Somali "
+            "Latin';document.querySelector('#source').dispatchEvent(new "
+            "Event('change'));document.querySelector('#convert').click()"
         )
         page.wait_for_function(
             "() => (document.querySelector('#output').value==='dhagax!')"
@@ -85,33 +92,52 @@ try:
         )
         checks.append("swap uses current output and correct language direction")
         page.evaluate(
-            "document.querySelector('#source').value='English';document.querySelector('#source').dispatchEvent(new Event('change'));document.querySelector('#convert').click()"
+            "document.querySelector('#source').value='English';document.que"
+            "rySelector('#source').dispatchEvent(new "
+            "Event('change'));document.querySelector('#convert').click()"
         )
         page.wait_for_function(
-            "() => (document.querySelector('#status').textContent.includes('no validated mapping'))"
+            "() => "
+            "(document.querySelector('#status').textContent.includes('no "
+            "validated mapping'))"
         )
         assert page.locator("#output").input_value() == ""
         checks.append("unsupported pair displays error without stale output")
         page.evaluate(
-            "document.querySelector('#source').value='English';document.querySelector('#target').value='French';document.querySelector('#mode').value='meaning';document.querySelector('#input').value='Hello, how are you?';document.querySelector('#input').dispatchEvent(new Event('input'));document.querySelector('#convert').click()"
+            "document.querySelector('#source').value='English';document.que"
+            "rySelector('#target').value='French';document.querySelector('#"
+            "mode').value='meaning';document.querySelector('#input').value="
+            "'Hello, how are "
+            "you?';document.querySelector('#input').dispatchEvent(new "
+            "Event('input'));document.querySelector('#convert').click()"
         )
         page.wait_for_function(
-            "() => document.querySelector('#output').value==='Bonjour, comment allez-vous ?'"
+            "() => document.querySelector('#output').value==='Bonjour, "
+            "comment allez-vous ?'"
         )
         checks.append("real English/French model through website UI and API")
         page.evaluate(
-            "document.querySelector('#mode').value='transliterate';document.querySelector('#target').value='Somali Latin'"
+            "document.querySelector('#mode').value='transliterate';document"
+            ".querySelector('#target').value='Somali Latin'"
         )
         page.evaluate(
-            "document.querySelector('#source').value='Osmanya';document.querySelector('#source').dispatchEvent(new Event('change'));document.querySelector('details').open=true;document.querySelector('#clear').click();document.querySelector('[data-glyph]').click()"
+            "document.querySelector('#source').value='Osmanya';document.que"
+            "rySelector('#source').dispatchEvent(new "
+            "Event('change'));document.querySelector('details').open=true;d"
+            "ocument.querySelector('#clear').click();document.querySelector"
+            "('[data-glyph]').click()"
         )
         assert page.locator("#input").input_value() == "𐒀"
         checks.append("shared alphabet with input aid")
         page.evaluate(
-            "Object.defineProperty(navigator,'clipboard',{value:{readText:async()=>{throw Error('denied')},writeText:async()=>{throw Error('denied')}}});document.querySelector('#paste').click()"
+            "Object.defineProperty(navigator,'clipboard',{value:{readText:a"
+            "sync()=>{throw Error('denied')},writeText:async()=>{throw "
+            "Error('denied')}}});document.querySelector('#paste').click()"
         )
         page.wait_for_function(
-            "() => (document.querySelector('#status').textContent.includes('Clipboard access unavailable'))"
+            "() => "
+            "(document.querySelector('#status').textContent.includes('Clipb"
+            "oard access unavailable'))"
         )
         assert page.locator("#input").input_value() == "𐒀"
         checks.append("clipboard denial preserves input and gives fallback")
@@ -131,7 +157,9 @@ try:
                 "checks": checks,
                 "page_errors": errors,
                 "network": "only loopback permitted",
-                "input_method": "DOM events in isolated headless Edge; no OS mouse/keyboard input",
+                "input_method": (
+                    "DOM events in isolated headless Edge; no OS mouse/keyboard input"
+                ),
             },
             indent=2,
         )

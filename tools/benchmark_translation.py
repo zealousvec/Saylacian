@@ -14,11 +14,9 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 from saylacian.core.translation import translate_meaning
-from tools.benchmark_output import (
-    new_benchmark_output,
-    require_external_output,
-    save_json_atomic,
-)
+from tools.benchmark_output import new_benchmark_output
+from tools.benchmark_output import require_external_output
+from tools.benchmark_output import save_json_atomic
 
 EN = [
     "Hello.",
@@ -139,7 +137,10 @@ def main():
             "human_review": "not performed; outputs are raw model results",
             "route_sample_count": 10,
             "peak_process_working_set_bytes": peak_rss,
-            "peak_process_working_set_note": "Windows GetProcessMemoryInfo; includes Python runtime and loaded models, measured in this run.",
+            "peak_process_working_set_note": (
+                "Windows GetProcessMemoryInfo; includes Python runtime and "
+                "loaded models, measured in this run."
+            ),
             "samples": rows,
         },
     )
@@ -151,8 +152,10 @@ def main():
             for row in rows
             if row["source"] == source and row["target"] == target_name
         ]
+        mean_latency = sum(row["elapsed_ms"] for row in selected) / len(selected)
         print(
-            f"{source} -> {target_name}: {len(selected)} cases; mean {sum(r['elapsed_ms'] for r in selected) / len(selected):.1f} ms"
+            f"{source} -> {target_name}: {len(selected)} cases; "
+            f"mean {mean_latency:.1f} ms"
         )
 
 

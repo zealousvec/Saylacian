@@ -90,7 +90,8 @@ def extract_argos(pair: str, archive: Path, download: bool) -> int:
         missing = set(files) - names
         if missing:
             raise ValueError(
-                f"Pinned Argos archive lacks required members for {pair}: {sorted(missing)}"
+                f"Pinned Argos archive lacks required members for {pair}: "
+                f"{sorted(missing)}"
             )
         for member, relative in files.items():
             target = MODEL_ROOT / pair / relative
@@ -124,7 +125,8 @@ def extract_argos(pair: str, archive: Path, download: bool) -> int:
                 target.parent.mkdir(parents=True, exist_ok=True)
                 temp.rename(target)
                 print(
-                    f"Extracted verified member: {target.relative_to(ROOT)} ({size:,} bytes)"
+                    f"Extracted verified member: {target.relative_to(ROOT)} "
+                    f"({size:,} bytes)"
                 )
             count += size
     return count

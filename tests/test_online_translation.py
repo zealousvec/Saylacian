@@ -8,19 +8,17 @@ import unittest
 from contextlib import contextmanager
 from unittest.mock import patch
 
-from saylacian.core.online_translation import (
-    ACCOUNT_ENV,
-    MAX_RESPONSE_BYTES,
-    MODEL,
-    PROVIDER_ENV,
-    SERVICE_TOKEN_ENV,
-    SERVICE_URL_ENV,
-    TOKEN_ENV,
-    online_translation_enabled,
-    selected_provider,
-    translate_cloudflare,
-    translate_self_hosted,
-)
+from saylacian.core.online_translation import ACCOUNT_ENV
+from saylacian.core.online_translation import MAX_RESPONSE_BYTES
+from saylacian.core.online_translation import MODEL
+from saylacian.core.online_translation import PROVIDER_ENV
+from saylacian.core.online_translation import SERVICE_TOKEN_ENV
+from saylacian.core.online_translation import SERVICE_URL_ENV
+from saylacian.core.online_translation import TOKEN_ENV
+from saylacian.core.online_translation import online_translation_enabled
+from saylacian.core.online_translation import selected_provider
+from saylacian.core.online_translation import translate_cloudflare
+from saylacian.core.online_translation import translate_self_hosted
 from saylacian.core.translation import translate_meaning
 
 

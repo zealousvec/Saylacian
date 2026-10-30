@@ -192,7 +192,8 @@ def collect_runtime_notices(payload: Path) -> None:
         copied += 1
     if copied == 0:
         raise FileNotFoundError(
-            "The pinned kivy-deps-sdl2 package supplied no redistributable licence files."
+            "The pinned kivy-deps-sdl2 package supplied no redistributable "
+            "licence files."
         )
 
 
@@ -230,7 +231,8 @@ def build(args: argparse.Namespace) -> tuple[Path, Path, Path]:
         )
     if any(work_root.iterdir()):
         raise FileExistsError(
-            "Build work directory is not empty. Choose a new workpath to preserve its files."
+            "Build work directory is not empty. Choose a new workpath to "
+            "preserve its files."
         )
     version = subprocess.run(
         [sys.executable, "-m", "PyInstaller", "--version"],
@@ -330,7 +332,8 @@ def main() -> int:
     print(f"Manifest: {manifest}")
     print(f"SHA-256: {digest.read_text(encoding='ascii').strip()}")
     print(
-        "runtime_verified=false; use an authorized isolated Windows host for launch checks"
+        "runtime_verified=false; use an authorized isolated Windows "
+        "host for launch checks"
     )
     return 0
 

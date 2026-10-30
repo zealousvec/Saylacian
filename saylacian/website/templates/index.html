@@ -1,53 +1,151 @@
 <!-- SPDX-License-Identifier: AGPL-3.0-or-later -->
-<!-- Provides the optional website translation form and script reference. -->
+<!-- Optional website translator and script reference. -->
 <!doctype html>
 <html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Saylacian</title>
-  <link rel="stylesheet" href="{{ url_for('static',filename='style.css') }}">
-  <script src="{{ url_for('static',filename='translator.js') }}" defer></script>
-</head>
-<body><main>
-  <header><h1>Saylacian</h1><p>Language and script tools · alpha testing</p></header>
-  <form id="translator" method="post" action="/process">
-    <div class="selectors">
-      <label for="source">From<select id="source" name="source">
-        {% for name in ['Somali Latin','Osmanya','English','French','Detect language/script'] %}
-        <option {% if values.get('source')==name %}selected{% endif %}>{{name}}</option>
-        {% endfor %}
-      </select></label>
-      <button id="swap" type="button" aria-label="Swap source and target">Swap</button>
-      <label for="target">To<select id="target" name="target">
-        {% for name in ['Osmanya','Somali Latin','English','French'] %}
-        <option {% if values.get('target')==name %}selected{% endif %}>{{name}}</option>
-        {% endfor %}
-      </select></label>
-      <label for="mode">Mode<select id="mode" name="mode">
-        <option value="transliterate">Convert writing system</option>
-        <option value="meaning" {% if values.get('mode')=='meaning' %}selected{% endif %}>Translate meaning</option>
-      </select></label>
-    </div>
-    <section class="panel">
-      <label for="input">Input</label>
-      <textarea id="input" name="text" maxlength="4000" rows="6" aria-describedby="input-limit">{{values.get('text','')}}</textarea>
-      <div class="actions"><button id="paste" type="button">Paste</button><button id="clear" type="button">Clear</button><span id="input-limit">4,000 characters maximum</span></div>
-    </section>
-    <button id="convert" type="submit">Convert</button>
-  </form>
-  <section class="panel">
-    <label for="output">Result</label><textarea id="output" readonly rows="6">{{result.text if result else ''}}</textarea>
-    <button id="copy" type="button">Copy result</button>
-  </section>
-  <div id="status" role="status" aria-live="polite">{% if error %}{{error}}{% elif result %}{{result.warnings|join(' ') or 'Done.'}}{% else %}Choose writing-system conversion or meaning translation.{% endif %}</div>
-  <details><summary>Osmanya alphabet and input aid</summary>
-    <p>Some letters have more than one reading. Select Osmanya as source to add a character.</p>
-    <div class="alphabet">{% for letter in alphabet %}
-      <button type="button" class="letter" data-glyph="{{letter.glyph}}" title="{{letter.name}}" aria-label="Insert {{letter.name}}, {{letter.readings}}"><span>{{letter.glyph}}</span><small>{{letter.readings}} · {{letter.codepoint}}</small></button>
-    {% endfor %}</div>
-    <p>Reference: <a href="https://www.unicode.org/versions/Unicode16.0.0/core-spec/chapter-19/">Unicode 16.0, section 19.2.1</a>. Somali-speaker review is still needed.</p>
-  </details>
-  <section><h2>Support and privacy</h2><p>English ↔ French and English ↔ Somali meaning models run locally. Somali translation is in alpha testing and needs fluent-speaker review. Somali ↔ French uses English as an intermediate step, so errors can compound. Somali Latin / Osmanya changes the writing system, not meaning. This website does not offer Borama or Kaddare. Old Nubian support is a limited 29-character transliteration table from Coptic-derived writing to scholarly Latin; reverse conversion can have ambiguous letter boundaries. Neither route translates Old Nubian meaning or covers every convention. Modern Nubian varieties are not supported.</p><p>The server processes text only when you choose Convert and does not save translation history on this development site. Public hosting is not set up.</p></section>
-  <noscript><p>JavaScript is off. Form conversion still works; copy/paste and swap helpers require JavaScript.</p></noscript>
-</main></body></html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Saylacian</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+    <script
+      src="{{ url_for('static', filename='translator.js') }}"
+      defer
+    ></script>
+  </head>
+  <body>
+    <main>
+      <header>
+        <h1>Saylacian</h1>
+        <p>Language and script tools · alpha testing</p>
+      </header>
+
+      <form id="translator" method="post" action="/process">
+        <div class="selectors">
+          <label for="source">
+            From
+            <select id="source" name="source">
+              {% for name in ['Somali Latin', 'Osmanya', 'English', 'French', 'Detect language/script'] %}
+              <option {% if values.get('source') == name %}selected{% endif %}>{{ name }}</option>
+              {% endfor %}
+            </select>
+          </label>
+          <button
+            id="swap"
+            type="button"
+            aria-label="Swap source and target"
+          >
+            Swap
+          </button>
+          <label for="target">
+            To
+            <select id="target" name="target">
+              {% for name in ['Osmanya', 'Somali Latin', 'English', 'French'] %}
+              <option {% if values.get('target') == name %}selected{% endif %}>{{ name }}</option>
+              {% endfor %}
+            </select>
+          </label>
+          <label for="mode">
+            Mode
+            <select id="mode" name="mode">
+              <option value="transliterate">Convert writing system</option>
+              <option
+                value="meaning"
+                {% if values.get('mode') == 'meaning' %}selected{% endif %}
+              >
+                Translate meaning
+              </option>
+            </select>
+          </label>
+        </div>
+
+        <section class="panel">
+          <label for="input">Input</label>
+          <textarea
+            id="input"
+            name="text"
+            maxlength="4000"
+            rows="6"
+            aria-describedby="input-limit"
+          >{{ values.get('text', '') }}</textarea>
+          <div class="actions">
+            <button id="paste" type="button">Paste</button>
+            <button id="clear" type="button">Clear</button>
+            <span id="input-limit">4,000 characters maximum</span>
+          </div>
+        </section>
+
+        <button id="convert" type="submit">Convert</button>
+      </form>
+
+      <section class="panel">
+        <label for="output">Result</label>
+        <textarea id="output" readonly rows="6">{{ result.text if result else '' }}</textarea>
+        <button id="copy" type="button">Copy result</button>
+      </section>
+
+      <div id="status" role="status" aria-live="polite">
+        {% if error %}{{ error }}{% elif result %}{{ result.warnings|join(' ') or 'Done.' }}{% else %}Choose writing-system conversion or meaning translation.{% endif %}
+      </div>
+
+      <details>
+        <summary>Osmanya alphabet and input aid</summary>
+        <p>
+          Some letters have more than one reading. Select Osmanya as source to
+          add a character.
+        </p>
+        <div class="alphabet">
+          {% for letter in alphabet %}
+          <button
+            type="button"
+            class="letter"
+            data-glyph="{{ letter.glyph }}"
+            title="{{ letter.name }}"
+            aria-label="Insert {{ letter.name }}, {{ letter.readings }}"
+          >
+            <span>{{ letter.glyph }}</span>
+            <small>{{ letter.readings }} · {{ letter.codepoint }}</small>
+          </button>
+          {% endfor %}
+        </div>
+        <p>
+          Reference:
+          <a
+            href="https://www.unicode.org/versions/Unicode16.0.0/core-spec/chapter-19/"
+            >Unicode 16.0, section 19.2.1</a
+          >. Somali-speaker review is still needed.
+        </p>
+      </details>
+
+      <section>
+        <h2>Support and privacy</h2>
+        <p>
+          English ↔ French and English ↔ Somali meaning models run locally.
+          Somali translation is in alpha testing and needs fluent-speaker
+          review. Somali ↔ French uses English as an intermediate step, so
+          errors can compound. Somali Latin / Osmanya changes the writing
+          system, not meaning. This website does not offer Borama or Kaddare.
+          Old Nubian support is a limited 29-character transliteration table
+          from Coptic-derived writing to scholarly Latin; reverse conversion
+          can have ambiguous letter boundaries. Neither route translates Old
+          Nubian meaning or covers every convention. Modern Nubian varieties
+          are not supported.
+        </p>
+        <p>
+          The server processes text only when you choose Convert and does not
+          save translation history on this development site. Public hosting is
+          not set up.
+        </p>
+      </section>
+
+      <noscript>
+        <p>
+          JavaScript is off. Form conversion still works; copy/paste and swap
+          helpers require JavaScript.
+        </p>
+      </noscript>
+    </main>
+  </body>
+</html>

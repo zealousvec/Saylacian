@@ -10,14 +10,12 @@ import zipfile
 from pathlib import Path
 from unittest.mock import patch
 
-from tools.benchmark_somali_dev import (
-    TICO_DEV_ARCHIVE_SHA256,
-    TICO_DEV_MEMBER,
-    _checkpoint,
-    _save_checkpoint,
-    load_dev_pairs,
-    select_stratified_sample,
-)
+from tools.benchmark_somali_dev import TICO_DEV_ARCHIVE_SHA256
+from tools.benchmark_somali_dev import TICO_DEV_MEMBER
+from tools.benchmark_somali_dev import _checkpoint
+from tools.benchmark_somali_dev import _save_checkpoint
+from tools.benchmark_somali_dev import load_dev_pairs
+from tools.benchmark_somali_dev import select_stratified_sample
 
 
 class SomaliDevBenchmarkTests(unittest.TestCase):
