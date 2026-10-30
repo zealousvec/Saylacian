@@ -11,6 +11,7 @@ from saylacian.core.transliteration import (
     OLD_NUBIAN_AMBIGUOUS_TOKENS,
     OLD_NUBIAN_FORWARD_VARIANTS,
     OLD_NUBIAN_TO_LATIN,
+    _old_nubian_stroke_i_target,
     transliterate,
 )
 
@@ -115,7 +116,15 @@ def describe_combining_marks(text: str, limit: int = 6) -> str:
             f"(code point {index})"
         )
         if character == "\u0304":
-            detail += "; an i-based alternative reading is available"
+            target = _old_nubian_stroke_i_target(text, index - 1)
+            if target is None:
+                detail += "; no i-insertion reading is inferred from nearby letters"
+            else:
+                detail += (
+                    f"; an i-insertion before {text[target]} is available as an "
+                    "alternative"
+                )
+            detail += "; this mark can also identify a numeral, which Saylacian does not convert"
         else:
             detail += "; preserved without interpretation"
         details.append(detail)

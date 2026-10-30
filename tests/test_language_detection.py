@@ -125,12 +125,63 @@ class LanguageDetectionTests(unittest.TestCase):
         self.assertIn("uncertain", message)
 
     def test_short_input_abstains_without_loading_optional_model(self):
-        with patch.object(
-            language_detection, "_openlid_somali_confidence"
-        ) as candidate:
-            result = language_detection.detect_language("hi you")
+        with (
+            patch.object(language_detection, "_identifier") as identifier,
+            patch.object(language_detection, "_openlid_somali_confidence") as candidate,
+        ):
+            result = language_detection.detect_language("a b c d")
         self.assertIsNone(result[0])
+        identifier.assert_not_called()
         candidate.assert_not_called()
+
+    def test_eight_character_three_word_input_reaches_optional_detector(self):
+        with (
+            patch.object(
+                language_detection,
+                "_identifier",
+                return_value=FakeIdentifier("xx", 0.1),
+            ),
+            patch.object(
+                language_detection,
+                "_openlid_somali_confidence",
+                return_value=0.98,
+            ) as candidate,
+        ):
+            result = language_detection.detect_language("waa la i")
+
+        self.assertEqual(result, ("Somali Latin", 0.98, ""))
+        candidate.assert_called_once_with("waa la i")
+
+    def test_short_confidence_at_threshold_is_accepted(self):
+        with (
+            patch.object(
+                language_detection,
+                "_identifier",
+                return_value=FakeIdentifier("so", 0.70),
+            ),
+            patch.object(language_detection, "_openlid_somali_confidence") as candidate,
+        ):
+            result = language_detection.detect_language("waa la i")
+
+        self.assertEqual(result, ("Somali Latin", 0.70, ""))
+        candidate.assert_not_called()
+
+    def test_short_confidence_below_threshold_still_abstains(self):
+        with (
+            patch.object(
+                language_detection,
+                "_identifier",
+                return_value=FakeIdentifier("so", 0.69),
+            ),
+            patch.object(
+                language_detection, "_openlid_somali_confidence", return_value=None
+            ),
+        ):
+            result = language_detection.detect_language("waa la i")
+
+        self.assertIsNone(result[0])
+        self.assertEqual(result[1], 0.69)
+        self.assertIn("uncertain", result[2])
 
     def test_confidently_different_text_ends_abstain_as_mixed(self):
         identifier = SequencedIdentifier([("en", 0.91), ("so", 0.89), ("en", 0.98)])
@@ -155,6 +206,30 @@ class LanguageDetectionTests(unittest.TestCase):
         )
         openlid.assert_not_called()
 
+    def test_confidently_different_middle_chunk_abstains_as_mixed(self):
+        identifier = SequencedIdentifier([("en", 0.92), ("en", 0.91), ("so", 0.88)])
+
+        with (
+            patch.object(language_detection, "_identifier", return_value=identifier),
+            patch.object(language_detection, "_openlid_somali_confidence") as openlid,
+        ):
+            result = language_detection.detect_language(
+                "Good morning friend waxaan rabaa cunto this is good"
+            )
+
+        self.assertIsNone(result[0])
+        self.assertEqual(result[1], 0.88)
+        self.assertIn("more than one language", result[2])
+        self.assertEqual(
+            identifier.inputs,
+            [
+                "Good morning friend",
+                "this is good",
+                "waxaan rabaa cunto",
+            ],
+        )
+        openlid.assert_not_called()
+
     def test_mixed_guard_checks_short_edges_before_openlid_fallback(self):
         identifier = SequencedIdentifier([("en", 0.84), ("so", 0.82)])
 
@@ -169,6 +244,24 @@ class LanguageDetectionTests(unittest.TestCase):
         self.assertIn("more than one language", result[2])
         self.assertEqual(identifier.inputs, ["go it now", "waan ku fiican"])
         openlid.assert_not_called()
+
+    def test_mixed_guard_accepts_edge_confidence_at_its_threshold(self):
+        identifier = SequencedIdentifier([("en", 0.50), ("so", 0.50)])
+
+        with patch.object(language_detection, "_identifier", return_value=identifier):
+            result = language_detection.detect_language("go it now waan ku fiican")
+
+        self.assertIsNone(result[0])
+        self.assertEqual(result[1], 0.50)
+        self.assertIn("more than one language", result[2])
+
+    def test_mixed_guard_rejects_edge_confidence_below_its_threshold(self):
+        identifier = SequencedIdentifier([("en", 0.49), ("so", 0.70)])
+
+        with patch.object(language_detection, "_identifier", return_value=identifier):
+            result = language_detection.detect_language("go it now waan ku fiican")
+
+        self.assertEqual(result, ("Somali Latin", 0.70, ""))
 
     def test_openlid_does_not_override_long_ambiguous_text(self):
         with (
@@ -190,7 +283,9 @@ class LanguageDetectionTests(unittest.TestCase):
         candidate.assert_not_called()
 
     def test_same_confident_edge_languages_continue_to_whole_text(self):
-        identifier = SequencedIdentifier([("en", 0.93), ("en", 0.91), ("en", 0.98)])
+        identifier = SequencedIdentifier(
+            [("en", 0.93), ("en", 0.91), ("en", 0.92), ("en", 0.98)]
+        )
 
         with patch.object(language_detection, "_identifier", return_value=identifier):
             result = language_detection.detect_language(
@@ -198,6 +293,39 @@ class LanguageDetectionTests(unittest.TestCase):
             )
 
         self.assertEqual(result, ("English", 0.98, ""))
+        self.assertEqual(
+            identifier.inputs,
+            [
+                "Good morning friend",
+                "longer English message",
+                "this is a",
+                "Good morning friend this is a longer English message",
+            ],
+        )
+
+    def test_uncertain_middle_chunk_does_not_force_mixed_warning(self):
+        identifier = SequencedIdentifier(
+            [("en", 0.93), ("en", 0.91), ("so", 0.49), ("en", 0.98)]
+        )
+
+        with patch.object(language_detection, "_identifier", return_value=identifier):
+            result = language_detection.detect_language(
+                "Good morning friend waxaan rabaa cunto this is good"
+            )
+
+        self.assertEqual(result, ("English", 0.98, ""))
+
+    def test_middle_chunk_confidence_at_threshold_warns_as_mixed(self):
+        identifier = SequencedIdentifier([("en", 0.93), ("en", 0.91), ("so", 0.50)])
+
+        with patch.object(language_detection, "_identifier", return_value=identifier):
+            result = language_detection.detect_language(
+                "Good morning friend waxaan rabaa cunto this is good"
+            )
+
+        self.assertIsNone(result[0])
+        self.assertEqual(result[1], 0.50)
+        self.assertIn("more than one language", result[2])
 
     def test_somali_pack_files_are_pinned(self):
         pack = get_pack_specs()["somali_detection_openlid"]
@@ -247,6 +375,41 @@ class LanguageDetectionTests(unittest.TestCase):
         )
         self.assertIn("14d6fd1e24c9f94a5e40c2e91c066241aede0dce", model["url"])
         self.assertEqual(model["destination"], "somali/en_so_afrislm/model.gguf")
+
+    def test_afrislm_2b_pack_is_pinned_and_keeps_upstream_attributions(self):
+        pack = get_pack_specs()["somali_afrislm_2b"]
+        assets = {asset["destination"]: asset for asset in pack["assets"]}
+        model = assets["somali/en_so_afrislm_2b/model.gguf"]
+        attributions = assets["somali/en_so_afrislm_2b/ATTRIBUTIONS.md"]
+
+        self.assertEqual(pack["license"], "Apache-2.0")
+        self.assertIn("CC BY-NC-4.0", pack["license_note"])
+        self.assertIn("2.3 GB", pack["runtime_note"])
+        self.assertEqual(pack["requires"], ["somali"])
+        self.assertEqual(pack["download_bytes"], 1_560_528_531)
+        self.assertEqual(pack["runtimes"]["llama-cpp-python"], "0.3.36")
+        self.assertEqual(model["bytes"], 1_560_461_376)
+        self.assertEqual(
+            model["sha256"],
+            "fc2a80532e58e0655efd9e68c5b7cb2c4373222e736bcc88de648502a4e30361",
+        )
+        self.assertIn("9bcceadebbcc5d36bba9f7f02141300a95ae8d04", model["url"])
+        self.assertEqual(attributions["bytes"], 67_155)
+        self.assertEqual(
+            attributions["sha256"],
+            "9754d9e4d3dbe4001f30e46a14a93293caaf9af9bb40773ffefb5e47c31f5f96",
+        )
+
+    def test_afrislm_2b_download_requires_its_optional_runtime(self):
+        manager = ModelPackManager(specs=get_pack_specs())
+        with (
+            patch(
+                "saylacian.core.model_packs.importlib.util.find_spec",
+                return_value=None,
+            ),
+            self.assertRaisesRegex(ValueError, "requirements-afrislm.txt"),
+        ):
+            manager.install("somali_afrislm_2b")
 
     def test_afrislm_download_requires_its_optional_runtime(self):
         manager = ModelPackManager(specs=get_pack_specs())

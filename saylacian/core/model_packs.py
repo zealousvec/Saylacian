@@ -101,6 +101,9 @@ def get_pack_specs() -> dict[str, dict]:
     afrislm = json.loads(
         (DATA_ROOT / "afrislm_manifest.json").read_text(encoding="utf-8")
     )
+    afrislm_2b = json.loads(
+        (DATA_ROOT / "afrislm_2b_manifest.json").read_text(encoding="utf-8")
+    )
 
     somali_assets = []
     for item in somali:
@@ -212,6 +215,26 @@ def get_pack_specs() -> dict[str, dict]:
             }
         )
 
+    afrislm_2b_assets = []
+    for filename, metadata in afrislm_2b["files"].items():
+        afrislm_2b_assets.append(
+            {
+                "kind": "file",
+                "url": _huggingface_url(
+                    afrislm_2b["repository"],
+                    afrislm_2b["revision"],
+                    metadata.get("repository_path", filename),
+                ),
+                "bytes": metadata["bytes"],
+                "sha256": metadata["sha256"],
+                "destination": f"somali/en_so_afrislm_2b/{filename}",
+                "license": afrislm_2b["license"],
+                "repository": afrislm_2b["repository"],
+                "revision": afrislm_2b["revision"],
+                "runtimes": afrislm_2b["runtimes"],
+            }
+        )
+
     somali_manifest_item = somali[0]
     french_manifest_items = [
         item for item in argos if item.get("pair") in {"en_fr", "fr_en"}
@@ -259,6 +282,23 @@ def get_pack_specs() -> dict[str, dict]:
             "model_repositories": [afrislm["repository"]],
             "runtimes": afrislm["runtimes"],
             "assets": afrislm_assets,
+        },
+        "somali_afrislm_2b": {
+            "title": "AfriSLM 2B Somali / English (1.56 GB)",
+            "requires": ["somali"],
+            "license": afrislm_2b["license"],
+            "license_note": afrislm_2b.get("license_note", ""),
+            "runtime_note": (
+                "Larger optional model. In local tests it used about 2.3 GB of "
+                "working memory. Saylacian selects it only with more than four "
+                "CPU cores and at least 4 GB of available physical memory; "
+                "otherwise it uses a smaller installed model or the standard pack."
+            ),
+            "runtime_module": afrislm_2b.get("runtime_module"),
+            "runtime_install": afrislm_2b.get("runtime_install"),
+            "model_repositories": [afrislm_2b["repository"]],
+            "runtimes": afrislm_2b["runtimes"],
+            "assets": afrislm_2b_assets,
         },
     }
     for pack_id, spec in specs.items():

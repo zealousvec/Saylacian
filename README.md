@@ -35,10 +35,11 @@ The app asks before downloading a pack. See [Offline packs](docs/OFFLINE_PACKS.m
 - [Script letter guide](docs/SCRIPT_LETTER_GUIDE.md): mapped letters and ambiguities.
 - [Sharing Borama and Kaddare](docs/SOMALI_SCRIPT_INTEROPERABILITY.md): what each copy option preserves.
 - [Optional online translation](docs/ONLINE_TRANSLATION.md): provider setup and privacy.
+- [Windows build status](docs/RELEASE_READINESS.md): reproducible source build, MSIX status and checks still needed before Store submission.
 - [Version history](CHANGELOG.md): changes in the current source snapshot.
 - [Third-party notices](THIRD_PARTY_NOTICES.md): separate licences for fonts, models and other assets.
 
-The Windows app and offline routes passed clean-clone checks. No Store-ready package has passed WACK or clean-VM installation checks. Somali and historical-script features retain the limits above. Android and iOS builds have not been tested. See [Windows build status](docs/RELEASE_READINESS.md).
+The Windows app and offline routes passed clean-clone checks. The unsigned test MSIX has not passed WACK or clean-VM installation checks, and no Store release is available. Somali and historical-script features retain the limits above. Android and iOS builds have not been tested. See [Windows build status](docs/RELEASE_READINESS.md).
 
 ## Licence
 

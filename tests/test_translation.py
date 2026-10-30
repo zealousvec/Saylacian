@@ -258,9 +258,19 @@ class TranslationTests(unittest.TestCase):
                 self.assertEqual(engine.calls, [[expected_tokens]])
 
     def test_somali_model_routes_enable_bounded_ngram_repetition_guard(self):
-        for source, target, folder_name in (
-            ("English", "Somali Latin", "en_so"),
-            ("Somali Latin", "English", "so_en"),
+        for source, target, folder_name, expected_ngram_size in (
+            (
+                "English",
+                "Somali Latin",
+                "en_so",
+                translation.EN_TO_SO_NO_REPEAT_NGRAM_SIZE,
+            ),
+            (
+                "Somali Latin",
+                "English",
+                "so_en",
+                translation.SO_TO_EN_NO_REPEAT_NGRAM_SIZE,
+            ),
         ):
             with self.subTest(source=source, target=target):
                 engine = FakeEngine()
@@ -284,8 +294,9 @@ class TranslationTests(unittest.TestCase):
                 self.assertEqual(result.text, "translated text")
                 self.assertEqual(
                     engine.options["no_repeat_ngram_size"],
-                    3,
+                    expected_ngram_size,
                 )
+                self.assertNotIn("replace_unknowns", engine.options)
                 self.assertEqual(
                     engine.options["beam_size"],
                     translation.INFERENCE_BEAM_SIZE,
@@ -390,13 +401,81 @@ class TranslationTests(unittest.TestCase):
                 )
             return result, baseline_engine, afrislm
 
+    def run_with_afrislm_2b_output(
+        self,
+        candidate_output,
+        *,
+        allow_2b_model,
+        allow_smaller_model,
+        install_smaller_model=True,
+    ):
+        with TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            baseline_folder = root / "somali" / "en_so"
+            larger_folder = root / "somali" / "en_so_afrislm_2b"
+            baseline_folder.mkdir(parents=True)
+            larger_folder.mkdir(parents=True)
+            for filename in (
+                "model.bin",
+                "config.json",
+                "shared_vocabulary.json",
+                "source.spm",
+                "target.spm",
+            ):
+                (baseline_folder / filename).touch()
+            (larger_folder / "model.gguf").touch()
+            if install_smaller_model:
+                smaller_folder = root / "somali" / "en_so_afrislm"
+                smaller_folder.mkdir(parents=True)
+                (smaller_folder / "model.gguf").touch()
+            baseline_engine = FakeEngine()
+            with (
+                patch.object(translation, "_model_roots", return_value=[root]),
+                patch.object(
+                    translation,
+                    "load_model",
+                    return_value=(
+                        (FakeTokenizer(), FakeTokenizer("baseline result")),
+                        baseline_engine,
+                    ),
+                ),
+                patch.object(
+                    translation,
+                    "should_use_2b_afrislm",
+                    return_value=allow_2b_model,
+                ),
+                patch.object(
+                    translation,
+                    "should_use_large_afrislm",
+                    return_value=allow_smaller_model,
+                ),
+                patch.object(
+                    translation, "translate_afrislm", return_value=candidate_output
+                ) as afrislm,
+            ):
+                result = translation.translate_meaning(
+                    "A useful English sentence.",
+                    "English",
+                    "Somali Latin",
+                    provider_override="offline",
+                )
+            return result, baseline_engine, afrislm
+
     def test_optional_synthetic_model_is_used_before_the_baseline(self):
         result, candidate_engine, baseline_engine = self.run_with_candidate_output(
             "candidate Somali result"
         )
 
         self.assertEqual(result.text, "candidate Somali result")
-        self.assertIn("no_repeat_ngram_size", candidate_engine.options)
+        self.assertEqual(
+            candidate_engine.options["no_repeat_ngram_size"],
+            translation.SYNTHETIC_SOMALI_NO_REPEAT_NGRAM_SIZE,
+        )
+        self.assertEqual(
+            candidate_engine.options["no_repeat_ngram_size"],
+            2,
+        )
+        self.assertTrue(candidate_engine.options["replace_unknowns"])
         self.assertIsNone(baseline_engine.options)
 
     def test_synthetic_model_runtime_error_falls_back_to_the_baseline(self):
@@ -434,6 +513,46 @@ class TranslationTests(unittest.TestCase):
         self.assertIsNotNone(baseline_engine.options)
         self.assertTrue(
             any("skipped on this low-core device" in w for w in result.warnings)
+        )
+        afrislm.assert_not_called()
+
+    def test_installed_afrislm_2b_is_selected_when_resources_allow(self):
+        result, baseline_engine, afrislm = self.run_with_afrislm_2b_output(
+            "Better candidate Somali result.",
+            allow_2b_model=True,
+            allow_smaller_model=True,
+        )
+
+        self.assertEqual(result.text, "Better candidate Somali result.")
+        self.assertIsNone(baseline_engine.options)
+        self.assertEqual(afrislm.call_args.args[3].name, "en_so_afrislm_2b")
+
+    def test_afrislm_2b_uses_the_smaller_pack_when_memory_check_fails(self):
+        result, baseline_engine, afrislm = self.run_with_afrislm_2b_output(
+            "Smaller candidate Somali result.",
+            allow_2b_model=False,
+            allow_smaller_model=True,
+        )
+
+        self.assertEqual(result.text, "Smaller candidate Somali result.")
+        self.assertIsNone(baseline_engine.options)
+        self.assertEqual(afrislm.call_args.args[3].name, "en_so_afrislm")
+        self.assertTrue(
+            any("AfriSLM 2B was skipped" in item for item in result.warnings)
+        )
+
+    def test_afrislm_2b_falls_back_when_no_large_model_meets_resource_check(self):
+        result, baseline_engine, afrislm = self.run_with_afrislm_2b_output(
+            "unused",
+            allow_2b_model=False,
+            allow_smaller_model=False,
+            install_smaller_model=False,
+        )
+
+        self.assertEqual(result.text, "baseline result")
+        self.assertIsNotNone(baseline_engine.options)
+        self.assertTrue(
+            any("AfriSLM 2B was skipped" in item for item in result.warnings)
         )
         afrislm.assert_not_called()
 

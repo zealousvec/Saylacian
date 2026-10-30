@@ -9,7 +9,7 @@ This note separates text encoding from how a font displays it. A successful conv
 | Somali Latin | Standard Latin Unicode | Broad text support | Somali spelling and translation quality still need fluent review |
 | Osmanya | Assigned Unicode characters U+10480–U+1049D | Text is standard Unicode; glyph display depends on the recipient font | Mapping has not had community review; capitalization and some Somali vowel/semivowel distinctions are lost |
 | Borama | Saylacian chart mapping in private-use code points | Requires matching mapping/font for editable glyphs | No standard Unicode assignment in sources checked; word spelling unreviewed |
-| Kaddare | Saylacian chart mapping in private-use code points | Requires matching mapping/font for editable glyphs | No standard Unicode assignment in sources checked; chart variants do not establish word spelling |
+| Kaddare | Saylacian chart mapping in private-use code points | Requires matching mapping/font for editable glyphs | Case uses separate chart-derived upper/lower slots; lowercase forms are not joined contextually; old Saylacian slots remain readable; no standard Unicode assignment in sources checked; chart forms do not establish word spelling |
 
 Osmanya's Unicode encoding is documented in the Unicode Core Specification, chapter 19, and the Unicode character chart. These sources establish encoded characters, not the app's full Somali romanization policy. [Unicode Core Specification](https://www.unicode.org/versions/Unicode16.0.0/core-spec/chapter-19/) · [Osmanya chart](https://www.unicode.org/charts/nameslist/n_10480.html).
 

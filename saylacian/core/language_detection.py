@@ -12,11 +12,12 @@ OPENLID_MAX_WORDS = 5
 
 SUPPORTED = {"en": "English", "fr": "French", "so": "Somali Latin"}
 MIN_CHARACTERS = 20
-MIN_SHORT_CHARACTERS = 12
+MIN_SHORT_CHARACTERS = 8
 MIN_MIXED_CHUNK_CHARACTERS = 8
 MIN_WORDS = 3
 MIN_CONFIDENCE = 0.70
-MIN_SHORT_CONFIDENCE = 0.75
+MIN_SHORT_CONFIDENCE = 0.70
+MIN_MIXED_CHUNK_CONFIDENCE = 0.50
 
 
 def _inference_threads(cpu_count=None):
@@ -125,16 +126,25 @@ def _mixed_language_confidence(text: str, identifier) -> float | None:
         if len(chunk) < MIN_MIXED_CHUNK_CHARACTERS:
             return None
         code, confidence = identifier.classify(chunk)
-        threshold = (
-            MIN_SHORT_CONFIDENCE if len(chunk) < MIN_CHARACTERS else MIN_CONFIDENCE
-        )
         language = SUPPORTED.get(code)
-        if language is None or confidence < threshold:
+        if language is None or confidence < MIN_MIXED_CHUNK_CONFIDENCE:
             return None
         predictions.append((language, confidence))
 
     if predictions[0][0] != predictions[1][0]:
         return min(predictions[0][1], predictions[1][1])
+
+    if len(words) >= 9:
+        middle_start = (len(words) - 3) // 2
+        middle_chunk = " ".join(words[middle_start : middle_start + 3])
+        if len(middle_chunk) < MIN_MIXED_CHUNK_CHARACTERS:
+            return None
+        code, confidence = identifier.classify(middle_chunk)
+        language = SUPPORTED.get(code)
+        if language is None or confidence < MIN_MIXED_CHUNK_CONFIDENCE:
+            return None
+        if language != predictions[0][0]:
+            return min(confidence, predictions[0][1], predictions[1][1])
     return None
 
 
@@ -145,7 +155,7 @@ def detect_language(text):
         return (
             None,
             0.0,
-            "Add at least 12 characters and three words for language detection.",
+            "Add at least 8 characters and three words for language detection.",
         )
 
     identifier = _identifier()

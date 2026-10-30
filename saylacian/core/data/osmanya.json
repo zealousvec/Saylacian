@@ -1,6 +1,18 @@
 {
   "status": "implemented character transliteration",
   "source": "https://www.unicode.org/versions/Unicode16.0.0/core-spec/chapter-19/",
+  "digits": {
+    "0": "U+104A0",
+    "1": "U+104A1",
+    "2": "U+104A2",
+    "3": "U+104A3",
+    "4": "U+104A4",
+    "5": "U+104A5",
+    "6": "U+104A6",
+    "7": "U+104A7",
+    "8": "U+104A8",
+    "9": "U+104A9"
+  },
   "mapping": {
     "aa": "𐒛",
     "dh": "𐒊",

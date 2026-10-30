@@ -9,6 +9,7 @@ from functools import lru_cache
 from pathlib import Path
 
 from .afrislm import clear_model_cache as clear_afrislm_cache
+from .afrislm import should_use_2b_model as should_use_2b_afrislm
 from .afrislm import should_use_large_model as should_use_large_afrislm
 from .afrislm import translate as translate_afrislm
 from .capabilities import get_capability
@@ -24,7 +25,10 @@ LANGUAGE_CODES = {"English": "en", "French": "fr", "Somali Latin": "so"}
 LINE_SEPARATORS = re.compile(r"(\r\n|[\r\n\u2028\u2029])")
 MODEL_ROOT = Path(__file__).resolve().parents[2] / "models"
 MULTILINGUAL_PAIRS = {"en_so", "so_en"}
-SOMALI_NO_REPEAT_NGRAM_SIZE = 3
+EN_TO_SO_NO_REPEAT_NGRAM_SIZE = 3
+SO_TO_EN_NO_REPEAT_NGRAM_SIZE = 2
+SYNTHETIC_SOMALI_NO_REPEAT_NGRAM_SIZE = 2
+SYNTHETIC_SOMALI_REPLACE_UNKNOWNS = True
 MULTILINE_BATCH_SIZE = 16
 MULTILINE_WARNING = "Line breaks were preserved; each line was translated separately, so context may change."
 
@@ -413,6 +417,14 @@ def translate_meaning(text, source, target, model_root=None, *, provider_overrid
     folder = model_directory(source, target, model_root)
     candidate_fallback = False
     candidate_fallback_reason = None
+    afrislm_2b_folder = next(
+        (
+            root / "somali" / "en_so_afrislm_2b"
+            for root in _model_roots(model_root)
+            if (root / "somali" / "en_so_afrislm_2b" / "model.gguf").is_file()
+        ),
+        None,
+    )
     afrislm_folder = next(
         (
             root / "somali" / "en_so_afrislm"
@@ -421,14 +433,32 @@ def translate_meaning(text, source, target, model_root=None, *, provider_overrid
         ),
         None,
     )
+    afrislm_selection_warning = None
+    if afrislm_2b_folder is not None:
+        if should_use_2b_afrislm():
+            afrislm_folder = afrislm_2b_folder
+        elif afrislm_folder is not None and should_use_large_afrislm():
+            afrislm_selection_warning = (
+                "AfriSLM 2B was skipped because this device does not meet its "
+                "resource check; the smaller AfriSLM pack was used."
+            )
+        else:
+            afrislm_folder = None
+            afrislm_selection_warning = (
+                "AfriSLM 2B was skipped because this device does not meet its "
+                "resource check; another installed Somali model was used."
+            )
+    elif afrislm_folder is not None and not should_use_large_afrislm():
+        afrislm_folder = None
+        afrislm_selection_warning = "AfriSLM was skipped on this low-core device; a smaller Somali model was used."
+    if afrislm_selection_warning and afrislm_folder is None:
+        candidate_fallback = True
+        candidate_fallback_reason = afrislm_selection_warning
     if afrislm_folder is not None and (source, target) in {
         ("English", "Somali Latin"),
         ("Somali Latin", "English"),
     }:
-        if not should_use_large_afrislm():
-            candidate_fallback = True
-            candidate_fallback_reason = "AfriSLM was skipped on this low-core device; a smaller Somali model was used."
-        else:
+        if not candidate_fallback:
             try:
                 candidate_text = translate_afrislm(text, source, target, afrislm_folder)
             except (OSError, RuntimeError, TypeError, ValueError):
@@ -441,8 +471,13 @@ def translate_meaning(text, source, target, model_root=None, *, provider_overrid
                 if rejection_reason is None:
                     return Conversion(
                         candidate_text,
-                        (
-                            "Somali translation may be inaccurate; check important details.",
+                        tuple(
+                            warning
+                            for warning in (
+                                "Somali translation may be inaccurate; check important details.",
+                                afrislm_selection_warning,
+                            )
+                            if warning
                         ),
                     )
                 candidate_fallback = True
@@ -468,7 +503,8 @@ def translate_meaning(text, source, target, model_root=None, *, provider_overrid
                     candidate_result = candidate_engine.translate_batch(
                         [candidate_tokens],
                         beam_size=INFERENCE_BEAM_SIZE,
-                        no_repeat_ngram_size=SOMALI_NO_REPEAT_NGRAM_SIZE,
+                        no_repeat_ngram_size=SYNTHETIC_SOMALI_NO_REPEAT_NGRAM_SIZE,
+                        replace_unknowns=SYNTHETIC_SOMALI_REPLACE_UNKNOWNS,
                         max_input_length=0,
                         max_decoding_length=512,
                     )[0]
@@ -561,7 +597,11 @@ def translate_meaning(text, source, target, model_root=None, *, provider_overrid
         result = engine.translate_batch(
             [tokens],
             beam_size=INFERENCE_BEAM_SIZE,
-            no_repeat_ngram_size=SOMALI_NO_REPEAT_NGRAM_SIZE,
+            no_repeat_ngram_size=(
+                EN_TO_SO_NO_REPEAT_NGRAM_SIZE
+                if target == "Somali Latin"
+                else SO_TO_EN_NO_REPEAT_NGRAM_SIZE
+            ),
             max_input_length=0,
             max_decoding_length=512,
         )[0]

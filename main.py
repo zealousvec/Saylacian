@@ -795,10 +795,15 @@ class SaylacianApp(MDApp):
                     return
             else:
                 coptic_script = source == "Coptic script"
+                old_nubian_script = source == "Old Nubian (Coptic)"
                 if coptic_script:
                     source = "Old Nubian (Coptic)"
                     detection_note = (
                         "Coptic-derived writing detected; language is unknown. "
+                    )
+                elif old_nubian_script:
+                    detection_note = (
+                        "Old Nubian-specific letters detected; language is unknown. "
                     )
                 self.input_font = self.font_for(source)
                 input_widget = self.root.get_screen("home").ids.input_text

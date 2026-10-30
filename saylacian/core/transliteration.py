@@ -31,10 +31,28 @@ SCRIPT_LATIN_TO_PUA = {
     }
     for name, data in SCRIPT_DATA.items()
 }
+# The first Kaddare chart slots remain readable for text created before case
+# forms were added. New Latin-to-Kaddare output uses the chart's cursive forms.
+for record in SCRIPT_DATA["Kaddare"]["records"]:
+    if "lowercase_pua" in record:
+        SCRIPT_LATIN_TO_PUA["Kaddare"][record["grapheme"]] = chr(
+            int("0x" + record["lowercase_pua"][2:], 0)
+        )
 SCRIPT_PUA_TO_LATIN = {
     name: {glyph: grapheme for grapheme, glyph in mapping.items()}
     for name, mapping in SCRIPT_LATIN_TO_PUA.items()
 }
+SCRIPT_KADDARE_UPPERCASE_TO_PUA = {}
+# Preserve legacy Kaddare glyphs as lowercase readings and add the chart's
+# separately encoded uppercase forms.
+for record in SCRIPT_DATA["Kaddare"]["records"]:
+    grapheme = record["grapheme"]
+    legacy = chr(int("0x" + record["pua"][2:], 0))
+    SCRIPT_PUA_TO_LATIN["Kaddare"][legacy] = grapheme
+    if "uppercase_pua" in record:
+        uppercase = chr(int("0x" + record["uppercase_pua"][2:], 0))
+        SCRIPT_PUA_TO_LATIN["Kaddare"][uppercase] = grapheme.upper()
+        SCRIPT_KADDARE_UPPERCASE_TO_PUA[grapheme] = uppercase
 SCRIPT_PUA_REVERSE_VARIANTS = {}
 for script, aliases in SCRIPT_LATIN_ALIASES.items():
     variants = {}
@@ -46,6 +64,13 @@ for script, aliases in SCRIPT_LATIN_ALIASES.items():
     }
 SOMALI_TO_OSMANYA = RESOURCE["mapping"]
 OSMANYA_TO_SOMALI = {value: key for key, value in SOMALI_TO_OSMANYA.items()}
+OSMANYA_DIGITS_TO_LATIN = {
+    chr(int(codepoint.removeprefix("U+"), 16)): digit
+    for digit, codepoint in RESOURCE["digits"].items()
+}
+LATIN_DIGITS_TO_OSMANYA = {
+    digit: glyph for glyph, digit in OSMANYA_DIGITS_TO_LATIN.items()
+}
 OSMANYA_REVERSE_VARIANTS = {
     chr(0x10493): ("uu",),
     chr(0x10495): ("ii",),
@@ -96,6 +121,8 @@ OLD_NUBIAN_FORWARD_DIGRAPHS = {
     "ⲟⲩ": ("u", "uː", "w", "wu"),
 }
 OLD_NUBIAN_SUPRALINEAR_STROKE = "\u0304"
+OLD_NUBIAN_STROKE_I_CONSONANTS = frozenset("ⲗⲛⲣⳝ")
+OLD_NUBIAN_STROKE_VOWELS = frozenset("ⲁⲉⲏⲓⲟⲩⲱ")
 OLD_NUBIAN_REVERSE = {
     reading: character for character, reading in OLD_NUBIAN_TO_LATIN.items()
 }
@@ -107,6 +134,43 @@ OLD_NUBIAN_REVERSE_VARIANTS = {
 OLD_NUBIAN_REVERSE_TOKENS = tuple(sorted(OLD_NUBIAN_REVERSE, key=len, reverse=True))
 OLD_NUBIAN_AMBIGUOUS_TOKENS = frozenset(OLD_NUBIAN_REVERSE_VARIANTS)
 SOMALI_FORWARD_TOKENS = tuple(sorted(SOMALI_TO_OSMANYA, key=len, reverse=True))
+KADDARE_MACRON_VOWELS = {
+    "ā": "a",
+    "ē": "e",
+    "ī": "i",
+    "ō": "o",
+    "ū": "u",
+}
+SOMALI_MACRON_TO_LONG_VOWEL = {
+    "ā": "aa",
+    "ē": "ee",
+    "ī": "ii",
+    "ō": "oo",
+    "ū": "uu",
+}
+
+
+def _old_nubian_stroke_i_target(text: str, mark_position: int) -> int | None:
+    if (
+        not 0 <= mark_position < len(text)
+        or text[mark_position] != OLD_NUBIAN_SUPRALINEAR_STROKE
+    ):
+        return None
+    base_position = mark_position - 1
+    if base_position < 0 or unicodedata.category(text[base_position]).startswith("M"):
+        return None
+    base = text[base_position].casefold()
+    if base in OLD_NUBIAN_STROKE_I_CONSONANTS:
+        return base_position
+    if base in OLD_NUBIAN_STROKE_VOWELS:
+        prior_position = base_position - 1
+        if (
+            prior_position >= 0
+            and not unicodedata.category(text[prior_position]).startswith("M")
+            and text[prior_position].casefold() in OLD_NUBIAN_STROKE_I_CONSONANTS
+        ):
+            return prior_position
+    return None
 
 
 @dataclass(frozen=True)
@@ -148,10 +212,32 @@ def _chart_transliterate(text: str, source: str, target: str) -> Conversion:
         ambiguous_tokens = set(aliases) | set(aliases.values())
         index = 0
         upper_seen = False
+        kaddare_grapheme_case_loss = False
+        kaddare_lowercase_used = False
         ambiguous_vowel_seen = False
         missing = []
         missing_seen = set()
         while index < len(text):
+            if target == "Borama":
+                long_vowel = SOMALI_MACRON_TO_LONG_VOWEL.get(text[index].casefold())
+                if long_vowel:
+                    upper_seen |= text[index].isupper()
+                    canonical = aliases.get(long_vowel, long_vowel)
+                    output.append(mapping[canonical])
+                    ambiguous_vowel_seen |= long_vowel in ambiguous_tokens
+                    index += 1
+                    continue
+            if target == "Kaddare" and text[index].casefold() in KADDARE_MACRON_VOWELS:
+                matched = text[index]
+                canonical = KADDARE_MACRON_VOWELS[matched.casefold()]
+                glyph = mapping[canonical]
+                if matched.isupper():
+                    glyph = SCRIPT_KADDARE_UPPERCASE_TO_PUA[canonical]
+                else:
+                    kaddare_lowercase_used = True
+                output.extend((glyph, glyph))
+                index += 1
+                continue
             token = next(
                 (
                     item
@@ -161,9 +247,20 @@ def _chart_transliterate(text: str, source: str, target: str) -> Conversion:
                 None,
             )
             if token:
-                upper_seen |= text[index : index + len(token)] != token
+                matched = text[index : index + len(token)]
+                upper_seen |= matched != token
+                if target == "Kaddare" and len(token) > 1:
+                    kaddare_grapheme_case_loss |= not (
+                        matched.islower() or matched.isupper()
+                    )
                 canonical = aliases.get(token, token)
-                output.append(mapping[canonical])
+                glyph = mapping[canonical]
+                if target == "Kaddare":
+                    if matched.isupper() or matched.istitle():
+                        glyph = SCRIPT_KADDARE_UPPERCASE_TO_PUA[canonical]
+                    else:
+                        kaddare_lowercase_used = True
+                output.append(glyph)
                 ambiguous_vowel_seen |= token in ambiguous_tokens
                 index += len(token)
                 continue
@@ -173,8 +270,16 @@ def _chart_transliterate(text: str, source: str, target: str) -> Conversion:
             if char.isalpha() and char not in missing_seen:
                 missing_seen.add(char)
                 missing.append(char)
-        if upper_seen:
+        if upper_seen and target != "Kaddare":
             warnings.append("Capitalization is not represented in the chart glyphs.")
+        if kaddare_grapheme_case_loss:
+            warnings.append(
+                "Kaddare chart forms cannot preserve titlecase or mixed case inside a multi-letter grapheme."
+            )
+        if kaddare_lowercase_used:
+            warnings.append(
+                "Saylacian shows Kaddare lowercase forms separately; it does not join cursive writing."
+            )
         if ambiguous_vowel_seen:
             warnings.append(
                 "Borama shares chart signs for a/aa, e/ee and short o/u; those vowel distinctions cannot be recovered."
@@ -251,27 +356,23 @@ def _old_nubian_reverse_candidates(
             )
         )
         index += len(token)
-    candidates = tuple(
-        "".join(candidate) for candidate in islice(product(*readings), limit + 1)
-    )
-    return candidates[:limit], len(candidates) > limit
+    return _bounded_reading_candidates(readings, limit)
 
 
 def _osmanya_reverse_candidates(
     text: str, limit: int = 12
 ) -> tuple[tuple[str, ...], bool]:
-    """Return bounded readings for Osmanya glyphs shared by short and long vowels."""
+    """Return local-first bounded readings for ambiguous Osmanya glyphs."""
     readings = tuple(
         (
-            OSMANYA_TO_SOMALI.get(character, character),
+            OSMANYA_TO_SOMALI.get(
+                character, OSMANYA_DIGITS_TO_LATIN.get(character, character)
+            ),
             *OSMANYA_REVERSE_VARIANTS.get(character, ()),
         )
         for character in text
     )
-    candidates = tuple(
-        "".join(candidate) for candidate in islice(product(*readings), limit + 1)
-    )
-    return candidates[:limit], len(candidates) > limit
+    return _bounded_reading_candidates(list(readings), max(limit - 1, 0))
 
 
 def _bounded_reading_candidates(
@@ -321,9 +422,19 @@ def _is_coptic_character(character):
     return 0x03E2 <= codepoint <= 0x03EF or 0x2C80 <= codepoint <= 0x2CFF
 
 
+OLD_NUBIAN_DISTINCTIVE_LETTERS = frozenset(
+    character for letter in "ⳝⳟⳡⳣ" for character in (letter, letter.upper())
+)
+
+
 def detect_script(text):
     letters = [c for c in text if c.isalpha()]
     if letters and all(_is_coptic_character(c) for c in letters):
+        if any(character in OLD_NUBIAN_DISTINCTIVE_LETTERS for character in letters):
+            return (
+                "Old Nubian (Coptic)",
+                "Old Nubian-specific letters detected; language is not inferred.",
+            )
         return "Coptic script", "Coptic script detected; language is not inferred."
     alphanumeric = [c for c in text if c.isalnum()]
     if alphanumeric and all(
@@ -403,14 +514,28 @@ def transliterate(text: str, source: str, target: str) -> Conversion:
                 and previous_source_char in OLD_NUBIAN_CASED_TO_LATIN
             ):
                 output.append(char)
-                previous_readings = readings[-1]
-                readings[-1] = (
-                    *(reading + char for reading in previous_readings),
-                    *(
-                        ("I" if previous_source_char.isupper() else "i") + reading
-                        for reading in previous_readings
-                    ),
-                )
+                base_position = index - 1 if index > 0 else None
+                i_target = _old_nubian_stroke_i_target(text, index)
+                if i_target is not None and i_target == base_position:
+                    previous_readings = readings[-1]
+                    readings[-1] = (
+                        *(reading + char for reading in previous_readings),
+                        *(
+                            ("I" if text[i_target].isupper() else "i") + reading
+                            for reading in previous_readings
+                        ),
+                    )
+                else:
+                    readings[-1] = tuple(reading + char for reading in readings[-1])
+                    if i_target is not None and len(readings) >= 2:
+                        target_readings = readings[-2]
+                        readings[-2] = (
+                            *target_readings,
+                            *(
+                                ("I" if text[i_target].isupper() else "i") + reading
+                                for reading in target_readings
+                            ),
+                        )
                 supralinear_stroke_seen = True
             else:
                 output.append(char)
@@ -431,7 +556,9 @@ def transliterate(text: str, source: str, target: str) -> Conversion:
             warnings.append("Coptic punctuation is preserved without interpretation.")
         if supralinear_stroke_seen:
             warnings.append(
-                "Supralinear stroke may be read as i in another scholarly convention; see alternatives."
+                "Supralinear-stroke i readings depend on context; the mark may "
+                "also mark a numeral, which Saylacian does not convert. "
+                "See supported alternatives."
             )
         if digraph_reading_seen:
             warnings.append(
@@ -505,8 +632,19 @@ def transliterate(text: str, source: str, target: str) -> Conversion:
     if source == "Somali Latin":
         if any(c.isupper() for c in text):
             warnings.append("Capitalization cannot be preserved in Osmanya.")
+        macron_vowel_seen = False
         index = 0
         while index < len(text):
+            macron_vowel = SOMALI_MACRON_TO_LONG_VOWEL.get(text[index].casefold())
+            if macron_vowel:
+                result.append(SOMALI_TO_OSMANYA[macron_vowel])
+                macron_vowel_seen = True
+                if macron_vowel in {"ii", "uu"}:
+                    warnings.append(
+                        "Long-vowel ii/uu use the same Osmanya letters as y/w; reverse conversion may read them as y/w."
+                    )
+                index += 1
+                continue
             token = next(
                 (
                     t
@@ -524,13 +662,19 @@ def transliterate(text: str, source: str, target: str) -> Conversion:
                 index += len(token)
             else:
                 char = text[index]
-                result.append(char)
+                result.append(LATIN_DIGITS_TO_OSMANYA.get(char, char))
                 index += 1
                 if char.isalpha():
                     warnings.append("Unmapped input preserved: " + char)
+        if macron_vowel_seen:
+            warnings.append(
+                "Macron vowels use Osmanya long-vowel letters and read back as doubled Latin vowels."
+            )
     else:
         for char in text:
-            result.append(OSMANYA_TO_SOMALI.get(char, char))
+            result.append(
+                OSMANYA_TO_SOMALI.get(char, OSMANYA_DIGITS_TO_LATIN.get(char, char))
+            )
             if char in {chr(0x10493), chr(0x10495)}:
                 warnings.append("Reverse ambiguity: w/uu or y/ii; output uses w and y.")
             elif char.isalpha() and char not in OSMANYA_TO_SOMALI:

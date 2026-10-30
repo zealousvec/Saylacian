@@ -32,6 +32,26 @@ class AfriSLMTests(unittest.TestCase):
         self.assertFalse(afrislm.should_use_large_model(4))
         self.assertTrue(afrislm.should_use_large_model(8))
 
+    def test_two_billion_model_requires_cpu_and_memory_headroom(self):
+        memory = 4 * 1024**3
+
+        self.assertFalse(afrislm.should_use_2b_model(4, memory))
+        self.assertFalse(afrislm.should_use_2b_model(8, memory - 1))
+        self.assertTrue(afrislm.should_use_2b_model(8, memory))
+
+    def test_two_billion_model_reads_current_available_memory(self):
+        with patch.object(
+            afrislm,
+            "_available_physical_memory_bytes",
+            return_value=4 * 1024**3,
+        ):
+            self.assertTrue(afrislm.should_use_2b_model(8))
+
+        with patch.object(
+            afrislm, "_available_physical_memory_bytes", return_value=None
+        ):
+            self.assertFalse(afrislm.should_use_2b_model(8))
+
     def test_translation_uses_explicit_languages_and_hides_thinking_marker(self):
         model = FakeModel()
         with patch.object(afrislm, "_load_model", return_value=model):
@@ -61,6 +81,14 @@ class AfriSLMTests(unittest.TestCase):
         with (
             patch.object(afrislm, "_load_model", return_value=model),
             self.assertRaisesRegex(ValueError, "no translation"),
+        ):
+            afrislm.translate("Hello", "English", "Somali Latin", Path("model"))
+
+    def test_translation_rejects_unclosed_thinking_block(self):
+        model = FakeModel("<think>unfinished internal reasoning")
+        with (
+            patch.object(afrislm, "_load_model", return_value=model),
+            self.assertRaisesRegex(ValueError, "incomplete thinking block"),
         ):
             afrislm.translate("Hello", "English", "Somali Latin", Path("model"))
 

@@ -14,6 +14,7 @@ from saylacian.core.interchange import (
     decode_saylacian_text,
     encode_saylacian_text,
 )
+from saylacian.core.transliteration import transliterate
 
 
 class InterchangeTests(unittest.TestCase):
@@ -25,6 +26,14 @@ class InterchangeTests(unittest.TestCase):
         self.assertEqual(decoded.script, "Borama")
         self.assertEqual(decoded.text, "\ue000 \ue005!")
         self.assertEqual(decoded.latin, "a uu!")
+
+    def test_kaddare_case_forms_survive_tagged_copy_and_import(self):
+        glyphs = transliterate("Qurux", "Somali Latin", "Kaddare").text
+        package = encode_saylacian_text(glyphs, "Kaddare")
+        decoded = decode_saylacian_text(package)
+
+        self.assertEqual(decoded.text, glyphs)
+        self.assertEqual(decoded.latin, "Qurux")
 
     def test_saylacian_text_rejects_changed_payload(self):
         package = encode_saylacian_text("\ue000", "Borama")

@@ -51,7 +51,9 @@
         }
       ],
       "confidence": "chart-label only",
-      "reversible_in_subset": true
+      "reversible_in_subset": true,
+      "uppercase_pua": "U+E120",
+      "lowercase_pua": "U+E140"
     },
     {
       "grapheme": "e",
@@ -79,7 +81,9 @@
         }
       ],
       "confidence": "chart-label only",
-      "reversible_in_subset": true
+      "reversible_in_subset": true,
+      "uppercase_pua": "U+E121",
+      "lowercase_pua": "U+E141"
     },
     {
       "grapheme": "i",
@@ -107,7 +111,9 @@
         }
       ],
       "confidence": "chart-label only",
-      "reversible_in_subset": true
+      "reversible_in_subset": true,
+      "uppercase_pua": "U+E122",
+      "lowercase_pua": "U+E142"
     },
     {
       "grapheme": "o",
@@ -135,7 +141,9 @@
         }
       ],
       "confidence": "chart-label only",
-      "reversible_in_subset": true
+      "reversible_in_subset": true,
+      "uppercase_pua": "U+E123",
+      "lowercase_pua": "U+E143"
     },
     {
       "grapheme": "u",
@@ -163,7 +171,9 @@
         }
       ],
       "confidence": "chart-label only",
-      "reversible_in_subset": true
+      "reversible_in_subset": true,
+      "uppercase_pua": "U+E124",
+      "lowercase_pua": "U+E144"
     },
     {
       "grapheme": "b",
@@ -191,7 +201,9 @@
         }
       ],
       "confidence": "chart-label only",
-      "reversible_in_subset": true
+      "reversible_in_subset": true,
+      "uppercase_pua": "U+E125",
+      "lowercase_pua": "U+E145"
     },
     {
       "grapheme": "t",
@@ -219,7 +231,9 @@
         }
       ],
       "confidence": "chart-label only",
-      "reversible_in_subset": true
+      "reversible_in_subset": true,
+      "uppercase_pua": "U+E126",
+      "lowercase_pua": "U+E146"
     },
     {
       "grapheme": "j",
@@ -247,7 +261,9 @@
         }
       ],
       "confidence": "chart-label only",
-      "reversible_in_subset": true
+      "reversible_in_subset": true,
+      "uppercase_pua": "U+E127",
+      "lowercase_pua": "U+E147"
     },
     {
       "grapheme": "x",
@@ -275,7 +291,9 @@
         }
       ],
       "confidence": "chart-label only",
-      "reversible_in_subset": true
+      "reversible_in_subset": true,
+      "uppercase_pua": "U+E128",
+      "lowercase_pua": "U+E148"
     },
     {
       "grapheme": "kh",
@@ -303,7 +321,9 @@
         }
       ],
       "confidence": "chart-label only",
-      "reversible_in_subset": true
+      "reversible_in_subset": true,
+      "uppercase_pua": "U+E129",
+      "lowercase_pua": "U+E149"
     },
     {
       "grapheme": "d",
@@ -331,7 +351,9 @@
         }
       ],
       "confidence": "chart-label only",
-      "reversible_in_subset": true
+      "reversible_in_subset": true,
+      "uppercase_pua": "U+E12A",
+      "lowercase_pua": "U+E14A"
     },
     {
       "grapheme": "r",
@@ -359,7 +381,9 @@
         }
       ],
       "confidence": "chart-label only",
-      "reversible_in_subset": true
+      "reversible_in_subset": true,
+      "uppercase_pua": "U+E12B",
+      "lowercase_pua": "U+E14B"
     },
     {
       "grapheme": "s",
@@ -387,7 +411,9 @@
         }
       ],
       "confidence": "chart-label only",
-      "reversible_in_subset": true
+      "reversible_in_subset": true,
+      "uppercase_pua": "U+E12C",
+      "lowercase_pua": "U+E14C"
     },
     {
       "grapheme": "sh",
@@ -415,7 +441,9 @@
         }
       ],
       "confidence": "chart-label only",
-      "reversible_in_subset": true
+      "reversible_in_subset": true,
+      "uppercase_pua": "U+E12D",
+      "lowercase_pua": "U+E14D"
     },
     {
       "grapheme": "dh",
@@ -443,7 +471,9 @@
         }
       ],
       "confidence": "chart-label only",
-      "reversible_in_subset": true
+      "reversible_in_subset": true,
+      "uppercase_pua": "U+E12E",
+      "lowercase_pua": "U+E14E"
     },
     {
       "grapheme": "c",
@@ -471,7 +501,9 @@
         }
       ],
       "confidence": "chart-label only",
-      "reversible_in_subset": true
+      "reversible_in_subset": true,
+      "uppercase_pua": "U+E12F",
+      "lowercase_pua": "U+E14F"
     },
     {
       "grapheme": "g",
@@ -499,7 +531,9 @@
         }
       ],
       "confidence": "chart-label only",
-      "reversible_in_subset": true
+      "reversible_in_subset": true,
+      "uppercase_pua": "U+E130",
+      "lowercase_pua": "U+E150"
     },
     {
       "grapheme": "f",
@@ -527,7 +561,9 @@
         }
       ],
       "confidence": "chart-label only",
-      "reversible_in_subset": true
+      "reversible_in_subset": true,
+      "uppercase_pua": "U+E131",
+      "lowercase_pua": "U+E151"
     },
     {
       "grapheme": "q",
@@ -555,7 +591,9 @@
         }
       ],
       "confidence": "chart-label only",
-      "reversible_in_subset": true
+      "reversible_in_subset": true,
+      "uppercase_pua": "U+E132",
+      "lowercase_pua": "U+E152"
     },
     {
       "grapheme": "k",
@@ -583,7 +621,9 @@
         }
       ],
       "confidence": "chart-label only",
-      "reversible_in_subset": true
+      "reversible_in_subset": true,
+      "uppercase_pua": "U+E133",
+      "lowercase_pua": "U+E153"
     },
     {
       "grapheme": "l",
@@ -611,7 +651,9 @@
         }
       ],
       "confidence": "chart-label only",
-      "reversible_in_subset": true
+      "reversible_in_subset": true,
+      "uppercase_pua": "U+E134",
+      "lowercase_pua": "U+E154"
     },
     {
       "grapheme": "m",
@@ -639,7 +681,9 @@
         }
       ],
       "confidence": "chart-label only",
-      "reversible_in_subset": true
+      "reversible_in_subset": true,
+      "uppercase_pua": "U+E135",
+      "lowercase_pua": "U+E155"
     },
     {
       "grapheme": "n",
@@ -667,7 +711,9 @@
         }
       ],
       "confidence": "chart-label only",
-      "reversible_in_subset": true
+      "reversible_in_subset": true,
+      "uppercase_pua": "U+E136",
+      "lowercase_pua": "U+E156"
     },
     {
       "grapheme": "w",
@@ -695,7 +741,9 @@
         }
       ],
       "confidence": "chart-label only",
-      "reversible_in_subset": true
+      "reversible_in_subset": true,
+      "uppercase_pua": "U+E137",
+      "lowercase_pua": "U+E157"
     },
     {
       "grapheme": "h",
@@ -723,7 +771,9 @@
         }
       ],
       "confidence": "chart-label only",
-      "reversible_in_subset": true
+      "reversible_in_subset": true,
+      "uppercase_pua": "U+E138",
+      "lowercase_pua": "U+E158"
     },
     {
       "grapheme": "y",
@@ -751,7 +801,14 @@
         }
       ],
       "confidence": "chart-label only",
-      "reversible_in_subset": true
+      "reversible_in_subset": true,
+      "uppercase_pua": "U+E139",
+      "lowercase_pua": "U+E159"
     }
-  ]
+  ],
+  "case_mapping": {
+    "status": "chart form pairing; spelling still unreviewed",
+    "source": "https://www.omniglot.com/writing/kaddare.htm",
+    "interpretation": "The chart pairs uppercase forms with lowercase cursive forms. Existing pua slots remain available for text created before case-aware slots were added."
+  }
 }

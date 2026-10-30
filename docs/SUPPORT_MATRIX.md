@@ -8,8 +8,8 @@ Status describes current checked-in code and local resources, not a release-qual
 |---|---|---|---|
 | English | French | Local model | Works offline; smoke-tested |
 | French | English | Local model | Works offline; smoke-tested |
-| English | Somali Latin | Standard multilingual OPUS pack, with an optional separately downloadable synthetic-model pack that is tried first and falls back on clearly degenerate output | Available; Somali output has not had fluent-speaker review |
-| Somali Latin | English | Local multilingual model | Available; Somali input/output quality has not had fluent-speaker review |
+| English | Somali Latin | Standard multilingual OPUS pack; optional synthetic model and optional AfriSLM 0.8B/2B packs with guarded fallback | Available; Somali output has not had fluent-speaker review; the 2B pack requires substantial memory |
+| Somali Latin | English | Local multilingual model; optional AfriSLM 0.8B/2B packs with guarded fallback | Available; Somali input/output quality has not had fluent-speaker review; the 2B pack requires substantial memory |
 | Somali Latin | French | Somali → English → French local models | Available through English; errors can compound across both steps |
 | French | Somali Latin | French → English → Somali local models | Available through English; output may be awkward and has not had fluent-speaker review |
 
@@ -36,7 +36,7 @@ Offline detection covers English, French and Somali Latin with confidence/short-
 | Platform | Status |
 |---|---|
 | Windows source app | Kivy app and widget workflows checked |
-| Windows packaged app | Latest all-pairs onedir build and bundled model/font/data hashes verified; runtime not verified because host Application Control blocked an earlier unsigned executable |
+| Windows packaged app | PyInstaller onedir build launched in a hidden smoke check; payload excludes model weights. Local unsigned MSIX was created and unpacked. WACK, clean-VM install/upgrade/uninstall and Store signing remain unverified. |
 | Android | Not built or device-tested |
 | iOS | Not built or device-tested; toolchain/signing requirements remain |
 | Website | Not included in this user-only source checkout; no Flask app or HTTP routes are present |

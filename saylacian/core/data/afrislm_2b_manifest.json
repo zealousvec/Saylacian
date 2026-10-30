@@ -1,0 +1,23 @@
+{
+  "repository": "qvac/TranslatePsy-AfriSLM-2B-Q4-GGUF",
+  "revision": "9bcceadebbcc5d36bba9f7f02141300a95ae8d04",
+  "license": "Apache-2.0",
+  "license_note": "The model card identifies the synthetic training mix as CC BY-NC-4.0 and the NLLB-200 teacher as CC BY-NC-4.0. The upstream attribution file is included with the pack.",
+  "runtime_module": "llama_cpp",
+  "runtime_install": "python -m pip install -r requirements-afrislm.txt",
+  "runtimes": {
+    "llama-cpp-python": "0.3.36"
+  },
+  "files": {
+    "model.gguf": {
+      "repository_path": "TranslatePsy-AfriSLM-2B-Q4_K_M-imat.gguf",
+      "sha256": "fc2a80532e58e0655efd9e68c5b7cb2c4373222e736bcc88de648502a4e30361",
+      "bytes": 1560461376
+    },
+    "ATTRIBUTIONS.md": {
+      "repository_path": "ATTRIBUTIONS.md",
+      "sha256": "9754d9e4d3dbe4001f30e46a14a93293caaf9af9bb40773ffefb5e47c31f5f96",
+      "bytes": 67155
+    }
+  }
+}
