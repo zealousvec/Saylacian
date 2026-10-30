@@ -6,17 +6,21 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import re
 import shutil
 import sys
-import tempfile
 import threading
 import urllib.parse
 import urllib.request
 import uuid
 import zipfile
-from pathlib import Path, PurePosixPath
+from functools import lru_cache
+from pathlib import Path
+from pathlib import PurePosixPath
+from pathlib import PureWindowsPath
 
 DATA_ROOT = Path(__file__).resolve().parent / "data"
+_SAFE_COMPONENT = re.compile(r"[A-Za-z0-9][A-Za-z0-9._-]{0,127}\Z")
 _LOCKS: dict[str, threading.Lock] = {}
 _LOCKS_GUARD = threading.Lock()
 
@@ -35,6 +39,8 @@ def default_store_root() -> Path:
 
 
 def _safe_relative(value: str) -> Path:
+    if not isinstance(value, str) or "\\" in value or PureWindowsPath(value).drive:
+        raise ValueError("Invalid model pack path in manifest.")
     parsed = PurePosixPath(value)
     if (
         parsed.is_absolute()
@@ -43,6 +49,37 @@ def _safe_relative(value: str) -> Path:
     ):
         raise ValueError("Invalid model pack path in manifest.")
     return Path(*parsed.parts)
+
+
+def _safe_component(value: str, label: str) -> str:
+    if not isinstance(value, str) or not _SAFE_COMPONENT.fullmatch(value):
+        raise ValueError(f"Invalid model pack {label}.")
+    return value
+
+
+def _pack_home(store_root: Path, pack_id: str) -> tuple[Path, Path]:
+    store = store_root.resolve()
+    requested_home = store / _safe_component(pack_id, "id")
+    home = requested_home.resolve()
+    if home != requested_home or home.parent != store:
+        raise ValueError("Language pack path escaped the configured storage directory.")
+    return store, home
+
+
+def _version_folder(home: Path, version: str) -> Path:
+    requested_folder = home.resolve() / _safe_component(version, "version")
+    folder = requested_folder.resolve()
+    if folder != requested_folder or folder.parent != home.resolve():
+        raise ValueError("Model pack version escaped its storage directory.")
+    return folder
+
+
+def _installed_file(folder: Path, relative_path: str) -> Path:
+    candidate = folder / _safe_relative(relative_path)
+    resolved = candidate.resolve()
+    if folder.resolve() not in resolved.parents:
+        raise ValueError("Installed model file escaped its version directory.")
+    return resolved
 
 
 def _huggingface_url(repository: str, revision: str, filename: str) -> str:
@@ -55,6 +92,15 @@ def get_pack_specs() -> dict[str, dict]:
     argos = json.loads((DATA_ROOT / "model_manifest.json").read_text(encoding="utf-8"))
     somali = json.loads(
         (DATA_ROOT / "somali_model_manifest.json").read_text(encoding="utf-8")
+    )
+    afrislm = json.loads(
+        (DATA_ROOT / "afrislm_model_manifest.json").read_text(encoding="utf-8")
+    )
+    afrislm_2b = json.loads(
+        (DATA_ROOT / "afrislm_2b_model_manifest.json").read_text(encoding="utf-8")
+    )
+    afrislm_4b = json.loads(
+        (DATA_ROOT / "afrislm_4b_model_manifest.json").read_text(encoding="utf-8")
     )
 
     somali_assets = []
@@ -129,12 +175,104 @@ def get_pack_specs() -> dict[str, dict]:
             "runtimes": french_manifest_items[0]["runtimes"],
             "assets": french_assets,
         },
+        "somali_afrislm": {
+            "title": "Somali model (AfriSLM 0.8B)",
+            "description": (
+                "Optional 641 MiB model preferred for English-to-Somali; "
+                "requires llama-cpp-python 0.3.36. Output needs fluent review; "
+                "CC-BY-NC-4.0 data is not included."
+            ),
+            "license": "Apache-2.0",
+            "training_data_license": afrislm[0]["training_data_license"],
+            "model_repositories": sorted({item["repository"] for item in afrislm}),
+            "runtimes": afrislm[0]["runtimes"],
+            "assets": [
+                {
+                    "kind": "file",
+                    "url": _huggingface_url(
+                        item["repository"], item["revision"], item["filename"]
+                    ),
+                    "bytes": item["bytes"],
+                    "sha256": item["sha256"],
+                    "destination": item["destination"],
+                    "license": item["license"],
+                    "repository": item["repository"],
+                    "revision": item["revision"],
+                    "runtimes": item["runtimes"],
+                }
+                for item in afrislm
+            ],
+        },
+        "somali_afrislm_2b": {
+            "title": "Somali → English model (AfriSLM 2B)",
+            "description": (
+                "Optional 1.46 GiB model used for Somali-to-English only; "
+                "Requires llama-cpp-python 0.3.36. Alpha testing; "
+                "training data is not included."
+            ),
+            "license": "Apache-2.0",
+            "training_data_license": afrislm_2b[0]["training_data_license"],
+            "model_repositories": sorted({item["repository"] for item in afrislm_2b}),
+            "runtimes": afrislm_2b[0]["runtimes"],
+            "assets": [
+                {
+                    "kind": "file",
+                    "url": _huggingface_url(
+                        item["repository"], item["revision"], item["filename"]
+                    ),
+                    "bytes": item["bytes"],
+                    "sha256": item["sha256"],
+                    "destination": item["destination"],
+                    "license": item["license"],
+                    "repository": item["repository"],
+                    "revision": item["revision"],
+                    "runtimes": item["runtimes"],
+                }
+                for item in afrislm_2b
+            ],
+        },
+        "somali_afrislm_4b": {
+            "title": "Somali → English model (AfriSLM 4B)",
+            "description": (
+                "Optional 3.07 GB Somali-to-English model; tries before AfriSLM 2B. "
+                "Requires llama-cpp-python 0.3.36 and more memory; about 5 GB was "
+                "used on one 32 GB Windows computer. Alpha testing; "
+                "training data is not included."
+            ),
+            "license": "Apache-2.0",
+            "training_data_license": afrislm_4b[0]["training_data_license"],
+            "model_repositories": sorted({item["repository"] for item in afrislm_4b}),
+            "runtimes": afrislm_4b[0]["runtimes"],
+            "assets": [
+                {
+                    "kind": "file",
+                    "url": _huggingface_url(
+                        item["repository"], item["revision"], item["filename"]
+                    ),
+                    "bytes": item["bytes"],
+                    "sha256": item["sha256"],
+                    "destination": item["destination"],
+                    "license": item["license"],
+                    "repository": item["repository"],
+                    "revision": item["revision"],
+                    "runtimes": item["runtimes"],
+                }
+                for item in afrislm_4b
+            ],
+        },
     }
     for pack_id, spec in specs.items():
         version_input = json.dumps(
             {
                 key: spec[key]
-                for key in ("license", "model_repositories", "runtimes", "assets")
+                for key in (
+                    "license",
+                    "training_data_license",
+                    "model_repositories",
+                    "runtimes",
+                    "assets",
+                )
+                if key in spec
             },
             sort_keys=True,
             separators=(",", ":"),
@@ -160,6 +298,54 @@ def _hash(path: Path) -> tuple[int, str]:
     return size, digest.hexdigest()
 
 
+@lru_cache(maxsize=64)
+def _cached_file_hash(
+    path: str, size: int, modified_ns: int, changed_ns: int, device: int, inode: int
+) -> tuple[int, str]:
+    return _hash(Path(path))
+
+
+def _matches_installed_file(path: Path, record: dict) -> bool:
+    if not isinstance(record, dict):
+        return False
+    expected_size = record.get("bytes")
+    expected_hash = record.get("sha256")
+    if (
+        not isinstance(expected_size, int)
+        or expected_size < 0
+        or not isinstance(expected_hash, str)
+        or len(expected_hash) != 64
+    ):
+        return False
+    if not path.is_file():
+        return False
+    details = path.stat()
+    if details.st_size != expected_size:
+        return False
+    actual_size, actual_hash = _cached_file_hash(
+        str(path.resolve()),
+        details.st_size,
+        details.st_mtime_ns,
+        details.st_ctime_ns,
+        details.st_dev,
+        details.st_ino,
+    )
+    return actual_size == expected_size and actual_hash.lower() == expected_hash.lower()
+
+
+def _installed_files_match(folder: Path, manifest: dict) -> bool:
+    if not isinstance(manifest, dict):
+        return False
+    files = manifest.get("files")
+    if not isinstance(files, list) or not files:
+        return False
+    return all(
+        isinstance(item, dict)
+        and _matches_installed_file(_installed_file(folder, item.get("path")), item)
+        for item in files
+    )
+
+
 def _lock_for(pack_id: str) -> threading.Lock:
     with _LOCKS_GUARD:
         return _LOCKS.setdefault(pack_id, threading.Lock())
@@ -175,28 +361,43 @@ class ModelPackManager:
     def list_packs(self) -> list[dict]:
         packs = []
         for pack_id, spec in self.specs.items():
-            pack_home = self.store_root / pack_id
-            pointer = pack_home / "current.json"
+            try:
+                _, pack_home = _pack_home(self.store_root, pack_id)
+            except ValueError:
+                continue
             current_version = None
             installed_bytes = 0
-            if pointer.is_file():
-                try:
-                    current_version = json.loads(pointer.read_text(encoding="utf-8"))[
-                        "version"
-                    ]
-                    folder = pack_home / current_version
-                    manifest_path = folder / "installed.json"
+            damaged = False
+            try:
+                pointer = _installed_file(pack_home, "current.json")
+                if pointer.is_file():
+                    current_version = _safe_component(
+                        json.loads(pointer.read_text(encoding="utf-8"))["version"],
+                        "version",
+                    )
+                    folder = _version_folder(pack_home, current_version)
+                    manifest_path = _installed_file(folder, "installed.json")
                     if manifest_path.is_file():
                         manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
                         if manifest.get("version") == current_version:
-                            installed_bytes = sum(
-                                (folder / _safe_relative(item["path"])).stat().st_size
-                                for item in manifest.get("files", [])
-                                if (folder / _safe_relative(item["path"])).is_file()
-                            )
+                            if _installed_files_match(folder, manifest):
+                                installed_bytes = sum(
+                                    item["bytes"] for item in manifest["files"]
+                                )
+                            else:
+                                damaged = current_version == spec["version"]
                         else:
                             current_version = None
-                except (OSError, KeyError, ValueError, json.JSONDecodeError):
+            except (
+                OSError,
+                KeyError,
+                TypeError,
+                ValueError,
+                AttributeError,
+                json.JSONDecodeError,
+            ):
+                damaged = current_version == spec["version"]
+                if not damaged:
                     current_version = None
             packs.append(
                 {
@@ -204,13 +405,17 @@ class ModelPackManager:
                     "title": spec["title"],
                     "version": spec["version"],
                     "installed": current_version == spec["version"]
-                    and installed_bytes > 0,
+                    and installed_bytes > 0
+                    and not damaged,
+                    "damaged": damaged,
                     "installed_version": current_version,
                     "download_bytes": spec["download_bytes"],
                     "license": spec.get("license", "See upstream model metadata"),
+                    "training_data_license": spec.get("training_data_license"),
                     "runtimes": dict(spec.get("runtimes", {})),
                     "installed_bytes": installed_bytes,
                     "storage_bytes": self._directory_size(pack_home),
+                    "description": spec.get("description", ""),
                 }
             )
         return packs
@@ -224,24 +429,34 @@ class ModelPackManager:
     def active_model_roots(self) -> list[Path]:
         roots = []
         for pack_id in self.specs:
-            home = self.store_root / pack_id
-            pointer = home / "current.json"
             try:
-                version = json.loads(pointer.read_text(encoding="utf-8"))["version"]
-                folder = home / version
-                manifest = json.loads(
-                    (folder / "installed.json").read_text(encoding="utf-8")
+                _, home = _pack_home(self.store_root, pack_id)
+            except ValueError:
+                continue
+            try:
+                pointer = _installed_file(home, "current.json")
+                version = _safe_component(
+                    json.loads(pointer.read_text(encoding="utf-8"))["version"],
+                    "version",
                 )
-                if manifest.get("version") != version or not manifest.get("files"):
+                folder = _version_folder(home, version)
+                manifest = json.loads(
+                    _installed_file(folder, "installed.json").read_text(
+                        encoding="utf-8"
+                    )
+                )
+                if manifest.get("version") != version:
                     continue
-                if all(
-                    (folder / _safe_relative(item["path"])).is_file()
-                    and (folder / _safe_relative(item["path"])).stat().st_size
-                    == item["bytes"]
-                    for item in manifest["files"]
-                ):
+                if _installed_files_match(folder, manifest):
                     roots.append(folder.resolve())
-            except (OSError, KeyError, ValueError, json.JSONDecodeError):
+            except (
+                OSError,
+                KeyError,
+                TypeError,
+                ValueError,
+                AttributeError,
+                json.JSONDecodeError,
+            ):
                 continue
         return roots
 
@@ -250,17 +465,13 @@ class ModelPackManager:
             raise ValueError("Unknown language pack.")
         with _lock_for(pack_id):
             spec = self.specs[pack_id]
-            home = (self.store_root / pack_id).resolve()
-            store = self.store_root.resolve()
-            if store not in home.parents:
-                raise ValueError(
-                    "Language pack path escaped the configured storage directory."
-                )
+            _, home = _pack_home(self.store_root, pack_id)
+            version = _safe_component(spec["version"], "version")
             home.mkdir(parents=True, exist_ok=True)
-            version_dir = home / spec["version"]
+            version_dir = _version_folder(home, version)
             if version_dir.exists():
-                self._verify_installed(version_dir, spec["version"])
-                self._write_pointer(home, spec["version"])
+                self._verify_installed(version_dir, version)
+                self._write_pointer(home, version)
                 return version_dir
 
             staging = home / (".staging-" + uuid.uuid4().hex)
@@ -278,7 +489,8 @@ class ModelPackManager:
                             "raw.githubusercontent.com",
                         }:
                             raise ValueError(
-                                "Model pack manifest contains an untrusted download host."
+                                "Model pack manifest contains an untrusted "
+                                "download host."
                             )
                         destination = staging / _safe_relative(asset["destination"])
                         destination.parent.mkdir(parents=True, exist_ok=True)
@@ -297,7 +509,8 @@ class ModelPackManager:
                             or checksum.lower() != asset["sha256"].lower()
                         ):
                             raise ValueError(
-                                f"Model file failed size/SHA-256 verification: {asset['destination']}"
+                                "Model file failed size/SHA-256 verification: "
+                                f"{asset['destination']}"
                             )
                         verified_files.append(
                             {
@@ -321,7 +534,8 @@ class ModelPackManager:
                             or hashlib.sha256(data).hexdigest() != asset["sha256"]
                         ):
                             raise ValueError(
-                                f"Generated model config failed its pinned checksum: {asset['destination']}"
+                                "Generated model config failed its pinned "
+                                f"checksum: {asset['destination']}"
                             )
                         destination.write_bytes(data)
                         verified_files.append(
@@ -342,7 +556,8 @@ class ModelPackManager:
                             "raw.githubusercontent.com",
                         }:
                             raise ValueError(
-                                "Model pack manifest contains an untrusted download host."
+                                "Model pack manifest contains an untrusted "
+                                "download host."
                             )
                         archive = staging / (asset["pair"] + ".argosmodel")
                         self._download(
@@ -355,7 +570,8 @@ class ModelPackManager:
                             or checksum.lower() != asset["sha256"].lower()
                         ):
                             raise ValueError(
-                                f"Argos archive failed size/SHA-256 verification: {asset['pair']}"
+                                "Argos archive failed size/SHA-256 verification: "
+                                f"{asset['pair']}"
                             )
                         for installed_file in self._extract_argos(
                             archive, staging, asset["pair"]
@@ -387,6 +603,7 @@ class ModelPackManager:
                     "version": spec["version"],
                     "title": spec["title"],
                     "license": spec.get("license", "See upstream model metadata"),
+                    "training_data_license": spec.get("training_data_license"),
                     "model_repositories": list(spec.get("model_repositories", [])),
                     "runtimes": dict(spec.get("runtimes", {})),
                     "source_manifest_version": 2,
@@ -397,7 +614,7 @@ class ModelPackManager:
                 )
                 self._check_cancel(cancel_event)
                 staging.replace(version_dir)
-                self._write_pointer(home, spec["version"])
+                self._write_pointer(home, version)
                 if progress:
                     progress(total, total, "Installed and verified")
                 return version_dir
@@ -474,7 +691,7 @@ class ModelPackManager:
 
     @staticmethod
     def _verify_installed(folder: Path, version: str):
-        manifest_path = folder / "installed.json"
+        manifest_path = _installed_file(folder, "installed.json")
         if not manifest_path.is_file():
             raise ValueError(
                 "Existing model pack version is incomplete; it was left untouched."
@@ -482,29 +699,29 @@ class ModelPackManager:
         manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
         if manifest.get("version") != version:
             raise ValueError("Existing model pack version does not match its manifest.")
-        for item in manifest.get("files", []):
-            path = folder / _safe_relative(item["path"])
-            size, checksum = _hash(path)
-            if size != item["bytes"] or checksum.lower() != item["sha256"].lower():
-                raise ValueError(
-                    f"Installed model failed integrity check; left untouched: {item['path']}"
-                )
+        if not _installed_files_match(folder, manifest):
+            raise ValueError(
+                "Existing model pack failed integrity check; it was left untouched."
+            )
 
     @staticmethod
     def _write_pointer(home: Path, version: str):
+        version = _safe_component(version, "version")
         pointer = home / "current.json"
-        temporary = home / "current.json.tmp"
-        temporary.write_text(json.dumps({"version": version}), encoding="utf-8")
-        temporary.replace(pointer)
+        temporary = home / (".current-" + uuid.uuid4().hex + ".tmp")
+        try:
+            with temporary.open("x", encoding="utf-8") as output:
+                output.write(json.dumps({"version": version}))
+                output.flush()
+                os.fsync(output.fileno())
+            temporary.replace(pointer)
+        finally:
+            temporary.unlink(missing_ok=True)
 
     def remove(self, pack_id: str) -> None:
         if pack_id not in self.specs:
             raise ValueError("Unknown language pack.")
         with _lock_for(pack_id):
-            home = (self.store_root / pack_id).resolve()
-            if self.store_root.resolve() not in home.parents:
-                raise ValueError(
-                    "Language pack path escaped the configured storage directory."
-                )
+            _, home = _pack_home(self.store_root, pack_id)
             if home.exists():
                 shutil.rmtree(home)

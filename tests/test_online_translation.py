@@ -8,24 +8,24 @@ import unittest
 from contextlib import contextmanager
 from unittest.mock import patch
 
-from saylacian.core.online_translation import (
-    ACCOUNT_ENV,
-    MODEL,
-    PROVIDER_ENV,
-    SERVICE_TOKEN_ENV,
-    SERVICE_URL_ENV,
-    TOKEN_ENV,
-    online_translation_enabled,
-    selected_provider,
-    translate_cloudflare,
-    translate_self_hosted,
-)
+from saylacian.core.online_translation import ACCOUNT_ENV
+from saylacian.core.online_translation import MAX_RESPONSE_BYTES
+from saylacian.core.online_translation import MODEL
+from saylacian.core.online_translation import PROVIDER_ENV
+from saylacian.core.online_translation import SERVICE_TOKEN_ENV
+from saylacian.core.online_translation import SERVICE_URL_ENV
+from saylacian.core.online_translation import TOKEN_ENV
+from saylacian.core.online_translation import online_translation_enabled
+from saylacian.core.online_translation import selected_provider
+from saylacian.core.online_translation import translate_cloudflare
+from saylacian.core.online_translation import translate_self_hosted
 from saylacian.core.translation import translate_meaning
 
 
 class _Response:
     def __init__(self, value):
         self.value = value
+        self.requested_size = None
 
     def __enter__(self):
         return self
@@ -33,8 +33,10 @@ class _Response:
     def __exit__(self, *args):
         return False
 
-    def read(self):
-        return json.dumps(self.value).encode("utf-8")
+    def read(self, size=-1):
+        payload = json.dumps(self.value).encode("utf-8")
+        self.requested_size = size
+        return payload if size < 0 else payload[:size]
 
 
 class OnlineTranslationTests(unittest.TestCase):
@@ -107,6 +109,44 @@ class OnlineTranslationTests(unittest.TestCase):
         self.assertEqual(timeout, 90)
         self.assertTrue(any("self-hosted" in warning for warning in warnings))
 
+    def test_provider_responses_are_bounded_and_must_be_json_objects(self):
+        os.environ[ACCOUNT_ENV] = "account-123"
+        os.environ[TOKEN_ENV] = "test-secret"
+        os.environ[SERVICE_URL_ENV] = "https://saylacian.example"
+        providers = (
+            (
+                translate_cloudflare,
+                ("Hello", "English", "French"),
+                "Cloudflare returned an invalid translation response",
+            ),
+            (
+                translate_self_hosted,
+                ("Hello", "English", "French"),
+                "Self-hosted translation server returned invalid JSON",
+            ),
+        )
+
+        for provider, arguments, invalid_message in providers:
+            with self.subTest(provider=provider.__name__):
+                oversized = _Response({"translation": "x" * MAX_RESPONSE_BYTES})
+
+                @contextmanager
+                def oversized_open(request, timeout, response=oversized):
+                    yield response
+
+                with self.assertRaisesRegex(ValueError, "1 MiB limit"):
+                    provider(*arguments, opener=oversized_open)
+                self.assertEqual(oversized.requested_size, MAX_RESPONSE_BYTES + 1)
+
+                non_object = _Response(["not", "an", "object"])
+
+                @contextmanager
+                def non_object_open(request, timeout, response=non_object):
+                    yield response
+
+                with self.assertRaisesRegex(ValueError, invalid_message):
+                    provider(*arguments, opener=non_object_open)
+
     def test_self_hosted_rejects_insecure_remote_endpoint(self):
         os.environ[SERVICE_URL_ENV] = "http://public.example"
         with self.assertRaisesRegex(ValueError, "must use HTTPS"):
@@ -166,17 +206,17 @@ class OnlineTranslationTests(unittest.TestCase):
                 "saylacian.core.translation.model_directory",
                 side_effect=ValueError("No local model installed."),
             ),
+            self.assertRaisesRegex(ValueError, "Downloaded-model fallback unavailable"),
         ):
-            with self.assertRaisesRegex(
-                ValueError, "Downloaded-model fallback unavailable"
-            ):
-                translate_meaning("Hello", "English", "French", model_root="missing")
+            translate_meaning("Hello", "English", "French", model_root="missing")
 
     def test_offline_setting_skips_cloud_provider(self):
         os.environ[PROVIDER_ENV] = "offline"
-        with patch("saylacian.core.translation.translate_cloudflare") as cloud:
-            with self.assertRaises(ValueError):
-                translate_meaning("Hello", "English", "French", model_root="missing")
+        with (
+            patch("saylacian.core.translation.translate_cloudflare") as cloud,
+            self.assertRaises(ValueError),
+        ):
+            translate_meaning("Hello", "English", "French", model_root="missing")
         cloud.assert_not_called()
 
     def test_invalid_language_and_oversized_input_are_rejected(self):

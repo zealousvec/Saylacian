@@ -2,7 +2,7 @@
 """Evaluate a pinned CTranslate2 English-to-Somali candidate against current app route.
 
 Example:
-  python tools/benchmark_somali_en_candidate.py --model-dir PATH
+  python tools/benchmark_somali_en_candidate.py --model-dir PATH --results BASELINE_JSON
 
 The model directory must contain CTranslate2 files plus source.spm and target.spm.
 Inference runs locally with network sockets blocked.
@@ -14,7 +14,6 @@ import argparse
 import hashlib
 import importlib.metadata
 import json
-import os
 import socket
 import sys
 import time
@@ -23,8 +22,11 @@ from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "tests/data/somali_translation_tico19_test_150.jsonl"
-OUTPUT = ROOT / "docs/somali_translation_quality_results.json"
 sys.path.insert(0, str(ROOT))
+
+from tools.benchmark_output import require_external_output
+from tools.benchmark_output import save_json_atomic
+
 MODEL_REPOSITORY = "maanka2/opus-mt-en-so-finetuned"
 MODEL_REVISION = "af92fdea79083bbb6c9d753bd56b117bedff4c11"
 
@@ -54,6 +56,12 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--model-dir", type=Path, required=True)
     parser.add_argument("--system-key", default="maanka2_en_to_so")
+    parser.add_argument(
+        "--results",
+        type=Path,
+        required=True,
+        help="existing baseline result JSON outside the source repository",
+    )
     parser.add_argument("--model-name", default=MODEL_REPOSITORY)
     parser.add_argument("--model-revision", default=MODEL_REVISION)
     parser.add_argument("--license", default="Apache-2.0 declared by model card")
@@ -61,11 +69,16 @@ def main() -> int:
         "--license-note",
         default=(
             "Upstream card reports Apache-2.0; base checkpoint card reports CC-BY-4.0. "
-            "Both permit commercial use with attribution; retain both notices pending maintainer confirmation."
+            "Both permit commercial use with attribution; retain both "
+            "notices pending maintainer confirmation."
         ),
     )
     parser.add_argument("--no-repeat-ngram-size", type=int, default=0)
     args = parser.parse_args()
+    try:
+        output_path = require_external_output(args.results)
+    except ValueError as error:
+        parser.error(str(error))
     model_dir = args.model_dir.resolve()
     for name in (
         "model.bin",
@@ -80,13 +93,13 @@ def main() -> int:
     import ctranslate2
     import sentencepiece
 
-    from saylacian.core.translation import translate_meaning
-    from tools.benchmark_somali_quality import diagnostic_flags, score
+    from tools.benchmark_somali_quality import diagnostic_flags
+    from tools.benchmark_somali_quality import score
 
     samples = [
         json.loads(line) for line in DATA.read_text(encoding="utf-8").splitlines()
     ]
-    prior = json.loads(OUTPUT.read_text(encoding="utf-8"))
+    prior = json.loads(output_path.read_text(encoding="utf-8"))
     baseline = prior["systems"]["baseline"]
     baseline_samples = baseline["samples"]["en_so"]
     if len(samples) != 150 or len(baseline_samples) != len(samples):
@@ -143,7 +156,9 @@ def main() -> int:
         "model_revision": args.model_revision,
         "license": args.license,
         "license_note": args.license_note,
-        "source_framework": "Transformers Marian checkpoint converted locally to CTranslate2 int8",
+        "source_framework": (
+            "Transformers Marian checkpoint converted locally to CTranslate2 int8"
+        ),
         "candidate_files": tree_manifest(model_dir),
         "software": {
             "ctranslate2": importlib.metadata.version("ctranslate2"),
@@ -157,7 +172,9 @@ def main() -> int:
             "max_decoding_length": 512,
             "no_repeat_ngram_size": args.no_repeat_ngram_size,
         },
-        "network": "blocked: socket.socket.connect raises; model loaded from local files",
+        "network": (
+            "blocked: socket.socket.connect raises; model loaded from local files"
+        ),
         "sample_count": len(samples),
         "sample_ids": [row["id"] for row in samples],
         "startup_seconds": round(startup_seconds, 3),
@@ -183,10 +200,12 @@ def main() -> int:
                 for row in predictions
                 for flag in row["review_flags"]
             ),
-            "semantic_errors_omissions_hallucinations": "not human-rated; per-example outputs retained",
+            "semantic_errors_omissions_hallucinations": (
+                "not human-rated; per-example outputs retained"
+            ),
         },
         "same_examples_as_current_app_route": len(samples),
-        "current_app_route_metrics_before_runaway_guard": {
+        "paired_baseline_metrics": {
             "en_to_so": score(
                 [row["reference_so"] for row in samples],
                 [row["text"] for row in baseline_samples],
@@ -195,49 +214,16 @@ def main() -> int:
         "samples": {"en_so": predictions},
     }
 
-    synthetic_used = sum(
-        any(
-            "synthetic EN→SO candidate selected" in warning
-            for warning in row.get("warnings", [])
-        )
-        for row in baseline_samples
-    )
-    fallback_used = sum(
-        any(
-            "Synthetic candidate showed identity/repetition" in warning
-            for warning in row.get("warnings", [])
-        )
-        for row in baseline_samples
-    )
-    baseline["model"] = (
-        "current Saylacian EN→SO route (synthetic CT2 first; multilingual OPUS fallback)"
-    )
-    baseline["en_to_so_route_audit"] = {
-        "synthetic_candidate_samples": synthetic_used,
-        "multilingual_fallback_samples": fallback_used,
-        "synthetic_manifest": json.loads(
-            (ROOT / "saylacian/core/data/model_manifest.json").read_text(
-                encoding="utf-8"
-            )
-        )[2],
-        "evidence": "selected/fallback warnings retained in each baseline EN→SO sample",
-    }
     prior["systems"][args.system_key] = candidate
-    temporary = OUTPUT.with_suffix(".tmp")
-    temporary.write_text(
-        json.dumps(prior, ensure_ascii=False, indent=2), encoding="utf-8"
-    )
-    temporary.replace(OUTPUT)
+    save_json_atomic(output_path, prior)
     metric = candidate["metrics"]["en_to_so"]
-    current = candidate["current_app_route_metrics_before_runaway_guard"]["en_to_so"]
-    print(f"saved {OUTPUT} as {args.system_key}")
+    current = candidate["paired_baseline_metrics"]["en_to_so"]
+    print(f"saved {output_path} as {args.system_key}")
     print(f"candidate BLEU={metric['bleu']} chrF++={metric['chrf_plus_plus']}")
     print(f"current   BLEU={current['bleu']} chrF++={current['chrf_plus_plus']}")
     print(
-        f"startup={candidate['startup_seconds']}s wall={candidate['wall_seconds']}s latency={candidate['latency_ms']}"
-    )
-    print(
-        f"current route used synthetic={synthetic_used}/150; multilingual fallback={fallback_used}/150"
+        f"startup={candidate['startup_seconds']}s "
+        f"wall={candidate['wall_seconds']}s latency={candidate['latency_ms']}"
     )
     return 0
 

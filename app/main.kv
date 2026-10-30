@@ -26,31 +26,59 @@
             size_hint: None, 1
             width: max(dp(288), min(dp(1120), root.width - dp(32)))
             padding: dp(16), dp(20)
-            spacing: dp(12)
+            spacing: dp(6) if root.height <= dp(520) else dp(12)
             BoxLayout:
+                id: app_header
+                orientation: "vertical" if root.width < dp(420) else "horizontal"
                 size_hint_y: None
-                height: dp(44)
+                height: self.minimum_height
                 MDLabel:
+                    id: brand_title
                     text: "Saylacian"
                     font_style: "H6"
                     bold: True
-                MDFlatButton:
-                    text: "Transliterate" if app.mode == "Convert writing system" else "Translate"
-                    on_release: app.switch_mode()
-                ActionIcon:
-                    icon: "download"
-                    tooltip_text: "Offline language packs"
-                    size_hint: None, None
-                    size: dp(44), dp(44)
-                    on_release: app.open_packs()
+                    size_hint_y: None
+                    height: max(dp(44), self.texture_size[1] + dp(4))
+                BoxLayout:
+                    orientation: "horizontal"
+                    size_hint_x: None if root.width >= dp(420) else 1
+                    size_hint_y: None
+                    width: self.minimum_width
+                    height: dp(44)
+                    spacing: dp(12)
+                    AnchorLayout:
+                        id: mode_toggle_slot
+                        anchor_x: "left"
+                        anchor_y: "center"
+                        size_hint: None, None
+                        size: dp(136), dp(44)
+                        MDFlatButton:
+                            id: mode_toggle_button
+                            text: "Transliterate" if app.mode == "Convert writing system" else "Translate"
+                            size_hint: None, None
+                            on_release: app.switch_mode()
+                    MDFlatButton:
+                        id: old_nubian_read_button
+                        text: "Read"
+                        size_hint_x: None
+                        width: dp(72)
+                        disabled: not (app.mode == "Convert writing system" and ("Old Nubian" in app.source or "Old Nubian" in app.target))
+                        opacity: 0 if self.disabled else 1
+                        on_release: app.open_old_nubian_studio()
+                    ActionIcon:
+                        icon: "download"
+                        tooltip_text: "Offline language packs"
+                        size_hint: None, None
+                        size: dp(44), dp(44)
+                        on_release: app.open_packs()
             BoxLayout:
                 id: language_controls
-                orientation: "horizontal" if root.width >= dp(360) else "vertical"
-                spacing: dp(10)
+                orientation: "horizontal" if root.width >= dp(360) or root.height <= dp(520) else "vertical"
+                spacing: dp(2) if root.width < dp(360) and root.height <= dp(520) else dp(10)
                 size_hint_y: None
-                height: dp(48) if root.width >= dp(360) else dp(156)
+                height: dp(48) if root.width >= dp(360) or root.height <= dp(520) else dp(156)
                 MDFillRoundFlatIconButton:
-                    text: app.source if len(app.source) <= 18 else app.source[:15] + "..."
+                    text: app.display_name(app.source) if len(app.display_name(app.source)) <= 18 else app.display_name(app.source)[:15] + "..."
                     icon: "chevron-down"
                     size_hint_x: 1
                     size_hint_y: None
@@ -60,15 +88,15 @@
                     on_release: app.open_picker("source")
                 ActionIcon:
                     icon: "swap-horizontal"
-                    tooltip_text: "Swap languages"
+                    tooltip_text: "Swap source and target"
                     size_hint: None, None
-                    size: dp(48), dp(48)
+                    size: (dp(32) if root.width < dp(360) and root.height <= dp(520) else dp(48)), dp(48)
                     md_bg_color: 1, 1, 1, 1
                     theme_icon_color: "Custom"
                     icon_color: 0, 0, 0, 1
                     on_release: app.swap()
                 MDFillRoundFlatIconButton:
-                    text: app.target if len(app.target) <= 18 else app.target[:15] + "..."
+                    text: app.display_name(app.target) if len(app.display_name(app.target)) <= 18 else app.display_name(app.target)[:15] + "..."
                     icon: "chevron-down"
                     size_hint_x: 1
                     size_hint_y: None
@@ -88,6 +116,7 @@
                     SaylacianTextInput:
                         id: input_text
                         hint_text: "Enter text"
+                        hint_text_color: .35, .35, .35, 1
                         background_normal: ""
                         background_active: ""
                         padding: [0, dp(8)]
@@ -127,6 +156,7 @@
                     SaylacianTextInput:
                         id: output_text
                         hint_text: "Result appears here"
+                        hint_text_color: .35, .35, .35, 1
                         background_normal: ""
                         background_active: ""
                         padding: [0, dp(8)]
@@ -164,7 +194,7 @@
                 text: app.status + app.alternative_readings
                 font_style: "Caption"
                 size_hint_y: None
-                height: dp(64) if app.alternative_readings else dp(36)
+                height: max(dp(58), self.texture_size[1] + dp(8))
                 text_size: self.width, None
 <PickerScreen>:
     name: "picker"
@@ -180,7 +210,7 @@
                 size: self.size
         BoxLayout:
             size_hint_y: None
-            height: dp(48)
+            height: max(dp(48), self.minimum_height)
             ActionIcon:
                 icon: "arrow-left"
                 tooltip_text: "Back to translator"
@@ -194,6 +224,7 @@
             mode: "rectangle"
             on_text: app.filter_languages(self.text)
         ScrollView:
+            id: picker_scroll
             do_scroll_x: False
             BoxLayout:
                 id: options
@@ -223,10 +254,12 @@
             MDLabel:
                 text: "Offline language packs"
                 font_style: "H6"
+                size_hint_y: None
+                height: max(dp(44), self.texture_size[1] + dp(4))
         MDLabel:
-            text: "Download once. Translate on this device with no account, quota or internet."
+            text: "Download packs once, then translate on this device without internet."
             size_hint_y: None
-            height: dp(54)
+            height: max(dp(54), self.texture_size[1] + dp(12))
             text_size: self.width, None
         ProgressBar:
             max: 100
@@ -237,8 +270,16 @@
             text: app.pack_status
             font_style: "Caption"
             size_hint_y: None
-            height: dp(44)
+            height: max(dp(44), self.texture_size[1] + dp(8))
             text_size: self.width, None
+        MDFlatButton:
+            id: pack_cancel_button
+            text: "Cancel download"
+            size_hint_y: None
+            height: dp(44) if app.pack_busy else 0
+            opacity: 1 if app.pack_busy else 0
+            disabled: not app.pack_busy or app.pack_cancel_requested
+            on_release: app.cancel_pack_download()
         ScrollView:
             do_scroll_x: False
             BoxLayout:
@@ -251,7 +292,7 @@
             text: app.pack_storage
             font_style: "Caption"
             size_hint_y: None
-            height: dp(44)
+            height: max(dp(44), self.texture_size[1] + dp(8))
             text_size: self.width, None
 <SavedScreen>:
     name: "saved"
@@ -267,17 +308,20 @@
                 size: self.size
         BoxLayout:
             size_hint_y: None
-            height: dp(48)
+            height: max(dp(48), self.minimum_height)
             ActionIcon:
                 icon: "arrow-left"
                 tooltip_text: "Back to translator"
                 on_release: app.close_picker()
             MDLabel:
-                text: "Local history / favourites"
+                text: "History & favourites"
+                size_hint_y: None
+                height: max(dp(44), self.texture_size[1] + dp(4))
         MDFlatButton:
             text: "Clear saved"
             on_release: app.clear_history()
         ScrollView:
+            id: saved_scroll
             BoxLayout:
                 id: saved_items
                 orientation: "vertical"
@@ -297,7 +341,7 @@
                 size: self.size
         BoxLayout:
             size_hint_y: None
-            height: dp(48)
+            height: max(dp(48), self.minimum_height)
             ActionIcon:
                 icon: "arrow-left"
                 tooltip_text: "Back to translator"
@@ -305,16 +349,18 @@
             MDLabel:
                 text: app.script_heading
                 font_style: "H6"
+                size_hint_y: None
+                height: max(dp(44), self.texture_size[1] + dp(4))
         MDLabel:
             text: app.script_note
             size_hint_y: None
-            height: dp(60)
+            height: max(dp(60), self.texture_size[1] + dp(8))
             text_size: self.width, None
         MDLabel:
             id: chart_status
             text: "Select Osmanya as source to insert letters."
             size_hint_y: None
-            height: dp(48)
+            height: max(dp(48), self.texture_size[1] + dp(8))
             font_style: "Caption"
             text_size: self.width, None
         ScrollView:
@@ -326,15 +372,129 @@
                 size_hint_y: None
                 height: self.minimum_height
         MDLabel:
-            text: "Reference: Unicode 16.0, section 19.2.1. Community validation pending."
+            text: "Unicode reference. Somali-speaker review is still needed."
             size_hint_y: None
-            height: dp(40)
+            height: max(dp(40), self.texture_size[1] + dp(8))
             font_style: "Caption"
             text_size: self.width, None
+<OldNubianStudioScreen>:
+    name: "old_nubian_studio"
+    BoxLayout:
+        orientation: "vertical"
+        padding: dp(16)
+        spacing: dp(8)
+        canvas.before:
+            Color:
+                rgba: 0, 0, 0, 1
+            Rectangle:
+                pos: self.pos
+                size: self.size
+        BoxLayout:
+            size_hint_y: None
+            height: max(dp(44), self.minimum_height)
+            ActionIcon:
+                icon: "arrow-left"
+                tooltip_text: "Back to translator"
+                on_release: app.close_picker()
+            MDLabel:
+                text: "Old Nubian reading"
+                font_style: "H6"
+                size_hint_y: None
+                height: max(dp(44), self.texture_size[1] + dp(4))
+        ScrollView:
+            do_scroll_x: False
+            BoxLayout:
+                orientation: "vertical"
+                size_hint_y: None
+                height: self.minimum_height
+                spacing: dp(8)
+                MDLabel:
+                    text: "Enter a passage. This gives a limited character reading, not a translation."
+                    size_hint_y: None
+                    height: max(dp(42), self.texture_size[1] + dp(8))
+                    text_size: self.width, None
+                MDTextField:
+                    id: reader_original
+                    hint_text: "Old Nubian text"
+                    multiline: True
+                    size_hint_y: None
+                    height: dp(110)
+                    font_name: app.font_for("Old Nubian (Coptic)")
+                    font_size: "20sp"
+                GridLayout:
+                    size_hint_y: None
+                    height: dp(132)
+                    cols: 2
+                    MDFlatButton:
+                        text: "Read passage"
+                        on_release: app.read_old_nubian_passage()
+                    MDFlatButton:
+                        text: "Import record"
+                        on_release: app.import_old_nubian_reading()
+                    MDFlatButton:
+                        text: "Copy original"
+                        on_release: app.copy_old_nubian_reading("original")
+                    MDFlatButton:
+                        text: "Copy Latin"
+                        on_release: app.copy_old_nubian_reading("latin")
+                    MDFlatButton:
+                        text: "Export record"
+                        on_release: app.export_old_nubian_reading()
+                MDTextField:
+                    id: reader_latin
+                    hint_text: "Scholarly Latin reading"
+                    multiline: True
+                    readonly: True
+                    size_hint_y: None
+                    height: dp(110)
+                    font_name: app.font_for("Old Nubian (Coptic)")
+                    font_size: "18sp"
+                MDLabel:
+                    id: reader_mark_details
+                    text: app.reader_mark_details
+                    size_hint_y: None
+                    height: 0 if not self.text else self.texture_size[1] + dp(8)
+                    font_style: "Caption"
+                    text_size: self.width, None
+                MDLabel:
+                    text: app.reader_status
+                    size_hint_y: None
+                    height: dp(70)
+                    font_style: "Caption"
+                    text_size: self.width, None
+                MDLabel:
+                    text: "Letter reference"
+                    size_hint_y: None
+                    height: max(dp(32), self.texture_size[1] + dp(8))
+                    font_style: "Subtitle1"
+                MDTextField:
+                    id: alphabet_search
+                    hint_text: "Search letter, reading or code point"
+                    size_hint_y: None
+                    height: dp(52)
+                    on_text: app.filter_old_nubian_alphabet(self.text)
+                MDLabel:
+                    text: app.reader_detail
+                    size_hint_y: None
+                    height: max(dp(82), self.texture_size[1] + dp(8))
+                    font_style: "Caption"
+                    text_size: self.width, None
+                MDFlatButton:
+                    text: "Insert selected letter"
+                    size_hint_y: None
+                    height: dp(44)
+                    on_release: app.insert_old_nubian_letter()
+                GridLayout:
+                    id: reader_alphabet
+                    cols: 3
+                    spacing: dp(6)
+                    size_hint_y: None
+                    height: self.minimum_height
 ScreenManager:
     transition: NoTransition()
     HomeScreen:
     PickerScreen:
     SavedScreen:
     ScriptInfoScreen:
+    OldNubianStudioScreen:
     PacksScreen:

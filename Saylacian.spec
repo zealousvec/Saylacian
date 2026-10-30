@@ -1,12 +1,21 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 # -*- mode: python ; coding: utf-8 -*-
-# Builds the Windows app bundle; verified language packs install separately after setup.
+# Builds a CPU-only Windows app bundle; verified language packs install separately.
+import os
+
 from PyInstaller.utils.hooks import collect_all
 
 datas = [
     ("app/main.kv", "app"),
     ("app/original.kv", "app"),
-    ("assets", "assets"),
+    ("assets/BoramaChart-Regular.ttf", "assets"),
+    ("assets/KaddareChart-Regular.ttf", "assets"),
+    ("assets/NotoSansCoptic-Regular.ttf", "assets"),
+    ("assets/NotoSansOsmanya.ttf", "assets"),
+    ("assets/OFL-Coptic.txt", "assets"),
+    ("assets/OFL-Osmanya.txt", "assets"),
+    ("assets/research/Borama_Alphabet_Chart.jpg", "assets/research"),
+    ("assets/research/Kaddare_Alphabet_Chart.jpg", "assets/research"),
     ("notices", "notices"),
     ("saylacian/core/data", "saylacian/core/data"),
 ]
@@ -17,8 +26,16 @@ datas += tmp_ret[0]
 binaries += tmp_ret[1]
 hiddenimports += tmp_ret[2]
 tmp_ret = collect_all("ctranslate2")
-datas += tmp_ret[0]
-binaries += tmp_ret[1]
+datas += [
+    data
+    for data in tmp_ret[0]
+    if os.path.basename(data[0]).casefold() != "cudnn64_9.dll"
+]
+binaries += [
+    binary
+    for binary in tmp_ret[1]
+    if os.path.basename(binary[0]).casefold() != "cudnn64_9.dll"
+]
 hiddenimports += tmp_ret[2]
 tmp_ret = collect_all("sentencepiece")
 datas += tmp_ret[0]

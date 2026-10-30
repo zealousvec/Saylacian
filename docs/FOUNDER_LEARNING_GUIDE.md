@@ -42,7 +42,7 @@ Try Somali Latin `dhagax!` to Osmanya. The code searches for matching Latin sequ
 
 ### Minutes 20–25: inspect translation plumbing
 
-Read `translate_meaning()` in `saylacian/core/translation.py`. It validates the pair, chooses provider behavior, locates a model, tokenizes, runs inference, and decodes. Follow `load_model()` to see CTranslate2 and SentencePiece. Somali results carry warnings because the route is experimental.
+Read `translate_meaning()` in `saylacian/core/translation.py`. It validates the pair, chooses provider behavior, locates a model, tokenizes, runs inference, and decodes. Follow `load_model()` to see CTranslate2 and SentencePiece. Somali results carry a notice that they are in alpha testing and need fluent-speaker review.
 
 ### Minutes 25–30: run tests
 
@@ -56,7 +56,7 @@ Tests may skip model inference if the relevant local weights are absent. A passi
 
 ## 1. What Saylacian currently does
 
-It is a Windows-focused Python/Kivy app for language translation and writing-system conversion. English↔French has offline model routes. Somali meaning translation is experimental, and Somali↔French uses English as an intermediate language. Osmanya conversion is implemented from a mapping table. Borama/Kaddare are partial chart-label mappings using private-use code points. There is a narrow Old Nubian Coptic-to-scholarly-Latin transliteration table; its reverse is experimental. Modern Nubian varieties are unavailable.
+It is a Windows-focused Python/Kivy app for language translation and writing-system conversion. English↔French has offline model routes. Somali meaning translation is available for alpha testing, and Somali↔French uses English as an intermediate language. Osmanya conversion is implemented from a mapping table. Borama/Kaddare are partial chart-label mappings using private-use code points. Old Nubian has a limited, cited Coptic-to-Latin character table; reverse readings may be ambiguous. Modern Nubian varieties are unavailable.
 
 Translation changes language/meaning; transliteration changes writing system. A font displays code points as glyphs; it does not translate, define, or infer the intended private-use alphabet.
 
@@ -135,6 +135,6 @@ AGPL-3.0-or-later applies to Saylacian code the licensor has a right to license.
 
 ## How to explain the project accurately
 
-Say: “Saylacian is an experimental Python/Kivy app with offline English–French translation, experimental Somali translation, and several script conversion features. Offline model files are downloaded separately and verified by hash. Borama/Kaddare use partial private-use mappings; Old Nubian has a limited scholarly transliteration route. Tests verify software behavior, not translation quality.”
+Say: “Saylacian is a Windows Python/Kivy app in alpha testing, with offline English–French translation, Somali translation that needs fluent-speaker review, and several script conversion features. Offline model files are downloaded separately and verified by hash. Borama/Kaddare cover selected chart entries with private-use glyphs; Old Nubian has a limited scholarly transliteration route. Software tests do not establish translation quality.”
 
 Avoid saying that Somali translation is accurate, all Nubian varieties work, private-use glyphs are standard Unicode, or local inference has unlimited service capacity. Those statements are not supported by current evidence.

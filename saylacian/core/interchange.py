@@ -3,7 +3,6 @@
 
 from __future__ import annotations
 
-import base64
 import hashlib
 import html
 import json
@@ -13,9 +12,14 @@ from dataclasses import dataclass
 from io import BytesIO
 from pathlib import Path
 
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image
+from PIL import ImageDraw
+from PIL import ImageFont
 
-from .transliteration import SCRIPT_PUA_TO_LATIN, detect_script, transliterate
+from .transliteration import SCRIPT_PUA_TO_LATIN
+from .transliteration import detect_chart_script
+from .transliteration import is_private_use_character
+from .transliteration import transliterate
 
 MAGIC = "SAYLACIAN-TEXT/1\n"
 ENCODING = "saylacian-chart-pua-v1"
@@ -35,7 +39,8 @@ class SaylacianText:
 
 
 def identify_chart_text(text: str) -> str | None:
-    script, _ = detect_script(text)
+    detected = detect_chart_script(text)
+    script = detected[0] if detected else None
     return script if script in SCRIPT_FONTS else None
 
 
@@ -55,7 +60,7 @@ def _validate_script_text(text: str, script: str) -> None:
         )
     )
     for char in text:
-        if 0xE000 <= ord(char) <= 0xF8FF and char not in known:
+        if is_private_use_character(char) and char not in known:
             raise ValueError(f"Unrecognized private-use character U+{ord(char):04X}.")
         if char in other_chart:
             raise ValueError("Text mixes glyphs from different chart scripts.")
@@ -65,7 +70,7 @@ def encode_saylacian_text(text: str, script: str) -> str:
     """Return an ASCII-only, integrity-checked text envelope for sharing/import."""
     _validate_script_text(text, script)
     latin = transliterate(text, script, "Somali Latin").text
-    digest = hashlib.sha256(f"{ENCODING}\0{script}\0{text}".encode("utf-8")).hexdigest()
+    digest = hashlib.sha256(f"{ENCODING}\0{script}\0{text}".encode()).hexdigest()
     payload = {
         "format": "Saylacian Text",
         "version": 1,
@@ -96,9 +101,7 @@ def decode_saylacian_text(value: str) -> SaylacianText | None:
         )
     script, text = payload.get("script"), payload.get("text")
     _validate_script_text(text, script)
-    expected = hashlib.sha256(
-        f"{ENCODING}\0{script}\0{text}".encode("utf-8")
-    ).hexdigest()
+    expected = hashlib.sha256(f"{ENCODING}\0{script}\0{text}".encode()).hexdigest()
     if payload.get("sha256") != expected:
         raise ValueError(
             "Saylacian Text package checksum does not match; paste was changed."
@@ -181,7 +184,7 @@ def html_for_chart(text: str, script: str, latin: str) -> bytes:
 
 
 def render_chart_png(text: str, script: str, latin: str) -> bytes:
-    """Rasterize script glyphs with licensed bundled font for font-independent sharing."""
+    "Rasterize script glyphs with licensed bundled font for font-independent sharing."
     _validate_script_text(text, script)
     font_path = PROJECT_ROOT / "assets" / SCRIPT_FONTS[script]
     glyph_font = ImageFont.truetype(str(font_path), 46)

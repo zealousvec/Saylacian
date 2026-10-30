@@ -1,6 +1,6 @@
 # Saylacian architecture, explained
 
-This is an implementation guide to the checked-out source, not a claim of release readiness. Saylacian is a Python desktop application for Somali script conversion and experimental language translation. Its primary interface is Kivy/KivyMD; the translation and script functions are Python modules shared with a small Flask website and an optional self-hosted API.
+This is an implementation guide to the checked-out source, not a claim of release readiness. Saylacian is a Python desktop application for Somali script conversion and language translation in alpha testing. Its primary interface is Kivy/KivyMD; the translation and script functions are Python modules shared with a small Flask website and an optional self-hosted API.
 
 ## The shape of the application
 
@@ -27,7 +27,7 @@ The desktop interface imports the core directly; it does not call the Flask webs
 
 Meaning translation tries to express a sentence in another language. Transliteration changes how text is written while aiming to preserve its reading. For example, the Somali Latin word `dhagax` can be written in Osmanya glyphs by mapping letters; this does not translate the word into English. The app has separate paths and capability declarations for these jobs.
 
-The current meaning-translation routes are English↔French, English↔Somali, and Somali↔French through English. Somali routes are explicitly experimental and need fluent-speaker evaluation. Script conversion includes Somali Latin↔Osmanya, partial chart-derived Somali Latin↔Borama/Kaddare, and an Old Nubian Coptic-to-scholarly-Latin table plus experimental reverse conversion. Modern Nubian languages are not implemented. See [capabilities.py](../saylacian/core/capabilities.py#L1) and [support matrix](SUPPORT_MATRIX.md).
+The current meaning-translation routes are English↔French, English↔Somali, and Somali↔French through English. Somali routes are in alpha testing and need fluent-speaker evaluation. Script conversion includes Somali Latin↔Osmanya, selected chart-derived Somali Latin↔Borama/Kaddare entries, and an attributed 29-character Old Nubian table with reverse letter-boundary alternatives. Modern Nubian languages are not implemented. See [capabilities.py](../saylacian/core/capabilities.py#L1) and [support matrix](SUPPORT_MATRIX.md).
 
 ## Launching the desktop app
 
@@ -46,7 +46,7 @@ Kivy is a cross-platform Python toolkit with its own drawing and event-loop mode
 
 `translate_meaning(text, source, target)` first validates that the capability table permits the pair and enforces a 4,000-character limit. It resolves the selected provider. In offline mode it locates model files, loads a tokenizer and CTranslate2 CPU engine, turns text into model tokens, runs inference, and converts generated tokens back to text. Offline mode does not silently download a model. Missing packs produce an actionable error.
 
-English↔French uses separate direction-specific Argos-derived CTranslate2 model directories. English↔Somali uses an OPUS-MT multilingual model with the Somali target marker; both directions are experimental. Somali↔French is two translations with English in the middle, so errors can accumulate. An optional synthetic English→Somali model may be used when present in the local model roots; it is not in the current downloadable pack and is guarded against obvious repeated or identity output. These guards cannot judge whether a translation is correct.
+English↔French uses separate direction-specific Argos-derived CTranslate2 model directories. English↔Somali uses an OPUS-MT multilingual model with the Somali target marker and optional AfriSLM packs. Somali↔French is two translations with English in the middle, so errors can accumulate. Output safeguards catch some empty, repeated or identity-like results; they cannot judge translation quality. Fluent Somali review is still needed.
 
 The translation result is represented as `Conversion`, which can carry text and warnings. The UI surfaces warnings so model output is not presented as independently verified language. Model and runtime facts are recorded in [translation.py](../saylacian/core/translation.py#L67), [model manifests](../models/manifest.json), [Somali manifest](../models/somali-manifest.json), and [third-party notices](THIRD_PARTY_NOTICES.md).
 
@@ -72,7 +72,7 @@ Osmanya uses Unicode code points. A mapping table converts Somali Latin sequence
 
 Borama and Kaddare mappings are partial transcriptions from cited charts. They use private-use Unicode code points, which have no universal assigned meaning. Saylacian’s chart fonts render the app’s own mapping, but another private-use font may assign the same code points differently. The separate Saylacian Text v1 clipboard format carries a script label and original text for round-trip import. Image and rich clipboard formats help sharing, but editable PUA text requires compatible font/mapping support. See [interchange.py](../saylacian/core/interchange.py#L31) and [Windows clipboard support](../saylacian/core/windows_clipboard.py#L18).
 
-The Old Nubian route is historical language/script transliteration. It maps a documented set of Coptic/Greek-derived characters to scholarly Latin; reverse conversion is ambiguous and experimental. Detecting Coptic letters does not identify the language. Modern Nobiin, Kenzi/Mattokki, Dongolawi/Andaandi, Midob, Birgid, Dilling, Karko, Wali, and Kadaru are distinct research targets with no implemented conversion or translation route.
+The Old Nubian route is historical language/script transliteration. It maps the 29 single-character entries in an attributed 2024 scholarly table to Latin; reverse conversion can be ambiguous. Detecting Coptic letters does not identify the language. Modern Nobiin, Kenzi/Mattokki, Dongolawi/Andaandi, Midob, Birgid, Dilling, Karko, Wali, and Kadaru are distinct languages with no implemented conversion or translation route.
 
 ## Website and optional API
 

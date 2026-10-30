@@ -7,7 +7,8 @@ from kivy.clock import Clock
 from kivy.core.clipboard import Clipboard
 from kivy.factory import Factory
 from kivy.lang import Builder
-from kivy.uix.screenmanager import Screen, ScreenManager
+from kivy.uix.screenmanager import Screen
+from kivy.uix.screenmanager import ScreenManager
 from kivy.uix.textinput import TextInput
 from kivymd.app import MDApp
 

@@ -1,5 +1,5 @@
 {
-  "status": "experimental",
+  "status": "alpha",
   "source": "https://www.unicode.org/versions/Unicode16.0.0/core-spec/chapter-19/",
   "mapping": {
     "aa": "𐒛",

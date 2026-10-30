@@ -9,16 +9,28 @@ import tempfile
 from pathlib import Path
 
 PROJECT = Path(__file__).resolve().parents[1]
+EVIDENCE_DIR = Path(
+    os.environ.get("SAYLACIAN_UI_EVIDENCE_DIR")
+    or tempfile.mkdtemp(prefix="saylacian-ui-acceptance-")
+).expanduser()
+PREVIEW_DIR = EVIDENCE_DIR / "previews"
+PREVIEW_DIR.mkdir(parents=True, exist_ok=True)
 os.environ.setdefault("SAYLACIAN_TRANSLATION_PROVIDER", "offline")
 sys.path.insert(0, str(PROJECT))
+from kivy.app import App
 from kivy.clock import Clock
-from kivy.core.clipboard import Clipboard
 from kivy.core.window import Window
+from kivy.metrics import dp
 
+import main as app_module
 from main import SaylacianApp
 from saylacian.core.history import History
+from tools.in_memory_clipboard import InMemoryClipboard
 
 checks = []
+test_clipboard = InMemoryClipboard()
+app_module.Clipboard = test_clipboard
+app_module.publish_windows_clipboard = test_clipboard.publish_windows_formats
 
 
 def capture_after_present(path, continuation):
@@ -29,7 +41,8 @@ def capture_after_present(path, continuation):
         Window._saylacian_capture_callback = None
 
         def capture(dt):
-            Window.screenshot(name=str(path))
+            app = App.get_running_app()
+            app.root.export_to_png(str(path))
             Clock.schedule_once(lambda dt: continuation(), 0.1)
 
         Clock.schedule_once(capture, 0.15)
@@ -70,13 +83,13 @@ class CheckedApp(SaylacianApp):
                 "offline model-pack screen, installed state, and storage summary"
             )
             capture_after_present(
-                PROJECT / "docs/previews/offline-language-packs.png",
+                PREVIEW_DIR / "offline-language-packs.png",
                 self.check_after_pack_screen,
             )
         except Exception:
             import traceback
 
-            (PROJECT / "docs/UI_TEST_FAILURE.txt").write_text(traceback.format_exc())
+            (EVIDENCE_DIR / "UI_TEST_FAILURE.txt").write_text(traceback.format_exc())
             self.stop()
             raise
 
@@ -101,12 +114,12 @@ class CheckedApp(SaylacianApp):
             assert home.ids.output_text.text == "abg ngnywj!"
             checks.append("Old Nubian Coptic live conversion and font")
             capture_after_present(
-                PROJECT / "docs/previews/oldnubian-live.png", self.check_after_nubian
+                PREVIEW_DIR / "oldnubian-live.png", self.check_after_nubian
             )
         except Exception:
             import traceback
 
-            (PROJECT / "docs/UI_TEST_FAILURE.txt").write_text(traceback.format_exc())
+            (EVIDENCE_DIR / "UI_TEST_FAILURE.txt").write_text(traceback.format_exc())
             self.stop()
             raise
 
@@ -122,12 +135,16 @@ class CheckedApp(SaylacianApp):
             self.open_picker("target")
             assert self.root.current == "picker"
             self.filter_languages("Borama")
+            route_options = [
+                button for name, button in self.picker_options if name == "Borama"
+            ]
+            assert len(route_options) == 1
+            assert route_options[0].text == "Borama"
+            assert not getattr(route_options[0], "secondary_text", "")
             chart_options = [
-                item
-                for item in self.root.get_screen("picker").ids.options.children
-                if getattr(item, "secondary_text", "").startswith(
-                    "Partial chart-label mapping"
-                )
+                button
+                for name, button in self.picker_options
+                if name == "Borama alphabet chart"
             ]
             assert len(chart_options) == 1
             chart_options[0].dispatch("on_release")
@@ -150,11 +167,16 @@ class CheckedApp(SaylacianApp):
             self.refresh_fonts()
             self.convert(home.ids.input_text.text)
             self.copy(home.ids.input_text.text)
+            assert test_clipboard.paste() == "Dhagax!"
+            if os.name == "nt":
+                assert ("CF_UNICODETEXT", "Dhagax!\0".encode("utf-16-le")) in (
+                    test_clipboard.formats
+                )
             self.clear()
             assert not home.ids.output_text.text
             self.paste()
             assert home.ids.input_text.text == "Dhagax!"
-            checks.append("copy/clear/paste real clipboard")
+            checks.append("in-memory clipboard round trip; system clipboard untouched")
             self.swap()
             assert home.ids.output_text.text == "dhagax!"
             checks.append("swap/reverse")
@@ -185,6 +207,7 @@ class CheckedApp(SaylacianApp):
             self.viewport_cases = [
                 ((390, 780), False, "enhanced-mobile"),
                 ((320, 640), False, "enhanced-small-mobile"),
+                ((320, 500), False, "enhanced-compact-portrait"),
                 ((780, 390), True, "enhanced-landscape"),
                 ((768, 1024), True, "enhanced-tablet"),
                 ((1366, 768), True, "enhanced-desktop"),
@@ -195,7 +218,7 @@ class CheckedApp(SaylacianApp):
         except Exception:
             import traceback
 
-            (PROJECT / "docs/UI_TEST_FAILURE.txt").write_text(
+            (EVIDENCE_DIR / "UI_TEST_FAILURE.txt").write_text(
                 traceback.format_exc(), encoding="utf-8"
             )
             self.stop()
@@ -208,9 +231,17 @@ class CheckedApp(SaylacianApp):
 
     def check_viewport(self, expected_wide):
         home = self.root.get_screen("home")
+        assert home.ids.old_nubian_read_button.disabled
+        assert home.ids.old_nubian_read_button.opacity == 0
+        assert home.ids.old_nubian_read_button.width >= dp(64)
+        assert home.ids.mode_toggle_slot.width == dp(136)
         panels = home.ids.translation_panels
         assert self.wide_layout is expected_wide, (Window.size, self.wide_layout)
         assert panels.orientation == ("horizontal" if expected_wide else "vertical")
+        viewport, _, _ = self.viewport_cases[self.viewport_index]
+        if viewport == (320, 500):
+            assert home.ids.input_text.height >= dp(56), home.ids.input_text.height
+            assert home.ids.output_text.height >= dp(56), home.ids.output_text.height
         controls = home.ids.language_controls
         for control in controls.children:
             assert control.x >= controls.x - 1, (Window.size, control.x, controls.x)
@@ -221,22 +252,94 @@ class CheckedApp(SaylacianApp):
             )
             assert control.y >= controls.y - 1
             assert control.top <= controls.top + 1
+        self.check_mode_layout_stability(home)
         _, _, screenshot_name = self.viewport_cases[self.viewport_index]
-        path = PROJECT / "docs/previews" / f"{screenshot_name}.png"
+        path = PREVIEW_DIR / f"{screenshot_name}.png"
         self.viewport_index += 1
         if screenshot_name != "enhanced-mobile" or self.viewport_index == 1:
             capture_after_present(path, self.capture_next_viewport)
         else:
             self.capture_next_viewport()
 
+    def check_mode_layout_stability(self, home):
+        original = (
+            self.mode,
+            self.source,
+            self.target,
+            home.ids.input_text.text,
+        )
+        widgets = (
+            home.ids.app_header,
+            home.ids.mode_toggle_slot,
+            home.ids.old_nubian_read_button,
+            home.ids.language_controls,
+            home.ids.translation_panels,
+            home.ids.input_text.parent,
+            home.ids.output_text.parent,
+        )
+
+        def positions():
+            return tuple(
+                tuple(
+                    round(value, 1)
+                    for value in (widget.x, widget.y, widget.width, widget.height)
+                )
+                for widget in widgets
+            ) + (
+                (
+                    round(home.ids.mode_toggle_button.x, 1),
+                    round(home.ids.mode_toggle_button.y, 1),
+                ),
+                (
+                    round(home.ids.status_label.x, 1),
+                    round(home.ids.status_label.y, 1),
+                ),
+            )
+
+        def settle_layout():
+            for _ in range(3):
+                Clock.tick()
+
+        try:
+            self.source, self.target = "Somali Latin", "Borama"
+            self.mode = "Convert writing system"
+            home.ids.input_text.text = "dhag!"
+            self.convert(home.ids.input_text.text)
+            settle_layout()
+            assert self.status == "Partial chart mapping."
+            before = positions()
+            self.switch_mode()
+            settle_layout()
+            assert self.status
+            assert positions() == before, (
+                Window.size,
+                "translation mode",
+                before,
+                positions(),
+            )
+            self.switch_mode()
+            settle_layout()
+            assert positions() == before, (
+                Window.size,
+                "transliteration mode",
+                before,
+                positions(),
+            )
+        finally:
+            self.mode, self.source, self.target, input_text = original
+            self.refresh_fonts()
+            home.ids.input_text.text = input_text
+            self.convert(input_text)
+
     def capture_next_viewport(self, dt=0):
         if self.viewport_index < len(self.viewport_cases):
             Clock.schedule_once(self.capture, 0.2)
             return
         checks.append(
-            "responsive layouts at 320x640, 390x780, 780x390, 768x1024 and 1366x768"
+            "responsive layouts at 320x500, 320x640, 390x780, 780x390, "
+            "768x1024 and 1366x768"
         )
-        (PROJECT / "docs/ui-test-results.json").write_text(
+        (EVIDENCE_DIR / "ui-test-results.json").write_text(
             json.dumps(
                 {
                     "checks": checks,
@@ -251,7 +354,7 @@ class CheckedApp(SaylacianApp):
 
     def capture_picker(self, dt):
         capture_after_present(
-            PROJECT / "docs/previews/enhanced-picker-mobile.png",
+            PREVIEW_DIR / "enhanced-picker-mobile.png",
             self.capture_unavailable,
         )
 
@@ -263,7 +366,7 @@ class CheckedApp(SaylacianApp):
         assert not self.root.get_screen("home").ids.output_text.text
         checks.append("Borama reference chart renders without claiming a converter")
         capture_after_present(
-            PROJECT / "docs/previews/enhanced-unavailable-mobile.png",
+            PREVIEW_DIR / "enhanced-unavailable-mobile.png",
             self.start_english_french,
         )
 
@@ -292,7 +395,7 @@ class CheckedApp(SaylacianApp):
             assert self.root.get_screen("home").ids.output_text.text == result
             checks.append("stale worker result ignored")
             capture_after_present(
-                PROJECT / "docs/previews/enhanced-meaning.png",
+                PREVIEW_DIR / "enhanced-meaning.png",
                 self.start_english_somali,
             )
             return False
@@ -314,7 +417,7 @@ class CheckedApp(SaylacianApp):
         result = home.ids.output_text.text
         if result:
             assert result.strip() and result.strip() != home.ids.input_text.text
-            assert "human review" in self.status.lower(), self.status
+            assert "Somali translation may be inaccurate" in self.status, self.status
             checks.append("background English/Somali meaning translation offline")
             self.source = "Somali Latin"
             self.target = "English"
@@ -334,7 +437,7 @@ class CheckedApp(SaylacianApp):
         result = home.ids.output_text.text
         if result:
             assert result == "How are you?", result
-            assert "human review" in self.status.lower(), self.status
+            assert "Somali translation may be inaccurate" in self.status, self.status
             checks.append("background Somali/English meaning translation offline")
             self.source = "Detect language/script"
             home.ids.input_text.text = "Salaan, sidee tahay?"
@@ -369,10 +472,10 @@ class CheckedApp(SaylacianApp):
         result = home.ids.output_text.text
         if result:
             assert result == "Comment allez-vous ?", result
-            assert "errors may compound" in self.status, self.status
+            assert "some meaning may change" in self.status, self.status
             checks.append("automatic Somali detection and offline French pivot")
             capture_after_present(
-                PROJECT / "docs/previews/enhanced-meaning-somali-french.png",
+                PREVIEW_DIR / "enhanced-meaning-somali-french.png",
                 lambda: self.finish_somali(0),
             )
             return False
@@ -380,7 +483,7 @@ class CheckedApp(SaylacianApp):
             raise AssertionError("Somali/French pivot failed: " + self.status)
 
     def finish_somali(self, dt):
-        (PROJECT / "docs/ui-test-results.json").write_text(
+        (EVIDENCE_DIR / "ui-test-results.json").write_text(
             json.dumps(
                 {
                     "checks": checks,
@@ -395,3 +498,4 @@ class CheckedApp(SaylacianApp):
 
 
 CheckedApp().run()
+print(f"UI acceptance evidence: {EVIDENCE_DIR}")

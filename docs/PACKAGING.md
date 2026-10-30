@@ -1,6 +1,10 @@
 # Platform build evidence
 
-For the concise current gate-by-gate status, see [`PACKAGING_MATRIX.md`](PACKAGING_MATRIX.md). The evidence below is historical build detail and remains useful for reproducing/diagnosing prior builds.
+For current language and platform capability status, see [`SUPPORT_MATRIX.md`](SUPPORT_MATRIX.md). For Windows signing and application-control evidence, see [`WINDOWS_RELEASE_SECURITY.md`](WINDOWS_RELEASE_SECURITY.md). The build details below are historical evidence, not a claim that a binary is releasable.
+
+## Current source acceptance
+
+As of 2026-10-25, the local Windows Python source app passes 149 tests, 2 symlink-permission skips, and 200 subtests. The isolated live Kivy acceptance passed 19 checks with networking blocked and runtime data redirected to a temporary directory. FBO captures at 320x640, 390x780, 780x390, 768x1024 and 1366x768 were visually reviewed; the landscape case is intact. Clipboard tests use an in-memory adapter; real Windows/external-app delivery is unverified. The unsigned packaged app remains runtime-unverified under the host's enforced application-control policy. Do not bypass Windows security controls or distribute the candidate.
 
 ## Windows
 
@@ -100,3 +104,9 @@ Rebuilt the current source, including privacy-safe startup diagnostics and the s
 - `IdentityPending` and `Publisher-PENDING` must be replaced by exact values from Partner Center. No account or app name has been reserved.
 - Runtime, offline UI use, fonts, clipboard and installation remain unverified because this unsigned build is not installable under the active Windows policy. Source-app tests are not package-runtime evidence.
 - Microsoft's current onboarding has no registration fee; individual onboarding requires government ID and selfie verification. Store certification and publisher approval are still required. See `STORE_SUBMISSION.md`.
+
+## Portable alpha candidate — 2026-10-30
+
+Built from a clean clone of commit `bea5ec1f393e7ff634db81b98ca6d048c5202247` with the pinned portable-build recipe. The ZIP is 69,945,461 bytes (SHA-256 `43aaf3efbc54b29ee8c56b01c78eb3351d9bb5d5bbc0c7eb9c0adee846e557f7`). Its manifest covers 629 payload files; the ZIP also contains the checksum index. Manifest hashes, archive entries and the sidecar all verified. It contains one EXE, no offline translation packs, no cuDNN DLL and no Poppler files. It does include py3langid's 4.59 MiB language-detection model, CPython licence and all 13 SDL2 wheel licence texts. The builder excludes cuDNN because the app uses CTranslate2 on CPU.
+
+The manifest deliberately records `runtime_verified: false`. No isolated Windows VM was available, so the EXE was not launched and clipboard/screen-reader checks were not performed. Microsoft VC runtime distribution terms, Intel OpenMP redistribution terms, GLEW wheel provenance and exact Material Design Icons font provenance remain binary-release gates. The candidate is local and unpublished; do not distribute it until these checks pass.

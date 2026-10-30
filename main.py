@@ -3,6 +3,8 @@
 
 import os
 import sys
+import threading
+import zipfile
 from pathlib import Path
 
 PROJECT = Path(__file__).resolve().parent
@@ -14,6 +16,10 @@ os.environ.setdefault(
     "KIVY_HOME",
     str(runtime_home if getattr(sys, "frozen", False) else PROJECT / ".kivy"),
 )
+from kivy.config import Config
+
+Config.set("graphics", "minimum_width", "320")
+Config.set("graphics", "minimum_height", "360")
 if "--self-test" in sys.argv:
     import socket
 
@@ -28,11 +34,14 @@ from concurrent.futures import ThreadPoolExecutor
 from kivy.clock import Clock
 from kivy.core.clipboard import Clipboard
 from kivy.core.text import LabelBase
+from kivy.core.window import Keyboard
 from kivy.core.window import Window
 from kivy.factory import Factory
 from kivy.lang import Builder
 from kivy.metrics import dp
-from kivy.properties import BooleanProperty, NumericProperty, StringProperty
+from kivy.properties import BooleanProperty
+from kivy.properties import NumericProperty
+from kivy.properties import StringProperty
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from kivy.uix.image import Image
@@ -40,35 +49,50 @@ from kivy.uix.label import Label
 from kivy.uix.screenmanager import Screen
 from kivy.uix.textinput import TextInput
 from kivymd.app import MDApp
-from kivymd.uix.button import MDFlatButton, MDIconButton
+from kivymd.uix.button import MDFlatButton
+from kivymd.uix.button import MDIconButton
 from kivymd.uix.dialog import MDDialog
 from kivymd.uix.label import MDLabel
-from kivymd.uix.list import TwoLineListItem
+from kivymd.uix.list import OneLineListItem
 from kivymd.uix.menu import MDDropdownMenu
 from kivymd.uix.tooltip import MDTooltip
 
-from saylacian.core.capabilities import get_capability, list_capabilities
-from saylacian.core.clipboard_repr import (
-    formats_as_image,
-    formats_as_latin,
-    formats_as_saylacian_text,
-)
-from saylacian.core.diagnostics import PrivateDiagnostics, install_exception_hooks
+from saylacian.core.capabilities import get_capability
+from saylacian.core.capabilities import list_capabilities
+from saylacian.core.clipboard_repr import formats_as_image
+from saylacian.core.clipboard_repr import formats_as_latin
+from saylacian.core.clipboard_repr import formats_as_saylacian_text
+from saylacian.core.diagnostics import PrivateDiagnostics
+from saylacian.core.diagnostics import install_exception_hooks
+from saylacian.core.history import DamagedHistoryError
 from saylacian.core.history import History
-from saylacian.core.interchange import (
-    decode_saylacian_text,
-    identify_chart_text,
-)
+from saylacian.core.interchange import decode_saylacian_text
+from saylacian.core.interchange import encode_saylacian_text
+from saylacian.core.interchange import identify_chart_text
 from saylacian.core.language_detection import detect_language
 from saylacian.core.model_packs import ModelPackManager
-from saylacian.core.online_translation import (
-    online_provider_label,
-    online_translation_enabled,
-)
+from saylacian.core.old_nubian_reader import alphabet_entries
+from saylacian.core.old_nubian_reader import describe_combining_marks
+from saylacian.core.old_nubian_reader import export_reading_record
+from saylacian.core.old_nubian_reader import import_reading_record
+from saylacian.core.old_nubian_reader import make_reading_record
+from saylacian.core.online_translation import online_provider_label
+from saylacian.core.online_translation import online_translation_enabled
+from saylacian.core.presentation import display_name
+from saylacian.core.presentation import pack_download_error_message
+from saylacian.core.presentation import pack_removal_error_message
+from saylacian.core.presentation import picker_choices
+from saylacian.core.presentation import translation_error_message
 from saylacian.core.script_info import osmanya_letters
-from saylacian.core.translation import model_directory, translate_meaning
-from saylacian.core.transliteration import detect_script, transliterate
-from saylacian.core.windows_clipboard import publish as publish_windows_clipboard
+from saylacian.core.session import read_session
+from saylacian.core.session import write_session
+from saylacian.core.translation import clear_model_cache
+from saylacian.core.translation import model_directory
+from saylacian.core.translation import translate_meaning
+from saylacian.core.transliteration import detect_script
+from saylacian.core.transliteration import is_private_use_character
+from saylacian.core.transliteration import transliterate
+from saylacian.core.windows_clipboard import publish as _publish_windows_clipboard
 
 
 class HomeScreen(Screen):
@@ -87,27 +111,54 @@ class ScriptInfoScreen(Screen):
     pass
 
 
+class OldNubianStudioScreen(Screen):
+    pass
+
+
 class PacksScreen(Screen):
     pass
 
 
-def clipboard_text(text):
-    """Use readable Latin for nonstandard chart glyphs copied outside the app."""
-    script, _ = detect_script(text)
-    if script in ("Borama", "Kaddare"):
+def clipboard_text(text, script=None):
+    """Return portable text without guessing the meaning of private-use characters."""
+    has_private_characters = any(is_private_use_character(char) for char in text)
+    if script in ("Borama", "Kaddare") and has_private_characters:
+        if identify_chart_text(text) != script:
+            return None, None
         return transliterate(text, script, "Somali Latin").text, script
-    if any(0xE000 <= ord(char) <= 0xF8FF for char in text):
+    if has_private_characters:
         return None, None
     return text, None
+
+
+def publish_windows_clipboard(formats):
+    """Publish clipboard formats owned by Saylacian's native window."""
+    window_info = Window.get_window_info()
+    owner = getattr(window_info, "window", None)
+    if not owner:
+        raise OSError("Windows clipboard is unavailable until the app window is ready.")
+    _publish_windows_clipboard(formats, owner=int(owner))
 
 
 class SaylacianTextInput(TextInput):
     def copy(self, data=""):
         selected = data or self.selection_text
-        portable, _ = clipboard_text(selected)
+        app = MDApp.get_running_app()
+        selected_script = (
+            app.source
+            if app.mode == "Convert writing system"
+            and app.source in ("Borama", "Kaddare")
+            else None
+        )
+        if (
+            selected_script is None
+            and self.readonly
+            and app.target in ("Borama", "Kaddare")
+        ):
+            selected_script = app.target
+        portable, _ = clipboard_text(selected, selected_script)
         if portable is None:
-            app = MDApp.get_running_app()
-            app.status = "Unknown private-use text was not copied."
+            app.status = "This script text has no label and was not copied."
             return None
         return super().copy(portable)
 
@@ -131,10 +182,15 @@ class SaylacianApp(MDApp):
     picker_heading = StringProperty("Choose source")
     script_heading = StringProperty("Osmanya alphabet")
     script_note = StringProperty("Select Osmanya as source to insert letters.")
-    pack_status = StringProperty("Offline packs keep translating on this device.")
+    reader_status = StringProperty("Choose a cited letter or enter a passage to read.")
+    reader_mark_details = StringProperty("")
+    reader_detail = StringProperty("Select a letter to see its code point and source.")
+    reader_selected_glyph = StringProperty("")
+    pack_status = StringProperty("Installed packs work offline.")
     pack_progress = NumericProperty(0)
     pack_storage = StringProperty("")
     pack_busy = BooleanProperty(False)
+    pack_cancel_requested = BooleanProperty(False)
 
     def build(self):
         self.title = "Saylacian"
@@ -143,7 +199,6 @@ class SaylacianApp(MDApp):
         self.font = str(PROJECT / "assets/NotoSansOsmanya.ttf")
         self.output_font = self.font
         self.side = "source"
-        Window.minimum_width, Window.minimum_height = 320, 360
         Window.bind(on_resize=self.update_layout)
         self.update_layout(Window, *Window.size)
         self.worker = ThreadPoolExecutor(
@@ -153,6 +208,8 @@ class SaylacianApp(MDApp):
             max_workers=1, thread_name_prefix="saylacian-model-packs"
         )
         self.pack_manager = ModelPackManager()
+        self.pack_options = []
+        self.pack_index = -1
         self.pending = None
         self.generation = 0
         self.translate_trigger = Clock.create_trigger(self.begin_translation, 0.45)
@@ -160,7 +217,7 @@ class SaylacianApp(MDApp):
 
     def update_layout(self, window, width, height):
         """Use two panels when there is room, including short landscape windows."""
-        self.wide_layout = width >= dp(760) or height <= dp(520)
+        self.wide_layout = width >= dp(760) or (height <= dp(520) and width >= dp(480))
 
     def on_start(self):
         Window.bind(on_keyboard=self.keyboard)
@@ -171,13 +228,129 @@ class SaylacianApp(MDApp):
         except OSError:
             self.diagnostics = None
         self.history = History(Path(self.user_data_dir) / "history-v1.json")
+        self.session_path = Path(self.user_data_dir) / "last-session-v1.json"
+        self.restore_session()
         if "--self-test" in sys.argv:
             from app.acceptance import start
 
             Clock.schedule_once(lambda dt: start(self), 1)
 
     def keyboard(self, window, key, *args):
+        modifiers = (
+            set(args[-1])
+            if args and isinstance(args[-1], (list, tuple, set))
+            else set()
+        )
+        key_name = next(
+            (name for name, code in Keyboard.keycodes.items() if code == key),
+            str(key),
+        ).lower()
+        if getattr(self, "pack_dialog", None) is not None:
+            if key_name in {"left", "right", "tab"}:
+                self.pack_dialog_index = 1 - self.pack_dialog_index
+                self._update_pack_dialog_cursor()
+            elif key_name in {"enter", "numpadenter"}:
+                if self.pack_dialog_index == 0:
+                    self.dismiss_pack_dialog(self.pack_dialog)
+                else:
+                    self.remove_pack(self.pack_dialog, self.pack_dialog_pack_id)
+            elif key_name == "escape":
+                self.dismiss_pack_dialog(self.pack_dialog)
+            return True
+        if getattr(self, "history_recovery_dialog", None) is not None:
+            if key_name in {"left", "right", "tab"}:
+                self.history_recovery_index = 1 - self.history_recovery_index
+                self._update_history_recovery_cursor()
+            elif key_name in {"enter", "numpadenter"}:
+                if self.history_recovery_index == 0:
+                    self.dismiss_history_recovery(self.history_recovery_dialog)
+                else:
+                    self.recover_saved_history(self.history_recovery_dialog)
+            elif key_name == "escape":
+                self.dismiss_history_recovery(self.history_recovery_dialog)
+            return True
+        if key_name == "m" and {"ctrl", "shift"}.issubset(modifiers):
+            self.switch_mode()
+            return True
+        if key_name == "p" and "ctrl" in modifiers:
+            self.open_packs()
+            return True
+        if key_name == "k" and "ctrl" in modifiers:
+            side = "source" if "shift" in modifiers else "target"
+            self.open_picker(side)
+            return True
+        if key_name == "l" and "ctrl" in modifiers:
+            home = self.root.get_screen("home")
+            self.root.current = "home"
+            home.ids.input_text.focus = True
+            return True
+        if self.root.current == "saved" and key_name in {"up", "down"}:
+            if not self.saved_options:
+                return False
+            offset = 1 if key_name == "down" else -1
+            if self.saved_index < 0:
+                self.saved_index = 0 if offset > 0 else len(self.saved_options) - 1
+            else:
+                self.saved_index = (self.saved_index + offset) % len(self.saved_options)
+            self._update_saved_cursor()
+            return True
+        if self.root.current == "saved" and key_name in {"enter", "numpadenter"}:
+            if not self.saved_options:
+                return False
+            self.restore_saved(self.saved_options[max(self.saved_index, 0)])
+            return True
+        if self.root.current == "old_nubian_studio" and key_name in {
+            "enter",
+            "numpadenter",
+        }:
+            self.read_old_nubian_passage()
+            return True
+        if self.root.current == "picker" and key_name in {"up", "down"}:
+            if not self.picker_options:
+                return False
+            offset = 1 if key_name == "down" else -1
+            if self.picker_index < 0:
+                self.picker_index = 0 if offset > 0 else len(self.picker_options) - 1
+            else:
+                self.picker_index = (self.picker_index + offset) % len(
+                    self.picker_options
+                )
+            self._update_picker_cursor()
+            picker = self.root.get_screen("picker")
+            button = self.picker_options[self.picker_index][1]
+            picker.ids.picker_scroll.scroll_to(button, padding=dp(8), animate=False)
+            return True
+        if self.root.current == "picker" and key_name in {"enter", "numpadenter"}:
+            if not self.picker_options:
+                return False
+            self.picker_index = max(self.picker_index, 0)
+            self.choose(self.picker_options[self.picker_index][0])
+            return True
+        if self.root.current == "packs" and key_name in {"up", "down"}:
+            if not self.pack_options:
+                return False
+            offset = 1 if key_name == "down" else -1
+            if self.pack_index < 0:
+                self.pack_index = 0 if offset > 0 else len(self.pack_options) - 1
+            else:
+                self.pack_index = (self.pack_index + offset) % len(self.pack_options)
+            self._update_pack_cursor()
+            return True
+        if self.root.current == "packs" and key_name in {"enter", "numpadenter"}:
+            if not self.pack_options:
+                return False
+            option = self.pack_options[max(self.pack_index, 0)]
+            if self.pack_busy:
+                self.pack_status = "Wait for the current download to finish."
+            elif option["installed"] or option.get("damaged"):
+                self.confirm_remove_pack(option["id"])
+            else:
+                self.start_pack_download(option["id"])
+            return True
         if key == 27 and self.root.current != "home":
+            if self.root.current == "packs" and self.pack_busy:
+                self.cancel_pack_download()
+                return True
             self.close_picker()
             return True
 
@@ -188,6 +361,11 @@ class SaylacianApp(MDApp):
         self.root.get_screen("picker").ids.search.text = ""
         self.filter_languages("")
         self.root.current = "picker"
+        self.root.get_screen("picker").ids.search.focus = True
+
+    @staticmethod
+    def display_name(route_name):
+        return display_name(route_name)
 
     def close_picker(self):
         self.root.current = "home"
@@ -205,37 +383,92 @@ class SaylacianApp(MDApp):
             return
         rows = self.root.get_screen("packs").ids.pack_rows
         rows.clear_widgets()
+        self.pack_options = []
+        self.pack_index = -1
         packs = self.pack_manager.list_packs()
         for pack in packs:
-            row = BoxLayout(
-                orientation="horizontal", size_hint_y=None, height=dp(76), spacing=dp(8)
+            row = BoxLayout(orientation="horizontal", size_hint_y=None, spacing=dp(8))
+            damaged = pack.get("damaged", False)
+            removable = pack["installed"] or damaged
+            available_update = (
+                not pack["installed"]
+                and not damaged
+                and bool(pack.get("installed_version"))
+                and pack["installed_version"] != pack["version"]
             )
             details = BoxLayout(orientation="vertical")
             title = MDLabel(
                 text=pack["title"],
                 bold=True,
-                size_hint_y=0.55,
+                size_hint_y=None,
+                height=dp(34),
                 halign="left",
                 valign="middle",
+                text_size=(None, None),
             )
-            if pack["installed"]:
-                note = f"Installed v{pack['installed_version']} · {self._format_bytes(pack['installed_bytes'])} on device"
+            if damaged:
+                note = "Files changed · remove and download again"
+            elif pack["installed"]:
+                note = (
+                    f"Installed · {self._format_bytes(pack['installed_bytes'])} "
+                    "on device"
+                )
+            elif available_update:
+                note = (
+                    f"Update available · {self._format_bytes(pack['download_bytes'])} "
+                    "download"
+                )
             else:
-                note = f"Download {self._format_bytes(pack['download_bytes'])} · works offline"
+                note = (
+                    f"Download {self._format_bytes(pack['download_bytes'])} "
+                    "· works offline"
+                )
+            if pack.get("description"):
+                note += " · " + pack["description"]
             subtitle = MDLabel(
                 text=note,
                 theme_text_color="Custom",
                 text_color=(0.68, 0.68, 0.68, 1),
                 font_style="Caption",
-                size_hint_y=0.45,
+                size_hint_y=None,
+                height=dp(28),
                 halign="left",
                 valign="middle",
+                text_size=(None, None),
+            )
+
+            def fit_text(widget, width):
+                widget.text_size = (max(dp(80), width - dp(112)), None)
+
+            row.bind(
+                width=lambda _row, width, title=title, subtitle=subtitle: (
+                    fit_text(title, width),
+                    fit_text(subtitle, width),
+                )
+            )
+            fit_text(title, row.width)
+            fit_text(subtitle, row.width)
+            title.bind(
+                texture_size=lambda widget, size: setattr(
+                    widget, "height", size[1] + dp(4)
+                )
+            )
+            subtitle.bind(
+                texture_size=lambda widget, size: setattr(
+                    widget, "height", size[1] + dp(4)
+                )
             )
             details.add_widget(title)
             details.add_widget(subtitle)
             row.add_widget(details)
             button = Button(
-                text="Remove" if pack["installed"] else "Download",
+                text=(
+                    "Remove"
+                    if removable
+                    else "Update"
+                    if available_update
+                    else "Download"
+                ),
                 size_hint=(None, None),
                 size=(dp(96), dp(42)),
                 color=(0.9, 0.95, 0.96, 1),
@@ -246,7 +479,7 @@ class SaylacianApp(MDApp):
             )
             if self.pack_busy:
                 button.disabled = True
-            elif pack["installed"]:
+            elif removable:
                 button.bind(
                     on_release=lambda _button, pid=pack["id"]: self.confirm_remove_pack(
                         pid
@@ -259,27 +492,63 @@ class SaylacianApp(MDApp):
                     )
                 )
             row.add_widget(button)
+            row.height = max(dp(76), details.minimum_height, dp(48))
+            details.bind(
+                minimum_height=lambda _details, height, row=row: setattr(
+                    row, "height", max(dp(76), height, dp(48))
+                )
+            )
             rows.add_widget(row)
+            self.pack_options.append(
+                {
+                    "id": pack["id"],
+                    "title": title,
+                    "installed": pack["installed"],
+                    "damaged": damaged,
+                }
+            )
         total_storage = sum(pack["storage_bytes"] for pack in packs)
-        self.pack_storage = f"Offline models use {self._format_bytes(total_storage)}. Older pack versions are kept until you remove the pack."
+        self.pack_storage = (
+            f"Using {self._format_bytes(total_storage)}. Remove a pack to free storage."
+        )
+
+    def _update_pack_cursor(self):
+        for index, option in enumerate(self.pack_options):
+            pointer = "› " if index == self.pack_index else ""
+            option["title"].text = pointer + option["title"].text.removeprefix("› ")
 
     def start_pack_download(self, pack_id):
         if self.pack_busy:
             return
         self.pack_busy = True
+        self.pack_cancel_event = threading.Event()
+        self.pack_cancel_requested = False
         self.pack_progress = 0
-        self.pack_status = "Preparing verified model download..."
+        self.pack_status = "Preparing download..."
         self.refresh_pack_screen()
         future = self.pack_worker.submit(
-            self.pack_manager.install, pack_id, self._pack_download_progress
+            self.pack_manager.install,
+            pack_id,
+            self._pack_download_progress,
+            self.pack_cancel_event,
         )
         future.add_done_callback(
             lambda completed: Clock.schedule_once(
-                lambda _dt: self.finish_pack_download(completed), 0
+                lambda _dt: self.finish_pack_download(completed, pack_id), 0
             )
         )
 
+    def cancel_pack_download(self):
+        """Request cancellation; the installer removes its temporary staging tree."""
+        if not self.pack_busy or self.pack_cancel_event is None:
+            return
+        self.pack_cancel_event.set()
+        self.pack_cancel_requested = True
+        self.pack_status = "Stopping download..."
+
     def _pack_download_progress(self, completed, total, message):
+        if self.pack_cancel_requested:
+            return
         percent = completed * 100 / total if total else 100
         Clock.schedule_once(
             lambda _dt, p=percent, m=message: self.update_pack_progress(p, m), 0
@@ -289,40 +558,65 @@ class SaylacianApp(MDApp):
         self.pack_progress = max(0, min(100, percent))
         self.pack_status = message
 
-    def finish_pack_download(self, future):
+    def finish_pack_download(self, future, pack_id):
         self.pack_busy = False
         try:
-            installed = future.result()
-        except Exception as error:
-            self.pack_status = f"Download stopped: {error}"
+            future.result()
+        except InterruptedError:
+            self.pack_status = "Download cancelled. No partial pack was installed."
+        except (OSError, RuntimeError, ValueError, zipfile.BadZipFile) as error:
+            self.pack_status = pack_download_error_message(error)
         else:
+            clear_model_cache()
             self.pack_progress = 100
-            self.pack_status = f"Pack installed and checksum-verified: {installed.name}"
+            title = self.pack_manager.specs[pack_id]["title"]
+            self.pack_status = f"{title} is ready to use offline."
+        finally:
+            self.pack_cancel_event = None
+            self.pack_cancel_requested = False
         self.refresh_pack_screen()
 
     def confirm_remove_pack(self, pack_id):
         title = self.pack_manager.specs[pack_id]["title"]
+        keep_button = MDFlatButton(
+            text="KEEP", on_release=lambda *_: self.dismiss_pack_dialog(dialog)
+        )
+        remove_button = MDFlatButton(
+            text="REMOVE",
+            on_release=lambda *_: self.remove_pack(dialog, pack_id),
+        )
         dialog = MDDialog(
             title="Remove offline pack?",
-            text=f"Remove {title} and all its saved versions to free storage? This does not affect your app or backups.",
-            buttons=[
-                MDFlatButton(text="KEEP", on_release=lambda *_: dialog.dismiss()),
-                MDFlatButton(
-                    text="REMOVE",
-                    on_release=lambda *_: self.remove_pack(dialog, pack_id),
-                ),
-            ],
+            text=f"Remove {title} and its downloaded files?",
+            buttons=[keep_button, remove_button],
         )
         self.pack_dialog = dialog
+        self.pack_dialog_pack_id = pack_id
+        self.pack_dialog_index = 0
+        self.pack_dialog_buttons = (keep_button, remove_button)
+        self._update_pack_dialog_cursor()
         dialog.open()
 
-    def remove_pack(self, dialog, pack_id):
+    def _update_pack_dialog_cursor(self):
+        for index, button in enumerate(self.pack_dialog_buttons):
+            label = "KEEP" if index == 0 else "REMOVE"
+            button.text = ("› " if index == self.pack_dialog_index else "") + label
+
+    def dismiss_pack_dialog(self, dialog):
         dialog.dismiss()
+        self.pack_dialog = None
+        self.pack_dialog_pack_id = None
+        self.pack_dialog_buttons = ()
+        self.pack_dialog_index = 0
+
+    def remove_pack(self, dialog, pack_id):
+        self.dismiss_pack_dialog(dialog)
         try:
             self.pack_manager.remove(pack_id)
         except (OSError, ValueError) as error:
-            self.pack_status = f"Could not remove pack: {error}"
+            self.pack_status = pack_removal_error_message(error)
         else:
+            clear_model_cache()
             self.pack_status = "Offline pack removed."
         self.refresh_pack_screen()
 
@@ -331,56 +625,35 @@ class SaylacianApp(MDApp):
             return
         box = self.root.get_screen("picker").ids.options
         box.clear_widgets()
-        capabilities = list_capabilities()
-        route_names = list(
-            dict.fromkeys(
-                name
-                for route in capabilities
-                if route["kind"] == "route"
-                for name in (route["source"], route["target"])
-            )
-        )
-        choices = [("Detect language/script", "Detect English, French or Somali")]
-        online = online_translation_enabled()
-        for name in route_names:
-            routes = [
-                route
-                for route in capabilities
-                if route["kind"] == "route"
-                and name in (route["source"], route["target"])
-            ]
-            statuses = sorted({route["status"] for route in routes})
-            note = (online_provider_label() + ": ") if online else "Downloaded models: "
-            choices.append((name, note + ", ".join(statuses)))
-        choices += [
-            (item["source"] + " alphabet chart", item["selector_note"])
-            for item in capabilities
-            if item["kind"] == "script"
-        ]
+        self.picker_options = []
+        self.picker_index = -1
+        mode = "translation" if self.mode == "Translate meaning" else "transliteration"
+        choices = picker_choices(list_capabilities(), mode)
         current = getattr(self, self.side)
-        for name, note in choices:
+        for name in choices:
             if self.side == "target" and name == "Detect language/script":
                 continue
-            if query.casefold() not in (name + note).casefold():
+            if query.casefold() not in (name + display_name(name)).casefold():
                 continue
-            button = TwoLineListItem(
-                text=("Selected: " if name == current else "") + name,
-                secondary_text=note,
+            button = OneLineListItem(
+                text=("[x] " if name == current else "") + display_name(name),
                 size_hint_x=1,
-                height=dp(72),
+                height=dp(56),
                 on_release=lambda b, n=name: self.choose(n),
             )
             box.add_widget(button)
+            self.picker_options.append((name, button))
+
+    def _update_picker_cursor(self):
+        current = getattr(self, self.side)
+        for index, (name, button) in enumerate(self.picker_options):
+            pointer = "› " if index == self.picker_index else ""
+            selected = "[x] " if name == current else ""
+            button.text = pointer + selected + display_name(name)
 
     def choose(self, name):
         if name.endswith(" alphabet chart"):
             self.show_script_reference(name.removesuffix(" alphabet chart"))
-            return
-        unavailable = self._choice_note(name)
-        if unavailable:
-            self.root.get_screen("home").ids.output_text.text = ""
-            self.status = unavailable
-            self.close_picker()
             return
         other_side = "target" if self.side == "source" else "source"
         if name == getattr(self, other_side) and self.source != self.target:
@@ -410,12 +683,6 @@ class SaylacianApp(MDApp):
             if sources and self.source not in sources:
                 self.source = sources[0]
 
-    @staticmethod
-    def _choice_note(name):
-        if name.endswith(" (Nubian)"):
-            return f"{name[:-9]} conversion unavailable: variety-specific mapping not verified."
-        return ""
-
     def font_for(self, language_or_script):
         chart_fonts = {
             "Borama": ("SaylacianBorama", "BoramaChart-Regular.ttf"),
@@ -438,6 +705,11 @@ class SaylacianApp(MDApp):
     def refresh_fonts(self):
         self.input_font = self.font_for(self.source)
         self.output_font = self.font_for(self.target)
+        if self.mode == "Convert writing system" and {
+            self.source,
+            self.target,
+        }.issuperset({"Old Nubian (Coptic)", "Old Nubian scholarly Latin"}):
+            self.output_font = self.font_for("Old Nubian (Coptic)")
         if self.root:
             home = self.root.get_screen("home")
             home.ids.input_text.font_name = self.input_font
@@ -458,9 +730,11 @@ class SaylacianApp(MDApp):
         output.text = ""
         if not text.strip():
             self.status = "Enter text to begin."
+            self.save_session(text, "")
             return
         if len(text) > 4000:
             self.status = "Maximum 4,000 characters."
+            self.save_session(text, "")
             return
         if self.mode == "Translate meaning":
             translation_source = self.source
@@ -475,10 +749,12 @@ class SaylacianApp(MDApp):
                     self.status = (
                         script_message + " Script detection is not meaning translation."
                     )
+                    self.save_session(text, "")
                     return
                 translation_source, confidence, message = detect_language(text)
                 if translation_source is None:
                     self.status = message
+                    self.save_session(text, "")
                     return
                 self.detected_language = (translation_source, confidence)
             try:
@@ -493,19 +769,17 @@ class SaylacianApp(MDApp):
                 route = (
                     "Sending text to " + online_provider_label() + "..."
                     if online
-                    else "Translating with downloaded model..."
+                    else "Translating..."
                 )
                 self.status = detected + route
                 self.translate_trigger()
+                self.save_session(text, "")
             except ValueError as error:
-                self.status = str(error)
+                self.status = translation_error_message(error)
+                self.save_session(text, "")
             return
         source = self.source
         detection_note = ""
-        unavailable = self._choice_note(source) or self._choice_note(self.target)
-        if unavailable:
-            self.status = unavailable
-            return
         if source == "Detect language/script":
             source, message = detect_script(text)
             if source is None:
@@ -513,13 +787,14 @@ class SaylacianApp(MDApp):
                 source, confidence, message = detect_language(text)
                 if source is None:
                     self.status = message
+                    self.save_session(text, "")
                     return
             else:
                 coptic_script = source == "Coptic script"
                 if coptic_script:
                     source = "Old Nubian (Coptic)"
                     detection_note = (
-                        "Coptic script detected; language is not inferred. "
+                        "Coptic-derived writing detected; language is unknown. "
                     )
                 self.input_font = self.font_for(source)
                 input_widget = self.root.get_screen("home").ids.input_text
@@ -527,64 +802,109 @@ class SaylacianApp(MDApp):
                 input_widget._refresh_line_options()
                 if get_capability(source, self.target, "transliteration") is None:
                     self.status = (
-                        "Coptic script detected; language is not inferred. Choose Old Nubian scholarly Latin for its table."
+                        (
+                            "Coptic-derived writing found; language is unknown. Choose "
+                            "Latin reading to use the Old Nubian table."
+                        )
                         if coptic_script
-                        else f"Detected {source}, but no verified writing conversion is available for the selected target."
+                        else f"Detected {source}. Choose another target "
+                        "to convert this text."
                     )
+                    self.save_session(text, "")
                     return
                 if self.target == source:
                     self.status = (
                         f"Detected {source}; choose a different script as target."
                     )
+                    self.save_session(text, "")
                     return
         try:
             result = transliterate(text, source, self.target)
             output.text = result.text
             warnings = " ".join(result.warnings)
             if result.alternatives:
-                self.alternative_readings = "\nOther Coptic readings: " + " / ".join(
-                    result.alternatives[:3]
+                self.alternative_readings = (
+                    "\nOther letter segmentations: "
+                    + " / ".join(result.alternatives[:3])
                 )
-            self.status = (
-                detection_note
-                + (warnings + " " if warnings else "")
-                + "Writing converted; meaning unchanged."
-            )
+            if source in ("Borama", "Kaddare") or self.target in (
+                "Borama",
+                "Kaddare",
+            ):
+                self.status = detection_note + "Partial chart mapping."
+                chart_details = [
+                    warning
+                    for warning in result.warnings
+                    if not warning.startswith("Limited conversion;")
+                    and warning
+                    != "Capitalization is not represented in the chart glyphs."
+                ]
+                if chart_details:
+                    self.status += " " + " ".join(chart_details)
+            else:
+                self.status = (
+                    detection_note
+                    + (warnings + " " if warnings else "")
+                    + "Writing converted; meaning unchanged."
+                )
+            self.save_session(text, output.text)
         except ValueError as error:
             self.status = str(error)
+            self.save_session(text, "")
 
     def on_input_text(self, text):
-        """Choose the matching chart font when chart glyphs arrive by paste."""
+        """Import tagged script text and reject unlabelled private-use text."""
+        if getattr(self, "_importing_package", False) or getattr(
+            self, "_restoring_session", False
+        ):
+            return
         if text:
             try:
                 package = decode_saylacian_text(text)
             except ValueError as error:
+                self.root.get_screen("home").ids.output_text.text = ""
+                self.alternative_readings = ""
                 self.status = str(error)
+                self.save_session(text, "")
                 return
             if package:
                 input_widget = self.root.get_screen("home").ids.input_text
                 self.mode = "Convert writing system"
                 self.source, self.target = package.script, "Somali Latin"
                 self.refresh_fonts()
-                input_widget.text = package.text
+                self._importing_package = True
+                try:
+                    input_widget.text = package.text
+                finally:
+                    self._importing_package = False
+                input_widget.font_name = self.input_font
+                input_widget._refresh_line_options()
+                self.convert(package.text)
                 self.status = (
-                    f"Imported Saylacian Text v1 ({package.script}); script preserved."
+                    f"Imported Saylacian Text v1 ({package.script}). "
+                    "Limited conversion; word spelling has not been reviewed."
                 )
                 return
-            detected, _ = detect_script(text)
-            if detected in ("Borama", "Kaddare"):
-                self.mode = "Convert writing system"
-                self.source = detected
-                self.target = "Somali Latin"
-                self.refresh_fonts()
-            elif any(0xE000 <= ord(char) <= 0xF8FF for char in text):
+            if any(is_private_use_character(char) for char in text):
+                detected_chart = identify_chart_text(text)
+                if (
+                    self.mode == "Convert writing system"
+                    and self.source in ("Borama", "Kaddare")
+                    and detected_chart == self.source
+                ):
+                    self.refresh_fonts()
+                    self.convert(text)
+                    return
                 input_widget = self.root.get_screen("home").ids.input_text
+                self.root.get_screen("home").ids.output_text.text = ""
+                self.alternative_readings = ""
                 input_widget.font_name = "Roboto"
                 input_widget._refresh_line_options()
                 self.status = (
-                    "Unrecognized private-use text. Clipboard does not carry its font; "
-                    "this text uses a different or unknown character mapping."
+                    "This text has no script label. Paste a Saylacian Text package "
+                    "or choose Borama/Kaddare as source."
                 )
+                self.save_session(text, "")
                 return
         self.convert(text)
 
@@ -606,14 +926,16 @@ class SaylacianApp(MDApp):
                 Clock.schedule_once(
                     lambda dt, r=result: self.show_translation(generation, r, None)
                 )
-            except Exception as error:
+            except (
+                ImportError,
+                MemoryError,
+                OSError,
+                RuntimeError,
+                ValueError,
+            ) as error:
                 if self.diagnostics:
                     self.diagnostics.record_exception("translation-worker", error)
-                message = (
-                    str(error)
-                    if isinstance(error, ValueError)
-                    else "Translation could not complete. Check provider setup and local diagnostics."
-                )
+                message = translation_error_message(error)
                 Clock.schedule_once(
                     lambda dt, message=message: self.show_translation(
                         generation, None, message
@@ -634,6 +956,57 @@ class SaylacianApp(MDApp):
             language, confidence = self.detected_language
             warnings = f"Detected {language} ({confidence:.0%} confidence). " + warnings
         self.status = warnings
+        self.save_session(self.root.get_screen("home").ids.input_text.text, result.text)
+
+    def save_session(self, input_text=None, output_text=None):
+        """Keep the last visible conversion so reopening the app restores it."""
+        if not getattr(self, "session_path", None) or not self.root:
+            return
+        home = self.root.get_screen("home")
+        snapshot = {
+            "version": 1,
+            "mode": self.mode,
+            "source": self.source,
+            "target": self.target,
+            "input": home.ids.input_text.text if input_text is None else input_text,
+            "output": home.ids.output_text.text if output_text is None else output_text,
+            "status": self.status,
+            "alternatives": self.alternative_readings,
+        }
+        write_session(self.session_path, snapshot)
+
+    def restore_session(self):
+        """Restore a bounded local snapshot without rerunning translation."""
+        snapshot = read_session(self.session_path)
+        if snapshot is None:
+            return
+        try:
+            mode = snapshot.get("mode")
+            source = snapshot.get("source")
+            target = snapshot.get("target")
+            input_text = snapshot.get("input")
+            output_text = snapshot.get("output")
+            if (
+                mode not in ("Convert writing system", "Translate meaning")
+                or not isinstance(source, str)
+                or not isinstance(target, str)
+                or not isinstance(input_text, str)
+                or not isinstance(output_text, str)
+            ):
+                return
+            self.mode, self.source, self.target = mode, source, target
+            self._restoring_session = True
+            try:
+                self.refresh_fonts()
+                home = self.root.get_screen("home")
+                home.ids.input_text.text = input_text
+                home.ids.output_text.text = output_text
+                self.status = str(snapshot.get("status", self.status))[:1000]
+                self.alternative_readings = str(snapshot.get("alternatives", ""))[:2000]
+            finally:
+                self._restoring_session = False
+        except (OSError, ValueError, TypeError, AttributeError):
+            return
 
     def on_stop(self):
         self.generation += 1
@@ -670,7 +1043,10 @@ class SaylacianApp(MDApp):
     def show_alphabet(self):
         screen = self.root.get_screen("alphabet")
         self.script_heading = "Osmanya alphabet"
-        self.script_note = "Somali writing system. The mapping is experimental; w/uu and y/ii share letters."
+        self.script_note = (
+            "Somali script. W/uu and y/ii share letters, so reverse "
+            "readings can differ."
+        )
         grid = screen.ids.letters
         grid.cols = 3
         grid.clear_widgets()
@@ -707,15 +1083,28 @@ class SaylacianApp(MDApp):
         self.status = script + " chart opened for reference."
         self.script_heading = script + " alphabet reference"
         self.script_note = (
-            "Chart-label converter is partial and experimental. Output uses private-use code points; "
-            "word spelling is unreviewed and text is not portable without the bundled font. "
-            "Chart by Jugydmort, CC BY-SA 4.0. Source/license: notices/HISTORICAL_SCRIPT_CHARTS.md"
+            "Limited letter conversion. Word spelling has not been reviewed. "
+            "Copied text may need the Saylacian font."
         )
-        screen.ids.chart_status.text = "Experimental chart-label conversion is available; no standard Unicode encoding exists."
+        screen.ids.chart_status.text = "Text may need the Saylacian font in other apps."
+        if script == "Osmanya":
+            self.show_alphabet()
+            screen.ids.chart_status.text = (
+                "Unicode letters. Select Osmanya as source to insert letters."
+            )
+            return
         grid = screen.ids.letters
         grid.clear_widgets()
         grid.cols = 1
         chart = PROJECT / "assets/research" / f"{script}_Alphabet_Chart.jpg"
+        if not chart.is_file():
+            screen.ids.chart_status.text = (
+                "Chart image unavailable. You can still enter text for limited "
+                "conversion."
+            )
+            self.root.get_screen("home").ids.input_text.focus = False
+            self.root.current = "alphabet"
+            return
         grid.add_widget(
             Image(
                 source=str(chart),
@@ -726,6 +1115,133 @@ class SaylacianApp(MDApp):
         )
         self.root.get_screen("home").ids.input_text.focus = False
         self.root.current = "alphabet"
+
+    def open_old_nubian_studio(self):
+        if self.mode != "Convert writing system" or not {
+            self.source,
+            self.target,
+        }.issuperset({"Old Nubian (Coptic)", "Old Nubian scholarly Latin"}):
+            self.status = (
+                "Choose Old Nubian and Latin reading to open the reading studio."
+            )
+            return
+        home = self.root.get_screen("home")
+        studio = self.root.get_screen("old_nubian_studio")
+        studio.ids.reader_original.text = home.ids.input_text.text
+        self.read_old_nubian_passage()
+        studio.ids.alphabet_search.text = ""
+        self.filter_old_nubian_alphabet("")
+        home.ids.input_text.focus = False
+        self.root.current = "old_nubian_studio"
+
+    def read_old_nubian_passage(self):
+        studio = self.root.get_screen("old_nubian_studio")
+        try:
+            record = make_reading_record(studio.ids.reader_original.text)
+        except ValueError as error:
+            studio.ids.reader_latin.text = ""
+            self.reader_mark_details = ""
+            self.reader_status = str(error)
+            return
+        studio.ids.reader_latin.text = record.latin
+        detail_lines = [describe_combining_marks(record.original)]
+        if record.alternatives:
+            detail_lines.append(
+                "Other table-based readings: " + " / ".join(record.alternatives[:3])
+            )
+        self.reader_mark_details = "\n".join(line for line in detail_lines if line)
+        self.reader_status = (
+            "Limited character reading · "
+            + record.convention
+            + (" · " + " ".join(record.warnings) if record.warnings else "")
+        )
+
+    def filter_old_nubian_alphabet(self, query):
+        if not self.root:
+            return
+        grid = self.root.get_screen("old_nubian_studio").ids.reader_alphabet
+        grid.clear_widgets()
+        for entry in alphabet_entries(query):
+            button = Button(
+                text=f"{entry['glyph']}  {entry['reading_label']}",
+                size_hint_y=None,
+                height=dp(52),
+                font_name=self.font_for("Old Nubian (Coptic)"),
+                font_size="18sp",
+                background_normal="",
+                background_color=(0.95, 0.95, 0.95, 1),
+                color=(0.08, 0.08, 0.08, 1),
+                on_release=lambda _button, row=entry: self.show_old_nubian_letter(row),
+            )
+            grid.add_widget(button)
+
+    def show_old_nubian_letter(self, entry):
+        self.reader_selected_glyph = str(entry["glyph"])
+        ambiguity = " · multiple readings are listed" if entry["ambiguous"] else ""
+        self.reader_detail = (
+            f"{entry['glyph']} · {entry['reading_label']} · {entry['codepoint']}\n"
+            f"{entry['name']}{ambiguity}\n"
+            f"{entry['confidence']} · {entry['convention']}"
+        )
+
+    def insert_old_nubian_letter(self):
+        if not self.reader_selected_glyph:
+            self.reader_status = "Choose a letter first."
+            return
+        field = self.root.get_screen("old_nubian_studio").ids.reader_original
+        field.insert_text(self.reader_selected_glyph)
+
+    def export_old_nubian_reading(self):
+        from datetime import UTC
+        from datetime import datetime
+
+        studio = self.root.get_screen("old_nubian_studio")
+        try:
+            record = make_reading_record(studio.ids.reader_original.text)
+            payload = export_reading_record(record)
+            folder = Path(self.user_data_dir) / "old-nubian-readings"
+            folder.mkdir(parents=True, exist_ok=True)
+            stamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%S%fZ")
+            destination = folder / f"reading-{stamp}.json"
+            destination.write_text(payload, encoding="utf-8")
+        except (OSError, ValueError) as error:
+            self.reader_status = f"Could not export reading: {error}"
+            return
+        self.reader_status = f"Reading record saved: {destination}"
+
+    def copy_old_nubian_reading(self, field_name):
+        studio = self.root.get_screen("old_nubian_studio")
+        fields = {
+            "original": studio.ids.reader_original.text,
+            "latin": studio.ids.reader_latin.text,
+        }
+        if field_name not in fields:
+            self.reader_status = "Choose the original or Latin reading to copy."
+            return
+        text = fields[field_name]
+        if not text:
+            self.reader_status = "There is no reading to copy."
+            return
+        Clipboard.copy(text)
+        self.reader_status = (
+            "Original script copied."
+            if field_name == "original"
+            else "Latin reading copied."
+        )
+
+    def import_old_nubian_reading(self):
+        payload = Clipboard.paste()
+        studio = self.root.get_screen("old_nubian_studio")
+        try:
+            record = import_reading_record(payload)
+        except (TypeError, ValueError) as error:
+            self.reader_status = f"Could not import reading record: {error}"
+            return
+        studio.ids.reader_original.text = record.original
+        studio.ids.reader_latin.text = record.latin
+        self.reader_status = (
+            "Imported and checked reading record · " + record.convention
+        )
 
     def insert_letter(self, glyph):
         if self.source != "Osmanya":
@@ -747,7 +1263,7 @@ class SaylacianApp(MDApp):
             self.status = "Nothing to copy."
             return
         if portable is None:
-            self.status = "Unknown private-use text was not copied."
+            self.status = "This text has no script label and was not copied."
             return
         try:
             if os.name == "nt":
@@ -766,11 +1282,28 @@ class SaylacianApp(MDApp):
         if getattr(self, "copy_menu", None):
             self.copy_menu.dismiss()
         self._copy_menu_text = text
-        entries = (
-            ("Copy as Latin", "latin"),
-            ("Copy as Image", "image"),
-            ("Copy as Saylacian Text", "saylacian"),
+        chart_route = self.source in ("Borama", "Kaddare") or self.target in (
+            "Borama",
+            "Kaddare",
         )
+        input_contains_private = any(is_private_use_character(char) for char in text)
+        chart_copy = self.mode == "Convert writing system" and chart_route
+        if (
+            caller is self.root.get_screen("home").ids.input_copy_button
+            and self.source not in ("Borama", "Kaddare")
+            and input_contains_private
+        ):
+            chart_copy = False
+        self._copy_menu_from_output = (
+            caller is self.root.get_screen("home").ids.output_copy_button
+        )
+        if chart_copy:
+            entries = [("Copy text", "saylacian")]
+            if os.name == "nt":
+                entries.append(("Copy image", "image"))
+            entries.append(("Copy Latin", "latin"))
+        else:
+            entries = [("Copy text", "text")]
         self.copy_menu = MDDropdownMenu(
             caller=caller,
             width=dp(240),
@@ -785,15 +1318,42 @@ class SaylacianApp(MDApp):
         self.copy_menu.open()
 
     def _chart_content_for_copy(self, text):
+        route_script = (
+            self.source
+            if self.source in ("Borama", "Kaddare")
+            else self.target
+            if self.target in ("Borama", "Kaddare")
+            else None
+        )
+        if route_script is None:
+            raise ValueError(
+                "Choose a Borama/Kaddare route before copying script artwork."
+            )
+
         script = identify_chart_text(text)
+        if script and script != route_script:
+            raise ValueError("Text does not match the selected Borama/Kaddare route.")
         if script:
             glyphs = text
         elif self.target in ("Borama", "Kaddare") and self.source == "Somali Latin":
+            if any(is_private_use_character(char) for char in text):
+                raise ValueError(
+                    "Paste a tagged package or select its script as source."
+                )
             script = self.target
             glyphs = transliterate(text, self.source, script).text
         elif self.source in ("Borama", "Kaddare") and self.target == "Somali Latin":
-            script = self.source
-            glyphs = transliterate(text, "Somali Latin", script).text
+            if self._copy_menu_from_output:
+                input_text = self.root.get_screen("home").ids.input_text.text
+                if identify_chart_text(input_text) == self.source:
+                    script = self.source
+                    glyphs = input_text
+                else:
+                    raise ValueError("The original script text is unavailable.")
+            else:
+                raise ValueError(
+                    "Paste a tagged package or select its script as source."
+                )
         else:
             raise ValueError(
                 "Choose a Borama/Kaddare route before copying script artwork."
@@ -804,22 +1364,44 @@ class SaylacianApp(MDApp):
     def _copy_menu_action(self, mode):
         self.copy_menu.dismiss()
         text = self._copy_menu_text
+        if mode == "text" and os.name != "nt":
+            Clipboard.copy(text)
+            self.status = "Copied to clipboard."
+            return
+        if mode == "text":
+            try:
+                publish_windows_clipboard(formats_as_latin(text))
+            except (OSError, ValueError) as error:
+                self.status = "Clipboard copy failed: " + str(error)
+            else:
+                self.status = "Copied to clipboard."
+            return
         if mode == "latin":
-            return self.copy(text)
+            try:
+                _, _, latin = self._chart_content_for_copy(text)
+            except ValueError as error:
+                self.status = str(error)
+                return
+            return self.copy(latin)
         try:
             script, glyphs, latin = self._chart_content_for_copy(text)
-            if os.name != "nt":
-                raise OSError(
-                    "Rich clipboard formats are currently supported on Windows only."
-                )
+            if os.name != "nt" and mode == "image":
+                raise OSError("Image clipboard is currently supported on Windows only.")
             if mode == "image":
                 formats = formats_as_image(script, glyphs, latin)
                 publish_windows_clipboard(formats)
-                self.status = f"Copied {script} as an image; image works in apps that accept pasted pictures."
+                self.status = f"Copied {script} image."
             elif mode == "saylacian":
-                formats = formats_as_saylacian_text(script, glyphs, latin)
-                publish_windows_clipboard(formats)
-                self.status = f"Copied Saylacian Text v1 for {script}. Paste the package into Saylacian to restore its glyphs."
+                if os.name == "nt":
+                    publish_windows_clipboard(
+                        formats_as_saylacian_text(script, glyphs, latin)
+                    )
+                else:
+                    Clipboard.copy(encode_saylacian_text(glyphs, script))
+                self.status = (
+                    f"Copied {script} text package. "
+                    "Paste it here to restore the script."
+                )
         except (OSError, ValueError) as error:
             self.status = "Clipboard copy failed: " + str(error)
 
@@ -838,7 +1420,7 @@ class SaylacianApp(MDApp):
                 mode=self.mode,
             )
             self.status = (
-                "Saved as favourite on this device. History > Clear saved removes it."
+                "Favourite saved on this device. Use Clear saved to remove it."
             )
         except (OSError, ValueError) as error:
             self.status = "Could not save: " + str(error)
@@ -846,8 +1428,14 @@ class SaylacianApp(MDApp):
     def show_history(self):
         screen = self.root.get_screen("saved")
         screen.ids.saved_items.clear_widgets()
+        self.saved_options = []
+        self.saved_index = -1
         try:
             items = self.history.read()
+        except DamagedHistoryError as error:
+            self.status = str(error)
+            self.confirm_history_recovery()
+            return
         except (OSError, ValueError) as error:
             self.status = str(error)
             return
@@ -859,7 +1447,62 @@ class SaylacianApp(MDApp):
                 on_release=lambda b, i=item: self.restore_saved(i),
             )
             screen.ids.saved_items.add_widget(button)
+            self.saved_options.append(item)
+        self._update_saved_cursor()
         self.root.current = "saved"
+
+    def confirm_history_recovery(self):
+        keep_button = MDFlatButton(
+            text="KEEP FILE",
+            on_release=lambda *_: self.dismiss_history_recovery(dialog),
+        )
+        recover_button = MDFlatButton(
+            text="BACK UP & START FRESH",
+            on_release=lambda *_: self.recover_saved_history(dialog),
+        )
+        dialog = MDDialog(
+            title="Saved history needs recovery",
+            text=(
+                "Keep the original, or save a backup before starting a fresh history?"
+            ),
+            buttons=[keep_button, recover_button],
+        )
+        self.history_recovery_dialog = dialog
+        self.history_recovery_index = 0
+        self.history_recovery_buttons = (keep_button, recover_button)
+        self._update_history_recovery_cursor()
+        dialog.open()
+
+    def _update_history_recovery_cursor(self):
+        for index, button in enumerate(self.history_recovery_buttons):
+            label = "KEEP FILE" if index == 0 else "BACK UP & START FRESH"
+            button.text = ("› " if index == self.history_recovery_index else "") + label
+
+    def dismiss_history_recovery(self, dialog):
+        dialog.dismiss()
+        self.history_recovery_dialog = None
+        self.history_recovery_buttons = ()
+        self.history_recovery_index = 0
+
+    def recover_saved_history(self, dialog):
+        self.dismiss_history_recovery(dialog)
+        try:
+            backup = self.history.backup_and_reset()
+        except (OSError, ValueError) as error:
+            self.status = f"Could not recover saved history: {error}"
+            return
+        self.status = (
+            f"History restarted. Backup saved as {backup.name}. Open Saved to continue."
+        )
+
+    def _update_saved_cursor(self):
+        screen = self.root.get_screen("saved")
+        buttons = screen.ids.saved_items.children[::-1]
+        for index, (item, button) in enumerate(zip(self.saved_options, buttons)):
+            label = ("Favourite: " if item["favourite"] else "") + item["text"][:42]
+            button.text = ("› " if index == self.saved_index else "") + label
+        if 0 <= self.saved_index < len(buttons):
+            screen.ids.saved_scroll.scroll_to(buttons[self.saved_index], animate=False)
 
     def restore_saved(self, item):
         self.mode = item.get("mode", "Convert writing system")

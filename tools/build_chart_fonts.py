@@ -108,7 +108,9 @@ def build_font(
             "fullName": f"Saylacian {script} Chart Regular",
             "psName": f"Saylacian-{script}-Chart-Regular",
             "version": "Version 1.000",
-            "copyright": "Derived from Jugydmort's chart; CC BY-SA 4.0. See project notices.",
+            "copyright": (
+                "Derived from Jugydmort's chart; CC BY-SA 4.0. See project notices."
+            ),
         }
     )
     builder.setupOS2(

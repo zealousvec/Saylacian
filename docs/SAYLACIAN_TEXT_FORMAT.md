@@ -1,16 +1,16 @@
 # Sharing Borama and Kaddare text
 
-The output copy button offers three formats. These are deliberately distinct: a reading, a picture, and a lossless app interchange package.
+For Borama and Kaddare, the output copy menu offers three formats: a text package, a picture, and a Latin reading.
 
 | Option | Clipboard data | Works where | What survives |
 |---|---|---|---|
-| **Copy as Latin** | Ordinary Unicode Somali Latin | Any text editor, message app, or OS with text paste | Readable transliteration; original script glyph identities are not included |
-| **Copy as Image** | PNG, Windows CF_DIB, plus descriptive Unicode text | Apps that accept pasted images; CF_DIB is the broad Windows bitmap path | Exact visible glyph appearance from Saylacian's bundled chart font; image is not editable text |
-| **Copy as Saylacian Text** | Custom `Saylacian Text v1`, RTF, CF_HTML, and Unicode text fallback | Saylacian can always re-import the plain-text package; rich-text consumers may use RTF/HTML | Exact app chart code points and script identity in the package; formatted glyph run when the receiving app has the named font |
+| **Copy text** | Custom `Saylacian Text v1`, RTF, CF_HTML, and a Unicode text package | Saylacian can re-import the package; rich-text consumers may use RTF/HTML | Exact app chart code points and script identity in the package; receiving app needs the font to render rich text |
+| **Copy image** | PNG, Windows CF_DIB, plus descriptive Unicode text | Apps that accept pasted images; CF_DIB is the broad Windows bitmap path | Glyph appearance from Saylacian's bundled chart font; image is not editable text |
+| **Copy Latin** | Ordinary Unicode Somali Latin | Any text editor, message app, or OS with text paste | Readable transliteration; original script glyph identities are not included |
 
 ## Portable interchange text
 
-The Unicode fallback is ASCII-only, so it remains legible even in software that knows nothing about Borama/Kaddare fonts. It begins with `SAYLACIAN-TEXT/1` and then one compact JSON object:
+The Unicode text package is ASCII-only, so it remains legible even in software that knows nothing about Borama/Kaddare fonts. It begins with `SAYLACIAN-TEXT/1` and then one compact JSON object:
 
 ```text
 SAYLACIAN-TEXT/1
@@ -25,6 +25,6 @@ To restore it, copy the complete package including its first header line and pas
 
 The RTF and CF_HTML clipboard formats include the same chart code points and name `Saylacian Borama Chart` or `Saylacian Kaddare Chart`, followed by a Latin reading. A font *name* is metadata; these formats do not embed the TTF. If the destination lacks the matching font, it can show missing/incorrect symbols even though the Unicode code points are present. Install/use the Saylacian chart font in that destination or use Copy as Image to preserve appearance. To recover editable original chart text, re-import the Saylacian Text package into Saylacian.
 
-No promise is made that every application honors all clipboard formats. Windows consumers choose formats they support. Copy as Image supplies both PNG and standard device-independent bitmap; Copy as Saylacian Text publishes registered Windows custom text, Rich Text Format, HTML Format, and UnicodeText so a consumer can choose. Other platforms currently expose only the Copy as Latin fallback through Kivy's clipboard API.
+No promise is made that every application honors all clipboard formats. Windows consumers choose formats they support. Copy image supplies both PNG and standard device-independent bitmap; Copy text publishes registered Windows custom text, Rich Text Format, HTML Format, and UnicodeText so a consumer can choose. On other platforms, Copy text places the package on the text clipboard, Copy Latin uses ordinary text, and image clipboard support is unavailable. Untagged private-use text is not guessed; paste the text package or choose Borama/Kaddare as the source explicitly.
 
 Implementation: `saylacian/core/interchange.py` defines the format, validation, rich representations, and image renderer; `saylacian/core/clipboard_repr.py` assembles formats; `saylacian/core/windows_clipboard.py` publishes Win32 formats; `main.py` owns the menu and importer. `tools/test_windows_clipboard.ps1` exercises the real Windows clipboard and reads the data in a separate WinForms PowerShell process. The Saylacian Text path is then decoded from that external reader's actual Unicode clipboard read and checked against its expected script/Latin. This proves transport and package round-trip, not GUI paste behavior in every third-party editor. Evidence is preserved under `<USER_PROFILE>\Downloads\Saylacian-Safety-Backups\windows-clipboard-acceptance`.

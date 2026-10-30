@@ -9,20 +9,17 @@ from io import BytesIO
 
 from PIL import Image
 
-from saylacian.core.clipboard_repr import (
-    formats_as_image,
-    formats_as_saylacian_text,
-    unicode_clipboard_bytes,
-)
-from saylacian.core.interchange import (
-    MAGIC,
-    decode_saylacian_text,
-    encode_saylacian_text,
-    html_for_chart,
-    png_to_dib,
-    render_chart_png,
-    rtf_for_chart,
-)
+from saylacian.core.clipboard_repr import formats_as_image
+from saylacian.core.clipboard_repr import formats_as_saylacian_text
+from saylacian.core.clipboard_repr import unicode_clipboard_bytes
+from saylacian.core.interchange import MAGIC
+from saylacian.core.interchange import decode_saylacian_text
+from saylacian.core.interchange import encode_saylacian_text
+from saylacian.core.interchange import html_for_chart
+from saylacian.core.interchange import identify_chart_text
+from saylacian.core.interchange import png_to_dib
+from saylacian.core.interchange import render_chart_png
+from saylacian.core.interchange import rtf_for_chart
 from saylacian.core.transliteration import transliterate
 
 
@@ -45,6 +42,15 @@ class ClipboardInterchangeTests(unittest.TestCase):
                     (decoded.script, decoded.text, decoded.latin),
                     (script, glyphs, latin),
                 )
+
+    def test_chart_detection_rejects_unknown_and_mixed_private_use_text(self):
+        self.assertEqual(identify_chart_text(self.borama), "Borama")
+        self.assertEqual(identify_chart_text(self.kaddare), "Kaddare")
+        self.assertIsNone(identify_chart_text(self.borama + self.kaddare))
+        self.assertIsNone(identify_chart_text(self.borama + "\ue999"))
+        self.assertIsNone(identify_chart_text(self.borama + "\U000f0000"))
+        with self.assertRaisesRegex(ValueError, "private-use character"):
+            encode_saylacian_text(self.borama + "\U000f0000", "Borama")
 
     def test_envelope_rejects_corruption_and_wrong_script(self):
         envelope = encode_saylacian_text(self.borama, "Borama")
@@ -69,6 +75,9 @@ class ClipboardInterchangeTests(unittest.TestCase):
         self.assertIn(b"\\fonttbl", values["Rich Text Format"])
         self.assertIn(b"Saylacian Borama Chart", values["Rich Text Format"])
         self.assertIn(b"hello!", values["Rich Text Format"])
+        rtf = rtf_for_chart(self.borama, "Borama", "hello!")
+        signed_first_glyph = ord(self.borama[0]) - 0x10000
+        self.assertIn(f"\\u{signed_first_glyph}?".encode(), rtf)
         html_value = values["HTML Format"]
         header, body = html_value.split(b"<html>", 1)
         fields = {

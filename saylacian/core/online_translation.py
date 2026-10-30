@@ -5,9 +5,12 @@ from __future__ import annotations
 
 import json
 import os
-from urllib.error import HTTPError, URLError
-from urllib.parse import quote, urlparse
-from urllib.request import Request, urlopen
+from urllib.error import HTTPError
+from urllib.error import URLError
+from urllib.parse import quote
+from urllib.parse import urlparse
+from urllib.request import Request
+from urllib.request import urlopen
 
 LANGUAGE_CODES = {
     "English": "english",
@@ -22,6 +25,15 @@ SERVICE_TOKEN_ENV = "SAYLACIAN_SERVICE_TOKEN"
 API_ROOT = "https://api.cloudflare.com/client/v4/accounts"
 MODEL = "@cf/meta/m2m100-1.2b"
 MAX_TEXT_LENGTH = 4000
+MAX_RESPONSE_BYTES = 1024 * 1024
+
+
+def _read_json_response(response):
+    """Read a bounded JSON response so a broken service cannot exhaust memory."""
+    payload = response.read(MAX_RESPONSE_BYTES + 1)
+    if len(payload) > MAX_RESPONSE_BYTES:
+        raise ValueError("Translation service response exceeded its 1 MiB limit.")
+    return payload
 
 
 def selected_provider():
@@ -29,7 +41,8 @@ def selected_provider():
     value = os.environ.get(PROVIDER_ENV, "offline").strip().casefold()
     if value not in {"auto", "selfhosted", "cloudflare", "offline"}:
         raise ValueError(
-            "SAYLACIAN_TRANSLATION_PROVIDER must be auto, selfhosted, cloudflare or offline."
+            "SAYLACIAN_TRANSLATION_PROVIDER must be auto, selfhosted, "
+            "cloudflare or offline."
         )
     return value
 
@@ -92,7 +105,9 @@ def translate_self_hosted(text, source, target, *, opener=None, timeout=90):
     )
     try:
         with (opener or urlopen)(request, timeout=timeout) as response:
-            result = json.loads(response.read().decode("utf-8"))
+            result = json.loads(_read_json_response(response).decode("utf-8"))
+            if not isinstance(result, dict):
+                raise TypeError("JSON root must be an object.")
     except HTTPError as error:
         if error.code in (401, 403):
             raise ValueError(
@@ -111,6 +126,10 @@ def translate_self_hosted(text, source, target, *, opener=None, timeout=90):
             f"Self-hosted translation server is unreachable: {reason}"
         ) from None
     except (UnicodeError, json.JSONDecodeError):
+        raise ValueError(
+            "Self-hosted translation server returned invalid JSON."
+        ) from None
+    except TypeError:
         raise ValueError(
             "Self-hosted translation server returned invalid JSON."
         ) from None
@@ -174,7 +193,9 @@ def translate_cloudflare(text, source, target, *, opener=None, timeout=45):
     )
     try:
         with (opener or urlopen)(request, timeout=timeout) as response:
-            result = json.loads(response.read().decode("utf-8"))
+            result = json.loads(_read_json_response(response).decode("utf-8"))
+            if not isinstance(result, dict):
+                raise TypeError("JSON root must be an object.")
     except HTTPError as error:
         if error.code == 429:
             raise ValueError(
@@ -196,6 +217,10 @@ def translate_cloudflare(text, source, target, *, opener=None, timeout=45):
         raise ValueError(
             "Cloudflare returned an invalid translation response."
         ) from None
+    except TypeError:
+        raise ValueError(
+            "Cloudflare returned an invalid translation response."
+        ) from None
 
     if result.get("success") is False:
         errors = result.get("errors") or []
@@ -214,6 +239,9 @@ def translate_cloudflare(text, source, target, *, opener=None, timeout=45):
     warnings = [
         "Cloudflare Workers AI used open Meta M2M100; text was sent to Cloudflare.",
         "Somali translation quality varies; fluent-speaker review recommended.",
-        "Free Workers AI allowance: 10,000 neurons per day; excess requests fail unless account is upgraded.",
+        (
+            "Free Workers AI allowance: 10,000 neurons per day; excess "
+            "requests fail unless account is upgraded."
+        ),
     ]
     return translated.strip(), tuple(warnings)

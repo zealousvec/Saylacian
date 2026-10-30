@@ -47,6 +47,9 @@ docs/oldest-ui-verification.json
 docs/offline-wheel-manifest.json
 docs/previous-transliteration.py.txt
 docs/rollback-test.json
+# Legacy generated translation output paths; current tools save outside the repository.
+docs/translation-benchmark.json
+docs/translation-examples.json
 docs/somali_repetition_guard_dev_results.json
 docs/somali_translation_quality_results.json
 docs/ui-test-results.json

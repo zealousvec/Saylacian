@@ -48,7 +48,9 @@ class PrivateDiagnostics:
             traceback.extract_tb(error.__traceback__) if error.__traceback__ else []
         )
         locations = ";".join(
-            f"{frame.filename}:{frame.lineno}:{frame.name}" for frame in frames
+            f"{Path(frame.filename.replace('\\', '/')).name}:"
+            f"{frame.lineno}:{frame.name}"
+            for frame in frames
         )
         self.logger.error(
             "failure context=%s type=%s frames=%s",

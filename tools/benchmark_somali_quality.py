@@ -4,9 +4,12 @@
 The data and predictions are local. Candidate inference uses CPU-only llama.cpp.
 Run once per system so peak memory and cold-start time stay interpretable:
 
-  python tools/benchmark_somali_quality.py --system baseline
+  python tools/benchmark_somali_quality.py --system baseline [--output PATH]
   python tools/benchmark_somali_quality.py --system afrislm --candidate-model PATH
-  python tools/benchmark_somali_en_candidate.py --model-dir PATH
+  python tools/benchmark_somali_en_candidate.py --model-dir PATH --results BASELINE_JSON
+
+Raw outputs default to unique files under local application data, outside the
+repository.
 """
 
 from __future__ import annotations
@@ -26,14 +29,15 @@ from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "tests/data/somali_translation_tico19_test_150.jsonl"
-OUTPUT = ROOT / "docs/somali_translation_quality_results.json"
-CHECKPOINT = (
-    Path(os.environ.get("LOCALAPPDATA", Path.home() / "AppData/Local"))
-    / "Saylacian"
-    / "benchmark"
-    / "somali_translation_quality_checkpoint.json"
-)
 sys.path.insert(0, str(ROOT))
+
+from tools.benchmark_output import checkpoint_for
+from tools.benchmark_output import new_benchmark_output
+from tools.benchmark_output import require_external_output
+from tools.benchmark_output import save_json_atomic
+
+OUTPUT = new_benchmark_output("somali-translation-quality")
+CHECKPOINT = checkpoint_for(OUTPUT, "somali-quality-checkpoint")
 
 
 def deny_network(*_args, **_kwargs):
@@ -86,14 +90,18 @@ def get_qvac_translation(llm, text: str, source: str, target: str) -> str:
             "content": (
                 f"You are a professional {source} to {target} translator. "
                 f"Your goal is to accurately convey the meaning and nuances of the "
-                f"original {source} text while adhering to {target} grammar, vocabulary, "
+                f"original {source} text while adhering to {target} grammar, "
+                "vocabulary, "
                 f"and cultural sensitivities. Produce only the {target} translation, "
                 "without any additional explanations or commentary."
             ),
         },
         {
             "role": "user",
-            "content": f"Please translate the following {source} text into {target}: {text}\n\nTranslation:",
+            "content": (
+                f"Please translate the following {source} text into {target}: "
+                f"{text}\n\nTranslation:"
+            ),
         },
     ]
     result = llm.create_chat_completion(
@@ -114,11 +122,16 @@ def model_file_sha256(path: Path) -> str:
 
 
 def load_checkpoint(
-    system: str, data_hash: str, model_hash: str | None = None, limit: int = 150
+    system: str,
+    data_hash: str,
+    model_hash: str | None = None,
+    limit: int = 150,
+    checkpoint_path: Path = CHECKPOINT,
 ) -> dict:
-    if not CHECKPOINT.is_file():
+    checkpoint_path = require_external_output(checkpoint_path)
+    if not checkpoint_path.is_file():
         return {"samples": {"en_so": [], "so_en": []}, "wall_seconds": 0.0}
-    saved = json.loads(CHECKPOINT.read_text(encoding="utf-8"))
+    saved = json.loads(checkpoint_path.read_text(encoding="utf-8"))
     if saved.get("system") != system or saved.get("data_sha256") != data_hash:
         return {"samples": {"en_so": [], "so_en": []}, "wall_seconds": 0.0}
     if saved.get("model_sha256") != model_hash:
@@ -137,28 +150,23 @@ def save_checkpoint(
     completed: int,
     limit: int,
     startup_seconds: float | None = None,
+    checkpoint_path: Path = CHECKPOINT,
 ) -> None:
-    CHECKPOINT.parent.mkdir(parents=True, exist_ok=True)
-    temporary = CHECKPOINT.with_suffix(".tmp")
-    temporary.write_text(
-        json.dumps(
-            {
-                "system": system,
-                "data_sha256": data_hash,
-                "model_sha256": model_hash,
-                "limit": limit,
-                "completed_pairs": completed,
-                "wall_seconds": round(wall_seconds, 2),
-                "startup_seconds": round(startup_seconds, 2)
-                if startup_seconds is not None
-                else None,
-                "samples": outputs,
-            },
-            ensure_ascii=False,
-        ),
-        encoding="utf-8",
+    save_json_atomic(
+        checkpoint_path,
+        {
+            "system": system,
+            "data_sha256": data_hash,
+            "model_sha256": model_hash,
+            "limit": limit,
+            "completed_pairs": completed,
+            "wall_seconds": round(wall_seconds, 2),
+            "startup_seconds": round(startup_seconds, 2)
+            if startup_seconds is not None
+            else None,
+            "samples": outputs,
+        },
     )
-    temporary.replace(CHECKPOINT)
 
 
 def diagnostic_flags(prediction: str, reference: str, direction: str) -> list[str]:
@@ -190,6 +198,44 @@ def diagnostic_flags(prediction: str, reference: str, direction: str) -> list[st
     if bool(tokenize(prediction) & negations) != bool(tokenize(reference) & negations):
         flags.append("possible negation mismatch; fluent reviewer required")
     return flags
+
+
+def en_to_so_route_audit(
+    samples: list[dict], candidate_available: bool
+) -> dict[str, int | bool]:
+    """Count the current translator's explicit synthetic-candidate warnings."""
+    warning_sets = [set(sample.get("warnings", [])) for sample in samples]
+    fallback_reasons = {
+        "unreadable_marker_fallback_samples": (
+            "The first result contained an unreadable symbol; an alternative was used."
+        ),
+        "output_length_fallback_samples": (
+            "The first result was unusually long; an alternative was used."
+        ),
+        "repeat_or_copy_fallback_samples": (
+            "The first result repeated or copied the input; an alternative was used."
+        ),
+    }
+    reason_counts = {
+        name: sum(reason in warnings for warnings in warning_sets)
+        for name, reason in fallback_reasons.items()
+    }
+    fallback_reasons_seen = set(fallback_reasons.values())
+    fallback_count = sum(
+        bool(warnings & fallback_reasons_seen) for warnings in warning_sets
+    )
+    return {
+        "synthetic_candidate_available": candidate_available,
+        "synthetic_candidate_selected_samples": (
+            len(samples) - fallback_count if candidate_available else 0
+        ),
+        "candidate_fallback_samples": fallback_count,
+        **reason_counts,
+        "extra_symbol_removed_samples": sum(
+            "An extra symbol was removed from the output." in warnings
+            for warnings in warning_sets
+        ),
+    }
 
 
 def model_runtime_metadata(system: str, model_path: Path | None = None) -> dict:
@@ -228,7 +274,10 @@ def model_runtime_metadata(system: str, model_path: Path | None = None) -> dict:
         "candidate_model": {
             "repository": "qvac/TranslatePsy-AfriSLM-0.8B-Q4-GGUF",
             "revision": "14d6fd1e24c9f94a5e40c2e91c066241aede0dce",
-            "license": "Apache-2.0 declared by model card; synthetic training mix is CC-BY-NC-4.0; distribution rights need review",
+            "license": (
+                "Apache-2.0 declared by model card; synthetic training mix is "
+                "CC-BY-NC-4.0; distribution rights need review"
+            ),
             "file": model_path.name,
             "bytes": model_path.stat().st_size,
             "sha256": model_file_sha256(model_path),
@@ -237,7 +286,8 @@ def model_runtime_metadata(system: str, model_path: Path | None = None) -> dict:
 
 
 def score(references: list[str], predictions: list[str]) -> dict:
-    from sacrebleu.metrics import BLEU, CHRF
+    from sacrebleu.metrics import BLEU
+    from sacrebleu.metrics import CHRF
 
     bleu = BLEU()
     chrf = CHRF(word_order=2)
@@ -251,6 +301,11 @@ def score(references: list[str], predictions: list[str]) -> dict:
     }
 
 
+def save_result(path: Path, result: dict) -> None:
+    """Write benchmark output atomically outside the source repository."""
+    save_json_atomic(path, result)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--system", choices=("baseline", "afrislm"), required=True)
@@ -261,7 +316,18 @@ def main() -> int:
         default=150,
         help="number of test pairs; subset is selected deterministically",
     )
+    parser.add_argument(
+        "--output",
+        type=Path,
+        default=OUTPUT,
+        help="result JSON path (default: unique file under local app data)",
+    )
     args = parser.parse_args()
+    try:
+        output_path = require_external_output(args.output)
+        checkpoint_path = require_external_output(checkpoint_for(output_path))
+    except ValueError as error:
+        parser.error(str(error))
     if not DATA.is_file():
         raise SystemExit(f"Missing benchmark data: {DATA}")
     all_samples = [
@@ -276,16 +342,17 @@ def main() -> int:
     else:
         samples = sorted(
             all_samples,
-            key=lambda row: hashlib.sha256(
-                f"20261023:{row['id']}".encode("utf-8")
-            ).digest(),
+            key=lambda row: hashlib.sha256(f"20261023:{row['id']}".encode()).digest(),
         )[: args.limit]
 
     if args.system == "baseline":
+        from saylacian.core.translation import _model_roots
         from saylacian.core.translation import translate_meaning
 
         data_hash = hashlib.sha256(DATA.read_bytes()).hexdigest()
-        checkpoint = load_checkpoint("baseline", data_hash, limit=args.limit)
+        checkpoint = load_checkpoint(
+            "baseline", data_hash, limit=args.limit, checkpoint_path=checkpoint_path
+        )
         outputs = checkpoint["samples"]
         completed = min(len(outputs["en_so"]), len(outputs["so_en"]))
         outputs["en_so"] = outputs["en_so"][:completed]
@@ -326,11 +393,21 @@ def main() -> int:
                 if i % 10 == 0 or i == len(samples):
                     wall = checkpoint["wall_seconds"] + time.perf_counter() - started
                     save_checkpoint(
-                        "baseline", data_hash, None, outputs, wall, i, args.limit
+                        "baseline",
+                        data_hash,
+                        None,
+                        outputs,
+                        wall,
+                        i,
+                        args.limit,
+                        checkpoint_path=checkpoint_path,
                     )
                     print(f"baseline: {i}/{len(samples)} pairs", flush=True)
         system = {
-            "model": "current Saylacian route (synthetic Helsinki EN→SO first; multilingual OPUS fallback)",
+            "model": (
+                "current Saylacian route (synthetic Helsinki EN→SO first; "
+                "multilingual OPUS fallback)"
+            ),
             **model_runtime_metadata("baseline"),
             "network": "blocked: socket.socket.connect raises",
             "sample_count": len(samples),
@@ -370,35 +447,20 @@ def main() -> int:
                         for sample in outputs[key]
                         for flag in sample.get("review_flags", [])
                     ),
-                    "semantic_errors_omissions_hallucinations": "not human-rated; see per-example review fields",
+                    "semantic_errors_omissions_hallucinations": (
+                        "not human-rated; see per-example review fields"
+                    ),
                 }
                 for key in ("en_so", "so_en")
             },
         }
-        en_so_samples = outputs["en_so"]
-        system["en_to_so_route_audit"] = {
-            "synthetic_candidate_samples": sum(
-                any(
-                    "synthetic EN→SO candidate selected" in warning
-                    for warning in sample.get("warnings", [])
-                )
-                for sample in en_so_samples
-            ),
-            "multilingual_fallback_samples": sum(
-                any(
-                    "used multilingual fallback" in warning
-                    for warning in sample.get("warnings", [])
-                )
-                for sample in en_so_samples
-            ),
-            "runaway_length_fallback_samples": sum(
-                any(
-                    "output-length guard" in warning
-                    for warning in sample.get("warnings", [])
-                )
-                for sample in en_so_samples
-            ),
-        }
+        candidate_available = any(
+            (root / "somali" / "en_so_synthetic" / "model.bin").is_file()
+            for root in _model_roots()
+        )
+        system["en_to_so_route_audit"] = en_to_so_route_audit(
+            outputs["en_so"], candidate_available
+        )
     else:
         if not args.candidate_model or not args.candidate_model.is_file():
             raise SystemExit(
@@ -409,7 +471,13 @@ def main() -> int:
         model = args.candidate_model.resolve()
         model_hash = model_file_sha256(model)
         data_hash = hashlib.sha256(DATA.read_bytes()).hexdigest()
-        checkpoint = load_checkpoint("afrislm", data_hash, model_hash, args.limit)
+        checkpoint = load_checkpoint(
+            "afrislm",
+            data_hash,
+            model_hash,
+            args.limit,
+            checkpoint_path=checkpoint_path,
+        )
         outputs = checkpoint["samples"]
         completed = min(len(outputs["en_so"]), len(outputs["so_en"]))
         outputs["en_so"] = outputs["en_so"][:completed]
@@ -466,6 +534,7 @@ def main() -> int:
                         i,
                         args.limit,
                         load_seconds,
+                        checkpoint_path=checkpoint_path,
                     )
                     print(f"TranslatePsy-AfriSLM: {i}/{len(samples)} pairs", flush=True)
         system = {
@@ -474,7 +543,9 @@ def main() -> int:
             "model_bytes": model.stat().st_size,
             **model_runtime_metadata("afrislm", model),
             "runtime": "llama-cpp-python 0.3.36; CPU only; n_ctx=2048; temperature=0",
-            "network": "blocked: socket.socket.connect raises; model loaded from a local file",
+            "network": (
+                "blocked: socket.socket.connect raises; model loaded from a local file"
+            ),
             "sample_count": len(samples),
             "sample_ids": [row["id"] for row in samples],
             "startup_seconds": round(load_seconds, 2),
@@ -513,14 +584,16 @@ def main() -> int:
                         for sample in outputs[key]
                         for flag in sample.get("review_flags", [])
                     ),
-                    "semantic_errors_omissions_hallucinations": "not human-rated; see per-example review fields",
+                    "semantic_errors_omissions_hallucinations": (
+                        "not human-rated; see per-example review fields"
+                    ),
                 }
                 for key in ("en_so", "so_en")
             },
         }
 
         baseline = (
-            json.loads(OUTPUT.read_text(encoding="utf-8"))
+            json.loads(output_path.read_text(encoding="utf-8"))
             .get("systems", {})
             .get("baseline")
         )
@@ -546,32 +619,39 @@ def main() -> int:
                 ),
             }
 
-    prior = json.loads(OUTPUT.read_text(encoding="utf-8")) if OUTPUT.exists() else {}
+    prior = (
+        json.loads(output_path.read_text(encoding="utf-8"))
+        if output_path.exists()
+        else {}
+    )
     prior.setdefault(
         "benchmark",
         {
             "dataset": "TICO-19 Somali test set",
             "data_file": "tests/data/somali_translation_tico19_test_150.jsonl",
-            "metadata_file": "tests/data/somali_translation_tico19_test_150.metadata.json",
+            "metadata_file": (
+                "tests/data/somali_translation_tico19_test_150.metadata.json"
+            ),
             "sample_count": len(all_samples),
             "sample_sha256": hashlib.sha256(DATA.read_bytes()).hexdigest(),
-            "directions": "English↔Somali; reverse references use the parallel English originals",
+            "directions": (
+                "English↔Somali; reverse references use the parallel English originals"
+            ),
         },
     )
     prior.setdefault("systems", {})[args.system] = system
-    temporary_output = OUTPUT.with_suffix(".tmp")
-    temporary_output.write_text(
-        json.dumps(prior, ensure_ascii=False, indent=2), encoding="utf-8"
-    )
-    temporary_output.replace(OUTPUT)
-    CHECKPOINT.unlink(missing_ok=True)
-    print(f"Saved {args.system} results: {OUTPUT}")
+    save_json_atomic(output_path, prior)
+    checkpoint_path.unlink(missing_ok=True)
+    print(f"Saved {args.system} results: {output_path}")
     for direction, metric in system["metrics"].items():
         print(
-            f"{args.system} {direction}: BLEU={metric['bleu']} chrF++={metric['chrf_plus_plus']}"
+            f"{args.system} {direction}: BLEU={metric['bleu']} "
+            f"chrF++={metric['chrf_plus_plus']}"
         )
     print(
-        f"wall={system['wall_seconds']}s startup={system.get('startup_seconds', 0)}s peak_rss={system['peak_working_set_bytes']} bytes"
+        f"wall={system['wall_seconds']}s "
+        f"startup={system.get('startup_seconds', 0)}s "
+        f"peak_rss={system['peak_working_set_bytes']} bytes"
     )
     return 0
 

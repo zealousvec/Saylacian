@@ -8,7 +8,8 @@ import json
 import os
 import secrets
 import threading
-from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from http.server import BaseHTTPRequestHandler
+from http.server import ThreadingHTTPServer
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
@@ -19,6 +20,7 @@ PORT = int(os.environ.get("PORT", "8080"))
 SERVICE_TOKEN = os.environ.get("SAYLACIAN_SERVICE_TOKEN", "")
 MAX_BODY_BYTES = 20_000
 MAX_CONCURRENT_TRANSLATIONS = 2
+REQUEST_TIMEOUT_SECONDS = 15
 _translation_slots = threading.BoundedSemaphore(MAX_CONCURRENT_TRANSLATIONS)
 
 
@@ -60,7 +62,7 @@ class TranslationHandler(BaseHTTPRequestHandler):
             return
         try:
             payload = json.loads(self.rfile.read(length).decode("utf-8"))
-        except (UnicodeError, json.JSONDecodeError):
+        except (UnicodeError, json.JSONDecodeError, RecursionError):
             self._send_json(400, {"error": "request body must be UTF-8 JSON"})
             return
         if not isinstance(payload, dict):
@@ -97,9 +99,11 @@ class TranslationHandler(BaseHTTPRequestHandler):
                     "provider": "Saylacian self-hosted models",
                 },
             )
+        except MemoryError:
+            self._send_json(503, {"error": "translation service is temporarily busy"})
         except ValueError as error:
             self._send_json(422, {"error": str(error)})
-        except Exception:
+        except (ImportError, OSError, RuntimeError):
             self._send_json(500, {"error": "translation failed"})
         finally:
             _translation_slots.release()
@@ -116,6 +120,11 @@ class TranslationServer(ThreadingHTTPServer):
     def __init__(self, *args, **kwargs):
         self.request_slots = threading.BoundedSemaphore(16)
         super().__init__(*args, **kwargs)
+
+    def get_request(self):
+        request, client_address = super().get_request()
+        request.settimeout(REQUEST_TIMEOUT_SECONDS)
+        return request, client_address
 
     def process_request(self, request, client_address):
         if not self.request_slots.acquire(blocking=False):
@@ -137,7 +146,8 @@ class TranslationServer(ThreadingHTTPServer):
 def main():
     if not SERVICE_TOKEN:
         raise SystemExit(
-            "Set SAYLACIAN_SERVICE_TOKEN to a long random secret before exposing this API. "
+            "Set SAYLACIAN_SERVICE_TOKEN to a long random secret before "
+            "exposing this API. "
             f"Example: {secrets.token_urlsafe(36)}"
         )
     server = TranslationServer(("0.0.0.0", PORT), TranslationHandler)

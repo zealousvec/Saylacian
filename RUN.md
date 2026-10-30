@@ -21,7 +21,7 @@ To view the recovered original interface through the compatibility adapter:
 
 ## Fresh Windows source install
 
-Requires 64-bit Python 3.12. This installs the runtime, not translation model weights:
+Requires 64-bit Python 3.12. This installs runtime dependencies; offline translation packs are downloaded separately:
 
 ```powershell
 py -3.12 -m venv .venv
@@ -38,7 +38,9 @@ The app verifies each downloaded asset against its manifest size and SHA-256, st
 
 The Somali pack uses multilingual OPUS translation checkpoints in both directions. The experimental synthetic English-to-Somali checkpoint is not offered as a download because a pinned preconverted artifact is unavailable. Existing source installs can continue to use that model if it is present locally. Somali quality remains machine-generated and needs fluent-speaker evaluation.
 
-Developers can download the pinned source model assets with `tools\prepare_models.py --download` or verify installed assets without network access with `tools\prepare_models.py --verify-only`. The Windows package excludes model weights; packs are downloaded on demand. See [third-party notices](docs/THIRD_PARTY_NOTICES.md) for licensing notes and [backup and restore](docs/BACKUP_AND_RESTORE.md) to recover preserved source copies.
+On desktop, press **Ctrl+Shift+M** to switch between translation and script conversion, and **Ctrl+P** to open offline packs. In the pack screen use **Up/Down** to select a pack and **Enter** to start a download for an uninstalled pack. For an installed pack, Enter opens a confirmation that defaults to **KEEP**; press **Right**, then **Enter** to confirm **REMOVE**, or **Esc** to keep it. **Esc** cancels an active download or returns when idle. Press **Ctrl+L** to return to the translator and focus the text editor. Press **Ctrl+K** to search/select a target language or script, and **Ctrl+Shift+K** to choose a source. Use **Up/Down** to move through matches, **Enter** to select and **Esc** to return.
+
+Developers can download the pinned source model assets with `tools\prepare_models.py --download` or verify installed assets without network access with `tools\prepare_models.py --verify-only`. The Windows package excludes offline translation pack weights, which are downloaded on demand. It includes py3langid's small classifier model for language detection. See [third-party notices](docs/THIRD_PARTY_NOTICES.md) for licensing notes and [backup and restore](docs/BACKUP_AND_RESTORE.md) to recover preserved source copies.
 
 The existing unsigned development executable was blocked by Windows Application Control. Run the source application with the command above; do not weaken Windows security settings. See [online translation](docs/ONLINE_TRANSLATION.md) for the optional, user-enabled remote-provider configuration.
 

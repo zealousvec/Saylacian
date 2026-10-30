@@ -9,7 +9,8 @@ from pathlib import Path
 from fontTools.ttLib import TTFont
 
 from saylacian.core.capabilities import get_capability
-from saylacian.core.transliteration import detect_script, transliterate
+from saylacian.core.transliteration import detect_chart_script
+from saylacian.core.transliteration import transliterate
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -41,7 +42,7 @@ class HistoricalChartScriptTests(unittest.TestCase):
         )
         decoded = transliterate(encoded.text, "Borama", "Somali Latin")
         self.assertEqual(decoded.text, "dhag! q")
-        self.assertEqual(detect_script(encoded.text)[0], "Borama")
+        self.assertEqual(detect_chart_script(encoded.text)[0], "Borama")
 
     def test_kaddare_longest_grapheme_and_round_trip(self):
         encoded = transliterate("shadh!", "Somali Latin", "Kaddare")
@@ -60,7 +61,9 @@ class HistoricalChartScriptTests(unittest.TestCase):
 
     def test_chart_pua_is_not_claimed_as_standard_unicode(self):
         result = transliterate("q", "Somali Latin", "Borama")
-        self.assertTrue(any("private-use" in warning for warning in result.warnings))
+        self.assertTrue(
+            any("Limited conversion" in warning for warning in result.warnings)
+        )
         self.assertTrue(any("no Q label" in warning for warning in result.warnings))
         with self.assertRaises(ValueError):
             transliterate("x", "Borama", "English")
@@ -73,13 +76,13 @@ class HistoricalChartScriptTests(unittest.TestCase):
                 ).read_text(encoding="utf-8")
             )
             cmap = TTFont(ROOT / "assets" / f"{script}Chart-Regular.ttf").getBestCmap()
-            expected = {int(record["pua"][2:], 16) for record in data["records"]}
+            expected = {int("0x" + record["pua"][2:], 0) for record in data["records"]}
             self.assertTrue(expected <= set(cmap))
 
     def test_partial_chart_routes_are_registered_both_ways(self):
         self.assertEqual(
             get_capability("Somali Latin", "Borama", "transliteration")["status"],
-            "experimental partial",
+            "alpha limited",
         )
         self.assertIsNotNone(
             get_capability("Kaddare", "Somali Latin", "transliteration")

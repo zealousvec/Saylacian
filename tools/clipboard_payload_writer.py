@@ -8,11 +8,9 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from saylacian.core.clipboard_repr import (
-    formats_as_image,
-    formats_as_latin,
-    formats_as_saylacian_text,
-)
+from saylacian.core.clipboard_repr import formats_as_image
+from saylacian.core.clipboard_repr import formats_as_latin
+from saylacian.core.clipboard_repr import formats_as_saylacian_text
 from saylacian.core.interchange import identify_chart_text
 from saylacian.core.transliteration import transliterate
 from saylacian.core.windows_clipboard import publish

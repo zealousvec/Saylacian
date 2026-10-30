@@ -1,0 +1,15 @@
+[
+  {
+    "repository": "qvac/TranslatePsy-AfriSLM-4B-Q4-GGUF",
+    "revision": "82df4b20772a4a46f38b421a569a90d53a93f657",
+    "filename": "TranslatePsy-AfriSLM-4B-Q4_K_M-imat.gguf",
+    "destination": "somali/afrislm_4b/model.gguf",
+    "bytes": 3066385344,
+    "sha256": "166226feb6144f6e416e4936706eb5f9183526a05141410156c578c48b4bd4f1",
+    "license": "Apache-2.0",
+    "training_data_license": "CC-BY-NC-4.0 (synthetic mix), ODC-By-1.0 (Dolci-Instruct); training data is not included",
+    "runtimes": {
+      "llama-cpp-python": "0.3.36"
+    }
+  }
+]

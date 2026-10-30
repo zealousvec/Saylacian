@@ -2,7 +2,7 @@
 
 **Audit date:** 2026-10-24
 
-**Scope:** source-only experimental GitHub alpha. Repository metadata was read and `origin` was configured; no GitHub security setting, source publication, or UI change occurred.
+**Scope:** historical audit of the initial source-only experimental-alpha candidate on 2026-10-24. This report records the candidate before publication; current repository and GitHub wording is in [GitHub source alpha status](GITHUB_RELEASE_CHECKLIST.md).
 
 ## Result
 

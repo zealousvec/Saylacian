@@ -1,5 +1,5 @@
 {
-  "status": "experimental; offline source smoke checked plus two-step Somali/French smoke; no fluent human evaluation",
+  "status": "alpha testing; offline source smoke checked plus two-step Somali/French smoke; no fluent human evaluation",
   "offline": true,
   "model_repositories": {
     "en_so": [
@@ -75,77 +75,6 @@
   ],
   "config_note": "The en_so CTranslate2 config uses layer_norm_epsilon=1e-5; its upstream config had null and the local CTranslate2 reader raised a type error without a numeric epsilon. so_en retains the upstream null config, which loaded successfully.",
   "tokenization": "Source-side >>som<< OPUS tag plus SentencePiece pieces and </s>; English-to-multilingual requires tag to choose Somali.",
-  "examples": [
-    {
-      "source": "English",
-      "target": "Somali Latin",
-      "input": "Hello, how are you?",
-      "output": "Halo, sidee baad u leedahay?",
-      "warnings": [
-        "Experimental offline Somali output; fluent human review pending."
-      ]
-    },
-    {
-      "source": "English",
-      "target": "Somali Latin",
-      "input": "The child is reading a book.",
-      "output": "Ilmuhu wuxuu akhriyo kitaabka.",
-      "warnings": [
-        "Experimental offline Somali output; fluent human review pending."
-      ]
-    },
-    {
-      "source": "Somali Latin",
-      "target": "English",
-      "input": "Salaan, sidee tahay?",
-      "output": "How are you?",
-      "warnings": [
-        "Experimental offline Somali output; fluent human review pending."
-      ]
-    },
-    {
-      "source": "Somali Latin",
-      "target": "English",
-      "input": "Ilmuhu buug buu akhrinayaa.",
-      "output": "○ A child will read a book.",
-      "warnings": [
-        "Experimental offline Somali output; fluent human review pending."
-      ]
-    }
-  ],
-  "quality_limit": "Examples include at least one awkward English-to-Somali phrase and one Somali-to-English stray glyph. Keep output explicitly experimental and require fluent review. Somali/French uses a pivot through English; the French-to-Somali sample is awkward and needs correction.",
-  "pivot_routes": [
-    {
-      "source": "Somali Latin",
-      "target": "French",
-      "via": "English",
-      "input": "Salaan, sidee tahay?",
-      "intermediate": "How are you?",
-      "output": "Comment allez-vous ?",
-      "warnings": [
-        "Somali output model remains experimental",
-        "Two-step errors may compound"
-      ]
-    },
-    {
-      "source": "French",
-      "target": "Somali Latin",
-      "via": "English",
-      "input": "Bonjour, comment allez-vous ?",
-      "intermediate": "Hello, how are you?",
-      "output": "Halo, sidee baad u leedahay?",
-      "warnings": [
-        "Somali output needs fluent review",
-        "This sample is awkward; two-step errors may compound"
-      ]
-    }
-  ],
-  "live_ui_pivot": {
-    "test": "Kivy Detect language/script Somali input to French through English; socket.connect blocked",
-    "input": "Salaan, sidee tahay?",
-    "output": "Comment allez-vous ?",
-    "status": "Detected Somali Latin (80% confidence). Experimental offline Somali output; fluent human review pending. Experimental local model output; human quality review pending. Experimental two-step translation via English; errors may compound.",
-    "screenshot_note": "Generated historical preview omitted from source release; live UI result retained.",
-    "result": "passed"
-  }
+  "quality_limit": "Somali translation is in alpha testing and lacks fluent-speaker review. Somali/French pivots through English and can compound errors. See SOMALI_TRANSLATION_QUALITY.md for current aggregate measurements.",
+  "raw_translation_outputs": "Not included in source; legacy generated samples are preserved in local application data."
 }

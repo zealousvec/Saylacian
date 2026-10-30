@@ -3,13 +3,11 @@
 
 from __future__ import annotations
 
-from .interchange import (
-    encode_saylacian_text,
-    html_for_chart,
-    png_to_dib,
-    render_chart_png,
-    rtf_for_chart,
-)
+from .interchange import encode_saylacian_text
+from .interchange import html_for_chart
+from .interchange import png_to_dib
+from .interchange import render_chart_png
+from .interchange import rtf_for_chart
 
 
 def unicode_clipboard_bytes(text: str) -> bytes:

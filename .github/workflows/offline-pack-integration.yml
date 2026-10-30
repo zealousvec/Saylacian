@@ -1,0 +1,37 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+name: Offline pack integration
+
+on:
+  workflow_dispatch:
+    inputs:
+      pack:
+        description: Download and smoke-test this pinned offline pack
+        type: choice
+        options:
+          - french
+          - somali
+          - both
+        default: french
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  install-and-translate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      SAYLACIAN_PACKS_DIR: ${{ runner.temp }}/saylacian-model-packs
+      SAYLACIAN_TRANSLATION_PROVIDER: offline
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements-translation.txt
+      - name: Install translation runtime
+        run: python -m pip install -r requirements-translation.txt
+      - name: Install and verify selected pack, then run offline inference
+        run: python tools/verify_pack_integration.py --pack "${{ inputs.pack }}"
