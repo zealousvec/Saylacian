@@ -1,5 +1,11 @@
 # Saylacian implementation progress
 
+## Repository readability milestone — 2026-10-30
+
+Applied Ruff formatting across the Python sources, tests, and tools; split wrapped literals without changing their values; enabled Ruff import ordering and explicit 88-column, one-import-per-statement checks; and extracted the Old Nubian and Osmanya transliteration paths into named helpers. Prettier 3.6.2 formatted the website JavaScript/CSS; the Jinja HTML template was manually reindented because Prettier's HTML parser rejects its template syntax. Reformatted the VM-only clipboard PowerShell script and corrected the MSIX XML declaration order so the manifest parses. No Unicode mapping, model data, licence text, font, research asset, or application feature was changed.
+
+Verification: full suite **195 passed, 2 skipped, 191 subtests**; Ruff lint/format, syntax-warning-strict compilation, `pip check`, release-safety scan, headless Edge website checks (8), JavaScript syntax, PowerShell parsing, JSON/JSONL/YAML/XML parsing, and Prettier check passed. Clipboard interaction was not run; the VM-only script was syntax-parsed. Existing owner change to `docs/TECHNICAL_AUDIT.md` remains untouched and excluded. No push, pull request, or publication.
+
 **Portable-bundle terminology correction (2026-10-30):** older candidate entries below that say “no model weights” mean no offline translation pack weights. Those bundles still included py3langid's 4.59 MiB classifier for language detection. The final candidate entry below gives the exact current contents.
 
 ## Latest feature milestone — longer offline text and script alternatives (2026-10-25)
