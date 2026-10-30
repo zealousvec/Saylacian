@@ -1,6 +1,6 @@
 # Host the Saylacian model API on Oracle Cloud
 
-This deploys the project's existing models as a small HTTPS API. It avoids an AI vendor's per-request quota; it does not give unlimited compute. A free VM has finite speed, and Oracle account eligibility, home-region capacity, and its Always Free conditions apply.
+This deploys the project's existing models as a small HTTPS API. It avoids an external provider's per-request quota; it does not give unlimited compute. A free VM has finite speed, and Oracle account eligibility, home-region capacity, and its Always Free conditions apply.
 
 ## 1. Create a VM
 
@@ -47,7 +47,7 @@ Automatic provider mode tries this server, then Cloudflare, then local models. T
 - It requires a bearer token, caps the active request threads at 16 and concurrent model runs at 2, and returns 503 when its translation wait queue is full.
 - The API sends text over HTTPS to your VM. The service logs HTTP metadata but not text or the token.
 - Do not bundle one shared API token in a public app: it can be extracted. Public distribution needs user authentication/API gateway credentials and abuse monitoring.
-- Oracle's Always Free VM allocation is fixed and capacity is not guaranteed. Benchmark with real traffic; add sponsored or paid servers before public high-volume launch. “No per-request quota” means no vendor AI meter per translation, not limitless users or uptime.
+- Oracle's Always Free VM allocation is fixed and capacity is not guaranteed. Benchmark with real traffic; add sponsored or paid servers before public high-volume launch. “No per-request quota” means no provider charge per translation, not limitless users or uptime.
 - Cloudflare fallback still has its separate daily free limit. Local models continue to work without network.
 
 ## Stop the service

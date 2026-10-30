@@ -45,7 +45,7 @@ PATTERNS = {
     "private key block": re.compile(
         r"-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----"
     ),
-    "OpenAI-style API key": re.compile(r"\bsk-[A-Za-z0-9_-]{32,}\b"),
+    "API secret format": re.compile(r"\bsk-[A-Za-z0-9_-]{32,}\b"),
     "Bearer credential": re.compile(
         r"(?i)\bAuthorization\s*[:=]\s*Bearer\s+[A-Za-z0-9._~-]{20,}"
     ),

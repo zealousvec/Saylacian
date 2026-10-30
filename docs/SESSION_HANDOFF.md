@@ -344,7 +344,7 @@ Queue reconciliation against `docs/DEVELOPMENT_ROADMAP.md`: ACTIVE none; READY n
 
 BLOCKED, exact resolution: Old Nubian DBMNT-derived expansion needs written reuse terms plus qualified specialist review; owner approval before outreach. Somali quality needs owner-approved consent-based fluent-speaker review. Screen-reader claims need manual Windows Narrator/NVDA interaction and observed announcements. Compact pixels need a validated isolated virtual display/OpenGL/SDL capture. Hosted pack integration needs owner approval to push the workflow commit, then manually dispatch and inspect Actions.
 
-Current HEAD `1a07540` (progress-board sync), latest code checkpoint `3bdc380`, branch `main`. No remote writes/push. User edits in `docs/PROJECT_STATUS.md` and `docs/TECHNICAL_AUDIT.md` remain untouched and uncommitted. The active Codex goal remains active for future READY work.
+Current HEAD `1a07540` (progress-board sync), latest code checkpoint `3bdc380`, branch `main`. No remote writes/push. User edits in `docs/PROJECT_STATUS.md` and `docs/TECHNICAL_AUDIT.md` remain untouched and uncommitted. The active project goal remains active for future READY work.
 
 ## 2026-10-24 — saved-history recovery made actionable
 
@@ -684,6 +684,6 @@ The package note and README now distinguish offline translation pack weights fro
 
 ## 2026-10-30 repository formatting handoff
 
-Formatting/readability changes are staged only after final verification; source branch remains `codex/source-only-release-candidate`. Ruff formatter covers tracked Python source/tests/tools; Ruff lint enables import sorting, one import per statement and the 88-column limit. Prettier 3.6.2 covers website JS/CSS and workflow YAML. Keep Jinja HTML manually formatted because Prettier's HTML parser rejects its syntax. PowerShell clipboard helper was reformatted and parser-checked only; do not execute it outside its disposable-VM preflight. The MSIX manifest XML declaration is first so standard XML parsers accept it.
+Formatting/readability changes are staged only after final verification; source branch remains `source-only release candidate branch`. Ruff formatter covers tracked Python source/tests/tools; Ruff lint enables import sorting, one import per statement and the 88-column limit. Prettier 3.6.2 covers website JS/CSS and workflow YAML. Keep Jinja HTML manually formatted because Prettier's HTML parser rejects its syntax. PowerShell clipboard helper was reformatted and parser-checked only; do not execute it outside its disposable-VM preflight. The MSIX manifest XML declaration is first so standard XML parsers accept it.
 
 The only behavior-structure refactor extracted private transliteration helpers; public API and script mappings are unchanged. Full suite, lint, formatter, compile, dependency, release-safety and website checks were rerun. See the top entry in `docs/IMPLEMENTATION_PROGRESS.md` for the exact result. The pre-existing `docs/TECHNICAL_AUDIT.md` edit is excluded from commits. No push, PR or publication. Public `origin/main` and release-candidate ancestry must be rechecked before final approval.

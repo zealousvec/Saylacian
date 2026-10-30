@@ -62,14 +62,14 @@ This proves build/resource inclusion, not runtime behavior. The package was not 
 
 ## Clean Windows security candidate — 2026-10-23
 
-The prior onedir build was inspected after Windows blocked it. The Code Integrity log recorded an enforced block, the executable was unsigned, and PyInstaller had included seven unrelated DLLs from Codex's Poppler runtime via inherited `PATH`. That candidate remains preserved for audit and is not distributable.
+The prior onedir build was inspected after Windows blocked it. The Code Integrity log recorded an enforced block, the executable was unsigned, and PyInstaller had included seven DLLs from a separate Poppler runtime via inherited `PATH`. That candidate remains preserved for audit and is not distributable.
 
-`Saylacian.spec` now excludes unused Kivy GStreamer audio/video support. A second build used a child-process-only PATH with Codex runtime paths removed:
+`Saylacian.spec` now excludes unused Kivy GStreamer audio/video support. A second build used a child-process-only PATH with unrelated runtime paths removed:
 
 - Candidate: `dist/`
 - 602 files, 730,213,910 bytes; full manifest at `<PROJECT_ROOT>`; per-file `SHA256SUMS.txt` is inside the directory.
 - EXE SHA-256: `07F0BEC5DC29BB4C8D3FCB793C1B1191A8803EA475696F5755A70EC604272ED2`.
-- PE import scan: 102 native PE files parsed, no non-system unresolved imports, no GStreamer player, no Poppler DLLs or Codex runtime references.
+- PE import scan: 102 native PE files parsed, no non-system unresolved imports, no GStreamer player, no Poppler DLLs or external runtime references.
 - The candidate is still unsigned (76 of 102 PE files lack Authenticode signatures), and it was not run. Source tests do not establish packaged runtime. See `WINDOWS_RELEASE_SECURITY.md` for block evidence, dependency checks and signing options.
 
 ## Clipboard and synthetic-model rebuild — 2026-10-23

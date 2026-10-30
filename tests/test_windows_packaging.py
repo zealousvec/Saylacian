@@ -42,12 +42,12 @@ class PortablePackageTests(unittest.TestCase):
         self.assertIsInstance(metadata["source_tree_dirty"], bool)
 
     @unittest.skipUnless(os.name == "nt", "Windows PATH separator test")
-    def test_build_path_drops_unrelated_codex_and_poppler_dll_sources(self):
+    def test_build_path_drops_unrelated_runtime_dll_sources(self):
         with patch.dict(
             "os.environ",
             {
                 "PATH": (
-                    "C:\\Python;C:\\Users\\test\\.cache\\codex-runtimes\\poppler;"
+                    "C:\\Python;C:\\Users\\test\\.cache\\external-runtimes\\poppler;"
                     "C:\\Windows\\System32"
                 )
             },

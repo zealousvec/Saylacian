@@ -1,6 +1,6 @@
 # Saylacian technical audit
 
-**Scope/date:** Local branch `codex/release-prep` at `0f771f1` plus one uncommitted local path-normalization fix. Remote `main` points to `0f771f1`. This is a source review, not a security certification or a linguistic endorsement. Public repository metadata was viewed on 2026-10-24; the `gh` CLI was unavailable, so repository settings and private Actions details could not be queried through an authenticated CLI.
+**Scope/date:** Local source snapshot at `0f771f1` plus one uncommitted local path-normalization fix. Remote `main` points to `0f771f1`. This is a source review, not a security certification or a linguistic endorsement. Public repository metadata was viewed on 2026-10-24; the `gh` CLI was unavailable, so repository settings and private Actions details could not be queried through an authenticated CLI.
 
 ## Executive assessment
 
@@ -95,4 +95,4 @@ The root `LICENSE` is the official AGPLv3 text; project metadata marks AGPL-3.0-
 
 ## Worktree state and actions not taken
 
-Current branch: `codex/release-prep`, aligned to local `main` and `origin/main` at `0f771f1`. One uncommitted code change exists in `saylacian/core/model_packs.py` (Windows path normalization described above). The five new handover documents are local changes. No commit, push, release, repository-setting change, or UI modification was made.
+Current local snapshot, aligned to local `main` and `origin/main` at `0f771f1`. One uncommitted code change exists in `saylacian/core/model_packs.py` (Windows path normalization described above). The five new handover documents are local changes. No commit, push, release, repository-setting change, or UI modification was made.

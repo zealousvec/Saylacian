@@ -106,8 +106,7 @@ def build_environment(config_root: Path | None = None) -> dict[str, str]:
     environment["PATH"] = os.pathsep.join(
         entry
         for entry in environment.get("PATH", "").split(os.pathsep)
-        if "codex-runtimes" not in entry.casefold()
-        and "poppler" not in entry.casefold()
+        if "runtimes" not in entry.casefold() and "poppler" not in entry.casefold()
     )
     if config_root is not None:
         pyinstaller_config = config_root / "pyinstaller"

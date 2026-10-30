@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
-"""Cloudflare Workers AI client for the open M2M100 translation model."""
+"""Cloudflare client for the hosted open M2M100 translation model."""
 
 from __future__ import annotations
 
@@ -169,8 +169,8 @@ def translate_cloudflare(text, source, target, *, opener=None, timeout=45):
     if not account or not token:
         raise ValueError(
             "Cloud translation needs CLOUDFLARE_ACCOUNT_ID and CLOUDFLARE_API_TOKEN. "
-            "Set up a free Cloudflare Workers AI account; no paid plan is required "
-            "within its daily free allowance."
+            "Set up a Cloudflare account for hosted M2M100 translation; no paid "
+            "plan is required within its daily free allowance."
         )
 
     endpoint = f"{API_ROOT}/{quote(account, safe='')}/ai/run/{quote(MODEL, safe='@/-')}"
@@ -199,7 +199,7 @@ def translate_cloudflare(text, source, target, *, opener=None, timeout=45):
     except HTTPError as error:
         if error.code == 429:
             raise ValueError(
-                "Cloudflare free daily AI allowance is used up or service is busy. "
+                "Cloudflare's free daily allowance is used up or service is busy. "
                 "Try after reset, or switch to downloaded models."
             ) from None
         if error.code in (401, 403):
@@ -227,7 +227,7 @@ def translate_cloudflare(text, source, target, *, opener=None, timeout=45):
         code = errors[0].get("code") if errors and isinstance(errors[0], dict) else None
         if code == 3036:
             raise ValueError(
-                "Cloudflare free daily AI allowance is used up. Try after reset."
+                "Cloudflare's free daily allowance is used up. Try after reset."
             )
         raise ValueError(
             "Cloudflare could not translate this text; check model access."
@@ -237,10 +237,10 @@ def translate_cloudflare(text, source, target, *, opener=None, timeout=45):
         raise ValueError("Cloudflare returned an empty translation.")
 
     warnings = [
-        "Cloudflare Workers AI used open Meta M2M100; text was sent to Cloudflare.",
+        "Cloudflare-hosted M2M100 processed this text; text was sent to Cloudflare.",
         "Somali translation quality varies; fluent-speaker review recommended.",
         (
-            "Free Workers AI allowance: 10,000 neurons per day; excess "
+            "Free Cloudflare allowance: 10,000 neurons per day; excess "
             "requests fail unless account is upgraded."
         ),
     ]
