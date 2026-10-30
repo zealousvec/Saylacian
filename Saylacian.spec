@@ -26,7 +26,11 @@ datas += tmp_ret[0]
 binaries += tmp_ret[1]
 hiddenimports += tmp_ret[2]
 tmp_ret = collect_all("ctranslate2")
-datas += tmp_ret[0]
+datas += [
+    data
+    for data in tmp_ret[0]
+    if os.path.basename(data[0]).casefold() != "cudnn64_9.dll"
+]
 binaries += [
     binary
     for binary in tmp_ret[1]
