@@ -2,7 +2,7 @@
 
 **Audit date:** 2026-10-24
 
-**Scope:** historical audit of the initial source-only experimental-alpha candidate on 2026-10-24. This report records the candidate before publication; current repository and GitHub wording is in [GitHub source alpha status](GITHUB_RELEASE_CHECKLIST.md).
+**Scope:** historical audit of the initial source-only experimental-alpha candidate on 2026-10-24. This report records the candidate before publication; current repository state is in [project status](PROJECT_STATUS.md).
 
 ## Result
 

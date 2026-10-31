@@ -1,15 +1,17 @@
-# Saylacian project status — 2026-10-30
+# Saylacian project status — 2026-10-31
 
-Saylacian's initial alpha-testing source snapshot is public at [github.com/zealousvec/Saylacian](https://github.com/zealousvec/Saylacian). A read-only remote check on 2026-10-30 confirmed public `main` at `c4f2f87270c22a05e772816ce98e57a99b871b18`. The original source snapshot contained 149 files. No binary release or mobile release is published.
+The source-only alpha is public at [github.com/zealousvec/Saylacian](https://github.com/zealousvec/Saylacian). GitHub `main` points to `4533b55` (`Update V1!`), merged through [pull request #1](https://github.com/zealousvec/Saylacian/pull/1) on 2026-10-30. No binary release or mobile build is published. The application is version `0.1.0a1` and remains in alpha testing.
 
-This page distinguishes public state from the current local cleanup. It must be updated again after a future approved push.
+The main Python workflow for this commit completed successfully: [run 41129890132](https://github.com/zealousvec/Saylacian/actions/runs/41129890132). Its Windows tests passed; its portable ZIP job was skipped. The offline-pack integration workflow [run 41129888732](https://github.com/zealousvec/Saylacian/actions/runs/41129888732) reports failure but has zero jobs and no failed check-run, so GitHub provides no step or log identifying a code failure. That manually dispatched workflow failure remains unexplained.
 
-## Final local release-candidate verification — 2026-10-30
+The current implementation and language limitations are summarized below. The dated release-preparation notes later in this file are historical records, not current instructions.
 
-- Public `main` remained at `c4f2f87270c22a05e772816ce98e57a99b871b18` in the read-only remote check. Local `main` contained 119 commits beyond that public point before this verification record; nothing was pushed.
+## Final local release-candidate verification — historical record (2026-10-30)
+
+- At the time of this prepublication review, public `main` remained at `c4f2f87270c22a05e772816ce98e57a99b871b18`. The source alpha was subsequently merged in PR #1.
 - A clean clone of local commit `bea5ec1f393e7ff634db81b98ca6d048c5202247` built the latest portable candidate. It has 629 manifest-listed files plus the checksum index, one EXE, and a 69,945,461-byte ZIP with SHA-256 `43aaf3efbc54b29ee8c56b01c78eb3351d9bb5d5bbc0c7eb9c0adee846e557f7`. No translation pack weights, cuDNN DLL or Poppler files are included. The 4.59 MiB py3langid language-detection model is included. The manifest records `runtime_verified: false`.
 - The dependency-rich checkout and a fresh clone each passed 195 tests, 2 skips and 191 subtests. Ruff, compilation, dependency consistency and release-safety checks passed. French and Somali pack download/hash/inference checks were previously run in isolated temporary storage with network denied during inference; they do not verify the packaged EXE.
-- No disposable Windows VM is available. Packaged EXE launch, true external clipboard delivery and screen-reader behavior remain unverified. Binary licensing still needs confirmation for Microsoft VC runtime files, Intel `libiomp5md.dll`, GLEW wheel provenance and the Material Design Icons binary. See the current [release checklist](GITHUB_RELEASE_CHECKLIST.md).
+- No disposable Windows VM was available for that review. Packaged EXE launch, true external clipboard delivery and screen-reader behavior were not verified. Binary licensing still needs confirmation for Microsoft VC runtime files, Intel `libiomp5md.dll`, GLEW wheel provenance and the Material Design Icons binary. These remain relevant to binary distribution; no binary is published. See the [historical release checklist](GITHUB_RELEASE_CHECKLIST.md).
 - The pre-existing unstaged edit to `docs/TECHNICAL_AUDIT.md` remains outside the candidate commits and is preserved.
 
 ## Verified implementation status
@@ -25,7 +27,7 @@ This page distinguishes public state from the current local cleanup. It must be 
 - Android and iOS builds are not verified. No public Windows installer is available.
 - AGPL-3.0-or-later applies only to Saylacian-authored code the licensor owns or may license. Third-party code and assets retain their separate terms.
 
-## Follow-up after publication (local changes not yet published)
+## Historical development record (2026-10-30)
 
 ### Current release completion work (2026-10-30)
 
@@ -38,7 +40,7 @@ This page distinguishes public state from the current local cleanup. It must be 
 - Full suite in the dependency-rich checkout: **195 passed, 2 skipped, 191 subtests**. Ruff lint and formatting, compileall, `pip check`, release-safety scan, package-manifest hash verification and `git diff --check` passed. No external clipboard was accessed.
 - Fresh local clone `eebe9e9` installed from `requirements-dev.txt` passed **186 tests, 11 skips, 191 subtests**. The skips are model-dependent tests before packs were installed. Kivy self-test passed. Pinned French and Somali packs were downloaded to isolated temporary storage; SHA-256/version receipts passed and both directions per pack returned output with socket connections blocked during inference. Somali sample output remains imperfect and is not human-validated.
 
-- Published `main` is now `ca0ef3e40215762f8e8cfb4da0c839680764d6c8`. The one-line normalization in `saylacian/core/model_packs.py` is included in that commit; download-security logic is unchanged.
+- A prior publication recorded `main` at `ca0ef3e40215762f8e8cfb4da0c839680764d6c8`. Later publication superseded it; current `main` is identified at the top of this page.
 - GitHub Actions run `40086510600` for that commit failed one test: `test_installed_pack_is_used_by_offline_route_and_removal_is_scoped`. Windows compared the resolved `runneradmin` path returned by the route with the same temporary directory written using its `RUNNER~1` alias.
 - A local-only test adjustment compares the returned route to `folder.resolve()`, preserving the assertion that the route selects the exact expected directory. The earlier `test_download_verifies_hash_installs_version_and_reports_progress` remains unchanged. This follow-up has not been pushed.
 - Five local educational/audit documents are prepared: `ARCHITECTURE_EXPLAINED.md`, `CODEBASE_WALKTHROUGH.md`, `TECHNICAL_AUDIT.md`, `FOUNDER_LEARNING_GUIDE.md`, and `DEVELOPMENT_ROADMAP.md`.

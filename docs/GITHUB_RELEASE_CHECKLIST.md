@@ -1,5 +1,7 @@
 # GitHub release candidate verification
 
+> Historical prepublication checklist from 2026-10-30. The source-only alpha was later merged to `main` as `4533b55` through [PR #1](https://github.com/zealousvec/Saylacian/pull/1). Do not use the old push plan below. For current repository state, see [project status](PROJECT_STATUS.md).
+
 **Checked:** 2026-10-30
 
 **Repository:** [zealousvec/Saylacian](https://github.com/zealousvec/Saylacian)
