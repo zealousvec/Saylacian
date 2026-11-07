@@ -20,6 +20,12 @@
     "url": "https://commons.wikimedia.org/wiki/File:Kaddare_Alphabet_Chart.jpg",
     "license": "CC BY-SA 4.0",
     "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "source_artifact": {
+      "timestamp": "2016-08-29T09:45:55Z",
+      "bytes": 99746,
+      "sha1": "323de70d1c1d29b43e441ba9948c43f7d5132e48",
+      "sha256": "08269153117c58e21ebe97838caead701510bee9da38cf7a8296406cf58f5640"
+    },
     "modification": "Selected chart forms cropped and converted to a bundled font; labels transcribed as shown."
   },
   "mapping_confidence": "The chart explicitly pairs each listed letter label with two glyph forms. This does not establish which form belongs in each word, word-level spelling rules, or a portable encoding.",

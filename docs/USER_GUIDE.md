@@ -34,7 +34,7 @@ Use the left dropdown for the source and the right dropdown for the target. `[x]
 
 For Old Nubian, choose **Old Nubian** and **Latin reading**, then use **Read** to open the reading reference. This is limited character transliteration, not translation or a complete reading of every manuscript convention. Modern Nubian varieties are not implemented. See [Old Nubian reading scope](OLD_NUBIAN_READER_PLAN.md).
 
-For Borama or Kaddare, choose a script route to convert the available chart-mapped letters. The mappings cover selected chart entries; spelling and word-level use have not been reviewed. Capitalization is lost. Letters without a chart mapping stay in Latin and are reported; the Borama chart has no `q` entry. The Kaddare chart shows two forms per label; conversion uses one glyph and cannot choose a word-level form. See [script interoperability](SOMALI_SCRIPT_INTEROPERABILITY.md).
+For Borama or Kaddare, choose a script route to convert the available chart-mapped letters. The mappings cover selected chart entries; spelling and word-level use have not been reviewed. Capitalization is lost. Letters without a chart mapping stay in Latin and are reported; the Borama chart labels a glyph as `q`, but has no `o` or `x` entry. To keep older Saylacian text readable, legacy Borama U+E014 is still read as `o`; new `q` output uses U+E01B. The Kaddare chart shows two forms per label; conversion uses one glyph and cannot choose a word-level form. See [script interoperability](SOMALI_SCRIPT_INTEROPERABILITY.md).
 
 For a side-by-side explanation of mapped and unmatched letters in Osmanya, Borama, Kaddare and Old Nubian, see [letter mappings and unmatched letters](SCRIPT_LETTER_GUIDE.md).
 

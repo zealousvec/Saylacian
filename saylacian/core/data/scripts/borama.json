@@ -20,13 +20,28 @@
     "url": "https://commons.wikimedia.org/wiki/File:Borama_Alphabet_Chart.jpg",
     "license": "CC BY-SA 4.0",
     "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "source_artifact": {
+      "timestamp": "2016-08-29T07:41:37Z",
+      "bytes": 84449,
+      "sha1": "fafcd0142693886da6344eb9450f29a7b1fe834f",
+      "sha256": "609cb48de740d0ef44ade89f3f601a93be343ddb374be7bd69004a599882b237"
+    },
     "modification": "Selected glyphs cropped from the chart and converted to a bundled font; labels are transcribed as shown."
   },
   "mapping_confidence": "The chart explicitly pairs each listed letter label with a glyph. This does not establish word-level spelling rules or a portable encoding.",
   "unsupported_labels": [
-    "q"
+    "o",
+    "x"
   ],
-  "unsupported_note": "LETTER Q is not present in this chart image; input q is preserved and flagged.",
+  "unsupported_note": "This chart has a LETTER Q entry but no LETTER O or LETTER X entry; input o and x are preserved and flagged.",
+  "legacy_compatibility": [
+    {
+      "grapheme": "o",
+      "pua": "U+E014",
+      "status": "legacy Saylacian interpretation retained for previously copied text",
+      "note": "U+E014 was previously interpreted as o, but the source chart labels its glyph LETTER Q. New o input is preserved as Latin; new q output uses U+E01B."
+    }
+  ],
   "records": [
     {
       "grapheme": "a",
@@ -409,10 +424,10 @@
       "reversible_in_subset": true
     },
     {
-      "grapheme": "o",
-      "display_label": "LETTER O",
-      "glyph_id": "borama.o",
-      "pua": "U+E014",
+      "grapheme": "q",
+      "display_label": "LETTER Q",
+      "glyph_id": "borama.q",
+      "pua": "U+E01B",
       "chart_forms": [
         {
           "id": "chart-form-1",

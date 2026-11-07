@@ -38,10 +38,16 @@ Saylacian’s Old Nubian reader uses the 29 single-character readings in Table 1
 
 ## Implementation boundaries
 
-- This list follows the article’s transliteration column. The article also discusses phonetic values and two digraphs, ⲉⲓ and ⲟⲩ. Saylacian does not implement a digraph rule; characters are read independently.
+- This list follows the article’s transliteration column. The article also discusses the phonetic values of the digraphs ⲉⲓ (`i`, `iː`, `j`) and ⲟⲩ (`u`, `uː`, `w`, `wu`). Saylacian still reads their characters independently and does not choose a pronunciation; it now warns when either cited sequence appears.
 - Unicode uppercase/lowercase pairs are handled mechanically for display. This is a software convention, not evidence about manuscript capitalization.
 - Unlisted Coptic letters, combining marks and punctuation are preserved. Unlisted letters are reported; no reading or interpretation is inferred for marks or punctuation.
 - Reverse conversion can split multi-character readings (th, ph, kh, ps) into alternative character sequences. These are possible parses, not verified manuscript spellings.
 - The app has not received an independent Old Nubian specialist review. This is character transliteration only, not meaning translation, complete manuscript support, or modern Nubian support.
 
 The earlier DBMNT-derived table was removed from the active code and documentation because its reuse terms were not established. DBMNT remains a bibliography reference only; no DBMNT mapping table or text is bundled.
+
+## Convention comparison
+
+The [DBMNT transliteration table](https://dbmnt.uw.edu.pl/static/pdf/transliteration_tables.pdf) is not equivalent to the active 2024 table. Examples include DBMNT `ch` versus the active table's `kh` for ⲭ, `sh` versus `š` for ϣ, `ng` versus `ŋ` for ⳟ, and `ny` versus `ñ` for ⳡ. DBMNT also gives separate readings for Coptic letters such as ϥ, ϩ, ϫ, ϭ and ϯ, while the active reader intentionally preserves letters outside its 29-entry source table. DBMNT notes that the Old Nubian ⳝ differs in pronunciation from Sahidic ϭ.
+
+These differences reflect transliteration/editorial conventions and source scope; they are not evidence that one table is universally correct. The application continues to use only its cited CC BY 4.0 source. DBMNT is cited here for comparison only; its reuse terms remain unresolved, and no DBMNT-derived readings were added.

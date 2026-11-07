@@ -26,12 +26,29 @@ SCRIPT_LATIN_TO_PUA = {
     }
     for name, data in SCRIPT_DATA.items()
 }
+SCRIPT_LEGACY_PUA_TO_LATIN = {
+    name: {
+        chr(int("0x" + record["pua"][2:], 0)): record["grapheme"]
+        for record in data.get("legacy_compatibility", ())
+    }
+    for name, data in SCRIPT_DATA.items()
+}
 SCRIPT_PUA_TO_LATIN = {
     name: {glyph: grapheme for grapheme, glyph in mapping.items()}
     for name, mapping in SCRIPT_LATIN_TO_PUA.items()
 }
+for _name, _legacy_mapping in SCRIPT_LEGACY_PUA_TO_LATIN.items():
+    SCRIPT_PUA_TO_LATIN[_name].update(_legacy_mapping)
 SOMALI_TO_OSMANYA = RESOURCE["mapping"]
 OSMANYA_TO_SOMALI = {value: key for key, value in SOMALI_TO_OSMANYA.items()}
+_OSMANYA_REVERSE_GROUPS = {}
+for _spelling, _glyph in SOMALI_TO_OSMANYA.items():
+    _OSMANYA_REVERSE_GROUPS.setdefault(_glyph, []).append(_spelling)
+OSMANYA_REVERSE_VARIANTS = {
+    glyph: tuple(readings)
+    for glyph, readings in _OSMANYA_REVERSE_GROUPS.items()
+    if len(readings) > 1
+}
 OLD_NUBIAN_TO_LATIN = {
     "ⲁ": "a",
     "ⲃ": "b",
@@ -62,6 +79,10 @@ OLD_NUBIAN_TO_LATIN = {
     "ⳡ": "ñ",
     "ⳣ": "w",
     "ⳝ": "j",
+}
+OLD_NUBIAN_DIGRAPH_READINGS = {
+    "ⲉⲓ": ("i", "iː", "j"),
+    "ⲟⲩ": ("u", "uː", "w", "wu"),
 }
 OLD_NUBIAN_LATIN_VARIANTS = {}
 OLD_NUBIAN_CASED_TO_LATIN = dict(OLD_NUBIAN_TO_LATIN)
@@ -150,11 +171,7 @@ def _chart_transliterate(text: str, source: str, target: str) -> Conversion:
             warnings.append(
                 "Unmapped letters preserved: " + " ".join(dict.fromkeys(missing)) + "."
             )
-        if target == "Borama":
-            warnings.append(
-                "The supplied chart has no Q label; q stays Latin and is flagged."
-            ) if "q" in {char.casefold() for char in missing} else None
-        elif target == "Kaddare":
+        if target == "Kaddare":
             warnings.append(
                 "The chart shows two Kaddare forms for each listed label; "
                 "conversion uses one label glyph and does not choose a word "
@@ -166,6 +183,11 @@ def _chart_transliterate(text: str, source: str, target: str) -> Conversion:
     for char in text:
         if char in mapping:
             output.append(mapping[char])
+            if char in SCRIPT_LEGACY_PUA_TO_LATIN[source]:
+                warnings.append(
+                    f"Legacy {source} character U+{ord(char):04X} is decoded "
+                    "using Saylacian's earlier mapping."
+                )
         else:
             output.append(char)
             if 0xE000 <= ord(char) <= 0xE1FF:
@@ -278,6 +300,16 @@ def _read_old_nubian(text: str) -> Conversion:
     if preserved_punctuation:
         warnings.append("Coptic punctuation is preserved without interpretation.")
 
+    folded_text = text.casefold()
+    for digraph, phonetic_values in OLD_NUBIAN_DIGRAPH_READINGS.items():
+        if digraph in folded_text:
+            values = ", ".join(phonetic_values)
+            warnings.append(
+                f"Cited Old Nubian digraph {digraph} has phonetic values "
+                f"{values}; this reading keeps individual letter transliterations "
+                "and does not select a pronunciation."
+            )
+
     primary = "".join(output)
     alternatives = tuple(
         value for value in dict.fromkeys(candidate_outputs) if value != primary
@@ -323,6 +355,16 @@ def _write_old_nubian(text: str) -> Conversion:
             "Other character segmentations are shown; they do not establish "
             "historical spelling."
         )
+    folded_text = text.casefold()
+    for digraph, phonetic_values in OLD_NUBIAN_DIGRAPH_READINGS.items():
+        latin_sequence = "".join(OLD_NUBIAN_TO_LATIN[char] for char in digraph)
+        if latin_sequence in folded_text:
+            values = ", ".join(phonetic_values)
+            warnings.append(
+                f"Latin sequence {latin_sequence} can map to cited Old Nubian "
+                f"digraph {digraph}; its phonetic values are {values}, and no "
+                "pronunciation is selected."
+            )
     return Conversion(primary, tuple(warnings), alternatives)
 
 
@@ -360,12 +402,34 @@ def _transliterate_osmanya(text: str, source: str) -> Conversion:
             if char.isalpha():
                 warnings.append("Unmapped input preserved: " + char)
     else:
+        candidate_outputs = [""]
         for char in text:
-            result.append(OSMANYA_TO_SOMALI.get(char, char))
-            if char in {chr(0x10493), chr(0x10495)}:
-                warnings.append("Reverse ambiguity: w/uu or y/ii; output uses w and y.")
-            elif char.isalpha() and char not in OSMANYA_TO_SOMALI:
+            reading = OSMANYA_TO_SOMALI.get(char, char)
+            result.append(reading)
+            variants = OSMANYA_REVERSE_VARIANTS.get(char, ())
+            if variants:
+                warnings.append(
+                    "Osmanya does not distinguish w from uu or y from ii; "
+                    "other character readings are shown, not word corrections."
+                )
+                options = (reading, *(item for item in variants if item != reading))
+                candidate_outputs = [
+                    prefix + option
+                    for prefix in candidate_outputs
+                    for option in options
+                ][:12]
+            else:
+                candidate_outputs = [prefix + reading for prefix in candidate_outputs][
+                    :12
+                ]
+            if char.isalpha() and char not in OSMANYA_TO_SOMALI:
                 warnings.append("Unmapped input preserved: " + char)
+
+        primary = "".join(result)
+        alternatives = tuple(
+            item for item in dict.fromkeys(candidate_outputs) if item != primary
+        )
+        return Conversion(primary, tuple(dict.fromkeys(warnings)), alternatives)
 
     return Conversion("".join(result), tuple(dict.fromkeys(warnings)))
 
