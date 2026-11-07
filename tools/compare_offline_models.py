@@ -96,7 +96,11 @@ def worker(args):
         "sample_sha256": sample_hash,
         "model": args.model,
         "experiment": args.experiment,
-        "generation": "beam4-128-v1",
+        "generation": (
+            "installed-app-offline-defaults"
+            if args.model == "installed"
+            else "beam4-input256-output128-ngram3-penalty1.1-fp16"
+        ),
     }
     model = tokenizer = torch = None
     loading_started = time.perf_counter()
@@ -348,6 +352,9 @@ def main():
     args = parser.parse_args()
     args.sample = private_path(args.sample)
     args.output = private_path(args.output)
+    for experiment in args.experiments:
+        if Path(experiment).name != experiment or experiment in {".", ".."}:
+            parser.error("Experiments must be single path components.")
     if args.experiment and (
         Path(args.experiment).name != args.experiment or args.experiment in {".", ".."}
     ):
