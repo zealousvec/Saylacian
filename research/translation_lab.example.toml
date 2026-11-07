@@ -1,0 +1,25 @@
+version = 1
+max_runtime_hours = 8
+script_checks = 1000000
+translation_samples = 20
+max_cpu_threads = 2
+max_disk_gib = 20
+max_vram_gib = 5.3
+gpu_max_temp_c = 82
+min_free_vram_gib = 3
+keep_free_disk_gib = 15
+max_download_gib = 6
+max_single_download_gib = 2
+allowed_download_hosts = [
+  "huggingface.co",
+  "cdn-lfs.huggingface.co",
+  "us.aws.cdn.hf.co",
+  "raw.githubusercontent.com",
+  "github.com",
+  "opus.nlpl.eu",
+  "object.pouta.csc.fi",
+]
+approved_source_ids = []
+training_enabled = false
+allow_noncommercial_training = false
+automatic_promotion = false

@@ -1,0 +1,494 @@
+[
+  {
+    "source_id": "opus-infopankki-en-so",
+    "title": "OPUS Infopankki English–Somali public-information translations",
+    "source_page": "https://huggingface.co/datasets/Helsinki-NLP/opus_infopankki",
+    "rights_page": "https://infofinland.fi/fi/open-data",
+    "revision": "52339513e7ee4d1896c804ca4f61d7ee3b35ea93",
+    "languages": [
+      "en",
+      "so"
+    ],
+    "license": "CC-BY-4.0",
+    "rights_status": "license_verified_provenance_and_quality_unreviewed",
+    "owner_approved": false,
+    "gated": false,
+    "split_role": "candidate",
+    "rights": {
+      "download": "approval_required",
+      "process": "approval_required",
+      "train": "approval_required",
+      "evaluate": "approval_required",
+      "redistribute_raw": "approval_required",
+      "redistribute_derivative": "approval_required",
+      "redistribute_weights": "approval_required"
+    },
+    "artifacts": [
+      {
+        "url": "https://huggingface.co/datasets/Helsinki-NLP/opus_infopankki/resolve/52339513e7ee4d1896c804ca4f61d7ee3b35ea93/en-so/train-00000-of-00001.parquet",
+        "sha256": "3064daec6e19b82a860d725ceed1409c4d3caecebefc6d5cac2646ecb7392d04",
+        "expected_bytes": 2317274,
+        "filename": "opus-infopankki-en-so-52339513.parquet",
+        "purpose": "train"
+      }
+    ],
+    "notes": "The official InfoFinland open-data page states that text in all languages may be reused under CC BY 4.0. Helsinki-NLP's pinned OPUS dataset card identifies InfoPankki via its Open Data API and the same license, but leaves producer and curation details incomplete. Treat this as a promising public-information corpus, audit quality and test leakage, retain attribution, and do not redistribute derivative weights without review."
+  },
+  {
+    "source_id": "opus-paracrawl-en-so",
+    "title": "OPUS ParaCrawl English–Somali parallel shard",
+    "source_page": "https://huggingface.co/datasets/Helsinki-NLP/opus_paracrawl",
+    "revision": "8bb0bcf0c038a0cb762690b4dbce088b861423ed",
+    "languages": [
+      "en",
+      "so"
+    ],
+    "license": "CC0-1.0",
+    "rights_status": "license_documented_provenance_and_quality_unreviewed",
+    "owner_approved": false,
+    "gated": false,
+    "split_role": "candidate",
+    "rights": {
+      "download": "approval_required",
+      "process": "approval_required",
+      "train": "approval_required",
+      "evaluate": "approval_required",
+      "redistribute_raw": "approval_required",
+      "redistribute_derivative": "approval_required",
+      "redistribute_weights": "approval_required"
+    },
+    "artifacts": [
+      {
+        "url": "https://huggingface.co/datasets/Helsinki-NLP/opus_paracrawl/resolve/8bb0bcf0c038a0cb762690b4dbce088b861423ed/en-so/train-00000-of-00001.parquet",
+        "sha256": "f2bd66e42dfb05c0daf0e20e9dac0db0812c3f03f76643a94bcca7c5b0fccc7c",
+        "expected_bytes": 3718608,
+        "filename": "opus-paracrawl-en-so-8bb0bcf.parquet",
+        "purpose": "train"
+      }
+    ],
+    "notes": "The pinned Hugging Face dataset card and the ParaCrawl project identify this release as CC0. It reports 14,880 aligned pairs. The dataset card leaves source-provenance and annotation details blank, and the corpus is web-mined. Automated filtering, exact de-duplication, and exact TICO overlap checks were run before private experimental training. Semantic quality and fluency remain unreviewed. Do not redistribute adapted weights without separate review."
+  },
+  {
+    "source_id": "google-smol-en-so",
+    "title": "Google SMOL professionally translated English–Somali sentences",
+    "source_page": "https://huggingface.co/datasets/google/smol",
+    "revision": "fdaff3a1a019f89fa30a562a85d7c1d3e9150444",
+    "languages": [
+      "en",
+      "so"
+    ],
+    "license": "CC-BY-4.0",
+    "rights_status": "verified",
+    "owner_approved": false,
+    "gated": false,
+    "split_role": "train_candidate",
+    "rights": {
+      "download": "allowed",
+      "process": "allowed",
+      "train": "allowed",
+      "evaluate": "allowed",
+      "redistribute_raw": "allowed",
+      "redistribute_derivative": "approval_required",
+      "redistribute_weights": "approval_required"
+    },
+    "artifacts": [
+      {
+        "url": "https://huggingface.co/datasets/google/smol/resolve/fdaff3a1a019f89fa30a562a85d7c1d3e9150444/smolsent/en_so.jsonl?download=true",
+        "sha256": "7536e5258fb424c6bb88580bf3f05e11ba3a0f7a1c05e4b6a3ea8b2dc457515f",
+        "expected_bytes": 232203,
+        "filename": "google-smol-en-so-fdaff3a.jsonl",
+        "purpose": "train"
+      }
+    ],
+    "notes": "The pinned file contains 862 English–Somali sentence translations. Google describes SMOL as professional translations and lists this split under CC-BY-4.0. Keep the dataset citation and attribution with all local derivatives; model-weight redistribution still needs separate review."
+  },
+  {
+    "source_id": "tufaax-en-so-parallel-clean-8k",
+    "title": "Tufaax English–Somali parallel corpus candidate (8,912 pairs)",
+    "source_page": "https://huggingface.co/datasets/tufaax/en-so-parallel-clean-8k",
+    "revision": "40965e91038c1a183e3bdda08ff19a214b4a4b36",
+    "languages": [
+      "en",
+      "so"
+    ],
+    "license": "CC-BY-4.0 as declared by the dataset card; underlying source provenance unresolved",
+    "rights_status": "provenance_unresolved",
+    "owner_approved": false,
+    "gated": false,
+    "split_role": "candidate",
+    "rights": {
+      "download": "approval_required",
+      "process": "approval_required",
+      "train": "approval_required",
+      "evaluate": "approval_required",
+      "redistribute_raw": "approval_required",
+      "redistribute_derivative": "approval_required",
+      "redistribute_weights": "approval_required"
+    },
+    "artifacts": [
+      {
+        "url": "https://huggingface.co/datasets/tufaax/en-so-parallel-clean-8k/resolve/40965e91038c1a183e3bdda08ff19a214b4a4b36/data/train-00000-of-00001.parquet",
+        "sha256": "e9f53cd7cf781b9ae714142dafa28a8aff6f93aa5544a777ceb225554ecb6c00",
+        "expected_bytes": 657791,
+        "filename": "tufaax-en-so-parallel-clean-8k-40965e9.parquet",
+        "purpose": "train"
+      }
+    ],
+    "notes": "The card claims CC-BY-4.0 and 8,912 pairs but gives no original source, authorship or collection method. A private checksum-verified audit found no exact duplicate pairs or exact overlap with the current TICO/SMOL test fixtures, 46 repeated Somali targets and 97 pairs over 512 characters. Hold from training and evaluation until provenance and translation quality are independently reviewed."
+  },
+  {
+    "source_id": "tico19-somali-test-sample",
+    "title": "TICO-19 Somali test sample already in repository",
+    "source_page": "https://tico-19.github.io/testset.html",
+    "revision": "repository fixture; metadata records upstream test split",
+    "languages": [
+      "en",
+      "so"
+    ],
+    "license": "CC0-1.0 for translation data; source-material rights vary by row",
+    "rights_status": "verified_for_local_evaluation_only",
+    "owner_approved": false,
+    "gated": false,
+    "split_role": "evaluation_only",
+    "rights": {
+      "download": "prohibited",
+      "process": "allowed",
+      "train": "prohibited",
+      "evaluate": "allowed",
+      "redistribute_raw": "approval_required",
+      "redistribute_derivative": "unclear",
+      "redistribute_weights": "unclear"
+    },
+    "notes": "Use the existing local fixture only. It covers health/COVID-19 text and is not a general-language benchmark."
+  },
+  {
+    "source_id": "tico19-official-en-so-devtest",
+    "title": "Official TICO-19 English–Somali development and test splits",
+    "source_page": "https://tico-19.github.io/testset.html",
+    "revision": "official archive at 2021-02-26; SHA-256 pinned locally",
+    "languages": [
+      "en",
+      "so"
+    ],
+    "license": "Per-row source license recorded in TSV; do not apply one blanket license",
+    "rights_status": "official_eval_resource_row_licenses_preserved_training_prohibited",
+    "owner_approved": false,
+    "gated": false,
+    "split_role": "development_and_test_evaluation_only",
+    "rights": {
+      "download": "allowed",
+      "process": "allowed",
+      "train": "prohibited",
+      "evaluate": "allowed",
+      "redistribute_raw": "approval_required",
+      "redistribute_derivative": "approval_required",
+      "redistribute_weights": "unclear"
+    },
+    "artifacts": [
+      {
+        "url": "https://tico-19.github.io/data/tico19-testset.zip",
+        "sha256": "0e82fc7ceaa877606c8934f32ead185716c9d2c54b3818f2a7ae655f5e7a08d8",
+        "expected_bytes": 15168404,
+        "filename": "tico19-testset-2021-02-26.zip",
+        "purpose": "source_audit"
+      }
+    ],
+    "notes": "The official site describes 3,071 English-origin segments with predefined 971-sentence dev and 2,100-sentence test splits. The ZIP's en-so TSV stores an individual source license on every row (CC BY 4.0, CC BY-SA 3.0, CC BY-SA 2.5, or public); preserve it and never train on either split. Full official dev/test English and Somali sentence text has zero exact source, target, or pair overlap with the current approved Marian-mixture train split. The archive stays in the private cache; benchmark predictions are not redistributed."
+  },
+  {
+    "source_id": "tatoeba-candidate",
+    "title": "Tatoeba English-Somali sentences (candidate; attribution and size review needed)",
+    "source_page": "https://tatoeba.org/",
+    "revision": "not pinned",
+    "languages": [
+      "en",
+      "fr",
+      "so"
+    ],
+    "license": "CC-BY-2.0-FR for text; sentence author attribution required",
+    "rights_status": "pending_review",
+    "owner_approved": false,
+    "gated": false,
+    "split_role": "candidate",
+    "rights": {
+      "download": "approval_required",
+      "process": "unclear",
+      "train": "unclear",
+      "evaluate": "unclear",
+      "redistribute_raw": "unclear",
+      "redistribute_derivative": "unclear",
+      "redistribute_weights": "unclear"
+    },
+    "notes": "Official terms state CC-BY-2.0-FR for text. The inspected English-Somali link export was only 840 bytes; no pinned snapshot, per-sentence author preservation pipeline, or useful training scale is prepared."
+  },
+  {
+    "source_id": "opus-corpus-candidate",
+    "title": "OPUS corpora (candidate aggregator; component terms need review)",
+    "source_page": "https://opus.nlpl.eu/",
+    "revision": "not pinned",
+    "languages": [
+      "en",
+      "fr",
+      "so"
+    ],
+    "license": "per-corpus; unresolved",
+    "rights_status": "pending_review",
+    "owner_approved": false,
+    "gated": false,
+    "split_role": "candidate",
+    "rights": {
+      "download": "approval_required",
+      "process": "unclear",
+      "train": "unclear",
+      "evaluate": "unclear",
+      "redistribute_raw": "unclear",
+      "redistribute_derivative": "unclear",
+      "redistribute_weights": "unclear"
+    },
+    "notes": "Each original corpus must be checked independently; no blanket OPUS licence is assumed."
+  },
+  {
+    "source_id": "allenai-nllb-en-so-bitext",
+    "title": "NLLB English–Somali mined parallel text",
+    "source_page": "https://huggingface.co/datasets/allenai/nllb",
+    "revision": "a89b57279a89632533b8082783252d37fd98c063",
+    "languages": [
+      "en",
+      "so"
+    ],
+    "license": "ODC-BY for NLLB release; source-level terms also apply",
+    "rights_status": "dataset_license_declared_source_terms_and_quality_unresolved",
+    "owner_approved": false,
+    "gated": false,
+    "split_role": "candidate",
+    "rights": {
+      "download": "approval_required",
+      "process": "approval_required",
+      "train": "approval_required",
+      "evaluate": "approval_required",
+      "redistribute_raw": "approval_required",
+      "redistribute_derivative": "unclear",
+      "redistribute_weights": "unclear"
+    },
+    "notes": "The official allenai/nllb card describes 148 English-centric mined bitext pairs, dataset-level ODC-BY terms, LASER3 alignment, and an approximately 450 GB complete multilingual collection. It warns that original-source terms also apply, the data is uncurated and unannotated, some rows may be machine translated, and the data has no splits and may overlap public evaluations. A third-party Somali NLP corpus reports 10.2M raw and 4.7M kept NLLB English–Somali pairs, but those figures are not independently verified here. Do not download or train until a pinned Somali shard, per-row source-term handling, leakage controls, and owner approval are established."
+  },
+  {
+    "source_id": "unkadlabs-qor-af-soomaali-mono",
+    "title": "Qor Af-Soomaali community-authored Somali text (monolingual)",
+    "source_page": "https://huggingface.co/datasets/unkadlabs/qor-af-soomaali",
+    "rights_page": "https://github.com/Unkadlabs/qor-af-soomaali",
+    "revision": "5234876e5019cc4b1c79096c9f046fe2f8113b1e",
+    "languages": [
+      "so"
+    ],
+    "license": "CC-BY-SA-4.0",
+    "rights_status": "upstream_license_declared; machine_training_and_weight_terms_need_review",
+    "owner_approved": false,
+    "gated": false,
+    "split_role": "monolingual_candidate",
+    "rights": {
+      "download": "allowed",
+      "process": "allowed",
+      "train": "approval_required",
+      "evaluate": "approval_required",
+      "redistribute_raw": "approval_required",
+      "redistribute_derivative": "unclear",
+      "redistribute_weights": "unclear"
+    },
+    "artifacts": [
+      {
+        "url": "https://huggingface.co/datasets/unkadlabs/qor-af-soomaali/resolve/5234876e5019cc4b1c79096c9f046fe2f8113b1e/README.md",
+        "sha256": "359e69e40b4e9dd782b720b87172200b4e3f8d47fa2d89e453a541a4de0a9350",
+        "expected_bytes": 8539,
+        "filename": "qor-af-soomaali-5234876e-README.md",
+        "purpose": "source_audit"
+      },
+      {
+        "url": "https://huggingface.co/datasets/unkadlabs/qor-af-soomaali/resolve/5234876e5019cc4b1c79096c9f046fe2f8113b1e/CREDITS.md",
+        "sha256": "de5feb37fe65e5964ac2d51ca9234260daeba1fa3f1edbf6aa5ebfd1a1b72ed9",
+        "expected_bytes": 2538,
+        "filename": "qor-af-soomaali-5234876e-CREDITS.md",
+        "purpose": "source_audit"
+      },
+      {
+        "url": "https://huggingface.co/datasets/unkadlabs/qor-af-soomaali/resolve/5234876e5019cc4b1c79096c9f046fe2f8113b1e/data/train.jsonl",
+        "sha256": "4e95e85af7f35d43ec4f83c669bde9c5f0d1c457d945130e07008a7ed9343de3",
+        "expected_bytes": 542153,
+        "filename": "qor-af-soomaali-5234876e-data-train.jsonl",
+        "purpose": "source_audit"
+      },
+      {
+        "url": "https://huggingface.co/datasets/unkadlabs/qor-af-soomaali/resolve/5234876e5019cc4b1c79096c9f046fe2f8113b1e/data/sentences.jsonl",
+        "sha256": "f53ec99fbbd620ac65412d0c26c62a80faa534b9a939e95a0da6c53d5b38c60c",
+        "expected_bytes": 1430253,
+        "filename": "qor-af-soomaali-5234876e-data-sentences.jsonl",
+        "purpose": "source_audit"
+      }
+    ],
+    "notes": "Pinned public revision audited locally on 2026-10-31. It contains 489 author-consented, upstream-marked linguist-verified documents and 3,629 segmented Somali sentences, all mode=write and CC BY-SA 4.0; no English-paired records are published. The release reports 11 Maay-tagged sentences, so dialect coverage is very small. Suitable for further monolingual research, not direct bitext training. Keep English-paired items reserved for evaluation; do not infer their text or acquire test rows. Training and any resulting weight redistribution remain unapproved pending review of ShareAlike implications. Data and credits are stored only in the private research cache."
+  },
+  {
+    "source_id": "mot-v1.11-somali-monolingual",
+    "title": "Multilingual Open Text v1.11 Somali VOA archive (monolingual articles)",
+    "source_page": "https://github.com/bltlab/mot",
+    "rights_page": "https://aclanthology.org/2022.lrec-1.224/",
+    "revision": "v1.11",
+    "languages": [
+      "so"
+    ],
+    "license": "CC-BY-4.0 collection; filtered VOA source articles are public domain",
+    "rights_status": "license_verified_monolingual; attribution_required",
+    "owner_approved": false,
+    "gated": false,
+    "split_role": "monolingual_candidate",
+    "rights": {
+      "download": "allowed",
+      "process": "allowed",
+      "train": "allowed",
+      "evaluate": "approval_required",
+      "redistribute_raw": "approval_required",
+      "redistribute_derivative": "approval_required",
+      "redistribute_weights": "approval_required"
+    },
+    "artifacts": [
+      {
+        "url": "https://github.com/bltlab/mot/releases/download/v1.11/som_voasomali.tgz",
+        "sha256": "4da691619afad7057cfc4a7be792ff97391050bfbe2348f2c0d8974c05c25b1a",
+        "expected_bytes": 29548191,
+        "filename": "som_voasomali-v1.11.tgz",
+        "purpose": "monolingual-training-candidate"
+      }
+    ],
+    "notes": "Downloaded to the external research cache on 2026-11-01 and verified against the pinned byte count and SHA-256. The release contains Somali VOA articles and other content types. Its paper states the collection is CC BY 4.0, VOA source material is public domain, and AP/AFP/Reuters materials were filtered. It is not systematically parallel; only screened article sentences may be considered for private back-translation. Preserve corpus citation and attribution. Do not use as direct bitext, benchmark, or distribute derived weights without separate review."
+  },
+  {
+    "source_id": "ldc2026t03-lorelei-somali",
+    "title": "LORELEI Somali Representative Language Pack",
+    "source_page": "https://catalog.ldc.upenn.edu/LDC2026T03",
+    "revision": "LDC2026T03 (released 2026-04-15)",
+    "languages": [
+      "so",
+      "en"
+    ],
+    "license": "LDC User Agreement for Non-Members",
+    "rights_status": "restricted_terms_and_access; not_free",
+    "owner_approved": false,
+    "gated": true,
+    "split_role": "external_research_lead",
+    "rights": {
+      "download": "approval_required",
+      "process": "approval_required",
+      "train": "approval_required",
+      "evaluate": "approval_required",
+      "redistribute_raw": "approval_required",
+      "redistribute_derivative": "approval_required",
+      "redistribute_weights": "approval_required"
+    },
+    "notes": "The LDC catalog reports 13 million Somali monolingual words, 800,000 words translated from Somali to English, and 106,000 Somali words translated from English. Access is under the LDC non-member user agreement and is not identified as a free/open resource. Do not acquire or train unless the user separately authorizes the terms and any fee."
+  },
+  {
+    "source_id": "opus-infopankki-fr-so",
+    "title": "OPUS Infopankki French–Somali public-information translations",
+    "source_page": "https://huggingface.co/datasets/Helsinki-NLP/opus_infopankki",
+    "rights_page": "https://infofinland.fi/en/open-data",
+    "revision": "52339513e7ee4d1896c804ca4f61d7ee3b35ea93",
+    "languages": [
+      "fr",
+      "so"
+    ],
+    "license": "CC-BY-4.0",
+    "rights_status": "verified",
+    "owner_approved": false,
+    "gated": false,
+    "split_role": "candidate",
+    "rights": {
+      "download": "allowed",
+      "process": "allowed",
+      "train": "allowed",
+      "evaluate": "allowed",
+      "redistribute_raw": "allowed",
+      "redistribute_derivative": "approval_required",
+      "redistribute_weights": "approval_required"
+    },
+    "artifacts": [
+      {
+        "url": "https://huggingface.co/datasets/Helsinki-NLP/opus_infopankki/resolve/52339513e7ee4d1896c804ca4f61d7ee3b35ea93/fr-so/train-00000-of-00001.parquet",
+        "sha256": "3aea232ad1aa63df1816fa4922072b79f064a0eb4cb465b6b533b4e902823c9c",
+        "expected_bytes": 2344399,
+        "filename": "opus-infopankki-fr-so-52339513.parquet",
+        "purpose": "source_audit"
+      }
+    ],
+    "notes": "InfoFinland states that text in all languages may be reused under CC BY 4.0 with attribution. The pinned OPUS card identifies InfoPankki as sourced from the InfoFinland Open Data API and declares the same license; producer and curation details remain incomplete. Source file hash and size are pinned. Data quality and training suitability remain under review. Local research approval for training remains unset; preserve InfoFinland and OPUS attribution."
+  },
+  {
+    "source_id": "opus-infopankki-ar-so",
+    "title": "OPUS Infopankki Arabic–Somali public-information translations",
+    "source_page": "https://huggingface.co/datasets/Helsinki-NLP/opus_infopankki",
+    "rights_page": "https://infofinland.fi/en/open-data",
+    "revision": "52339513e7ee4d1896c804ca4f61d7ee3b35ea93",
+    "languages": [
+      "ar",
+      "so"
+    ],
+    "license": "CC-BY-4.0",
+    "rights_status": "verified",
+    "owner_approved": false,
+    "gated": false,
+    "split_role": "candidate",
+    "rights": {
+      "download": "allowed",
+      "process": "allowed",
+      "train": "allowed",
+      "evaluate": "allowed",
+      "redistribute_raw": "allowed",
+      "redistribute_derivative": "approval_required",
+      "redistribute_weights": "approval_required"
+    },
+    "artifacts": [
+      {
+        "url": "https://huggingface.co/datasets/Helsinki-NLP/opus_infopankki/resolve/52339513e7ee4d1896c804ca4f61d7ee3b35ea93/ar-so/train-00000-of-00001.parquet",
+        "sha256": "7187b0e91abd14c59ccc052c7d9831e875f95ca9b5c0f66a043ec52c3267cf50",
+        "expected_bytes": 2614055,
+        "filename": "opus-infopankki-ar-so-52339513.parquet",
+        "purpose": "source_audit"
+      }
+    ],
+    "notes": "InfoFinland states that text in all languages may be reused under CC BY 4.0 with attribution. The pinned OPUS card identifies InfoPankki as sourced from the InfoFinland Open Data API and declares the same license; producer and curation details remain incomplete. Source file hash and size are pinned. Data quality and training suitability remain under review. Local research approval for training remains unset; preserve InfoFinland and OPUS attribution."
+  },
+  {
+    "source_id": "opus-mt560-en-so-hf-mirror",
+    "title": "OPUS MT560 Somali–English filtered mirror",
+    "source_page": "https://huggingface.co/datasets/zarnite/english-somali_sentence-pairs_mt560",
+    "rights_page": "https://opus.nlpl.eu/MT560",
+    "revision": "833f5c69d63c15eaf6b8d8d86620b74fd08e6d00",
+    "languages": [
+      "so",
+      "en"
+    ],
+    "license": "CC-BY-4.0 as declared by the mirror; original-source terms unresolved",
+    "rights_status": "mirror_license_claimed_upstream_provenance_unverified",
+    "owner_approved": false,
+    "gated": false,
+    "split_role": "candidate",
+    "rights": {
+      "download": "approval_required",
+      "process": "approval_required",
+      "train": "approval_required",
+      "evaluate": "approval_required",
+      "redistribute_raw": "approval_required",
+      "redistribute_derivative": "approval_required",
+      "redistribute_weights": "approval_required"
+    },
+    "artifacts": [
+      {
+        "url": "https://huggingface.co/datasets/zarnite/english-somali_sentence-pairs_mt560/resolve/833f5c69d63c15eaf6b8d8d86620b74fd08e6d00/data/train-00000-of-00001.parquet",
+        "sha256": "05cc1b755173bb3e15906bc3067878d81ab7a655b036a7201040b9837e768cdf",
+        "expected_bytes": 27569831,
+        "filename": "opus-mt560-en-so-833f5c6.parquet",
+        "purpose": "rights_audit_candidate"
+      }
+    ],
+    "notes": "The Hugging Face mirror declares CC BY 4.0, identifies OPUS MT560 as its source, and exposes 161,865 rows with only eng and som columns. OPUS describes MT560 as consolidated from many sources and publishes aligned language and provenance indexes. Those metadata files and the source statistics are privately acquired and hash-pinned, and the aggregate audit is in progress. The identical 161,865 Somali row counts do not prove that the filtered mirror contains the same rows or order. The pair corpus itself remains undownloaded; its declared CC BY license does not resolve original-source terms or per-row attribution. Do not process, train, evaluate, or redistribute the candidate pairs until source-level terms, mirror-to-source identity, and local approval are resolved."
+  }
+]
