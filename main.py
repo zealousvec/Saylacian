@@ -24,6 +24,11 @@ if "--self-test" in sys.argv:
     import socket
 
     os.environ.setdefault("SAYLACIAN_TRANSLATION_PROVIDER", "offline")
+    # Hidden automated windows have no active HWND for the native pen/touch
+    # hooks to restore on shutdown. Tests exercise widgets, not physical input.
+    for provider in ("wm_pen", "wm_touch"):
+        if Config.has_option("input", provider):
+            Config.remove_option("input", provider)
 
     def deny_network(*args, **kwargs):
         raise AssertionError("Network access attempted during offline test")
@@ -38,6 +43,7 @@ from kivy.core.window import Keyboard
 from kivy.core.window import Window
 from kivy.factory import Factory
 from kivy.lang import Builder
+from kivy.metrics import Metrics
 from kivy.metrics import dp
 from kivy.properties import BooleanProperty
 from kivy.properties import NumericProperty
@@ -193,6 +199,14 @@ class SaylacianApp(MDApp):
     pack_cancel_requested = BooleanProperty(False)
 
     def build(self):
+        from kivy.logger import Logger
+
+        from app.runtime_display import initialize_display_metrics
+
+        dpi, density, fontscale = initialize_display_metrics(Metrics)
+        Logger.info(
+            f"Display: dpi={dpi:g}, density={density:g}, fontscale={fontscale:g}"
+        )
         self.title = "Saylacian"
         self.theme_cls.theme_style = "Dark"
         self.theme_cls.primary_palette = "Gray"
