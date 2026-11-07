@@ -113,6 +113,14 @@ button:disabled {
   padding: 12px 0;
   color: #ddd;
 }
+
+.alternatives {
+  overflow-wrap: anywhere;
+}
+
+.alternatives:empty {
+  display: none;
+}
 button:focus-visible,
 select:focus-visible,
 summary:focus-visible {

@@ -5,6 +5,7 @@
   const form = document.querySelector("#translator");
   const input = document.querySelector("#input");
   const output = document.querySelector("#output");
+  const alternatives = document.querySelector("#alternatives");
   const source = document.querySelector("#source");
   const target = document.querySelector("#target");
   const mode = document.querySelector("#mode");
@@ -22,6 +23,7 @@
     request = null;
     submit.disabled = false;
     output.value = "";
+    alternatives.textContent = "";
     resultSelection = null;
   }
   function changed() {
@@ -56,6 +58,11 @@
       if (current !== generation) return;
       if (!response.ok) throw new Error(result.error || "Conversion failed.");
       output.value = result.text;
+      alternatives.textContent = Array.isArray(result.alternatives)
+        ? result.alternatives.length
+          ? "Alternative readings: " + result.alternatives.slice(0, 3).join(" / ")
+          : ""
+        : "";
       resultSelection = [source.value, target.value, mode.value];
       status.textContent =
         "Alpha testing. " +

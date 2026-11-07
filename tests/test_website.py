@@ -41,6 +41,45 @@ class WebsiteTests(unittest.TestCase):
         )
         self.assertEqual(r.json["text"], "𐒊𐒖𐒌𐒖𐒄!")
         self.assertEqual(r.json["status"], "alpha")
+        self.assertEqual(r.json["alternatives"], [])
+
+    def test_old_nubian_routes_are_selectable(self):
+        response = self.client.get("/")
+        self.assertIn(b"Old Nubian (Coptic)", response.data)
+        self.assertIn(b"Old Nubian scholarly Latin", response.data)
+
+    def test_old_nubian_alternatives_are_returned_by_api(self):
+        response = self.client.post(
+            "/process",
+            json={
+                "text": "ph",
+                "source": "Old Nubian scholarly Latin",
+                "target": "Old Nubian (Coptic)",
+                "mode": "transliterate",
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json["text"], "ⲫ")
+        self.assertIn("ⲡh", response.json["alternatives"])
+        self.assertTrue(
+            any("letter boundaries" in item for item in response.json["warnings"])
+        )
+
+    def test_old_nubian_form_result_displays_alternatives(self):
+        response = self.client.post(
+            "/process",
+            data={
+                "text": "ph",
+                "source": "Old Nubian scholarly Latin",
+                "target": "Old Nubian (Coptic)",
+                "mode": "transliterate",
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b"Alternative readings:", response.data)
+        self.assertIn("ⲡh".encode(), response.data)
 
     @unittest.skipUnless(
         _has_local_route("Somali Latin", "English"),

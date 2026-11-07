@@ -67,7 +67,17 @@ class CoreTests(unittest.TestCase):
     def test_ambiguous_reverse(self):
         r = transliterate("𐒓𐒕", "Osmanya", "Somali Latin")
         self.assertEqual(r.text, "wy")
+        self.assertEqual(set(r.alternatives), {"wii", "uuy", "uuii"})
         self.assertTrue(r.warnings)
+        self.assertIn("character readings", r.warnings[0])
+
+    def test_osmanya_alternatives_are_bounded_and_preserve_unknown_text(self):
+        result = transliterate("𐒓" * 20 + "!é", "Osmanya", "Somali Latin")
+        self.assertEqual(result.text, "w" * 20 + "!é")
+        self.assertLessEqual(len(result.alternatives), 11)
+        self.assertEqual(len(result.alternatives), len(set(result.alternatives)))
+        self.assertNotIn(result.text, result.alternatives)
+        self.assertTrue(all(item.endswith("!é") for item in result.alternatives))
 
     def test_forward_long_vowels_warn_about_reverse_ambiguity(self):
         for latin, glyph in (("ii", "𐒕"), ("uu", "𐒓")):
@@ -152,6 +162,35 @@ class CoreTests(unittest.TestCase):
             ).text,
             "jŋñw",
         )
+
+    def test_old_nubian_digraph_readings_warn_without_changing_text(self):
+        cases = (
+            ("ⲉⲓ", "ei", "i, iː, j"),
+            ("ⲟⲩ", "ou", "u, uː, w, wu"),
+        )
+        for coptic, latin, phonetic_values in cases:
+            with self.subTest(coptic=coptic):
+                read = transliterate(
+                    coptic, "Old Nubian (Coptic)", "Old Nubian scholarly Latin"
+                )
+                self.assertEqual(read.text, latin)
+                self.assertTrue(any(phonetic_values in w for w in read.warnings))
+                uppercase_read = transliterate(
+                    coptic.upper(),
+                    "Old Nubian (Coptic)",
+                    "Old Nubian scholarly Latin",
+                )
+                self.assertEqual(uppercase_read.text, latin.upper())
+                self.assertTrue(
+                    any(phonetic_values in w for w in uppercase_read.warnings)
+                )
+                reverse = transliterate(
+                    latin.upper(),
+                    "Old Nubian scholarly Latin",
+                    "Old Nubian (Coptic)",
+                )
+                self.assertEqual(reverse.text, coptic.upper())
+                self.assertTrue(any(phonetic_values in w for w in reverse.warnings))
 
     def test_old_nubian_capitals_follow_unicode_pairs_and_preserve_latin_case(self):
         cases = {

@@ -27,7 +27,7 @@
           <label for="source">
             From
             <select id="source" name="source">
-              {% for name in ['Somali Latin', 'Osmanya', 'English', 'French', 'Detect language/script'] %}
+              {% for name in ['Somali Latin', 'Osmanya', 'Old Nubian (Coptic)', 'Old Nubian scholarly Latin', 'English', 'French', 'Detect language/script'] %}
               <option {% if values.get('source') == name %}selected{% endif %}>{{ name }}</option>
               {% endfor %}
             </select>
@@ -42,7 +42,7 @@
           <label for="target">
             To
             <select id="target" name="target">
-              {% for name in ['Osmanya', 'Somali Latin', 'English', 'French'] %}
+              {% for name in ['Osmanya', 'Somali Latin', 'Old Nubian (Coptic)', 'Old Nubian scholarly Latin', 'English', 'French'] %}
               <option {% if values.get('target') == name %}selected{% endif %}>{{ name }}</option>
               {% endfor %}
             </select>
@@ -84,6 +84,7 @@
         <label for="output">Result</label>
         <textarea id="output" readonly rows="6">{{ result.text if result else '' }}</textarea>
         <button id="copy" type="button">Copy result</button>
+        <p id="alternatives" class="alternatives" role="note" aria-live="polite">{% if result and result.alternatives %}Alternative readings: {{ result.alternatives[:3]|join(' / ') }}{% endif %}</p>
       </section>
 
       <div id="status" role="status" aria-live="polite">
