@@ -6,7 +6,28 @@ Saylacian is in alpha testing. Contributions can be proposed through GitHub issu
 .\.venv\Scripts\python.exe -m pytest -q
 ```
 
-For the full locked contributor environment and CI-equivalent checks, install `requirements-dev.txt`; see the root README.
+Create a Python 3.12 virtual environment and install `requirements-dev.txt` before
+running the checks below. See the [Windows setup](RUN.md) for the basic environment.
+
+## Propose a change
+
+Keep each pull request focused. Explain the user-visible problem, the change and
+the checks you actually ran. Note skipped checks and known limitations. Use
+synthetic examples or material you have permission to share; exclude personal
+translation content, private research data and credentials.
+
+Use concise, descriptive commit messages, for example:
+
+```text
+fix: correct Borama Q mapping
+feat: show alternative Osmanya readings
+docs: clarify supported scripts
+chore: tidy repository documentation
+```
+
+Use a short-lived branch for the change. Do not rewrite published history or
+bundle unrelated work. Maintainers merge after the required checks pass; an
+alpha source change does not by itself approve binary or model distribution.
 
 ## Code style and checks
 
@@ -15,13 +36,19 @@ Use Ruff as the Python formatter and linter. Keep its 88-character line limit, o
 Before submitting Python changes, run:
 
 ```powershell
-.\.venv\Scripts\python.exe -m ruff format .
-.\.venv\Scripts\python.exe -m ruff check .
+.\.venv\Scripts\python.exe -m ruff format --check main.py app saylacian tools tests
+.\.venv\Scripts\python.exe -m ruff check main.py app saylacian tools tests
 .\.venv\Scripts\python.exe -m compileall -q main.py app saylacian tools tests
 .\.venv\Scripts\python.exe -m pytest -q
+.\.venv\Scripts\python.exe -m pip check
+.\.venv\Scripts\python.exe tools/check_release_safety.py
 ```
 
 For the optional website, use Prettier 3.6.2 on its JavaScript and CSS plus workflow YAML when Node/npm is available. The HTML template contains Jinja syntax that Prettier's HTML parser rejects; format it carefully by hand and preserve whitespace-sensitive template output. Do not reserialize chart mappings, linguistic evidence, or licensed source data as part of a code-formatting change. Parse JSON/YAML/XML and compare data values when modifying those files. Keep third-party licence text verbatim.
+
+Use `python -m ruff format` on the Python files you changed when formatting is
+needed. The normal test suite does not download translation packs; model-dependent
+tests may be skipped when the corresponding packs are not installed.
 
 Any Saylacian-authored code contribution intended for inclusion must be offered under GNU AGPL-3.0-or-later. Contributors must have the right to license their contribution under those terms. Before including copied, generated from, or adapted code, record its origin and licence and get any required permission. Do not assume the project licence covers third-party code or assets.
 

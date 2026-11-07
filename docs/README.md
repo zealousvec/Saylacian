@@ -20,6 +20,8 @@ Start here, then follow the guide that matches what you want to do.
 
 ## Research and release status
 
+- [Independent Python runner](../research/README.md): PowerShell commands, private workspace, checkpoints and evaluation.
+- [Alpha verification](ALPHA_COMPLETION_2026-11-07.md): current source checks and Windows binary blockers.
 - [Old Nubian reading scope](OLD_NUBIAN_READER_PLAN.md)
 - [Somali translation evidence](SOMALI_TRANSLATION_QUALITY.md)
 - [Project status](PROJECT_STATUS.md)

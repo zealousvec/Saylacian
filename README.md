@@ -1,75 +1,105 @@
 # Saylacian
 
-Saylacian is a free Python/Kivy language and script-preservation app for Windows. The current source version is **0.1.0a1 (alpha testing)**. Translation runs on-device after the relevant pack is installed; local use has no account, quota, subscription, or per-translation charge. Changes are listed in the [changelog](CHANGELOG.md).
+A Python desktop app for offline translation and script conversion, with a focus
+on Somali writing systems and a limited Old Nubian reading reference.
 
-![Saylacian desktop interface](assets/screenshots/saylacian-desktop.png)
+![Saylacian desktop app converting Somali Latin text to Osmanya](assets/screenshots/saylacian-desktop.png)
 
-## What works
+[![Python checks](https://github.com/zealousvec/Saylacian/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/zealousvec/Saylacian/actions/workflows/ci.yml) [![Python 3.12](https://img.shields.io/badge/python-3.12-blue)](https://www.python.org/downloads/) [![Code licence: AGPL-3.0-or-later](https://img.shields.io/badge/code-AGPL--3.0--or--later-blue)](LICENSE)
 
-| Feature | Status |
+**Alpha software · version 0.1.0a1 · Windows source installation.**
+No verified Windows binary release is available. Somali translation and
+historical-script readings need linguistic review.
+
+## Features
+
+- Translate locally after installing the relevant offline language packs.
+- Convert supported scripts, with warnings and alternative readings where input
+  is ambiguous.
+- Browse the Old Nubian character reference and save paired reading records.
+- Use the desktop app, shared Python core or optional local Flask website.
+
+## Languages and scripts
+
+| Meaning translation | Support |
 |---|---|
-| English ↔ French meaning translation | Offline model route; smoke-tested |
-| English ↔ Somali Latin | Local models; optional AfriSLM 0.8B is used for English→Somali, and 4B → 2B → 0.8B for Somali→English; fluent review is still needed |
-| Somali ↔ French | Two-step route through English; errors can compound |
-| Somali Latin ↔ Osmanya | Listed script mappings; this changes writing, not meaning |
-| Borama/Kaddare | Selected chart-based mappings; glyphs use private-use code points, not standardized Unicode letters |
-| Old Nubian | Limited 29-character Coptic-script to scholarly Latin table; reverse conversion may have ambiguous letter boundaries. It does not translate Old Nubian meaning or cover all conventions. |
-| Modern Nubian varieties | Unsupported; each variety and orthography needs separate research and review. |
+| English ↔ French | Offline models |
+| English ↔ Somali Latin | Offline models; alpha quality |
+| French ↔ Somali Latin | Two-step route through English; errors can compound |
 
-Somali meaning translation has not had fluent-speaker review. Borama and Kaddare cover selected entries from historical charts and do not establish accepted spelling or general orthography. Old Nubian reading uses an attributed 29-character table; it is not complete manuscript transcription or specialist-reviewed. Modern Nubian varieties are not implemented. See the [user guide](docs/USER_GUIDE.md) for navigation and clipboard behavior, the [documentation index](docs/README.md), and the [script letter guide](docs/SCRIPT_LETTER_GUIDE.md) for mappings and unmatched letters. The [support matrix](docs/SUPPORT_MATRIX.md), [script feasibility](docs/SCRIPT_FEASIBILITY.md), [quality evidence](docs/SOMALI_TRANSLATION_QUALITY.md), and [project status](docs/PROJECT_STATUS.md) give full scope.
+| Script conversion | Scope |
+|---|---|
+| Somali Latin ↔ Osmanya | Listed character mappings; reverse readings can be ambiguous |
+| Somali Latin ↔ Borama / Kaddare | Partial historical-chart mappings; require bundled fonts and use private-use characters |
+| Old Nubian Coptic script ↔ scholarly Latin | Limited 29-character table and alternative reverse parses; not meaning translation |
 
-Optional AfriSLM packs are available in Offline language packs: **0.8B** for English→Somali (**641 MiB**) and **2B** (**1.45 GiB**) or **4B** (**2.86 GiB**) for Somali→English. They need the separately installed `llama-cpp-python` runtime; the app tries the 4B model first for Somali→English, then falls back to smaller installed models. The 4B model used about 5 GB of working memory in one test. Model weights are declared Apache-2.0; training datasets are not downloaded. Somali output is in alpha testing and needs fluent review. See the [translation guide](docs/TRANSLATION_FEASIBILITY.md) for setup and benchmark limits.
+Modern Nubian varieties are not supported. See the [support matrix](docs/SUPPORT_MATRIX.md)
+for route details and the [letter guide](docs/SCRIPT_LETTER_GUIDE.md) for mapping limits.
 
-## Install and run on Windows
+## Install and run
 
-Use Python 3.12. From a clean checkout in PowerShell:
+Requires **64-bit Python 3.12** on Windows. In PowerShell:
 
 ```powershell
+git clone https://github.com/zealousvec/Saylacian.git
+cd Saylacian
 py -3.12 -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r requirements-runtime-lock.txt
 .\.venv\Scripts\python.exe main.py
 ```
 
-No PowerShell activation or execution-policy change is required. Flask belongs to the optional website and is not needed for the Kivy app.
+No virtual-environment activation or execution-policy change is needed.
+For troubleshooting and optional runtimes, see [RUN.md](RUN.md).
 
-The app restores your latest input, output, mode and language pair on the next launch. The saved session stays in your per-user application data folder.
-
-To run the separate legacy website, install `requirements-website.txt` and use `python run_website.py`.
-
-## Download offline packs
-
-Open **Offline language packs** in the app and choose Download for the required pair. Review the displayed download size first. Downloads are opt-in, pinned to upstream revisions, checked against SHA-256, versioned, and stored in the user's application data directory. Packs can be removed to reclaim space. After installation, choose the offline provider and translation works without internet; local translations have no artificial daily limit.
-
-Current download sizes:
-
-- Somali / English: about 300 MiB.
-- French / English: about 166 MiB.
-
-An offline pack contains two directional models. The Somali pack uses the smaller multilingual models; optional AfriSLM packs are installed separately. Model licence and runtime metadata are recorded in the manifests and installed pack record. Full setup and troubleshooting: [RUN.md](RUN.md) and [offline packs](docs/OFFLINE_PACKS.md).
-
-For Old Nubian, select the script and Latin reading, then choose **Read** to open the Reading Studio. It provides a searchable 29-character reference from an attributed 2024 table, a line-preserving reading panel, copy actions, and a versioned JSON record that can be exported and imported from the clipboard. It does not translate meaning or interpret manuscripts; the table has not had independent specialist review, and reverse letter boundaries can be ambiguous. See the [reader scope and sources](docs/OLD_NUBIAN_READER_PLAN.md).
-
-![Offline language pack screen](assets/screenshots/offline-language-packs.png)
-
-## Development
+To use the separate local website:
 
 ```powershell
-py -3.12 -m venv .venv
-.\.venv\Scripts\python.exe -m pip install -r requirements-dev.txt
-.\.venv\Scripts\python.exe -m pytest -q
-.\.venv\Scripts\python.exe -m compileall -q main.py app saylacian tools tests
-.\.venv\Scripts\ruff.exe check --select E9,F63,F7,F82 main.py app saylacian tools tests
-.\.venv\Scripts\python.exe tools\check_release_safety.py
+.\.venv\Scripts\python.exe -m pip install -r requirements-website.txt
+.\.venv\Scripts\python.exe run_website.py
 ```
 
-The test suite and CI do not download offline translation pack weights. The runtime dependency `py3langid` includes a small classifier model for language detection. To reproduce a full local translation pack install, run `tools/prepare_models.py` as documented in [RUN.md](RUN.md); this downloads large model files. Do not commit models or credentials.
+Open `http://127.0.0.1:5000` in your browser. The website does not require Kivy
+to be running and is not a public hosted service.
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for code and linguistic review expectations. Historical models, datasets, and scripts require source, version, licence, and checksum evidence before inclusion.
+## Offline translation
 
-The [API reference](docs/API_REFERENCE.md) documents the Python core and optional self-hosted HTTP endpoints. No public Saylacian translation API is hosted.
+Open **Offline language packs** in the desktop app to install a pack. French ↔
+English downloads about **166 MiB**; Somali ↔ English about **300 MiB**. Downloads
+are opt-in, versioned and checked against pinned SHA-256 hashes. Installed packs
+are stored in your application data folder and can be removed from the app.
 
-## Privacy, platform, and release
+After installation, the offline provider runs without an account or a network
+connection. Optional larger AfriSLM packs require a separate runtime; see
+[offline packs](docs/OFFLINE_PACKS.md) and [translation setup](docs/TRANSLATION_FEASIBILITY.md).
+Online providers are optional and user-configured; review their
+[privacy behavior](docs/ONLINE_TRANSLATION.md) before enabling one.
 
-Offline translation stays on-device. Optional online providers are user-configured enhancements and are not required for local translation. Review [online provider behavior](docs/ONLINE_TRANSLATION.md) before enabling one. Android and iOS builds are not verified; see [mobile runtime status](docs/MOBILE_RUNTIME_STATUS.md).
+## Alpha limitations
 
-Saylacian's source is on the public [GitHub repository](https://github.com/zealousvec/Saylacian); the app is in alpha testing. Saylacian-authored code that the project licensor owns is licensed under GNU AGPL version 3 or (at your option) any later version (SPDX: `AGPL-3.0-or-later`). The complete official text is in [LICENSE](LICENSE). This grant does not cover third-party code or independently licensed fonts, chart-derived data, datasets, or model weights; their terms and notices remain separate in [third-party notices](docs/THIRD_PARTY_NOTICES.md). Public Windows installers and verified mobile releases are not available.
+Somali output can be incorrect. Script conversion does not establish accepted
+word spelling, and the Old Nubian reference is not complete manuscript coverage
+or specialist-validated interpretation. Check important results with a qualified
+speaker or reader.
+
+Android and iOS builds are unverified. Windows binary distribution remains
+blocked by runtime and dependency-provenance checks. See the
+[current project status](docs/PROJECT_STATUS.md) and [changelog](CHANGELOG.md).
+
+## Documentation
+
+- [User guide](docs/USER_GUIDE.md) — navigation, reading tools and clipboard behavior.
+- [Documentation index](docs/README.md) — setup, architecture and source references.
+- [Python and HTTP API](docs/API_REFERENCE.md) — use the shared core or local service.
+- [Independent research runner](research/README.md) — bounded checks, checkpoints and evaluation.
+
+## Contributing and licence
+
+Bug reports, documentation fixes and source-backed linguistic review are welcome.
+Read [Contributing](CONTRIBUTING.md), the [Code of Conduct](CODE_OF_CONDUCT.md)
+and the [security policy](SECURITY.md) before submitting.
+
+Saylacian-authored code is **AGPL-3.0-or-later**; see [LICENSE](LICENSE).
+Third-party models, fonts and chart-derived assets retain their own terms.
+The [third-party notices](docs/THIRD_PARTY_NOTICES.md) credit the upstream work,
+including Kivy, translation-model projects, Noto fonts and historical-script sources.
+Project attribution is recorded in [AUTHORS.md](AUTHORS.md).
