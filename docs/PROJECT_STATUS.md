@@ -1,10 +1,43 @@
-# Saylacian project status — 2026-10-30
+# Saylacian project status
+
+Updated 2026-11-07. Saylacian is **0.1.0a1, in alpha testing**.
+
+## Current source
+
+- [PR #2](https://github.com/zealousvec/Saylacian/pull/2) merged script-reading
+  alternatives, the Borama Q correction and Old Nubian website routes.
+- [PR #3](https://github.com/zealousvec/Saylacian/pull/3) merged the independent
+  Python runner, corrected M2M100 evaluation directions and startup checks.
+- English/French offline models and Somali routes are implemented. Somali
+  translation remains unreliable on some examples; no fluent-speaker accuracy
+  claim or research-model promotion is made.
+- See the [support matrix](SUPPORT_MATRIX.md) for script coverage, the
+  [user guide](USER_GUIDE.md) for use and the [runner guide](../research/README.md)
+  for private research commands.
+
+## Release status
+
+Source installation is available. **No verified binary release is published.**
+The latest candidate's manifest and fonts were checked, but Windows Application
+Control blocked the rebuilt executable. A clean-machine run and real clipboard
+acceptance remain unavailable, and binary distribution evidence is incomplete.
+Android and iOS builds remain unverified.
+
+The [alpha verification record](ALPHA_COMPLETION_2026-11-07.md) describes the
+checks and blockers. The [changelog](../CHANGELOG.md) records source changes.
+Earlier local and remote commit IDs below are historical snapshots, not the
+current public branch state.
+
+<details>
+<summary>Historical development and verification notes (2026-10-30)</summary>
+
+## Saylacian project status — 2026-10-30
 
 Saylacian's initial alpha-testing source snapshot is public at [github.com/zealousvec/Saylacian](https://github.com/zealousvec/Saylacian). A read-only remote check on 2026-10-30 confirmed public `main` at `c4f2f87270c22a05e772816ce98e57a99b871b18`. The original source snapshot contained 149 files. No binary release or mobile release is published.
 
 This page distinguishes public state from the current local cleanup. It must be updated again after a future approved push.
 
-## Final local release-candidate verification — 2026-10-30
+### Final local release-candidate verification — 2026-10-30
 
 - Public `main` remained at `c4f2f87270c22a05e772816ce98e57a99b871b18` in the read-only remote check. Local `main` contained 119 commits beyond that public point before this verification record; nothing was pushed.
 - A clean clone of local commit `bea5ec1f393e7ff634db81b98ca6d048c5202247` built the latest portable candidate. It has 629 manifest-listed files plus the checksum index, one EXE, and a 69,945,461-byte ZIP with SHA-256 `43aaf3efbc54b29ee8c56b01c78eb3351d9bb5d5bbc0c7eb9c0adee846e557f7`. No translation pack weights, cuDNN DLL or Poppler files are included. The 4.59 MiB py3langid language-detection model is included. The manifest records `runtime_verified: false`.
@@ -12,7 +45,7 @@ This page distinguishes public state from the current local cleanup. It must be 
 - No disposable Windows VM is available. Packaged EXE launch, true external clipboard delivery and screen-reader behavior remain unverified. Binary licensing still needs confirmation for Microsoft VC runtime files, Intel `libiomp5md.dll`, GLEW wheel provenance and the Material Design Icons binary. See the current [release checklist](GITHUB_RELEASE_CHECKLIST.md).
 - The pre-existing unstaged edit to `docs/TECHNICAL_AUDIT.md` remains outside the candidate commits and is preserved.
 
-## Verified implementation status
+### Verified implementation status
 
 - Current source version: `0.1.0a1` (alpha testing); version history is in `CHANGELOG.md`.
 - The main application is Python with Kivy/KivyMD. The approved UI is preserved.
@@ -25,9 +58,9 @@ This page distinguishes public state from the current local cleanup. It must be 
 - Android and iOS builds are not verified. No public Windows installer is available.
 - AGPL-3.0-or-later applies only to Saylacian-authored code the licensor owns or may license. Third-party code and assets retain their separate terms.
 
-## Follow-up after publication (local changes not yet published)
+### Follow-up after publication (local changes not yet published)
 
-### Current release completion work (2026-10-30)
+#### Current release completion work (2026-10-30)
 
 - The Old Nubian converter now uses the 29 single-character readings in van Gerven Oei (2024), Table 1, CC BY 4.0, with attribution recorded in `docs/THIRD_PARTY_NOTICES.md`. Unmapped Coptic letters remain unchanged and receive a warning. This replaces the prior 34-entry DBMNT-derived mapping; no DBMNT table content is bundled.
 - User-facing app, website, README and support labels use alpha-testing language and state remaining language/script limits directly.
@@ -45,13 +78,13 @@ This page distinguishes public state from the current local cleanup. It must be 
 - After the local assertion adjustment, the affected two model-pack tests pass and the full local suite reports **80 tests and 66 subtests passed**. Compilation, workflow Ruff lint, formatting, dependency checks, release safety scan, whitespace, and changed-document link checks pass. No CI run has verified this follow-up yet.
 - Public repository metadata still describes Saylacian as “non-profit,” while `AUTHORS.md` says it is not a registered nonprofit. A repository admin should correct that metadata separately.
 
-## Release and verification history
+### Release and verification history
 
 Before publication, recorded clean-clone checks reported 68 passed/12 skipped before model packs and 71 passed/9 skipped after installing and verifying the packs. Those are prior recorded results, not a fresh clean-clone run for this cleanup.
 
 In the current local checkout, the full test suite passed with **80 tests and 66 subtests**. Compilation, the workflow's Ruff correctness selection, Ruff formatting, the release safety scanner, and `git diff --check` passed. Local model weights were present, so installed-model tests ran; GitHub CI intentionally does not download those weights.
 
-## Still open
+### Still open
 
 1. Build the final portable ZIP from the final committed tree and verify manifest/checksum; inspect the workflow artifact job.
 2. Run Windows CI on the pending source changes after an approved push.
@@ -60,3 +93,5 @@ In the current local checkout, the full test suite passed with **80 tests and 66
 5. Check native DLL distribution terms and validate the portable app on a clean Windows host; the current unsigned build is not ready for ordinary-user distribution.
 6. Ask a repository administrator to correct the public project description and review account-level security settings.
 7. Android/iOS builds and Store submission remain out of scope.
+
+</details>

@@ -1,0 +1,29 @@
+name: Bug report
+description: Report a reproducible problem with Saylacian.
+body:
+  - type: markdown
+    attributes:
+      value: >-
+        For vulnerabilities, use the private reporting link in SECURITY.md.
+        Do not include credentials, personal translation content or private datasets.
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Saylacian version or commit, Windows/Python versions and installed model packs, if relevant.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      description: Include a small, non-sensitive example and the selected route or mode.
+    validations:
+      required: true
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Expected and actual behavior
+      description: Include the error message or a redacted screenshot when useful.
+    validations:
+      required: true

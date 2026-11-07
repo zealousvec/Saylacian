@@ -2,6 +2,19 @@
 
 Changes are recorded after local verification. The source is in alpha testing; no tagged binary release is published.
 
+## Unreleased
+
+- Corrected the Borama Q chart mapping while retaining legacy copied-text decoding.
+- Added bounded Osmanya alternative readings and exposed Old Nubian routes and
+  alternative readings on the local website.
+- Added Old Nubian digraph warnings without selecting a pronunciation.
+- Published the independent Python runner, PowerShell commands and corrected
+  M2M100 evaluation direction handling. Research weights remain private and the
+  production translation models are unchanged.
+- Initialized display scaling before canvas rules and isolated hardware input
+  hooks during hidden self-tests. Windows binary execution and distribution
+  checks remain open; see [alpha status](docs/ALPHA_COMPLETION_2026-11-07.md).
+
 ## 0.1.0a1 — alpha testing (2026-10-30)
 
 - Kept meaning translation local-first, free of daily quotas, and optional online providers nonessential.
