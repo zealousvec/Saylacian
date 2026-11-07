@@ -265,7 +265,9 @@ class TranslationTests(unittest.TestCase):
                     if path == large
                     else "smaller model"
                 )
-                return SimpleNamespace(text=label, warnings=("Experimental.",)), None
+                return SimpleNamespace(
+                    text=label, warnings=("Experimental.",), alternatives=()
+                ), None
 
             with (
                 patch(
@@ -328,7 +330,7 @@ class TranslationTests(unittest.TestCase):
                 )
 
         self.assertEqual(result.text, "2B translation.")
-        self.assertIn("used the smaller model", result.warnings[-1])
+        self.assertTrue(any("used the smaller model" in w for w in result.warnings))
         self.assertEqual(route.call_args_list[0].args[3], largest)
         self.assertEqual(route.call_args_list[1].args[3], medium)
 
@@ -367,7 +369,7 @@ class TranslationTests(unittest.TestCase):
                 )
 
         self.assertEqual(result.text, "I love you.")
-        self.assertIn("used the smaller model", result.warnings[-1])
+        self.assertTrue(any("used the smaller model" in w for w in result.warnings))
 
     def test_unavailable_afrislm_runtime_falls_back_with_warning(self):
         with TemporaryDirectory() as temporary:
@@ -415,6 +417,7 @@ class TranslationTests(unittest.TestCase):
             _synthetic_candidate_is_degenerate("rare term", "Tarjumid \u2047 calaamad")
         )
 
+    @patch.dict(os.environ, {"SAYLACIAN_EXPERIMENTAL_SYNTHETIC": "1"})
     def test_synthetic_unknown_token_marker_uses_multilingual_fallback(self):
         with TemporaryDirectory() as temporary:
             root = Path(temporary)
@@ -467,6 +470,7 @@ class TranslationTests(unittest.TestCase):
         )
         fallback_engine.translate_batch.assert_called_once()
 
+    @patch.dict(os.environ, {"SAYLACIAN_EXPERIMENTAL_SYNTHETIC": "1"})
     def test_synthetic_candidate_warning_hides_internal_model_details(self):
         with TemporaryDirectory() as temporary:
             root = Path(temporary)
@@ -641,6 +645,7 @@ class TranslationTests(unittest.TestCase):
 
             engine.translate_batch.assert_not_called()
 
+    @patch.dict(os.environ, {"SAYLACIAN_EXPERIMENTAL_SYNTHETIC": "1"})
     def test_synthetic_somali_token_limit_rejects_before_inference(self):
         with TemporaryDirectory() as temporary:
             root = Path(temporary)
@@ -715,6 +720,7 @@ class TranslationTests(unittest.TestCase):
         (MODEL_ROOT / "somali/en_so_synthetic/model.bin").exists(),
         "Synthetic EN→SO candidate not installed",
     )
+    @patch.dict(os.environ, {"SAYLACIAN_EXPERIMENTAL_SYNTHETIC": "1"})
     def test_synthetic_candidate_improves_verified_examples_offline(self):
         with patch("socket.socket.connect", side_effect=AssertionError("Network")):
             thank_you = translate_meaning("Thank you.", "English", "Somali Latin")
@@ -732,6 +738,7 @@ class TranslationTests(unittest.TestCase):
         (MODEL_ROOT / "somali/en_so_synthetic/model.bin").exists(),
         "Synthetic EN→SO candidate not installed",
     )
+    @patch.dict(os.environ, {"SAYLACIAN_EXPERIMENTAL_SYNTHETIC": "1"})
     def test_synthetic_candidate_repetition_falls_back_offline(self):
         with patch("socket.socket.connect", side_effect=AssertionError("Network")):
             result = translate_meaning("How are you?", "English", "Somali Latin")
@@ -742,6 +749,7 @@ class TranslationTests(unittest.TestCase):
         (MODEL_ROOT / "somali/en_so_synthetic/model.bin").exists(),
         "Synthetic EN→SO candidate not installed",
     )
+    @patch.dict(os.environ, {"SAYLACIAN_EXPERIMENTAL_SYNTHETIC": "1"})
     def test_synthetic_runaway_output_uses_multilingual_rescue(self):
         with patch("socket.socket.connect", side_effect=AssertionError("Network")):
             result = translate_meaning(

@@ -36,7 +36,32 @@ In Saylacian, select the download icon, then download a pack. Current pinned dow
 
 The app verifies each downloaded asset against its manifest size and SHA-256, stages the files, then activates a versioned pack. Translation uses installed local models without an account, network connection, provider quota, or per-request fee. Packs live in `%LOCALAPPDATA%\Saylacian\model-packs`; remove a pack in the same screen to reclaim its storage. During an update, older versions remain recoverable until the user removes the pack.
 
-The Somali pack uses multilingual OPUS translation checkpoints in both directions. The experimental synthetic English-to-Somali checkpoint is not offered as a download because a pinned preconverted artifact is unavailable. Existing source installs can continue to use that model if it is present locally. Somali quality remains machine-generated and needs fluent-speaker evaluation.
+The Somali pack uses multilingual OPUS translation checkpoints in both directions.
+An ignored local synthetic English-to-Somali checkpoint no longer overrides that
+pack merely because its file exists. It remains an explicit experiment, not an
+offered download. Existing installed AfriSLM choices retain their directional
+priority and standard-model fallback.
+
+To test an already-present local synthetic checkpoint in this PowerShell session:
+
+```powershell
+$env:SAYLACIAN_EXPERIMENTAL_SYNTHETIC = '1'
+.\.venv\Scripts\python.exe main.py
+# Restore normal selection for subsequent launches:
+Remove-Item Env:SAYLACIAN_EXPERIMENTAL_SYNTHETIC
+```
+
+Only `1` enables the experiment. For English→Somali it deliberately takes
+precedence over optional AfriSLM so the requested model can be tested; missing or
+degenerate synthetic results retain the standard pack fallback. The flag also
+affects the Somali stage of French→Somali. It never downloads a model. A standard
+Somali pack is still required for this experimental path's fallback.
+
+Number/number-format differences and clear English/French source negation cues
+produce review warnings. They do not prove an error or automatically replace
+numbers, names or words; localized numbers and spelled-out quantities can also
+trigger review. Somali negation and named-entity faithfulness are not automatically
+verified. Have a fluent speaker review important results.
 
 On desktop, press **Ctrl+Shift+M** to switch between translation and script conversion, and **Ctrl+P** to open offline packs. In the pack screen use **Up/Down** to select a pack and **Enter** to start a download for an uninstalled pack. For an installed pack, Enter opens a confirmation that defaults to **KEEP**; press **Right**, then **Enter** to confirm **REMOVE**, or **Esc** to keep it. **Esc** cancels an active download or returns when idle. Press **Ctrl+L** to return to the translator and focus the text editor. Press **Ctrl+K** to search/select a target language or script, and **Ctrl+Shift+K** to choose a source. Use **Up/Down** to move through matches, **Enter** to select and **Esc** to return.
 

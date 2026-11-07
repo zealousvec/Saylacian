@@ -15,6 +15,12 @@ Status describes current checked-in code and local resources, not a release-qual
 
 No other meaning-translation pairs are installed. Picker labels distinguish alpha language models from unavailable script mappings. An unavailable script cannot be selected as an active source/target route.
 
+Local synthetic English→Somali weights require the explicit experimental flag
+documented in [RUN.md](../RUN.md); file presence alone does not select them.
+The standard pack remains their fallback. Review warnings flag numeric-text
+differences and possible English/French negation without rewriting translations.
+They are not semantic correctness or named-entity guarantees.
+
 ## Script conversion
 
 | Conversion | Status | Limit |
