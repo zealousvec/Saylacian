@@ -4,6 +4,7 @@
 import os
 import re
 import unicodedata
+from collections import Counter
 from functools import lru_cache
 from pathlib import Path
 
@@ -25,6 +26,7 @@ AFRISLM_MAX_INPUT_TOKENS = 1700
 AFRISLM_LONG_INPUT_THRESHOLD = 1200
 AFRISLM_MAX_OUTPUT_TOKENS = 512
 AFRISLM_PROMPT_TOKEN_RESERVE = 160
+EXPERIMENTAL_SYNTHETIC_ENV = "SAYLACIAN_EXPERIMENTAL_SYNTHETIC"
 
 PIVOT_ROUTES = {
     ("Somali Latin", "French"): "English",
@@ -60,12 +62,52 @@ def _synthetic_candidate_is_degenerate(source, output):
     if len(segments) != len(set(segments)):
         return True
     words = normalize(output).split()
+    source_words = set(normalize(source).split())
     return bool(
         len(words) > 1
         and len(words[0]) >= 3
         and words[0] in words[1]
         and words[0] != words[1]
+        and not {words[0], words[1]}.issubset(source_words)
     )
+
+
+def _translation_review_warnings(source_text, translated, source_language):
+    """Flag reviewable differences without substituting words or numbers."""
+
+    def numbers(value):
+        normalized = unicodedata.normalize("NFKC", value)
+        normalized = "".join(
+            str(unicodedata.decimal(char)) if char.isdecimal() else char
+            for char in normalized
+        )
+        return Counter(re.findall(r"\d+", normalized))
+
+    warnings = []
+    if numbers(source_text) != numbers(translated):
+        warnings.append(
+            "Numbers or number formatting differ; compare them with the original."
+        )
+    negative = False
+    if source_language == "English":
+        negative = bool(
+            re.search(
+                r"\b(?:no|not|never|cannot)\b|n['’]t\b", source_text, re.IGNORECASE
+            )
+        )
+    elif source_language == "French":
+        negative = bool(
+            re.search(
+                r"\b(?:ne\b|n['’]).{0,100}\b(?:pas|plus|jamais|aucun|aucune)\b",
+                source_text,
+                re.IGNORECASE,
+            )
+        )
+    if negative:
+        warnings.append(
+            "The source may contain negation; verify that its meaning is preserved."
+        )
+    return tuple(warnings)
 
 
 def _clean_model_markers(text):
@@ -335,6 +377,28 @@ def clear_model_cache():
 
 
 def translate_meaning(text, source, target, model_root=None, *, provider_override=None):
+    result = _translate_meaning(
+        text, source, target, model_root, provider_override=provider_override
+    )
+    if not text.strip() or not result.text.strip():
+        return result
+    return Conversion(
+        result.text,
+        tuple(
+            dict.fromkeys(
+                (
+                    *result.warnings,
+                    *_translation_review_warnings(text, result.text, source),
+                )
+            )
+        ),
+        result.alternatives,
+    )
+
+
+def _translate_meaning(
+    text, source, target, model_root=None, *, provider_override=None
+):
     if get_capability(source, target, "translation") is None:
         raise ValueError("Choose English, French or Somali.")
     if not text.strip():
@@ -396,8 +460,13 @@ def translate_meaning(text, source, target, model_root=None, *, provider_overrid
         )
         return Conversion(second.text, warnings)
     candidate_paths = []
+    experimental_synthetic = (source, target) == (
+        "English",
+        "Somali Latin",
+    ) and os.environ.get(EXPERIMENTAL_SYNTHETIC_ENV, "").strip() == "1"
     if (source, target) == ("English", "Somali Latin"):
-        candidate_paths.append(_afrislm_model_path())
+        if not experimental_synthetic:
+            candidate_paths.append(_afrislm_model_path())
     elif (source, target) == ("Somali Latin", "English"):
         candidate_paths.extend(
             (
@@ -453,7 +522,7 @@ def translate_meaning(text, source, target, model_root=None, *, provider_overrid
         raise
     candidate_fallback = False
     candidate_fallback_reason = None
-    if (source, target) == ("English", "Somali Latin"):
+    if experimental_synthetic:
         candidate = next(
             (
                 root / "somali" / "en_so_synthetic"

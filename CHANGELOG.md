@@ -4,6 +4,13 @@ Changes are recorded after local verification. The source is in alpha testing; n
 
 ## Unreleased
 
+- Prefer the standard EN→SO pack over incidental local synthetic weights; retain
+  explicit experimental opt-in and standard fallbacks.
+- Add numeric-format and source-negation review cues without replacing text;
+  avoid rejecting source-supplied overlapping names as prefix corruption.
+- Recognize existing Coptic mappings such as ϣ/Ϣ during script detection without
+  inferring Old Nubian or another language.
+
 - Corrected the Borama Q chart mapping while retaining legacy copied-text decoding.
 - Added bounded Osmanya alternative readings and exposed Old Nubian routes and
   alternative readings on the local website.

@@ -243,7 +243,7 @@ def detect_chart_script(text):
 
 def detect_script(text):
     letters = [c for c in text if c.isalpha()]
-    if letters and all(0x2C80 <= ord(c) <= 0x2CFF for c in letters):
+    if letters and all(unicodedata.name(c, "").startswith("COPTIC ") for c in letters):
         return "Coptic script", "Coptic script detected; language is not inferred."
     alphanumeric = [c for c in text if c.isalnum()]
     if alphanumeric and all(

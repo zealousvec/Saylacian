@@ -1,5 +1,51 @@
 # Somali translation quality work
 
+## Matched routing correction — 2026-11-07
+
+The local synthetic checkpoint matched its pinned hash. The old dispatcher
+preferred it solely because its file existed. Its guards screened obvious
+corruption/repetition, not meaning preservation. It is now an explicit experiment;
+standard pack selection no longer depends on an ignored local candidate.
+
+Saved pre-change outputs were compared with fresh post-change app outputs on
+identical source/reference objects: 40 EN→SO and 40 FR→SO examples from the existing
+fixed mixture/InfoPankki test sample. Same physical weights, including the local
+synthetic file, were available. No retraining, new model or decoding-parameter
+tuning was involved. Network connections were blocked. All 80 new outputs matched
+the saved standard-pack baseline; private texts/predictions are not published.
+
+| Direction | BLEU before → after | chrF++ before → after | Mean seconds before → after |
+|---|---:|---:|---:|
+| English→Somali | 5.803 → 12.890 | 33.351 → 41.049 | 0.956 → 0.594 |
+| French→Somali | 5.281 → 6.544 | 18.025 → 18.993 | 4.004 → 0.481 |
+
+For EN→SO, paired mean-sentence chrF++ gain is +7.8644, bootstrap 95% interval
+[3.3220, 12.3186] (2,000 resamples, seed 1729): 24 wins, 7 losses, 9 ties.
+For FR→SO the interval [-2.1238, 2.8311] crosses zero: 4 wins, 4 losses, 32 ties.
+The corpus score increase is not a general accuracy percentage or human quality
+rating. The sample is small and domain-concentrated; references and near-overlap
+were not independently re-adjudicated during this change.
+
+Timing is an observation on the host, including initialization/cache effects,
+not a controlled latency guarantee. EN→SO median actually rose from 0.284 to
+0.551 s; FR→SO median fell from 5.093 to 0.400 s. The routing change removes an
+extra candidate generation/fallback stage, but does not make every input faster
+or more accurate.
+
+Existing AfriSLM directional choices and fallbacks remain tested; no new AfriSLM
+weights were downloaded or selected. M2M100 FR→SO remains private/experimental,
+with no application integration. Synthetic access is retained through the
+explicit flag described in [RUN.md](../RUN.md).
+
+New review cues flag differing numeric text/format and possible English/French
+source negation without rewriting outputs. They are review aids, not semantic
+checks; localized/spelled-out numbers can legitimately differ. Source-supplied
+overlapping names are no longer rejected solely by the prefix-corruption
+heuristic; full identity, repeated-sentence and unreadable-token guards remain.
+
+All older measurements below retain their original dataset/decode scope and
+must not be compared with this fixed sample as though they were paired runs.
+
 ## Current change
 
 Long offline inputs that exceed a model's token window are now segmented at whitespace into bounded inference batches. Original whitespace at segment joins is retained, and the app warns that context may change across independent segments. Unbroken over-limit tokens still require manual shortening. This is a usability change; it has not been benchmarked as a translation-quality improvement.

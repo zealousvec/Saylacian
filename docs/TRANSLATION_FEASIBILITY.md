@@ -1,5 +1,14 @@
 # Offline semantic translation
 
+## Model-selection update — 2026-11-07
+
+An existing local synthetic EN→SO model is now opt-in rather than selected by
+file presence. The standard pack won the matched comparison summarized in
+[quality evidence](SOMALI_TRANSLATION_QUALITY.md). Installed optional AfriSLM
+choices and standard fallbacks remain available; see [RUN.md](../RUN.md) for
+experimental access. Earlier synthetic-model results and timings below are
+historical observations, not the current default selection rule.
+
 ## Implemented routes in alpha testing
 
 English ↔ French runs locally through CTranslate2 and SentencePiece with archived Argos model packages. The runtime performs no model download and calls no external translation service. Two directions were tested on four sentence examples while Python socket connections were disabled. Aggregate timing is retained here; raw outputs are kept in local app data, not the repository. These are small smoke examples, not a broad quality benchmark or expert review.
