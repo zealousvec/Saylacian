@@ -7,6 +7,10 @@
 - Old Nubian sequences ⲉⲓ and ⲟⲩ produce source-attributed ambiguity warnings in both directions, including uppercase input. Per-letter transliteration stays unchanged; no pronunciation is selected.
 - Regression coverage checks ambiguity, bounded output, preservation, API responses, form rendering and route availability.
 
+## Borama mapping correction
+
+The bundled source chart visibly labels the disputed entry LETTER Q. The converter now maps q to U+E01B, keeps unlisted o/x as flagged Latin, and retains legacy U+E014 decoding as o with a compatibility warning. The updated font maps both private-use positions to the same chart glyph. Borama and Kaddare records include source artifact hashes; existing source attribution and CC BY-SA terms remain. The source chart was visually inspected during this sprint. This fixes chart transcription, not word-level orthography.
+
 ## Verification
 
 The release was prepared in a separate checkout based on current origin/main, not by staging the owner's dirty research workspace. Local checks use the already installed development interpreter.

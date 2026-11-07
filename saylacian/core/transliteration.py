@@ -26,10 +26,19 @@ SCRIPT_LATIN_TO_PUA = {
     }
     for name, data in SCRIPT_DATA.items()
 }
+SCRIPT_LEGACY_PUA_TO_LATIN = {
+    name: {
+        chr(int("0x" + record["pua"][2:], 0)): record["grapheme"]
+        for record in data.get("legacy_compatibility", ())
+    }
+    for name, data in SCRIPT_DATA.items()
+}
 SCRIPT_PUA_TO_LATIN = {
     name: {glyph: grapheme for grapheme, glyph in mapping.items()}
     for name, mapping in SCRIPT_LATIN_TO_PUA.items()
 }
+for _name, _legacy_mapping in SCRIPT_LEGACY_PUA_TO_LATIN.items():
+    SCRIPT_PUA_TO_LATIN[_name].update(_legacy_mapping)
 SOMALI_TO_OSMANYA = RESOURCE["mapping"]
 OSMANYA_TO_SOMALI = {value: key for key, value in SOMALI_TO_OSMANYA.items()}
 _OSMANYA_REVERSE_GROUPS = {}
@@ -162,11 +171,7 @@ def _chart_transliterate(text: str, source: str, target: str) -> Conversion:
             warnings.append(
                 "Unmapped letters preserved: " + " ".join(dict.fromkeys(missing)) + "."
             )
-        if target == "Borama":
-            warnings.append(
-                "The supplied chart has no Q label; q stays Latin and is flagged."
-            ) if "q" in {char.casefold() for char in missing} else None
-        elif target == "Kaddare":
+        if target == "Kaddare":
             warnings.append(
                 "The chart shows two Kaddare forms for each listed label; "
                 "conversion uses one label glyph and does not choose a word "
@@ -178,6 +183,11 @@ def _chart_transliterate(text: str, source: str, target: str) -> Conversion:
     for char in text:
         if char in mapping:
             output.append(mapping[char])
+            if char in SCRIPT_LEGACY_PUA_TO_LATIN[source]:
+                warnings.append(
+                    f"Legacy {source} character U+{ord(char):04X} is decoded "
+                    "using Saylacian's earlier mapping."
+                )
         else:
             output.append(char)
             if 0xE000 <= ord(char) <= 0xE1FF:

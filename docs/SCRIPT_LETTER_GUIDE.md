@@ -12,9 +12,11 @@ There is no app mapping for `p`, `v` or `z`; these are not part of the Somali le
 
 The current chart-derived table contains these graphemes:
 
-`a, e, i, ii, u, uu, oo, b, t, j, dh, g, h, kh, d, r, s, sh, c, f, o, k, l, m, n, w, y`
+`a, e, i, ii, u, uu, oo, b, t, j, dh, g, h, kh, d, r, s, sh, c, f, q, k, l, m, n, w, y`
 
-The chart explicitly lists `q` as unsupported. The current records also have no `x` entry. `p`, `v` and `z` likewise have no mapping in this table. Any of these characters stay Latin in converted output. The app's glyphs use private-use code points: they need Saylacian's matching font/table, or use **Copy Latin** / **Copy image** when sharing outside the app. This is a partial chart transcription; do not infer a complete Borama alphabet or reviewed spelling from it.
+The chart labels its U+E014 glyph as `LETTER Q`. Earlier Saylacian text used U+E014 for `o`, so that reading remains available for compatibility. New `q` output uses U+E01B; new `o` input stays Latin because the chart has no `o` glyph. The chart also has no `x` entry, so `x` stays Latin and is reported. `p`, `v` and `z` likewise have no mapping in this table. The app's glyphs use private-use code points: they need Saylacian's matching font/table, or use **Copy Latin** / **Copy image** when sharing outside the app. This is a partial chart transcription; do not infer a complete Borama alphabet or reviewed spelling from it.
+
+A historical cross-check is available in Mauro Tosco's 2015 survey, which reproduces Lewis's 1958 Gadabuursi chart (pp. 142–143). Tosco notes that some signs are similar and that the chart's `d`/`q` distinction is difficult to resolve from the table alone. This supports treating chart labels as provisional mapping evidence, not as a fully attested orthography. The current source chart and this historical reproduction do not establish a safe Borama mapping for modern Somali `o` or `x`; Saylacian therefore preserves those inputs and reports them as unmapped. No new glyph mapping was inferred from this source.
 
 ## Kaddare
 
@@ -60,7 +62,7 @@ Old Nubian is different: Saylacian has a limited 29-character reading table, not
 | `ⳣ` | `w` |
 | `ⳝ` | `j` |
 
-The 2024 table gives `kh` for `ⲭ`, `ŋ` for `ⳟ`, and `ñ` for `ⳡ`. It describes `ⲉⲓ` and `ⲟⲩ` as digraphs, but Saylacian currently reads characters independently and does not implement those digraphs as units. It has no Old Nubian `v` entry; an unlisted character such as `ϥ` is preserved and flagged. This does not imply that all historical writing is represented by modern Latin letters. The multi-character readings `th`, `ph`, `kh`, and `ps` may be split at different letter boundaries when reversed; the app shows possible parses, not an authoritative spelling. See the [Old Nubian reading scope](OLD_NUBIAN_READER_PLAN.md).
+The 2024 table gives `kh` for `ⲭ`, `ŋ` for `ⳟ`, and `ñ` for `ⳡ`. It describes `ⲉⲓ` and `ⲟⲩ` as digraphs and gives multiple phonetic values for each. Saylacian warns when these sequences appear, but still transliterates each character separately and does not choose a pronunciation. It has no Old Nubian `v` entry; an unlisted character such as `ϥ` is preserved and flagged. This does not imply that all historical writing is represented by modern Latin letters. The multi-character readings `th`, `ph`, `kh`, and `ps` may be split at different letter boundaries when reversed; the app shows possible parses, not an authoritative spelling. See the [Old Nubian reading scope](OLD_NUBIAN_READER_PLAN.md).
 
 ## Sharing and limits
 
