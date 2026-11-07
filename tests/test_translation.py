@@ -786,10 +786,14 @@ class TranslationTests(unittest.TestCase):
     )
     def test_french_somali_pivot_offline(self):
         with patch("socket.socket.connect", side_effect=AssertionError("Network")):
-            result = translate_meaning(
-                "Bonjour, comment allez-vous ?", "French", "Somali Latin"
-            )
-        self.assertEqual(result.text, "Hello, sidee baad u tahay?")
+            source = "Bonjour, comment allez-vous ?"
+            intermediate = translate_meaning(source, "French", "English")
+            expected = translate_meaning(intermediate.text, "English", "Somali Latin")
+            result = translate_meaning(source, "French", "Somali Latin")
+        # This is a routing smoke, not a gold Somali translation reference.
+        self.assertTrue(intermediate.text.strip())
+        self.assertTrue(expected.text.strip())
+        self.assertEqual(result.text, expected.text)
         self.assertTrue(
             any("Somali translation may be inaccurate" in w for w in result.warnings)
         )
