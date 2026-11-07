@@ -1,0 +1,6 @@
+# Install PyTorch separately from its CUDA 12.8 wheel index (see setup script).
+transformers==4.52.4
+peft==0.15.2
+accelerate==1.7.0
+sentencepiece==0.2.0
+sacrebleu==2.5.1
