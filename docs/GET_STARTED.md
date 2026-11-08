@@ -2,13 +2,13 @@
 
 **Choose your device:** [Windows computer](#windows-computer--portable-test-build) · [Android or iPhone](#android-or-iphone) · [Source installation](#windows-computer--source-installation)
 
-Saylacian is **alpha software**. It is free and open source, but a verified public installer and mobile app are not yet available.
+Saylacian is **alpha software**. A **public experimental Windows pre-release** is available, but it has not passed clean-PC verification or the binary redistribution review; a verified stable installer and mobile app are not available.
 
-**Ordinary Windows users:** Check [GitHub Releases](https://github.com/zealousvec/Saylacian/releases). When an approved Windows portable ZIP appears there, download it under **Assets**, extract the whole ZIP, and open `Saylacian/Saylacian.exe`. No GitHub account, Python, Git, or VS Code is required. **No approved download has been published yet.**
+**Ordinary Windows users:** Check [GitHub Releases](https://github.com/zealousvec/Saylacian/releases). Under release **v0.1.0a1**, download **Saylacian-Windows-Portable.zip** (shown as **195 MB** on GitHub) under **Assets**. Extract the entire ZIP, locate `Saylacian.exe` inside the application folder, and run it. Keep bundled files together. No GitHub account, Python, Git, or VS Code is required. **This is an unsigned, unverified alpha**, not an approved stable download. Do not disable Windows security if it blocks the app.
 
 **Developers:** Go to [RUN.md](../RUN.md) for Python setup and source-code instructions. **Code → Download ZIP is source code, not the app.**
 
-**Size:** The current locally supplied Windows candidate is approximately **68.3 MB (65.1 MiB)** compressed, containing 600 ZIP entries. Extracted size and model-pack downloads are additional. The candidate is not approved for public distribution.
+**Size:** The **published** GitHub Release ZIP is shown as **195 MB**. A **different, locally cleaned** archive was approximately 68.3 MB (65.1 MiB); the published ZIP has not been independently inspected for unnecessary development files. Extracted size and model-pack downloads are additional.
 
 ## Windows computer — portable test build
 
