@@ -11,6 +11,8 @@ on Somali writing systems and a limited Old Nubian reading reference.
 No verified Windows binary release is available. Somali translation and
 historical-script readings need linguistic review.
 
+**New here? Start with the [beginner installation guide](#install-and-run-on-windows--beginner-guide).**
+
 ## Features
 
 - Translate locally after installing the relevant offline language packs.
@@ -36,30 +38,188 @@ historical-script readings need linguistic review.
 Modern Nubian varieties are not supported. See the [support matrix](docs/SUPPORT_MATRIX.md)
 for route details and the [letter guide](docs/SCRIPT_LETTER_GUIDE.md) for mapping limits.
 
-## Install and run
+## Install and run on Windows — beginner guide
 
-Requires **64-bit Python 3.12** on Windows. In PowerShell:
+**You do not need to know how to code. Follow these steps in order.**
+This guide is for a **64-bit Windows PC**. You will need internet for setup and
+for downloading translation packs. There is no ready-to-install Saylacian
+installer yet.
+
+You do not need Git, VS Code, a paid account or a subscription.
+
+### 1. Install Python 3.12
+
+Python is the program that runs Saylacian.
+
+1. Open the [official Python download page](https://www.python.org/downloads/).
+2. Download **Python install manager**, open the downloaded file, and choose
+   **Install**.
+3. Open the Windows **Start** menu, type **PowerShell**, and open **Windows
+   PowerShell**.
+4. Copy this command, paste it into PowerShell, and press **Enter**:
+
+   ```powershell
+   pymanager install 3.12
+   ```
+
+5. Wait for it to finish. Then paste this command and press **Enter**:
+
+   ```powershell
+   py -3.12 --version
+   ```
+
+**You should see `Python 3.12...`.** The last number may vary. If you already
+have Python 3.12 and this check works, you can skip installing it again.
+If a command fails, use the troubleshooting table below before continuing.
+
+These steps use Python's [official Windows install manager](https://docs.python.org/3/using/windows.html#python-install-manager).
+Keep using `3.12` in the commands below, even if another Python version is also
+installed.
+
+### 2. Download Saylacian
+
+1. [Download Saylacian as a ZIP](https://github.com/zealousvec/Saylacian/archive/refs/heads/main.zip).
+   Alternatively, click the green **Code** button near the top of this
+   repository, then **Download ZIP**.
+2. Open your **Downloads** folder in File Explorer.
+3. Right-click the downloaded ZIP, choose **Extract All...**, then **Extract**.
+   **Do not run the app from inside the ZIP.**
+4. Open the extracted folders until you can see **`main.py`** and
+   **`requirements-runtime-lock.txt`** together. Windows may hide the
+   `.py` and `.txt` endings, so they may appear as **main** and
+   **requirements-runtime-lock**.
+
+**Keep this folder.** You will use it whenever you open Saylacian.
+
+### 3. Open PowerShell in the Saylacian folder
+
+While viewing the folder containing `main.py`:
+
+1. Click the **address bar at the top of File Explorer** — the bar showing the
+   folder location, not the search box.
+2. Type `powershell` and press **Enter**.
+3. A PowerShell window opens. Paste this check and press **Enter**:
+
+   ```powershell
+   Test-Path .\main.py
+   ```
+
+**You should see `True`.** If you see `False`, go back to step 2 and open the
+folder containing `main.py`, then open PowerShell there again.
+
+### 4. Set up the app — first time only
+
+Use the PowerShell window from step 3. **Run one command at a time. Wait for
+each command to finish before running the next.** Copy only the command text;
+do not type the word “powershell” or the box borders.
+
+First, create the app's own Python folder:
+
+```powershell
+py -3.12 -m venv .venv
+```
+
+This may finish without printing anything. That is normal. When the
+`PS ...>` prompt returns, run:
+
+```powershell
+.\.venv\Scripts\python.exe -m pip install -r requirements-runtime-lock.txt
+```
+
+This downloads the software Saylacian needs. Expect lots of text and allow
+several minutes, depending on your connection. Wait until the `PS ...>`
+prompt returns. **If it ends with an error, fix that before continuing.**
+
+You do not need to activate anything or change PowerShell's execution policy.
+
+### 5. Start Saylacian
+
+In the same PowerShell window, run:
+
+```powershell
+.\.venv\Scripts\python.exe main.py
+```
+
+**The Saylacian app window should open.** Leave PowerShell open while using
+the app; messages there are normal. Close the Saylacian window when finished.
+
+### 6. Enable translation inside the app
+
+Writing-system conversion and meaning translation are different features.
+**Meaning translation needs a language pack downloaded separately.**
+
+1. Open **Offline language packs** in the app. You can also press **Ctrl+P**.
+2. Choose **Download** for **French / English** or **Somali / English**.
+   Review the displayed size first: about **166 MiB** for French or
+   **300 MiB** for Somali.
+3. Wait for the pack to finish installing.
+4. Return to the translator and choose **Translate meaning**. You can press
+   **Ctrl+Shift+M** to switch modes.
+5. Choose your source and target languages, then enter your text.
+
+Once installed, the standard offline packs work without internet. Somali
+translations are experimental: have a fluent speaker check important results.
+You can leave the optional larger model packs for later.
+
+### Opening Saylacian next time
+
+**You do not need to download everything or repeat setup.**
+
+1. Open the folder containing `main.py`.
+2. Type `powershell` into File Explorer's address bar and press **Enter**.
+3. Run this one command:
+
+   ```powershell
+   .\.venv\Scripts\python.exe main.py
+   ```
+
+### If something goes wrong
+
+| What you see | What to do |
+|---|---|
+| `pymanager` is not recognised | Finish installing **Python install manager** from step 1, then close and reopen PowerShell. See [Python's Windows troubleshooting](https://docs.python.org/3/using/windows.html#troubleshooting) if it still fails. |
+| `py` is not recognised, or Python 3.12 cannot be found | Complete step 1, close and reopen PowerShell, then check `py -3.12 --version` again. |
+| `Test-Path .\main.py` prints `False` | You opened PowerShell in the wrong folder. Find the extracted folder with `main.py` and `requirements-runtime-lock.txt`, then repeat step 3. |
+| `requirements-runtime-lock.txt` or `main.py` cannot be found | Extract the ZIP first, then open PowerShell in the folder containing both files. |
+| `.venv\Scripts\python.exe` is not recognised or cannot be found | In the correct folder, run `py -3.12 -m venv .venv`, then run the dependency-install command from step 4. |
+| `No module named kivy` or another missing-module error | Run the dependency-install command from step 4 and wait for it to finish successfully. |
+| Installation reports `No matching distribution found` | Check that you are using **64-bit Python 3.12**. Copy the full error when asking for help; do not install random package versions to work around it. |
+| A window flashes and disappears when you double-click `main.py` | Start it through PowerShell using step 5 so the error stays visible. |
+| Translation says no local model is installed | Download the matching language pack inside the app using step 6. |
+| A download fails | Check your internet connection and available disk space, then retry. Keep the full error text if it fails again. |
+
+Still stuck? [Open a GitHub issue](https://github.com/zealousvec/Saylacian/issues)
+and include **which step failed**, **the exact command**, and **the full error
+message**. Leave out passwords, API keys and private translation text.
+More setup details: [RUN.md](RUN.md).
+
+<details>
+<summary>Already use Git? Download with these commands instead of the ZIP</summary>
 
 ```powershell
 git clone https://github.com/zealousvec/Saylacian.git
 cd Saylacian
-py -3.12 -m venv .venv
-.\.venv\Scripts\python.exe -m pip install -r requirements-runtime-lock.txt
-.\.venv\Scripts\python.exe main.py
 ```
 
-No virtual-environment activation or execution-policy change is needed.
-For troubleshooting and optional runtimes, see [RUN.md](RUN.md).
+Then continue from **step 4** above. Git must already be installed.
 
-To use the separate local website:
+</details>
+
+### Optional: run the local website
+
+The steps above open the **desktop app**. If you specifically want the separate
+website, finish step 4, open PowerShell in the same folder, and run these
+commands one at a time:
 
 ```powershell
 .\.venv\Scripts\python.exe -m pip install -r requirements-website.txt
 .\.venv\Scripts\python.exe run_website.py
 ```
 
-Open `http://127.0.0.1:5000` in your browser. The website does not require Kivy
-to be running and is not a public hosted service.
+Leave PowerShell open, open your browser, and visit
+[http://127.0.0.1:5000](http://127.0.0.1:5000).
+Press **Ctrl+C** in PowerShell to stop the website. The desktop app does not
+need to be open. This starts a local website on your PC, not a public website.
 
 ## Offline translation
 
@@ -103,3 +263,4 @@ Third-party models, fonts and chart-derived assets retain their own terms.
 The [third-party notices](docs/THIRD_PARTY_NOTICES.md) credit the upstream work,
 including Kivy, translation-model projects, Noto fonts and historical-script sources.
 Project attribution is recorded in [AUTHORS.md](AUTHORS.md).
+
