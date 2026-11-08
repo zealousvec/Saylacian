@@ -1,5 +1,8 @@
 # Alpha source completion — 2026-11-07
 
+> **Historical verification record.** The "NOT RELEASED" section below describes the 2026-11-07 candidate, not the current release. An experimental [Windows alpha v0.1.0a1](https://github.com/zealousvec/Saylacian/releases/tag/v0.1.0a1) was published on 2026-11-08. The owner subsequently reported a successful launch of a rebuilt portable ZIP on a second Windows PC. See [current project status](PROJECT_STATUS.md) and [release verification](GITHUB_RELEASE_CHECKLIST.md). Binary redistribution review and full clean-PC acceptance remain open.
+
+
 The independent Python runner and corrected M2M100 evaluator are now part of
 the source tree. See [working PowerShell commands](../research/README.md).
 Private source approvals, samples, datasets, checkpoints, weights and detailed
