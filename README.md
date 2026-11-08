@@ -18,7 +18,7 @@ Saylacian is a free, open-source desktop application focused on language transla
 ![Saylacian desktop application](assets/screenshots/saylacian-desktop.png)
 
 > [!WARNING]
-> **Experimental Windows alpha (v0.1.0a1).** The public ZIP is unsigned and has **not** been independently verified on a clean Windows PC. Third-party binary redistribution checks are also incomplete. Windows security may block the executable; **do not disable security protections to bypass a warning**. This is not a stable or approved installer. [Release verification status](docs/GITHUB_RELEASE_CHECKLIST.md).
+> **Experimental Windows alpha (v0.1.0a1).** The portable build has been reported working on a second Windows PC, but broad compatibility testing and third-party binary redistribution checks remain incomplete. Windows security may block the executable; **do not disable security protections to bypass a warning**. This is not a stable or approved installer. [Release verification status](docs/GITHUB_RELEASE_CHECKLIST.md).
 
 ## Download for Windows
 
@@ -26,7 +26,7 @@ Saylacian is a free, open-source desktop application focused on language transla
 
 1. Open the **[latest Windows release](https://github.com/zealousvec/Saylacian/releases/tag/v0.1.0a1)**.
 2. Scroll to **Assets** and expand it if necessary.
-3. Download the **Saylacian portable ZIP** listed under Assets. **Do not select** `Source code (zip)` or GitHub's green **Code → Download ZIP**; those contain source files, not the Windows app.
+3. Download **`Saylacian-Portable-Fixed-20261108-115138.zip`** under Assets. **Do not select** `Source code (zip)` or GitHub's green **Code → Download ZIP**; those contain source files, not the Windows app.
 4. In **Downloads**, right-click the ZIP and select **Extract All**, then **Extract**. Do not run the application from inside the ZIP.
 5. Open the extracted **Saylacian** folder and double-click **Saylacian.exe**. Keep the `_internal` folder and the other files beside it.
 6. For offline language translation, open **Offline language packs** in the app (or press **Ctrl+P**) and install the language pack you want.
