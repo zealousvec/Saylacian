@@ -24,7 +24,7 @@ Saylacian is **alpha software**. A **public experimental Windows pre-release** i
 
 **If you don't see Artifacts:** the job may still be running, may have failed, or the artifact may have expired. The workflow retains artifacts for **14 days**. A GitHub source-code ZIP from the green **Code** button is **not** the Windows application.
 
-**Safety and release status:** This build is unsigned and has not been validated on a clean Windows PC. Windows may block it. Do not disable Smart App Control, SmartScreen or other security features to bypass a block. The project's binary redistribution/licensing review is also incomplete. This is a development test candidate, **not an approved public release**.
+**Safety and release status:** Both the public alpha and this separate CI-generated candidate are unsigned and have not been validated on a clean Windows PC. Windows may block them. Do not disable Smart App Control, SmartScreen or other security features to bypass a block. Binary redistribution/licensing review is incomplete; neither is an approved stable build.
 
 ## Android or iPhone
 
@@ -61,8 +61,8 @@ To reopen the app later, use only the final command from the same folder. You do
 
 | Problem | What to do |
 |---|---|
-| I downloaded GitHub's **Code → Download ZIP**, but there's no EXE | That is source code. Follow the **portable test build** steps above instead. |
-| I see a ZIP inside a ZIP | Extract **both** ZIPs; then keep the application folder intact. |
+| I downloaded GitHub's **Code → Download ZIP**, but there's no EXE | That is source code. Download the **Windows ZIP under Assets on the v0.1.0a1 release page** instead. |
+| I see a ZIP inside a ZIP | If using a CI artifact, extract both ZIPs. For the public Release asset, extract the ZIP fully and keep the application folder intact. |
 | Windows blocks the EXE | Do not disable security protections. Use the source-install route or wait for a signed, verified release. |
 | The app says no translation model is installed | Open **Offline language packs** and install the correct pack. |
 | I have only a phone | There is no official phone app or publicly hosted Saylacian website yet. |
