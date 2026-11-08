@@ -357,3 +357,64 @@ def test_every_script_route_preserves_unknowns_numbers_and_punctuation(
     assert result.text.endswith(suffix)
     assert all(alternative.endswith(suffix) for alternative in result.alternatives)
     assert len(result.alternatives) <= 12
+
+
+@pytest.mark.parametrize(
+    "source,output",
+    [
+        ("Temperature -12.", "Temperature 12."),
+        ("Temperature −12.", "Temperature 12."),
+        ("Dose 1/2.", "Dose 2/1."),
+        ("At 12:30.", "At 30:12."),
+        ("Dose 2.5.", "Dose 5.2."),
+    ],
+)
+def test_numeric_review_detects_changed_sign_and_compound_number(source, output):
+    assert any(
+        "Numbers or number formatting" in warning
+        for warning in translation._translation_review_warnings(
+            source, output, "English"
+        )
+    )
+
+
+def test_equivalent_unicode_minus_and_decimal_digits_do_not_raise_numeric_warning():
+    assert not translation._translation_review_warnings(
+        "Temperature −１２.", "Temperature -12.", "English"
+    )
+
+
+@pytest.mark.parametrize("marker", ["←", "▪", "❏", "▸", "○"])
+def test_somali_keeps_source_supplied_leading_symbols(offline_models, marker):
+    root, base, _, _, loader, _ = offline_models
+    (tokenizer, target), engine = loader(str(base))
+    target.decode.return_value = marker + " Natiijo caadi ah."
+    loader.side_effect = None
+    loader.return_value = ((tokenizer, target), engine)
+    result = translation.translate_meaning(
+        marker + " A source instruction.", "English", "Somali Latin", root
+    )
+    assert result.text == marker + " Natiijo caadi ah."
+    assert not any("extra symbol was removed" in note for note in result.warnings)
+
+
+def test_old_nubian_reverse_flags_unmapped_letters_without_inventing_mapping():
+    from saylacian.core.transliteration import transliterate
+
+    result = transliterate(
+        "qv漢🙂 12", "Old Nubian scholarly Latin", "Old Nubian (Coptic)"
+    )
+    assert result.text == "qv漢🙂 12"
+    assert any("Unmapped letters preserved" in note for note in result.warnings)
+
+
+@pytest.mark.parametrize("output", ["▸ Translation.", "Translation."])
+def test_changed_or_lost_leading_source_marker_is_flagged(output):
+    notes = translation._translation_review_warnings("❏ Source.", output, "English")
+    assert any("Leading arrows or list symbols differ" in note for note in notes)
+
+
+def test_preserved_source_marker_does_not_raise_symbol_warning():
+    assert not translation._translation_review_warnings(
+        "❏ Source.", "❏ Translation.", "English"
+    )

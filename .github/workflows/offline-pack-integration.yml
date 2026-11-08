@@ -21,9 +21,6 @@ jobs:
   install-and-translate:
     runs-on: ubuntu-latest
     timeout-minutes: 45
-    env:
-      SAYLACIAN_PACKS_DIR: ${{ runner.temp }}/saylacian-model-packs
-      SAYLACIAN_TRANSLATION_PROVIDER: offline
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -34,4 +31,7 @@ jobs:
       - name: Install translation runtime
         run: python -m pip install -r requirements-translation.txt
       - name: Install and verify selected pack, then run offline inference
+        env:
+          SAYLACIAN_PACKS_DIR: ${{ runner.temp }}/saylacian-model-packs
+          SAYLACIAN_TRANSLATION_PROVIDER: offline
         run: python tools/verify_pack_integration.py --pack "${{ inputs.pack }}"

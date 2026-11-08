@@ -239,3 +239,28 @@ are not substituted. These cues are conservative diagnostics, not semantic
 certification. No training, private weight upload or unsupported language claim
 was added. Source regression gate: 384 passed, 11 skipped, 196 subtests passed;
 Ruff and credential scan passed. Native AfriSLM and human review remain gaps.
+
+
+## Follow-up: source-symbol and numeric fidelity
+
+Somali-pack cleanup used to remove leading arrows and list symbols even when
+supplied by the user. On ten matched native CPU app-route probes (five symbols,
+each English/Somali direction), exact source-symbol preservation increased from
+0/10 to 9/10. The remaining model-generated checkbox-to-triangle change is now
+flagged without substitution. This is a bounded formatting-fidelity check, not
+a semantic translation accuracy percentage. Existing model preference is unchanged.
+
+Numeric review previously compared independent digit runs, missing a lost minus
+sign and changes such as 1/2 to 2/1, 12:30 to 30:12 and 2.5 to 5.2. Five targeted
+misses now produce review cues. Unicode decimal digits and minus signs retain
+equivalence handling. Text is never numerically rewritten; legitimate locale
+format changes may still request review. All six routes share these cues.
+
+Old Nubian scholarly-Latin reverse conversion now reports unmapped letters
+rather than silently preserving them without a note. No mapping was added.
+The existing all-eight-script preservation tests remain passing.
+
+Validation: 399 tests passed, 11 skipped, 196 subtests passed; Ruff and release
+credential scan passed. Native probes used existing installed packs, no model
+or dataset download and no training. Human semantic evaluation, native AfriSLM
+and independent historical-script gold remain unavailable.
