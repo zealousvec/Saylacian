@@ -8,13 +8,13 @@ You **do not** need Python, Git, VS Code, a terminal or a GitHub account.
 
 1. Open **[Saylacian v0.1.0a1 on GitHub Releases](https://github.com/zealousvec/Saylacian/releases/tag/v0.1.0a1)**.
 2. Find **Assets** near the bottom of the release and click to expand it if it is collapsed.
-3. Click the **Windows portable ZIP** attached under Assets (the file name includes `Saylacian` and ends in `.zip`). **Do not click** `Source code (zip)`, `Source code (tar.gz)` or the repository's green **Code → Download ZIP** button. Those are source archives, not the Windows application.
+3. Click **`Saylacian-Portable-Fixed-20261108-115138.zip`** under Assets. **Do not click** `Source code (zip)`, `Source code (tar.gz)` or the repository's green **Code → Download ZIP** button. Those are source archives, not the Windows application.
 4. Open your **Downloads** folder. Right-click the downloaded ZIP → **Extract All** → **Extract**.
 5. Open the newly extracted folder. Find the folder named **Saylacian**; inside it, locate **Saylacian.exe** alongside the **_internal** folder.
 6. Double-click **Saylacian.exe** to open the app. **Do not move the EXE out of its folder**, because it needs the bundled files. Do not launch it from within the ZIP.
 7. To translate meaning offline, open **Offline language packs** (or press **Ctrl+P**) and download the pack you need. Script conversion can be tried without downloading translation models.
 
-**Important:** The Windows alpha is unsigned and has not passed independent clean-PC testing or the outstanding third-party binary redistribution review. If Windows blocks the executable, **do not disable SmartScreen, Smart App Control or other security protections**. Report the problem in [GitHub Issues](https://github.com/zealousvec/Saylacian/issues).
+**Important:** The Windows alpha is unsigned. The portable build has been reported working on a second Windows PC, but wider compatibility testing and third-party binary redistribution review are still outstanding. If Windows blocks the executable, **do not disable SmartScreen, Smart App Control or other security protections**. Report the problem in [GitHub Issues](https://github.com/zealousvec/Saylacian/issues).
 
 ### Which ZIP is the correct one?
 
