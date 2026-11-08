@@ -1,6 +1,6 @@
 # Windows release publication checklist
 
-**Status: an experimental Windows alpha was publicly published as v0.1.0a1 before completion of this checklist.** It remains unsigned, unverified on a clean PC, and not cleared for binary redistribution. This checklist describes the requirements for a future approved release.
+**Status: an experimental Windows alpha was publicly published as v0.1.0a1 before completion of this checklist.** It remains unsigned and not cleared for binary redistribution. A rebuilt ZIP was reported to launch on a second Windows PC, but the full clean-PC acceptance checklist remains incomplete. This checklist describes the requirements for a future approved release.
 
 ## Before publishing
 
