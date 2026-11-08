@@ -323,6 +323,7 @@ def _write_old_nubian(text: str) -> Conversion:
     output = []
     index = 0
     matched_tokens = []
+    unmapped_letters = []
 
     while index < len(text):
         token = next(
@@ -341,12 +342,20 @@ def _write_old_nubian(text: str) -> Conversion:
             continue
 
         output.append(text[index])
+        if text[index].isalpha():
+            unmapped_letters.append(text[index])
         index += 1
 
     primary = "".join(output)
     candidates = _old_nubian_reverse_candidates(text)
     alternatives = tuple(candidate for candidate in candidates if candidate != primary)
     warnings = []
+    if unmapped_letters:
+        warnings.append(
+            "Unmapped letters preserved: "
+            + " ".join(dict.fromkeys(unmapped_letters))
+            + "."
+        )
     if any(token in OLD_NUBIAN_AMBIGUOUS_TOKENS for token in matched_tokens):
         warnings.append(
             "Latin-to-script conversion follows cited scholarly table; "

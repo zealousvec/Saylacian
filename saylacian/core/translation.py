@@ -94,9 +94,18 @@ def _translation_review_warnings(source_text, translated, source_language):
             str(unicodedata.decimal(char)) if char.isdecimal() else char
             for char in normalized
         )
-        return Counter(re.findall(r"\d+", normalized))
+        normalized = normalized.replace("−", "-")
+        return Counter(re.findall(r"[+\-]?\d+(?:[.,:/]\d+)*", normalized))
 
     warnings = []
+    source_markers = _MODEL_LEADING_MARKERS.match(source_text.lstrip())
+    if source_markers:
+        output_markers = _MODEL_LEADING_MARKERS.match(translated.lstrip())
+        symbols = lambda match: "".join(match.group().split()) if match else ""
+        if symbols(source_markers) != symbols(output_markers):
+            warnings.append(
+                "Leading arrows or list symbols differ; compare with the original."
+            )
     if _has_added_sentence_repetition(source_text, translated):
         warnings.append(
             "Output repeats a sentence more often than the source; review it."
@@ -127,7 +136,9 @@ def _translation_review_warnings(source_text, translated, source_language):
     return tuple(warnings)
 
 
-def _clean_model_markers(text):
+def _clean_model_markers(text, source_text=""):
+    if _MODEL_LEADING_MARKERS.match(source_text.lstrip()):
+        return text
     return _MODEL_LEADING_MARKERS.sub("", text)
 
 
@@ -634,7 +645,7 @@ def _translate_meaning(
             leading,
             trailing,
         )
-        cleaned = _clean_model_markers(decoded)
+        cleaned = _clean_model_markers(decoded, text)
         warnings = ["Somali translation may be inaccurate; check important details."]
         if candidate_fallback:
             warnings.append(candidate_fallback_reason)
