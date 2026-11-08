@@ -418,3 +418,89 @@ def test_preserved_source_marker_does_not_raise_symbol_warning():
     assert not translation._translation_review_warnings(
         "❏ Source.", "❏ Translation.", "English"
     )
+
+
+@pytest.mark.parametrize(
+    "pair,source,target,expected",
+    [
+        ("en_so", "English", "Somali Latin", [">>som<<", "piece", "</s>"]),
+        ("so_en", "Somali Latin", "English", ["piece", "</s>"]),
+    ],
+)
+@pytest.mark.parametrize("batch_helper", [False, True])
+def test_marian_target_tag_is_direction_specific(
+    tmp_path, monkeypatch, pair, source, target, expected, batch_helper
+):
+    folder = tmp_path / "somali" / pair
+    folder.mkdir(parents=True)
+    for name in (
+        "model.bin",
+        "config.json",
+        "shared_vocabulary.json",
+        "source.spm",
+        "target.spm",
+    ):
+        (folder / name).touch()
+    tokenizer = Mock()
+    tokenizer.encode.return_value = ["piece"]
+    target_tokenizer = Mock()
+    target_tokenizer.decode.return_value = "Translated text."
+    engine = Mock()
+    engine.translate_batch.return_value = [SimpleNamespace(hypotheses=[["result"]])]
+    monkeypatch.setattr(translation, "_model_roots", lambda *_: [tmp_path])
+    monkeypatch.setattr(
+        translation, "load_model", lambda _: ((tokenizer, target_tokenizer), engine)
+    )
+    if batch_helper:
+        from tools.translation_lab.tico19_french_eval import _run_model_batch
+
+        _run_model_batch(["Source text."], folder)
+    else:
+        translation.translate_meaning("Source text.", source, target, tmp_path)
+    assert engine.translate_batch.call_args.args[0] == [expected]
+
+
+def test_reverse_somali_accepts_399_pieces_with_single_end_marker(
+    tmp_path, monkeypatch
+):
+    folder = tmp_path / "somali/so_en"
+    folder.mkdir(parents=True)
+    for name in (
+        "model.bin",
+        "config.json",
+        "shared_vocabulary.json",
+        "source.spm",
+        "target.spm",
+    ):
+        (folder / name).touch()
+    tokenizer = Mock()
+    tokenizer.encode.side_effect = lambda value, **kwargs: value.split()
+    tokenizer.decode.return_value = "Translation."
+    engine = Mock()
+    engine.translate_batch.return_value = [SimpleNamespace(hypotheses=[["result"]])]
+    monkeypatch.setattr(translation, "_model_roots", lambda *_: [tmp_path])
+    monkeypatch.setattr(
+        translation, "load_model", lambda _: ((tokenizer, tokenizer), engine)
+    )
+    translation.translate_meaning(
+        " ".join(["word"] * 399), "Somali Latin", "English", tmp_path
+    )
+    batch = engine.translate_batch.call_args.args[0]
+    assert batch == [[*(["word"] * 399), "</s>"]]
+
+
+@pytest.mark.parametrize("pair", ["en_so", "so_en"])
+def test_batched_marian_evaluation_preserves_source_markers(
+    monkeypatch, pair, tmp_path
+):
+    from tools.translation_lab.tico19_french_eval import _run_model_batch
+
+    tokenizer = Mock()
+    tokenizer.encode.return_value = ["piece"]
+    tokenizer.decode.return_value = "← Translation."
+    engine = Mock()
+    engine.translate_batch.return_value = [SimpleNamespace(hypotheses=[["result"]])]
+    monkeypatch.setattr(
+        translation, "load_model", lambda _: ((tokenizer, tokenizer), engine)
+    )
+    assert _run_model_batch(["← Source."], tmp_path / pair) == ["← Translation."]

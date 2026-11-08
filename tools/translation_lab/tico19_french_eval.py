@@ -85,7 +85,7 @@ def parse_french_dev(stream) -> list[dict[str, str]]:
 def _model_fingerprint(routes=(("English", "French"), ("French", "English"))) -> dict:
     from saylacian.core.translation import model_directory
 
-    files = {}
+    files = {"generation_policy": "directional-marian-public-somali-v2"}
     for source, target in routes:
         folder = model_directory(source, target)
         model = folder / "model" / "model.bin"
@@ -155,6 +155,7 @@ def _run_model_batch(texts: list[str], folder: Path) -> list[str]:
     from saylacian.core.translation import MODEL_TOKEN_LIMIT
     from saylacian.core.translation import _clean_model_markers
     from saylacian.core.translation import _join_model_segments
+    from saylacian.core.translation import _marian_language_prefix
     from saylacian.core.translation import _model_token_segments
     from saylacian.core.translation import load_model
 
@@ -164,18 +165,23 @@ def _run_model_batch(texts: list[str], folder: Path) -> list[str]:
         source_tokenizer, target_tokenizer = tokenizer
     else:
         source_tokenizer = target_tokenizer = tokenizer
+    language_prefix = _marian_language_prefix(folder) if multilingual else ()
     prepared = []
     flattened = []
     for text in texts:
         segments, separators, leading, trailing, _chunked = _model_token_segments(
-            text, source_tokenizer
+            text,
+            source_tokenizer,
+            reserved_tokens=len(language_prefix) + 1 if multilingual else 0,
         )
         start = len(flattened)
         if multilingual:
-            flattened.extend([">>som<<", *segment, "</s>"] for segment in segments)
+            flattened.extend(
+                [*language_prefix, *segment, "</s>"] for segment in segments
+            )
         else:
             flattened.extend(segments)
-        prepared.append((start, len(segments), separators, leading, trailing))
+        prepared.append((start, len(segments), separators, leading, trailing, text))
 
     outputs = []
     for start in range(0, len(flattened), 24):
@@ -193,11 +199,13 @@ def _run_model_batch(texts: list[str], folder: Path) -> list[str]:
         )
 
     results = []
-    for start, count, separators, leading, trailing in prepared:
+    for start, count, separators, leading, trailing, source_text in prepared:
         text = _join_model_segments(
             outputs[start : start + count], separators, leading, trailing
         )
-        results.append(_clean_model_markers(text) if multilingual else text)
+        results.append(
+            _clean_model_markers(text, source_text) if multilingual else text
+        )
     return results
 
 
@@ -205,7 +213,10 @@ def _translate_many_direct(texts: list[str], source: str, target: str) -> list[s
     from saylacian.core.translation import model_directory
     from saylacian.core.translation import translate_meaning
 
-    if (source, target) == ("English", "Somali Latin"):
+    if (source, target) in {
+        ("English", "Somali Latin"),
+        ("Somali Latin", "English"),
+    }:
         return [
             translate_meaning(text, source, target, provider_override="offline").text
             for text in texts

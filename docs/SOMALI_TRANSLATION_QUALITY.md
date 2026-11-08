@@ -264,3 +264,47 @@ Validation: 399 tests passed, 11 skipped, 196 subtests passed; Ruff and release
 credential scan passed. Native probes used existing installed packs, no model
 or dataset download and no training. Human semantic evaluation, native AfriSLM
 and independent historical-script gold remain unavailable.
+
+
+## Direction-specific Marian input correction
+
+The app incorrectly prepended the Somali target-language token `>>som<<` in
+both Somali directions. The installed English-to-many vocabulary contains that
+token; the many-to-English vocabulary does not (and has no target-language
+tags). Only EN/SO now receives the tag; SO/EN receives content plus EOS.
+Token-limit reservations follow the actual direction. Existing model preferences,
+explicit synthetic access and AfriSLM fallbacks remain intact.
+
+Matched offline public-API CPU results on the existing frozen 40/route sample:
+
+| Route | BLEU before/after | chrF++ before/after |
+|---|---:|---:|
+| Somali-English | 19.434 / 24.847 | 43.966 / 45.476 |
+| Somali-French through English | 7.297 / 8.503 | 17.496 / 19.134 |
+
+All 80 final-code outputs matched the frozen corrected-input screen. These are
+corpus gains, not universal sentence gains: SO/EN sentence chrF++ had 10 wins,
+18 losses, 12 ties, mean delta -0.118, bootstrap 95% CI [-2.597, 2.414]; SO/FR
+had 13 wins, 7 losses, 20 ties, mean +0.718, CI [-2.070, 3.086]. Both intervals
+include zero (2,000 paired resamples, seed 1729).
+
+One further frozen TICO-dev SO/EN confirmation used 32 examples with zero exact
+normalized source/target overlap against the screen, selected with seed 20261108.
+BLEU increased 1.567 to 2.185 and chrF++ 18.563 to 18.926. Sentence mean delta
++0.038, CI [-1.064, 1.158], 17 wins/12 losses/3 ties: still inconclusive for
+broad accuracy. Training/near-duplicate overlap was not audited; no training or
+model selection was performed using these examples. Private predictions and
+references remain outside GitHub. Semantic human evaluation remains absent.
+
+The short greeting `Salaan, sidee tahay?` now produces `Salaan, what's up?`
+instead of `How are you?`; its French pivot also changes. These are observable
+tradeoffs, not a claim of improved greeting adequacy. Website integration tests
+now check selected core-route consistency rather than a fixed model string;
+the corpus comparisons above provide separate quality evidence.
+
+The batched evaluation helper now shares directional tags and source-marker
+preservation, and both Somali directions use public optional-model selection.
+A new generation-policy fingerprint rejects mixing old checkpoint predictions
+with this decoding policy; retain old artifacts and use a new evaluation run ID.
+No weights, mappings or supported languages changed. Gate: 408 tests passed,
+11 skipped, 196 subtests passed; Ruff and release credential scan passed.

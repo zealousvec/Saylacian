@@ -198,3 +198,25 @@ def test_route_matrix_scores_direct_and_english_pivot_routes(tmp_path, monkeypat
     assert set(result["metrics"]) == {"en-so", "so-en", "fr-so", "so-fr"}
     assert len(scored) == 4
     assert scored[0] == (["Salaan"], ["English>Somali Latin:Hello"])
+
+
+@pytest.mark.parametrize(
+    "source,target", [("English", "Somali Latin"), ("Somali Latin", "English")]
+)
+def test_somali_evaluation_uses_public_optional_model_selection(
+    monkeypatch, source, target
+):
+    from saylacian.core import translation
+    from saylacian.core.transliteration import Conversion
+
+    calls = []
+
+    def translate(text, src, tgt, **kwargs):
+        calls.append((text, src, tgt, kwargs))
+        return Conversion("Optional result")
+
+    monkeypatch.setattr(translation, "translate_meaning", translate)
+    assert tico19_french_eval._translate_many_direct(["Input"], source, target) == [
+        "Optional result"
+    ]
+    assert calls == [("Input", source, target, {"provider_override": "offline"})]

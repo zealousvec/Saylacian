@@ -617,7 +617,7 @@ class TranslationTests(unittest.TestCase):
 
             engine.translate_batch.assert_not_called()
 
-    def test_somali_token_limit_includes_language_markers(self):
+    def test_reverse_somali_token_limit_includes_end_marker(self):
         with TemporaryDirectory() as temporary:
             folder = Path(temporary) / "somali" / "so_en"
             folder.mkdir(parents=True)
@@ -630,7 +630,7 @@ class TranslationTests(unittest.TestCase):
             ):
                 (folder / filename).touch()
             source_tokenizer = Mock()
-            source_tokenizer.encode.return_value = ["piece"] * 399
+            source_tokenizer.encode.return_value = ["piece"] * 400
             target_tokenizer = Mock()
             engine = Mock()
 

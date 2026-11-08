@@ -142,6 +142,11 @@ def _clean_model_markers(text, source_text=""):
     return _MODEL_LEADING_MARKERS.sub("", text)
 
 
+def _marian_language_prefix(folder):
+    """Only the English-to-many model needs a Somali target-language tag."""
+    return (">>som<<",) if Path(folder).name == "en_so" else ()
+
+
 def _model_token_segments(text, tokenizer, *, reserved_tokens=0):
     """Keep model inputs within context while splitting only at whitespace."""
     token_limit = MODEL_TOKEN_LIMIT - reserved_tokens
@@ -627,10 +632,11 @@ def _translate_meaning(
     tokenizer, engine = load_model(str(folder))
     if folder.name in MULTILINGUAL_PAIRS:
         source_tokenizer, target_tokenizer = tokenizer
+        language_prefix = _marian_language_prefix(folder)
         segments, separators, leading, trailing, chunked = _model_token_segments(
-            text, source_tokenizer, reserved_tokens=2
+            text, source_tokenizer, reserved_tokens=len(language_prefix) + 1
         )
-        token_batch = [[">>som<<", *segment, "</s>"] for segment in segments]
+        token_batch = [[*language_prefix, *segment, "</s>"] for segment in segments]
         if any(len(segment) > MODEL_TOKEN_LIMIT for segment in token_batch):
             raise ValueError(
                 "A segmented input still exceeds this model's 400-token limit; "

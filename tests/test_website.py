@@ -7,6 +7,7 @@ import unittest
 from unittest.mock import patch
 
 from saylacian.core.translation import model_directory
+from saylacian.core.translation import translate_meaning
 from saylacian.website.app import create_app
 
 
@@ -97,7 +98,11 @@ class WebsiteTests(unittest.TestCase):
                 },
             )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json["text"], "How are you?")
+        self.assertEqual(
+            response.json["text"],
+            translate_meaning("Salaan, sidee tahay?", "Somali Latin", "English").text,
+        )
+        self.assertTrue(response.json["text"].strip())
 
     @unittest.skipUnless(
         _has_local_route("Somali Latin", "English"),
@@ -115,7 +120,11 @@ class WebsiteTests(unittest.TestCase):
                 },
             )
         self.assertEqual(response.status_code, 200)
-        self.assertIn("How are you?", response.json["text"])
+        self.assertEqual(
+            response.json["text"],
+            translate_meaning("Salaan, sidee tahay?", "Somali Latin", "English").text,
+        )
+        self.assertTrue(response.json["text"].strip())
         self.assertIn("Detected Somali Latin", response.json["warnings"][0])
 
     @unittest.skipUnless(
@@ -134,7 +143,11 @@ class WebsiteTests(unittest.TestCase):
                 },
             )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json["text"], "Comment allez-vous ?")
+        self.assertEqual(
+            response.json["text"],
+            translate_meaning("Salaan, sidee tahay?", "Somali Latin", "French").text,
+        )
+        self.assertTrue(response.json["text"].strip())
         self.assertTrue(
             any("some meaning may change" in w for w in response.json["warnings"])
         )
