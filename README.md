@@ -14,6 +14,14 @@ A public Windows download is **not published yet**. When the portable build pass
 
 For developers and testers only: [temporary Windows build artifacts](docs/GET_STARTED.md#windows-computer--portable-test-build) may require GitHub sign-in.
 
+## Users vs developers
+
+**Just want to use Saylacian?** Once an approved build is published, download the **Windows portable ZIP** from [Releases](https://github.com/zealousvec/Saylacian/releases), extract it, open the `Saylacian` folder, and double-click `Saylacian.exe`. No Python, Git, VS Code, or GitHub account required. **There is no approved public build yet.**
+
+**Want to edit the code or contribute?** Follow [RUN.md](RUN.md) for Python 3.12, a virtual environment, dependencies, tests, and development commands. The green **Code → Download ZIP** button downloads **source code, not the Windows application**.
+
+**Windows test candidate:** A locally supplied portable archive has been checked for ZIP integrity (600 entries; approximately 68.3 MB / 65.1 MiB compressed), but has **not** been clean-PC tested or cleared for public binary redistribution. It is not on Releases.
+
 ## Start here
 
 | What you have | What to do |
