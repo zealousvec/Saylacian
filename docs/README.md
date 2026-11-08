@@ -1,30 +1,33 @@
-# Saylacian documentation
+# Saylacian guides
 
-Start here, then follow the guide that matches what you want to do.
+**New to Saylacian?** Start with [Get started](GET_STARTED.md). It covers Windows downloads, source installation, phone support and common errors.
 
-## Use Saylacian
+## For people using the app
 
-- [User guide](USER_GUIDE.md): switch between translation and transliteration, pick languages and scripts, and copy Borama or Kaddare writing.
-- [Offline language packs](OFFLINE_PACKS.md): download, verify, update and remove translation packs.
-- [Translation feasibility](TRANSLATION_FEASIBILITY.md): model routes, install limits and quality evidence.
-- [Support matrix](SUPPORT_MATRIX.md): see implemented routes and their limits.
-- [Script interoperability](SOMALI_SCRIPT_INTEROPERABILITY.md): Unicode, fonts and sharing behavior.
-- [Letter mapping guide](SCRIPT_LETTER_GUIDE.md): supported readings, unmatched letters and ambiguities across the four scripts.
+- [Get started](GET_STARTED.md) — simplest route for each device
+- [User guide](USER_GUIDE.md) — translate, transliterate, select scripts and copy results
+- [Offline language packs](OFFLINE_PACKS.md) — install, update or remove models
+- [Supported languages and devices](SUPPORT_MATRIX.md) — what works and what is experimental
+- [Somali script interoperability](SOMALI_SCRIPT_INTEROPERABILITY.md) — sharing and font limits
+- [Script letter guide](SCRIPT_LETTER_GUIDE.md) — mapped and ambiguous characters
 
-## Build or integrate
+## For developers
 
-- [API reference](API_REFERENCE.md): Python entry points and the optional self-hosted HTTP API.
-- [Codebase walkthrough](CODEBASE_WALKTHROUGH.md): follow a request through the Kivy app and shared core.
-- [Architecture notes](ARCHITECTURE_EXPLAINED.md): app, model-pack and conversion boundaries.
-- [Contributing](../CONTRIBUTING.md): development setup, tests and review expectations.
+- [Run from source](../RUN.md)
+- [Contributing](../CONTRIBUTING.md)
+- [Codebase walkthrough](CODEBASE_WALKTHROUGH.md)
+- [Architecture explained](ARCHITECTURE_EXPLAINED.md)
+- [Python and HTTP API](API_REFERENCE.md)
 
-## Research and release status
+## Research, limitations and releases
 
-- [Independent Python runner](../research/README.md): PowerShell commands, private workspace, checkpoints and evaluation.
-- [Alpha verification](ALPHA_COMPLETION_2026-11-07.md): current source checks and Windows binary blockers.
-- [Old Nubian reading scope](OLD_NUBIAN_READER_PLAN.md)
-- [Somali translation evidence](SOMALI_TRANSLATION_QUALITY.md)
 - [Project status](PROJECT_STATUS.md)
-- [Third-party notices](THIRD_PARTY_NOTICES.md)
+- [Release checklist](GITHUB_RELEASE_CHECKLIST.md) — why a public Windows binary is not yet approved
+- [Somali translation evidence](SOMALI_TRANSLATION_QUALITY.md)
+- [Translation feasibility](TRANSLATION_FEASIBILITY.md)
+- [Old Nubian scope](OLD_NUBIAN_READER_PLAN.md)
+- [Third-party licences and notices](THIRD_PARTY_NOTICES.md)
+- [Alpha verification record](ALPHA_COMPLETION_2026-11-07.md)
+- [Independent research runner](../research/README.md)
 
-Detailed pages explain limitations that do not fit in the app's language picker. A route appearing in the app does not mean it has fluent or community review.
+The technical pages document experiments and historical verification snapshots; they are **not** promises of a downloadable mobile app or a verified Windows installer.
