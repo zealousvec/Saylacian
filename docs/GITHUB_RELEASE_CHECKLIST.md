@@ -1,7 +1,7 @@
 # GitHub release verification
 
 > [!WARNING]
-> **Current status (2026-11-08):** [v0.1.0a1](https://github.com/zealousvec/Saylacian/releases/tag/v0.1.0a1) is **publicly available as an experimental pre-release**, but clean-PC execution and third-party binary redistribution checks remain incomplete. Its uploaded Windows ZIP is shown as **195 MB** and has **not been independently inspected**. This document preserves a **historical 2026-10-30 audit** of a different, locally built candidate. Do not mistake historical PASS results for approval of the published ZIP.
+> **Current status (2026-11-08):** [v0.1.0a1](https://github.com/zealousvec/Saylacian/releases/tag/v0.1.0a1) is a public experimental pre-release. The owner reports that the rebuilt `Saylacian-Portable-Fixed-20261108-115138.zip` launched successfully on a second Windows PC. The rebuilt ZIP's EXE and bundled runtime structure were checked locally; its SHA-256 was `a4ab1f8a8cdd4b121d413543dff7fe20ea98c5ba0fd1977083d5a99a6e775f06`. This does **not** certify broad Windows compatibility, all app functions, or third-party binary redistribution rights. The checklist below is a **historical 2026-10-30 audit of a different build**, not verification of this release.
 
 **Checked:** 2026-10-30
 
