@@ -187,3 +187,173 @@ def test_review_cues_reach_website_without_substituting_translation(offline_mode
     assert response.json["text"] == "Natiijo caadi ah."
     assert any("Numbers or number formatting" in w for w in response.json["warnings"])
     assert any("negation" in w for w in response.json["warnings"])
+
+
+@pytest.mark.parametrize("pieces", [398, 399, 400, 401])
+def test_somali_segmentation_reserves_markers_and_preserves_all_input(
+    offline_models, monkeypatch, pieces
+):
+    root, _, _, tokenizer, _, _ = offline_models
+    engine = Mock()
+    monkeypatch.setattr(
+        translation, "load_model", lambda _: ((tokenizer, tokenizer), engine)
+    )
+    tokenizer.decode.return_value = "Natiijo caadi ah."
+    tokenizer.encode.side_effect = lambda text, **kwargs: text.split()
+    engine.translate_batch.side_effect = lambda batch, **kwargs: [
+        SimpleNamespace(hypotheses=[["result"]]) for _ in batch
+    ]
+    source = " ".join(f"word{i}" for i in range(pieces))
+    result = translation.translate_meaning(source, "English", "Somali Latin", root)
+    batch = engine.translate_batch.call_args.args[0]
+    assert all(len(segment) <= 400 for segment in batch)
+    assert all(segment[0] == ">>som<<" and segment[-1] == "</s>" for segment in batch)
+    assert [piece for segment in batch for piece in segment[1:-1]] == source.split()
+    assert bool(any("split into independent" in w for w in result.warnings)) == (
+        pieces > 398
+    )
+
+
+@pytest.mark.parametrize("finish_reason", ["length", "stop"])
+def test_afrislm_rejects_only_reported_truncation(monkeypatch, finish_reason):
+    model = Mock()
+    model.tokenize.return_value = [1]
+    model.create_chat_completion.return_value = {
+        "choices": [
+            {
+                "message": {"content": "Partial translation"},
+                "finish_reason": finish_reason,
+            }
+        ]
+    }
+    monkeypatch.setattr(translation, "load_afrislm_model", lambda _: model)
+    result, warning = translation._translate_afrislm(
+        "Source text", "English", "Somali Latin", "model.gguf"
+    )
+    if finish_reason == "length":
+        assert result is None
+        assert "cut short" in warning
+        assert "standard offline model" in warning
+    else:
+        assert result.text == "Partial translation"
+        assert warning is None
+
+
+def test_cut_short_optional_translation_uses_complete_standard_route(
+    offline_models, monkeypatch
+):
+    root, base, _, _, loader, _ = offline_models
+    model = Mock()
+    model.tokenize.return_value = [1]
+    model.create_chat_completion.return_value = {
+        "choices": [{"message": {"content": "Incomplete"}, "finish_reason": "length"}]
+    }
+    monkeypatch.setattr(translation, "_afrislm_model_path", lambda: "model.gguf")
+    monkeypatch.setattr(translation, "load_afrislm_model", lambda _: model)
+    result = translation.translate_meaning(
+        "A complete source sentence.", "English", "Somali Latin", root
+    )
+    assert result.text == "Natiijo caadi ah."
+    assert any("cut short" in warning for warning in result.warnings)
+    loader.assert_called_once_with(str(base))
+
+
+@pytest.mark.parametrize("source_language", ["English", "French", "Somali Latin"])
+def test_review_flags_new_sentence_repetition_without_rewriting(source_language):
+    notes = translation._translation_review_warnings(
+        "One source sentence.", "Repeat this. Repeat this.", source_language
+    )
+    assert any("repeats a sentence" in note for note in notes)
+
+
+def test_intentional_source_repetition_is_not_degenerate():
+    assert not translation._synthetic_candidate_is_degenerate(
+        "Thank you. Thank you.", "Waad mahadsan tahay. Waad mahadsan tahay."
+    )
+    assert not translation._translation_review_warnings(
+        "Thank you. Thank you.", "Waad mahadsan tahay. Waad mahadsan tahay.", "English"
+    )
+
+
+@pytest.mark.parametrize(
+    "reading,glyph",
+    [("s\u030c", "ϣ"), ("n\u0303", "ⳡ"), ("e\u0304", "ⲏ"), ("o\u0304", "ⲱ")],
+)
+@pytest.mark.parametrize("upper", [False, True])
+def test_decomposed_scholarly_latin_uses_existing_mapping(reading, glyph, upper):
+    from saylacian.core.transliteration import transliterate
+
+    if upper:
+        reading, glyph = reading.upper(), glyph.upper()
+    result = transliterate(reading, "Old Nubian scholarly Latin", "Old Nubian (Coptic)")
+    assert result.text == glyph
+
+
+def test_old_nubian_preserves_and_warns_about_general_combining_marks():
+    from saylacian.core.transliteration import transliterate
+
+    result = transliterate(
+        "ⲁ\u0305", "Old Nubian (Coptic)", "Old Nubian scholarly Latin"
+    )
+    assert result.text == "a\u0305"
+    assert any("Combining marks are preserved" in note for note in result.warnings)
+
+
+@pytest.mark.parametrize("script", ["Borama", "Kaddare"])
+def test_reverse_chart_warns_about_unmapped_supplementary_private_use(script):
+    from saylacian.core.transliteration import transliterate
+
+    result = transliterate("\U000f0000", script, "Somali Latin")
+    assert result.text == "\U000f0000"
+    assert any("No " + script + " chart entry" in note for note in result.warnings)
+
+
+@pytest.mark.parametrize(
+    "source,target",
+    [
+        ("English", "French"),
+        ("French", "English"),
+        ("English", "Somali Latin"),
+        ("Somali Latin", "English"),
+        ("French", "Somali Latin"),
+        ("Somali Latin", "French"),
+    ],
+)
+def test_every_translation_route_surfaces_review_without_changing_output(
+    monkeypatch, source, target
+):
+    from saylacian.core.transliteration import Conversion
+
+    output = "Amina 2. Repeat this. Repeat this."
+    monkeypatch.setattr(
+        translation, "_translate_meaning", lambda *a, **kw: Conversion(output)
+    )
+    result = translation.translate_meaning("Amina 12.", source, target)
+    assert result.text == output
+    assert any("Numbers or number formatting" in note for note in result.warnings)
+    assert any("repeats a sentence" in note for note in result.warnings)
+
+
+@pytest.mark.parametrize(
+    "source,target,text",
+    [
+        ("Somali Latin", "Osmanya", "dh sh kh aa ee oo"),
+        ("Osmanya", "Somali Latin", "𐒆𐒖"),
+        ("Somali Latin", "Borama", "dh sh kh"),
+        ("Borama", "Somali Latin", "\ue000"),
+        ("Somali Latin", "Kaddare", "dh sh kh"),
+        ("Kaddare", "Somali Latin", "\ue100"),
+        ("Old Nubian (Coptic)", "Old Nubian scholarly Latin", "ⲁϣⳡ"),
+        ("Old Nubian scholarly Latin", "Old Nubian (Coptic)", "ašñ"),
+    ],
+)
+def test_every_script_route_preserves_unknowns_numbers_and_punctuation(
+    source, target, text
+):
+    from saylacian.core.transliteration import transliterate
+
+    suffix = " 12, 34! 漢🙂"
+    result = transliterate(text + suffix, source, target)
+    assert result.text.endswith(suffix)
+    assert all(alternative.endswith(suffix) for alternative in result.alternatives)
+    assert len(result.alternatives) <= 12

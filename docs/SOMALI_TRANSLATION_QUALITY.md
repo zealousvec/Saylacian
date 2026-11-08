@@ -171,3 +171,71 @@ On this small fresh sample, 4B is the best Somali→English candidate; 0.8B rema
 A separate exploratory 60-pair TICO-19 test run showed stronger 4B scores in both directions, but the model documentation lists TICO-19 development data in training; those scores were not used to select routes. FLORES results are single-reference automatic metrics on only 30 examples and do not prove general translation quality. Fluent Somali review is still needed.
 
 The 4B model card declares Apache-2.0 weights and identifies CC-BY-NC-4.0 synthetic data and ODC-By-1.0 Dolci-Instruct data among its training sources. Neither training dataset is included. The exact pinned metadata is in `saylacian/core/data/afrislm_4b_model_manifest.json`; see the [upstream model card](https://huggingface.co/qvac/TranslatePsy-AfriSLM-4B-Q4-GGUF) and [training-data attributions](https://huggingface.co/datasets/qvac/TranslatePsy-AfriSLM-Synthetic-Mix/blob/main/ATTRIBUTIONS.md).
+
+
+## November 8 CPU application-route follow-up
+
+A frozen 32-example French-to-Somali InfoPankki test sample compared the
+existing French-English-Somali route with the existing continuation M2M100
+adapter merged and converted to CTranslate2 INT8. Both ran through the public
+translation API in isolated CPU processes, using identical sources/references.
+Exact normalized source/target overlap with training, validation and the earlier
+40-example comparison was excluded; near-duplicate overlap was not audited.
+No new training or model download was performed.
+
+| Route | BLEU | chrF++ | Mean seconds/input | Process peak RSS MiB |
+|---|---:|---:|---:|---:|
+| Existing pivot | 18.537 | 44.878 | 0.296 | 456.2 |
+| Private direct candidate | 10.520 | 31.097 | 1.064 | 582.0 |
+
+Direct won 6 examples and lost 26 on sentence chrF++; paired mean delta was
+-13.730, with 95% paired-bootstrap CI [-19.311, -8.104] (2,000 resamples,
+seed 1729). The direct candidate was rejected and its integration was removed.
+The private weights, examples and predictions are not distributed. These scores
+are reference overlap on a small same-domain sample, not linguistic accuracy
+percentages or evidence about all domains. French-Somali retains its existing
+experimental pivot route. Other model preferences remain unchanged.
+
+Two independently reproducible application defects were fixed: Somali pack
+segmentation reserves both language markers, allowing 399/400-piece inputs to
+split safely rather than fail; optional AfriSLM completions explicitly marked
+`finish_reason=length` fall back instead of being accepted as complete.
+Automated fixtures prove these cases without private examples or weights.
+AfriSLM is not installed locally, so its native generation remains untested.
+
+
+## November 8 all-route regression pass
+
+All six meaning-translation routes and all eight script-conversion routes were
+reviewed. Model preferences remain EN/FR Argos; EN/SO standard Marian with
+explicit synthetic opt-in and optional AfriSLM 0.8B; SO/EN optional AfriSLM
+4B, 2B, 0.8B, then Marian; FR/SO and SO/FR pivot through English. Optional
+AfriSLM packs remain absent locally and were not downloaded or promoted.
+
+A matched before/after CPU check on eight existing examples per translation
+route (48 total, offline public API) changed no output. chrF++ before/after:
+EN/FR 54.113/54.113; FR/EN 61.335/61.335; EN/SO 38.935/38.935;
+SO/EN 41.098/41.098; FR/SO 20.781/20.781; SO/FR 15.510/15.510.
+These small reused diagnostic subsets establish no new semantic quality gain.
+Raw private examples and predictions remain outside the repository.
+
+One frozen 32-pair TICO-dev French decoding screen rejected a general beam-4
+change: EN/FR chrF++ 57.622 to 56.917 (mean 0.167 to 0.198 seconds),
+FR/EN 62.730 to 63.046 (0.150 to 0.170 seconds). The small reverse gain does
+not justify changing production preferences or extrapolating to pivot quality.
+
+New fixes: NFC-equivalent scholarly Latin š/ñ/ē/ō, including capitals, now use
+the existing Old Nubian glyphs (eight decomposed regression cases: 0/8 before,
+8/8 after). This corrects Unicode handling, not historical mappings. Old Nubian
+combining marks remain preserved and are flagged beyond the Coptic block;
+Borama/Kaddare reverse conversion now flags unmapped private-use characters
+in every private-use range. All eight routes preserve tested unknowns, numbers
+and punctuation. Independent linguistic gold accuracy/CER remains unmeasured.
+
+All translation routes now flag added exact sentence repetition without editing
+text. Intentional source repetition no longer automatically invalidates an
+optional candidate. Existing numeric and negation review cues remain; names
+are not substituted. These cues are conservative diagnostics, not semantic
+certification. No training, private weight upload or unsupported language claim
+was added. Source regression gate: 384 passed, 11 skipped, 196 subtests passed;
+Ruff and credential scan passed. Native AfriSLM and human review remain gaps.

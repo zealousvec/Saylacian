@@ -37,6 +37,21 @@ _SENTENCE_SPLIT = re.compile(r"[.!?…]+")
 _SENTENCEPIECE_UNKNOWN_SURFACE = "\u2047"
 
 
+def _sentence_repetition_count(text):
+    sentences = [
+        " ".join(part.casefold().split())
+        for part in _SENTENCE_SPLIT.split(unicodedata.normalize("NFKC", text))
+        if any(char.isalpha() for char in part)
+    ]
+    return max(Counter(sentences).values(), default=0)
+
+
+def _has_added_sentence_repetition(source, output):
+    return _sentence_repetition_count(output) > max(
+        1, _sentence_repetition_count(source)
+    )
+
+
 def _synthetic_candidate_is_degenerate(source, output):
     """Conservatively reject identity and obvious repeated output from candidate."""
     if _SENTENCEPIECE_UNKNOWN_SURFACE in output:
@@ -57,9 +72,7 @@ def _synthetic_candidate_is_degenerate(source, output):
 
     if word_count(output) > word_count(source) * 2 + 10:
         return True
-    segments = [normalize(part) for part in _SENTENCE_SPLIT.split(output)]
-    segments = [part for part in segments if part]
-    if len(segments) != len(set(segments)):
+    if _has_added_sentence_repetition(source, output):
         return True
     words = normalize(output).split()
     source_words = set(normalize(source).split())
@@ -84,6 +97,10 @@ def _translation_review_warnings(source_text, translated, source_language):
         return Counter(re.findall(r"\d+", normalized))
 
     warnings = []
+    if _has_added_sentence_repetition(source_text, translated):
+        warnings.append(
+            "Output repeats a sentence more often than the source; review it."
+        )
     if numbers(source_text) != numbers(translated):
         warnings.append(
             "Numbers or number formatting differ; compare them with the original."
@@ -114,10 +131,11 @@ def _clean_model_markers(text):
     return _MODEL_LEADING_MARKERS.sub("", text)
 
 
-def _model_token_segments(text, tokenizer):
+def _model_token_segments(text, tokenizer, *, reserved_tokens=0):
     """Keep model inputs within context while splitting only at whitespace."""
+    token_limit = MODEL_TOKEN_LIMIT - reserved_tokens
     tokens = tokenizer.encode(text, out_type=str)
-    if len(tokens) <= MODEL_TOKEN_LIMIT:
+    if len(tokens) <= token_limit:
         return (tokens,), (), "", "", False
 
     words = list(re.finditer(r"\S+", text))
@@ -139,7 +157,7 @@ def _model_token_segments(text, tokenizer):
             current = candidate
         else:
             current_tokens = tokenizer.encode(current, out_type=str)
-            if len(current_tokens) > MODEL_TOKEN_LIMIT:
+            if len(current_tokens) > token_limit:
                 raise ValueError(
                     "A single unbroken input segment exceeds this model's "
                     "400-token limit; split it manually."
@@ -150,7 +168,7 @@ def _model_token_segments(text, tokenizer):
         previous = word
 
     current_tokens = tokenizer.encode(current, out_type=str)
-    if len(current_tokens) > MODEL_TOKEN_LIMIT:
+    if len(current_tokens) > token_limit:
         raise ValueError(
             "A single unbroken input segment exceeds this model's 400-token "
             "limit; split it manually."
@@ -352,7 +370,16 @@ def _translate_afrislm(text, source, target, model_path):
             "The optional Somali model could not run; used the standard offline model.",
         )
 
-    content = result["choices"][0]["message"].get("content")
+    choice = result["choices"][0]
+    if choice.get("finish_reason") == "length":
+        return (
+            None,
+            (
+                "The optional Somali translation was cut short; "
+                "used the standard offline model."
+            ),
+        )
+    content = choice["message"].get("content")
     translated = content.strip() if isinstance(content, str) else ""
     if "</think>" in translated:
         translated = translated.rsplit("</think>", 1)[-1].strip()
@@ -590,7 +617,7 @@ def _translate_meaning(
     if folder.name in MULTILINGUAL_PAIRS:
         source_tokenizer, target_tokenizer = tokenizer
         segments, separators, leading, trailing, chunked = _model_token_segments(
-            text, source_tokenizer
+            text, source_tokenizer, reserved_tokens=2
         )
         token_batch = [[">>som<<", *segment, "</s>"] for segment in segments]
         if any(len(segment) > MODEL_TOKEN_LIMIT for segment in token_batch):
