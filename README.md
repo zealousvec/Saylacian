@@ -10,23 +10,23 @@
 
 **[Windows downloads — GitHub Releases](https://github.com/zealousvec/Saylacian/releases)**
 
-A public Windows download is **not published yet**. When the portable build passes clean-PC testing and redistribution review, this will be the official, account-free download page. **Do not download the source-code ZIP expecting an EXE.**
+**Windows alpha pre-release now available:** [Download Saylacian-Windows-Portable.zip](https://github.com/zealousvec/Saylacian/releases/download/v0.1.0a1/Saylacian-Windows-Portable.zip) (**195 MB**, as displayed by GitHub). Extract the entire ZIP and open `Saylacian.exe` inside the app folder. No Python, Git, or GitHub account required. **Unsigned and not yet clean-PC verified; redistribution review remains incomplete.** Do not disable Windows security if it blocks the EXE. **Source code (zip)** on the release page is *not* the app.
 
 For developers and testers only: [temporary Windows build artifacts](docs/GET_STARTED.md#windows-computer--portable-test-build) may require GitHub sign-in.
 
 ## Users vs developers
 
-**Just want to use Saylacian?** Once an approved build is published, download the **Windows portable ZIP** from [Releases](https://github.com/zealousvec/Saylacian/releases), extract it, open the `Saylacian` folder, and double-click `Saylacian.exe`. No Python, Git, VS Code, or GitHub account required. **There is no approved public build yet.**
+**Just want to use Saylacian?** Download the **experimental Windows portable ZIP** from [Releases](https://github.com/zealousvec/Saylacian/releases/tag/v0.1.0a1), extract it, find `Saylacian.exe` inside the app folder, and double-click it. No Python, Git, VS Code, or GitHub account required. This is an **unverified pre-release**, not an approved stable installer.
 
 **Want to edit the code or contribute?** Follow [RUN.md](RUN.md) for Python 3.12, a virtual environment, dependencies, tests, and development commands. The green **Code → Download ZIP** button downloads **source code, not the Windows application**.
 
-**Windows test candidate:** A locally supplied portable archive has been checked for ZIP integrity (600 entries; approximately 68.3 MB / 65.1 MiB compressed), but has **not** been clean-PC tested or cleared for public binary redistribution. It is not on Releases.
+**Windows test candidate:** The uploaded GitHub Release ZIP is **195 MB**. A separate locally cleaned archive was approximately **68.3 MB**; these are **different archives**, and the contents of the 195 MB upload have **not been independently inspected**. The published archive has not been clean-PC tested or cleared for public binary redistribution.
 
 ## Start here
 
 | What you have | What to do |
 |---|---|
-| **Windows computer** | [Check Releases](https://github.com/zealousvec/Saylacian/releases) for an approved download; none published yet |
+| **Windows computer** | [Download the experimental Windows alpha ZIP](https://github.com/zealousvec/Saylacian/releases/tag/v0.1.0a1), extract it and run `Saylacian.exe` (unsigned; unverified) |
 | **Windows computer, build unavailable or blocked** | [Install from source](docs/GET_STARTED.md#windows-computer--source-installation) — requires Python 3.12 |
 | **Android or iPhone** | [Read the phone status](docs/GET_STARTED.md#android-or-iphone) — **no mobile app or public mobile website yet** |
 | **Developer / contributor** | [Development instructions](RUN.md) and [contribution guide](CONTRIBUTING.md) |
