@@ -22,7 +22,7 @@
 ## Research, limitations and releases
 
 - [Project status](PROJECT_STATUS.md)
-- [Release checklist](GITHUB_RELEASE_CHECKLIST.md) — why a public Windows binary is not yet approved
+- [Release checklist](GITHUB_RELEASE_CHECKLIST.md) — outstanding checks for the publicly available experimental Windows alpha
 - [Somali translation evidence](SOMALI_TRANSLATION_QUALITY.md)
 - [Translation feasibility](TRANSLATION_FEASIBILITY.md)
 - [Old Nubian scope](OLD_NUBIAN_READER_PLAN.md)
