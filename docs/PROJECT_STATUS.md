@@ -1,6 +1,6 @@
 # Saylacian project status
 
-Updated 2026-11-07. Saylacian is **0.1.0a1, in alpha testing**.
+Updated 2026-11-08. Saylacian is **0.1.0a1, in alpha testing**.
 
 ## Current source
 
@@ -17,11 +17,9 @@ Updated 2026-11-07. Saylacian is **0.1.0a1, in alpha testing**.
 
 ## Release status
 
-Source installation is available. **No verified binary release is published.**
-The latest candidate's manifest and fonts were checked, but Windows Application
-Control blocked the rebuilt executable. A clean-machine run and real clipboard
-acceptance remain unavailable, and binary distribution evidence is incomplete.
-Android and iOS builds remain unverified.
+A [Windows portable alpha ZIP](https://github.com/zealousvec/Saylacian/releases/tag/v0.1.0a1) is available. On 2026-11-08, the owner reported that the rebuilt ZIP, `Saylacian-Portable-Fixed-20261108-115138.zip`, launched successfully on a second Windows PC after a Kivy startup-directory fix. The archive's EXE and bundled runtime structure were also checked. This is a successful cross-PC launch test, not a complete clean-install compatibility or functionality certification.
+
+The binary is unsigned. Third-party binary redistribution checks, wider Windows testing, real clipboard/accessibility acceptance, and mobile builds remain outstanding.
 
 The [alpha verification record](ALPHA_COMPLETION_2026-11-07.md) describes the
 checks and blockers. The [changelog](../CHANGELOG.md) records source changes.
