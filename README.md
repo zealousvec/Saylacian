@@ -6,11 +6,19 @@
 
 **Alpha 0.1.0a1** · Windows desktop app · [Licence](LICENSE) · [Report a problem](https://github.com/zealousvec/Saylacian/issues)
 
+## Download
+
+**[Windows downloads — GitHub Releases](https://github.com/zealousvec/Saylacian/releases)**
+
+A public Windows download is **not published yet**. When the portable build passes clean-PC testing and redistribution review, this will be the official, account-free download page. **Do not download the source-code ZIP expecting an EXE.**
+
+For developers and testers only: [temporary Windows build artifacts](docs/GET_STARTED.md#windows-computer--portable-test-build) may require GitHub sign-in.
+
 ## Start here
 
 | What you have | What to do |
 |---|---|
-| **Windows computer** | [Try the Windows portable test build](docs/GET_STARTED.md#windows-computer--portable-test-build) — no Python needed on the receiving PC |
+| **Windows computer** | [Check Releases](https://github.com/zealousvec/Saylacian/releases) for an approved download; none published yet |
 | **Windows computer, build unavailable or blocked** | [Install from source](docs/GET_STARTED.md#windows-computer--source-installation) — requires Python 3.12 |
 | **Android or iPhone** | [Read the phone status](docs/GET_STARTED.md#android-or-iphone) — **no mobile app or public mobile website yet** |
 | **Developer / contributor** | [Development instructions](RUN.md) and [contribution guide](CONTRIBUTING.md) |
