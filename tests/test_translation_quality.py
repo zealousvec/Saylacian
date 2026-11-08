@@ -187,3 +187,72 @@ def test_review_cues_reach_website_without_substituting_translation(offline_mode
     assert response.json["text"] == "Natiijo caadi ah."
     assert any("Numbers or number formatting" in w for w in response.json["warnings"])
     assert any("negation" in w for w in response.json["warnings"])
+
+
+@pytest.mark.parametrize("pieces", [398, 399, 400, 401])
+def test_somali_segmentation_reserves_markers_and_preserves_all_input(
+    offline_models, monkeypatch, pieces
+):
+    root, _, _, tokenizer, _, _ = offline_models
+    engine = Mock()
+    monkeypatch.setattr(
+        translation, "load_model", lambda _: ((tokenizer, tokenizer), engine)
+    )
+    tokenizer.decode.return_value = "Natiijo caadi ah."
+    tokenizer.encode.side_effect = lambda text, **kwargs: text.split()
+    engine.translate_batch.side_effect = lambda batch, **kwargs: [
+        SimpleNamespace(hypotheses=[["result"]]) for _ in batch
+    ]
+    source = " ".join(f"word{i}" for i in range(pieces))
+    result = translation.translate_meaning(source, "English", "Somali Latin", root)
+    batch = engine.translate_batch.call_args.args[0]
+    assert all(len(segment) <= 400 for segment in batch)
+    assert all(segment[0] == ">>som<<" and segment[-1] == "</s>" for segment in batch)
+    assert [piece for segment in batch for piece in segment[1:-1]] == source.split()
+    assert bool(any("split into independent" in w for w in result.warnings)) == (
+        pieces > 398
+    )
+
+
+@pytest.mark.parametrize("finish_reason", ["length", "stop"])
+def test_afrislm_rejects_only_reported_truncation(monkeypatch, finish_reason):
+    model = Mock()
+    model.tokenize.return_value = [1]
+    model.create_chat_completion.return_value = {
+        "choices": [
+            {
+                "message": {"content": "Partial translation"},
+                "finish_reason": finish_reason,
+            }
+        ]
+    }
+    monkeypatch.setattr(translation, "load_afrislm_model", lambda _: model)
+    result, warning = translation._translate_afrislm(
+        "Source text", "English", "Somali Latin", "model.gguf"
+    )
+    if finish_reason == "length":
+        assert result is None
+        assert "cut short" in warning
+        assert "standard offline model" in warning
+    else:
+        assert result.text == "Partial translation"
+        assert warning is None
+
+
+def test_cut_short_optional_translation_uses_complete_standard_route(
+    offline_models, monkeypatch
+):
+    root, base, _, _, loader, _ = offline_models
+    model = Mock()
+    model.tokenize.return_value = [1]
+    model.create_chat_completion.return_value = {
+        "choices": [{"message": {"content": "Incomplete"}, "finish_reason": "length"}]
+    }
+    monkeypatch.setattr(translation, "_afrislm_model_path", lambda: "model.gguf")
+    monkeypatch.setattr(translation, "load_afrislm_model", lambda _: model)
+    result = translation.translate_meaning(
+        "A complete source sentence.", "English", "Somali Latin", root
+    )
+    assert result.text == "Natiijo caadi ah."
+    assert any("cut short" in warning for warning in result.warnings)
+    loader.assert_called_once_with(str(base))

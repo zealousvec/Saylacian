@@ -171,3 +171,34 @@ On this small fresh sample, 4B is the best Somali→English candidate; 0.8B rema
 A separate exploratory 60-pair TICO-19 test run showed stronger 4B scores in both directions, but the model documentation lists TICO-19 development data in training; those scores were not used to select routes. FLORES results are single-reference automatic metrics on only 30 examples and do not prove general translation quality. Fluent Somali review is still needed.
 
 The 4B model card declares Apache-2.0 weights and identifies CC-BY-NC-4.0 synthetic data and ODC-By-1.0 Dolci-Instruct data among its training sources. Neither training dataset is included. The exact pinned metadata is in `saylacian/core/data/afrislm_4b_model_manifest.json`; see the [upstream model card](https://huggingface.co/qvac/TranslatePsy-AfriSLM-4B-Q4-GGUF) and [training-data attributions](https://huggingface.co/datasets/qvac/TranslatePsy-AfriSLM-Synthetic-Mix/blob/main/ATTRIBUTIONS.md).
+
+
+## November 8 CPU application-route follow-up
+
+A frozen 32-example French-to-Somali InfoPankki test sample compared the
+existing French-English-Somali route with the existing continuation M2M100
+adapter merged and converted to CTranslate2 INT8. Both ran through the public
+translation API in isolated CPU processes, using identical sources/references.
+Exact normalized source/target overlap with training, validation and the earlier
+40-example comparison was excluded; near-duplicate overlap was not audited.
+No new training or model download was performed.
+
+| Route | BLEU | chrF++ | Mean seconds/input | Process peak RSS MiB |
+|---|---:|---:|---:|---:|
+| Existing pivot | 18.537 | 44.878 | 0.296 | 456.2 |
+| Private direct candidate | 10.520 | 31.097 | 1.064 | 582.0 |
+
+Direct won 6 examples and lost 26 on sentence chrF++; paired mean delta was
+-13.730, with 95% paired-bootstrap CI [-19.311, -8.104] (2,000 resamples,
+seed 1729). The direct candidate was rejected and its integration was removed.
+The private weights, examples and predictions are not distributed. These scores
+are reference overlap on a small same-domain sample, not linguistic accuracy
+percentages or evidence about all domains. French-Somali retains its existing
+experimental pivot route. Other model preferences remain unchanged.
+
+Two independently reproducible application defects were fixed: Somali pack
+segmentation reserves both language markers, allowing 399/400-piece inputs to
+split safely rather than fail; optional AfriSLM completions explicitly marked
+`finish_reason=length` fall back instead of being accepted as complete.
+Automated fixtures prove these cases without private examples or weights.
+AfriSLM is not installed locally, so its native generation remains untested.

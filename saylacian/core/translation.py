@@ -114,10 +114,11 @@ def _clean_model_markers(text):
     return _MODEL_LEADING_MARKERS.sub("", text)
 
 
-def _model_token_segments(text, tokenizer):
+def _model_token_segments(text, tokenizer, *, reserved_tokens=0):
     """Keep model inputs within context while splitting only at whitespace."""
+    token_limit = MODEL_TOKEN_LIMIT - reserved_tokens
     tokens = tokenizer.encode(text, out_type=str)
-    if len(tokens) <= MODEL_TOKEN_LIMIT:
+    if len(tokens) <= token_limit:
         return (tokens,), (), "", "", False
 
     words = list(re.finditer(r"\S+", text))
@@ -139,7 +140,7 @@ def _model_token_segments(text, tokenizer):
             current = candidate
         else:
             current_tokens = tokenizer.encode(current, out_type=str)
-            if len(current_tokens) > MODEL_TOKEN_LIMIT:
+            if len(current_tokens) > token_limit:
                 raise ValueError(
                     "A single unbroken input segment exceeds this model's "
                     "400-token limit; split it manually."
@@ -150,7 +151,7 @@ def _model_token_segments(text, tokenizer):
         previous = word
 
     current_tokens = tokenizer.encode(current, out_type=str)
-    if len(current_tokens) > MODEL_TOKEN_LIMIT:
+    if len(current_tokens) > token_limit:
         raise ValueError(
             "A single unbroken input segment exceeds this model's 400-token "
             "limit; split it manually."
@@ -352,7 +353,16 @@ def _translate_afrislm(text, source, target, model_path):
             "The optional Somali model could not run; used the standard offline model.",
         )
 
-    content = result["choices"][0]["message"].get("content")
+    choice = result["choices"][0]
+    if choice.get("finish_reason") == "length":
+        return (
+            None,
+            (
+                "The optional Somali translation was cut short; "
+                "used the standard offline model."
+            ),
+        )
+    content = choice["message"].get("content")
     translated = content.strip() if isinstance(content, str) else ""
     if "</think>" in translated:
         translated = translated.rsplit("</think>", 1)[-1].strip()
@@ -590,7 +600,7 @@ def _translate_meaning(
     if folder.name in MULTILINGUAL_PAIRS:
         source_tokenizer, target_tokenizer = tokenizer
         segments, separators, leading, trailing, chunked = _model_token_segments(
-            text, source_tokenizer
+            text, source_tokenizer, reserved_tokens=2
         )
         token_batch = [[">>som<<", *segment, "</s>"] for segment in segments]
         if any(len(segment) > MODEL_TOKEN_LIMIT for segment in token_batch):
