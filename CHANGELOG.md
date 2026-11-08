@@ -1,8 +1,10 @@
 # Changelog
 
-Changes are recorded after local verification. The source is in alpha testing; no tagged binary release is published.
+Changes are recorded after local verification. An **experimental, unsigned Windows alpha** was published on GitHub as **v0.1.0a1 on 2026-11-08**, before clean-PC testing and binary redistribution review were completed. It is not a verified stable release.
 
 ## Unreleased
+
+- Updated public download and onboarding documentation following the experimental Windows alpha publication.
 
 - Prefer the standard EN→SO pack over incidental local synthetic weights; retain
   explicit experimental opt-in and standard fallbacks.
