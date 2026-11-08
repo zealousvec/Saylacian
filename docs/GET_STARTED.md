@@ -1,53 +1,49 @@
-# Get started with Saylacian
+# Getting started with Saylacian
 
-**Choose your device:** [Windows computer](#windows-computer--portable-test-build) · [Android or iPhone](#android-or-iphone) · [Source installation](#windows-computer--source-installation)
+Saylacian is an experimental Windows alpha. There is no stable installer or mobile app yet.
 
-Saylacian is **alpha software**. A **public experimental Windows pre-release** is available, but it has not passed clean-PC verification or the binary redistribution review; a verified stable installer and mobile app are not available.
+## Windows — download and run
 
-**Ordinary Windows users:** Check [GitHub Releases](https://github.com/zealousvec/Saylacian/releases). Under release **v0.1.0a1**, download **Saylacian-Windows-Portable.zip** (shown as **195 MB** on GitHub) under **Assets**. Extract the entire ZIP, locate `Saylacian.exe` inside the application folder, and run it. Keep bundled files together. No GitHub account, Python, Git, or VS Code is required. **This is an unsigned, unverified alpha**, not an approved stable download. Do not disable Windows security if it blocks the app.
+You **do not** need Python, Git, VS Code, a terminal or a GitHub account.
 
-**Developers:** Go to [RUN.md](../RUN.md) for Python setup and source-code instructions. **Code → Download ZIP is source code, not the app.**
+1. Open **[Saylacian v0.1.0a1 on GitHub Releases](https://github.com/zealousvec/Saylacian/releases/tag/v0.1.0a1)**.
+2. Find **Assets** near the bottom of the release and click to expand it if it is collapsed.
+3. Click the **Windows portable ZIP** attached under Assets (the file name includes `Saylacian` and ends in `.zip`). **Do not click** `Source code (zip)`, `Source code (tar.gz)` or the repository's green **Code → Download ZIP** button. Those are source archives, not the Windows application.
+4. Open your **Downloads** folder. Right-click the downloaded ZIP → **Extract All** → **Extract**.
+5. Open the newly extracted folder. Find the folder named **Saylacian**; inside it, locate **Saylacian.exe** alongside the **_internal** folder.
+6. Double-click **Saylacian.exe** to open the app. **Do not move the EXE out of its folder**, because it needs the bundled files. Do not launch it from within the ZIP.
+7. To translate meaning offline, open **Offline language packs** (or press **Ctrl+P**) and download the pack you need. Script conversion can be tried without downloading translation models.
 
-**Size:** The **published** GitHub Release ZIP is shown as **195 MB**. A **different, locally cleaned** archive was approximately 68.3 MB (65.1 MiB); the published ZIP has not been independently inspected for unnecessary development files. Extracted size and model-pack downloads are additional.
+**Important:** The Windows alpha is unsigned and has not passed independent clean-PC testing or the outstanding third-party binary redistribution review. If Windows blocks the executable, **do not disable SmartScreen, Smart App Control or other security protections**. Report the problem in [GitHub Issues](https://github.com/zealousvec/Saylacian/issues).
 
-## Windows computer — portable test build
+### Which ZIP is the correct one?
 
-**Best for testing on another Windows computer.** You do not need Python, Git or VS Code on that computer.
+| Where you downloaded it | What it contains | What to do |
+|---|---|---|
+| **Releases → Assets → Windows portable ZIP** | Packaged Windows app | **Use this one** |
+| **Releases → Source code (zip)** | Python source | Not the Windows download |
+| **Code → Download ZIP** | Python source | Not the Windows download |
+| **Actions → Artifacts** | Developer build artifact, sometimes a ZIP inside another ZIP | Only for build testing |
 
-1. On GitHub, open [Saylacian's Windows build workflow](https://github.com/zealousvec/Saylacian/actions/workflows/ci.yml).
-2. Select **Run workflow** on branch `main` (you may need repository permissions to start a new run). Alternatively, open a recent successful manually triggered run.
-3. Wait for **windows-portable-zip** to finish with a green check.
-4. Open the run's **Artifacts** section. Download **Saylacian-Windows-portable-alpha-candidate** (GitHub sign-in may be needed).
-5. Extract the downloaded ZIP. Inside it, extract **Saylacian-Portable.zip** too.
-6. Open the extracted application folder and double-click **Saylacian.exe**. **Keep all the files in that folder together.**
-7. Try script conversion. To translate meaning offline, open **Offline language packs** (Ctrl+P) and download the desired pack.
+**If there is no `Saylacian.exe` after extracting the Release asset**, report the exact asset name in an [issue](https://github.com/zealousvec/Saylacian/issues). The release attachment may be incorrect; don't try random files or download unofficial builds.
 
-**If you don't see Artifacts:** the job may still be running, may have failed, or the artifact may have expired. The workflow retains artifacts for **14 days**. A GitHub source-code ZIP from the green **Code** button is **not** the Windows application.
+## Developers — run from source or build an EXE
 
-**Safety and release status:** Both the public alpha and this separate CI-generated candidate are unsigned and have not been validated on a clean Windows PC. Windows may block them. Do not disable Smart App Control, SmartScreen or other security features to bypass a block. Binary redistribution/licensing review is incomplete; neither is an approved stable build.
+For source setup, follow [RUN.md](../RUN.md). The application is built with Python 3.12 and Kivy. To build the portable Windows ZIP from a checked-out repository on Windows:
+
+```powershell
+py -3.12 -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r requirements-build-lock.txt
+.\.venv\Scripts\python.exe tools/build_windows_portable.py
+```
+
+If the build succeeds, the outputs are `dist/portable/Saylacian/Saylacian.exe` and `dist/Saylacian-Portable.zip`. The build checks package contents, but does not establish clean-PC compatibility or redistribution approval. See the [release checklist](PUBLISH_WINDOWS_RELEASE.md).
 
 ## Android or iPhone
 
 **There is no Android APK, iPhone app or public mobile website available yet.** The downloadable Windows EXE cannot run on Android or iOS. The optional Flask website is only a *local* website running on a computer; it is not a public site you can open from your phone.
 
 You can read the [project](../README.md), [language support](SUPPORT_MATRIX.md) and [guides](README.md) from your phone. Do **not** download a third-party “Saylacian APK” claiming to be an official build.
-
-## Windows computer — source installation
-
-Use this only if the portable candidate is unavailable or you want to run the Python source. Requires **64-bit Windows** and **Python 3.12**.
-
-1. Install Python 3.12 from the [official Python website](https://www.python.org/downloads/). Confirm `py -3.12 --version` works in PowerShell.
-2. [Download the source ZIP](https://github.com/zealousvec/Saylacian/archive/refs/heads/main.zip) and **Extract All**.
-3. Open the folder containing `main.py`. Click File Explorer's address bar, type `powershell`, and press Enter.
-4. Run these commands **one at a time**:
-
-```powershell
-py -3.12 -m venv .venv
-.\.venv\Scripts\python.exe -m pip install -r requirements-runtime-lock.txt
-.\.venv\Scripts\python.exe main.py
-```
-
-To reopen the app later, use only the final command from the same folder. You do not need to activate the environment or change PowerShell execution policy. For more technical setup and developer options, see [RUN.md](../RUN.md).
 
 ## Translate or convert writing
 
@@ -61,7 +57,7 @@ To reopen the app later, use only the final command from the same folder. You do
 
 | Problem | What to do |
 |---|---|
-| I downloaded GitHub's **Code → Download ZIP**, but there's no EXE | That is source code. Download the **Windows ZIP under Assets on the v0.1.0a1 release page** instead. |
+| I downloaded GitHub's **Code → Download ZIP**, but there's no EXE | That is source code. Download the **Windows portable ZIP under Assets on the v0.1.0a1 release page** instead. |
 | I see a ZIP inside a ZIP | If using a CI artifact, extract both ZIPs. For the public Release asset, extract the ZIP fully and keep the application folder intact. |
 | Windows blocks the EXE | Do not disable security protections. Use the source-install route or wait for a signed, verified release. |
 | The app says no translation model is installed | Open **Offline language packs** and install the correct pack. |
