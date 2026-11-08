@@ -1,10 +1,13 @@
-# GitHub release candidate verification
+# GitHub release verification
+
+> [!WARNING]
+> **Current status (2026-11-08):** [v0.1.0a1](https://github.com/zealousvec/Saylacian/releases/tag/v0.1.0a1) is **publicly available as an experimental pre-release**, but clean-PC execution and third-party binary redistribution checks remain incomplete. Its uploaded Windows ZIP is shown as **195 MB** and has **not been independently inspected**. This document preserves a **historical 2026-10-30 audit** of a different, locally built candidate. Do not mistake historical PASS results for approval of the published ZIP.
 
 **Checked:** 2026-10-30
 
 **Repository:** [zealousvec/Saylacian](https://github.com/zealousvec/Saylacian)
 
-**Scope:** local source update and Windows portable candidate. Nothing was pushed, tagged, or published.
+**Historical scope:** local source update and a different Windows portable candidate. At the time of this audit, nothing had been pushed, tagged, or published. The current public release postdates this snapshot.
 
 ## Checklist
 
@@ -21,7 +24,7 @@
 | Review user-facing docs and CI | **PASS** | README, support matrix, source setup, portable setup notes, changelog, dependency notices, and GitHub Actions were checked against the current implementation. Somali and historical-script limits remain stated; the bundled detector model is distinguished from downloadable translation packs. The workflow's automatic CI checks source tests; the portable build is a manual workflow job. |
 | Verify remote and GitHub Actions | **EXTERNAL REVIEW REQUIRED** | The public `main` still points to `c4f2f87270c22a05e772816ce98e57a99b871b18`; `codex/user-only-source` points to `50b741b12091de6feaad70a19b20bb7e5cd4201a`. Local `main` is 120 commits ahead of public `main`, including this release-candidate review commit. No CI run for these local commits exists until they are pushed. |
 
-## Push and publication plan
+## Historical push and publication plan (superseded)
 
 After the owner approves the exact source snapshot, recheck `git status`, confirm public `main` still points to `c4f2f87270c22a05e772816ce98e57a99b871b18`, review the 120 local commits ahead of `main`, and push with a normal `git push origin main`. That command will send all 120 commits, not only the final review commit. Then inspect the new GitHub Actions run and fix any failure locally. Do not force-push.
 
