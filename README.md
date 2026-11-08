@@ -11,6 +11,12 @@ on Somali writing systems and a limited Old Nubian reading reference.
 No verified Windows binary release is available. Somali translation and
 historical-script readings need linguistic review.
 
+## Windows portable test download
+
+You can build a portable Windows test copy on [GitHub Actions](https://github.com/zealousvec/Saylacian/actions/workflows/ci.yml). Select **Run workflow** on `main`; after the `windows-portable-zip` job succeeds, download the `Saylacian-Windows-portable-alpha-candidate` artifact from that run. Extract the artifact ZIP and then `Saylacian-Portable.zip`. Copy the **entire extracted application folder** to a 64-bit Windows PC and launch `Saylacian.exe` without installing Python or Git.
+
+This is an **unsigned, unverified alpha test build**, not a permanent release or installer. Artifacts expire after 14 days and downloading may require signing into GitHub. Do not disable Windows security controls if the executable is blocked. Clean-PC validation and third-party binary redistribution checks remain outstanding.
+
 **New here? Start with the [beginner installation guide](#install-and-run-on-windows--beginner-guide).**
 
 ## Features
