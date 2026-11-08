@@ -2,9 +2,9 @@
 
 # Saylacian
 
-### Making translation and lesser-supported writing systems easier to explore.
+### An open-source translator and writing-system conversion project.
 
-**A free, open-source project I've been developing to bring translation and different writing systems together, with a focus on Somali scripts and historical languages.**
+Saylacian is a free, open-source desktop application focused on language translation and the conversion of Somali writing systems, alongside a limited reference for historical Old Nubian characters.
 
 [![Windows](https://img.shields.io/badge/Windows-Alpha-0078D4?logo=windows11&logoColor=white)](https://github.com/zealousvec/Saylacian/releases/tag/v0.1.0a1)
 [![Release](https://img.shields.io/github/v/release/zealousvec/Saylacian?include_prereleases&label=release)](https://github.com/zealousvec/Saylacian/releases)
@@ -20,28 +20,25 @@
 > [!WARNING]
 > **Experimental Windows alpha (v0.1.0a1).** The public ZIP is unsigned and has **not** been independently verified on a clean Windows PC. Third-party binary redistribution checks are also incomplete. Windows security may block the executable; **do not disable security protections to bypass a warning**. This is not a stable or approved installer. [Release verification status](docs/GITHUB_RELEASE_CHECKLIST.md).
 
-## Download and setup
+## Installation
 
-| I want to… | Start here |
-|---|---|
-| **Use the Windows app** | **[Download the Windows portable ZIP](https://github.com/zealousvec/Saylacian/releases/download/v0.1.0a1/Saylacian-Windows-Portable.zip)** (195 MB, experimental alpha) |
-| **Understand the features** | [User guide](docs/USER_GUIDE.md) · [Supported languages and scripts](docs/SUPPORT_MATRIX.md) |
-| **Run or change the source** | [Developer setup](RUN.md) · [Contributing](CONTRIBUTING.md) |
-| **Check other devices** | [Platform support](docs/GET_STARTED.md#android-or-iphone) |
+**Windows alpha:** [Download Saylacian-Windows-Portable.zip](https://github.com/zealousvec/Saylacian/releases/download/v0.1.0a1/Saylacian-Windows-Portable.zip) (195 MB).
 
 **Windows installation:** Download the **release asset**, extract the ZIP completely, locate `Saylacian.exe`, and keep the bundled application files together. **No Python, Git, or GitHub account is required.** If Windows blocks the app, do not override its protections. See [troubleshooting](docs/GET_STARTED.md#common-problems).
 
 **Important:** GitHub's green **Code → Download ZIP** and the release's automatic **Source code (zip)** links contain the *source*, **not** the packaged Windows application.
 
-## What I've built so far
+## Features
 
-<table>
-<tr><td width="33%" valign="top"><strong>🌍 Translate meaning</strong><br><br>English and French translation, alongside experimental Somali translation. I've kept the language models as optional offline downloads, although Somali output still needs proper review by fluent speakers.</td><td width="33%" valign="top"><strong>✍️ Explore Somali scripts</strong><br><br>Convert between Somali Latin and Osmanya. I've also been working on Borama and Kaddare, although their mappings are still partial and some text needs the project's fonts to display properly.</td><td width="33%" valign="top"><strong>📜 Read historical writing</strong><br><br>I've added a limited Old Nubian character-reading feature using scholarly Latin transliteration. It doesn't translate Old Nubian meaning or cover every historical convention.</td></tr>
-</table>
+Saylacian currently includes three areas of functionality:
 
-> **A quick distinction:** translation changes what something means, whereas transliteration changes the writing system used to represent it. They're separate features in Saylacian, and I don't want to claim a language is fully supported when it isn't.
+- **Language translation:** offline English–French translation and experimental Somali translation. Language models are downloaded separately.
+- **Somali script conversion:** Latin–Osmanya conversion, with partial Borama and Kaddare chart mappings. Some output requires the bundled fonts or specific clipboard formats.
+- **Old Nubian reference:** limited transliteration between Coptic-script characters and scholarly Latin readings. This does not translate Old Nubian text.
 
-### What's working, and what's still experimental
+Translation and transliteration are separate operations. The former changes the meaning expressed in a language; the latter represents writing in a different script. Support varies by language and writing system.
+
+### Current support
 
 | Capability | Status |
 |---|---|
@@ -55,26 +52,17 @@
 
 See the [complete support matrix](docs/SUPPORT_MATRIX.md) for exact routes, limitations, and evidence.
 
-## How it works
+## Offline translation and privacy
 
-```text
-Your text
-   │
-   ├── Transliterate ──> script mapping ──> converted writing
-   │
-   └── Translate ──────> installed language model ──> translated meaning
-                              │
-                       optional offline packs
-```
+Installed language packs allow supported translations to run locally without sending the text to an external translation service. The English–French pack is approximately 166 MiB, while the standard Somali–English pack is approximately 300 MiB. Both are separate downloads from the Windows application.
 
-- **Offline where possible:** once you've downloaded a supported language pack, translations can run on your computer without sending every request to a cloud service.
-- **Optional model downloads:** English/French pack ≈166 MiB; standard Somali/English pack ≈300 MiB. These are **separate** from the Windows app download.
-- **Privacy:** local packs process text locally. Optional online providers have different privacy implications; see [online provider notes](docs/ONLINE_TRANSLATION.md).
-- **Still a work in progress:** I'm documenting the limits of the models and script mappings as I test them. I'd rather make those clear than overstate what the app can do.
+Optional online translation providers may transmit text to third-party services. Their behaviour and privacy considerations are described in the [online translation documentation](docs/ONLINE_TRANSLATION.md).
+
+The application remains under development. Somali translation quality, historical-script coverage and some clipboard operations require further review and testing.
 
 ## Running it from source
 
-I've built the desktop app mainly with **Python and Kivy**. There's also a separate **Flask** version for running a local website, but it isn't publicly hosted.
+The desktop application uses **Python and Kivy**. An optional **Flask** implementation is available for local use; no public website is currently deployed.
 
 ```powershell
 # Windows + Python 3.12, from the repository root
@@ -99,7 +87,7 @@ For development dependencies, tests, architecture, and packaging, see [RUN.md](R
 
 ## Contributing
 
-If you've noticed a mistake in a translation, a script mapping that doesn't look right, or something that simply doesn't work, feel free to [open an issue](https://github.com/zealousvec/Saylacian/issues). I'd especially appreciate feedback from people familiar with the languages and writing systems involved. Contributions are welcome too; please read [CONTRIBUTING.md](CONTRIBUTING.md) before submitting a pull request. Don't include private text or credentials in reports.
+Bug reports, corrections to script mappings and feedback on translation quality are welcome through [GitHub Issues](https://github.com/zealousvec/Saylacian/issues). Contributions from speakers and researchers familiar with the supported languages are particularly valuable. Before submitting code, please review [CONTRIBUTING.md](CONTRIBUTING.md). Do not include private text or credentials in issue reports.
 
 ## Licence and acknowledgements
 
@@ -109,7 +97,7 @@ Saylacian-authored code is licensed under **[GNU AGPL-3.0-or-later](LICENSE)**. 
 
 <div align="center">
 
-**My aim is to keep improving Saylacian and make these languages and writing systems easier for people to use and learn about.**
+**An ongoing project to improve access to language tools and lesser-supported writing systems.**
 
 [Releases](https://github.com/zealousvec/Saylacian/releases) · [Documentation](docs/README.md) · [Issues](https://github.com/zealousvec/Saylacian/issues)
 
