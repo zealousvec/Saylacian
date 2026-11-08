@@ -1,5 +1,7 @@
 # Run Saylacian
 
+> **Just want to use Saylacian?** Start with the [beginner guide](docs/GET_STARTED.md) instead. This page is for source installs, developers and advanced options.
+
 Open this project folder in VS Code, then run from PowerShell without activating the virtual environment:
 
 ```powershell
