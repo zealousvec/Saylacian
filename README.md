@@ -11,7 +11,7 @@ Saylacian is a free, open-source desktop application focused on language transla
 [![CI](https://github.com/zealousvec/Saylacian/actions/workflows/ci.yml/badge.svg)](https://github.com/zealousvec/Saylacian/actions/workflows/ci.yml)
 [![License: AGPL-3.0-or-later](https://img.shields.io/badge/license-AGPL--3.0--or--later-3DA639)](LICENSE)
 
-**[Download for Windows](https://github.com/zealousvec/Saylacian/releases/download/v0.1.0a1/Saylacian-Windows-Portable.zip)** · **[Getting started](docs/GET_STARTED.md)** · **[User guide](docs/USER_GUIDE.md)** · **[Report an issue](https://github.com/zealousvec/Saylacian/issues)**
+**[Download for Windows](https://github.com/zealousvec/Saylacian/releases/tag/v0.1.0a1)** · **[Getting started](docs/GET_STARTED.md)** · **[User guide](docs/USER_GUIDE.md)** · **[Report an issue](https://github.com/zealousvec/Saylacian/issues)**
 
 </div>
 
@@ -20,13 +20,20 @@ Saylacian is a free, open-source desktop application focused on language transla
 > [!WARNING]
 > **Experimental Windows alpha (v0.1.0a1).** The public ZIP is unsigned and has **not** been independently verified on a clean Windows PC. Third-party binary redistribution checks are also incomplete. Windows security may block the executable; **do not disable security protections to bypass a warning**. This is not a stable or approved installer. [Release verification status](docs/GITHUB_RELEASE_CHECKLIST.md).
 
-## Installation
+## Download for Windows
 
-**Windows alpha:** [Download Saylacian-Windows-Portable.zip](https://github.com/zealousvec/Saylacian/releases/download/v0.1.0a1/Saylacian-Windows-Portable.zip) (195 MB).
+**Windows 10/11 (64-bit) · Experimental alpha**
 
-**Windows installation:** Download the **release asset**, extract the ZIP completely, locate `Saylacian.exe`, and keep the bundled application files together. **No Python, Git, or GitHub account is required.** If Windows blocks the app, do not override its protections. See [troubleshooting](docs/GET_STARTED.md#common-problems).
+1. Open the **[latest Windows release](https://github.com/zealousvec/Saylacian/releases/tag/v0.1.0a1)**.
+2. Scroll to **Assets** and expand it if necessary.
+3. Download the **Saylacian portable ZIP** listed under Assets. **Do not select** `Source code (zip)` or GitHub's green **Code → Download ZIP**; those contain source files, not the Windows app.
+4. In **Downloads**, right-click the ZIP and select **Extract All**, then **Extract**. Do not run the application from inside the ZIP.
+5. Open the extracted **Saylacian** folder and double-click **Saylacian.exe**. Keep the `_internal` folder and the other files beside it.
+6. For offline language translation, open **Offline language packs** in the app (or press **Ctrl+P**) and install the language pack you want.
 
-**Important:** GitHub's green **Code → Download ZIP** and the release's automatic **Source code (zip)** links contain the *source*, **not** the packaged Windows application.
+**No Python, Git, terminal or GitHub account is required.** This is a portable application, not a Windows installer. The ZIP does not include the optional translation models.
+
+**If Windows blocks the EXE, do not turn off Windows security protections to run it.** This build is unsigned and remains experimental. See the [step-by-step Windows guide and troubleshooting](docs/GET_STARTED.md).
 
 ## Features
 
