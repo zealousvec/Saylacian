@@ -1,5 +1,7 @@
 # Saylacian user guide
 
+> **New here?** [Start with the simple installation and device guide](GET_STARTED.md). This page explains the features after Saylacian is running.
+
 ## Contents
 
 - [Choose a mode](#choose-a-mode)
