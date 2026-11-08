@@ -1,6 +1,6 @@
 # Windows release publication checklist
 
-**Status: not approved for publication.** This checklist is for maintainers. It does not mean an official binary exists.
+**Status: an experimental Windows alpha was publicly published as v0.1.0a1 before completion of this checklist.** It remains unsigned, unverified on a clean PC, and not cleared for binary redistribution. This checklist describes the requirements for a future approved release.
 
 ## Before publishing
 
@@ -10,11 +10,11 @@
 - [ ] Confirm Windows security behavior without bypassing protections. If the unsigned binary is blocked, resolve signing/distribution rather than asking users to disable protection.
 - [ ] Review documentation, privacy claims, licences and known limitations.
 
-## Publish once approved
+## Publish a future verified release once approved
 
 1. Sign in as a repository maintainer and open [Releases](https://github.com/zealousvec/Saylacian/releases).
 2. Select **Draft a new release**; create an appropriate new version tag from the verified commit.
-3. Title it **Saylacian v0.1.0a1 — Windows alpha** (or the version actually being released).
+3. Use a **new version tag**, not the already-published v0.1.0a1; title it for the verified release.
 4. Attach the **verified** `Saylacian-Portable.zip` and its `.sha256` checksum. **Do not attach** the outer Actions artifact wrapper as the user-facing download.
 5. Use the template below; mark it **pre-release**. Double-check the asset and source commit, then publish.
 6. Check that an unsigned-out visitor can download the asset. Update [Get started](GET_STARTED.md) and the [main README](../README.md) to say the public download is available only after this succeeds.
