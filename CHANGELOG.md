@@ -4,6 +4,9 @@ Changes are recorded after local verification. An **experimental, unsigned Windo
 
 ## Unreleased
 
+- Rebuilt the experimental Windows portable ZIP after a Kivy configuration-directory startup failure; the owner reported that the rebuilt ZIP launched successfully on a second Windows PC (2026-11-08). Full clean-PC acceptance and binary redistribution review remain open.
+- Updated the GitHub Actions matrix to test Python 3.12 and 3.13 while the pinned Kivy Windows dependency lacks a compatible Python 3.14 distribution; corrected Ruff formatting in the Kivy startup fix.
+
 - Updated public download and onboarding documentation following the experimental Windows alpha publication.
 
 - Prefer the standard EN→SO pack over incidental local synthetic weights; retain
