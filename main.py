@@ -10,12 +10,13 @@ from pathlib import Path
 PROJECT = Path(__file__).resolve().parent
 os.environ.setdefault("KIVY_NO_ARGS", "1")
 runtime_home = (
-    Path(os.environ.get("LOCALAPPDATA", str(Path.home()))) / "Saylacian/kivy-v1"
+    Path(os.environ.get("LOCALAPPDATA") or Path.home())
+    / "Saylacian"
+    / "kivy-v1"
 )
-os.environ.setdefault(
-    "KIVY_HOME",
-    str(runtime_home if getattr(sys, "frozen", False) else PROJECT / ".kivy"),
-)
+kivy_home = runtime_home if getattr(sys, "frozen", False) else PROJECT / ".kivy"
+kivy_home.mkdir(parents=True, exist_ok=True)
+os.environ.setdefault("KIVY_HOME", str(kivy_home))
 from kivy.config import Config
 
 Config.set("graphics", "minimum_width", "320")
