@@ -37,6 +37,21 @@ _SENTENCE_SPLIT = re.compile(r"[.!?…]+")
 _SENTENCEPIECE_UNKNOWN_SURFACE = "\u2047"
 
 
+def _sentence_repetition_count(text):
+    sentences = [
+        " ".join(part.casefold().split())
+        for part in _SENTENCE_SPLIT.split(unicodedata.normalize("NFKC", text))
+        if any(char.isalpha() for char in part)
+    ]
+    return max(Counter(sentences).values(), default=0)
+
+
+def _has_added_sentence_repetition(source, output):
+    return _sentence_repetition_count(output) > max(
+        1, _sentence_repetition_count(source)
+    )
+
+
 def _synthetic_candidate_is_degenerate(source, output):
     """Conservatively reject identity and obvious repeated output from candidate."""
     if _SENTENCEPIECE_UNKNOWN_SURFACE in output:
@@ -57,9 +72,7 @@ def _synthetic_candidate_is_degenerate(source, output):
 
     if word_count(output) > word_count(source) * 2 + 10:
         return True
-    segments = [normalize(part) for part in _SENTENCE_SPLIT.split(output)]
-    segments = [part for part in segments if part]
-    if len(segments) != len(set(segments)):
+    if _has_added_sentence_repetition(source, output):
         return True
     words = normalize(output).split()
     source_words = set(normalize(source).split())
@@ -84,6 +97,10 @@ def _translation_review_warnings(source_text, translated, source_language):
         return Counter(re.findall(r"\d+", normalized))
 
     warnings = []
+    if _has_added_sentence_repetition(source_text, translated):
+        warnings.append(
+            "Output repeats a sentence more often than the source; review it."
+        )
     if numbers(source_text) != numbers(translated):
         warnings.append(
             "Numbers or number formatting differ; compare them with the original."

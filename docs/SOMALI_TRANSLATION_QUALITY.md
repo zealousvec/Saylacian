@@ -202,3 +202,40 @@ split safely rather than fail; optional AfriSLM completions explicitly marked
 `finish_reason=length` fall back instead of being accepted as complete.
 Automated fixtures prove these cases without private examples or weights.
 AfriSLM is not installed locally, so its native generation remains untested.
+
+
+## November 8 all-route regression pass
+
+All six meaning-translation routes and all eight script-conversion routes were
+reviewed. Model preferences remain EN/FR Argos; EN/SO standard Marian with
+explicit synthetic opt-in and optional AfriSLM 0.8B; SO/EN optional AfriSLM
+4B, 2B, 0.8B, then Marian; FR/SO and SO/FR pivot through English. Optional
+AfriSLM packs remain absent locally and were not downloaded or promoted.
+
+A matched before/after CPU check on eight existing examples per translation
+route (48 total, offline public API) changed no output. chrF++ before/after:
+EN/FR 54.113/54.113; FR/EN 61.335/61.335; EN/SO 38.935/38.935;
+SO/EN 41.098/41.098; FR/SO 20.781/20.781; SO/FR 15.510/15.510.
+These small reused diagnostic subsets establish no new semantic quality gain.
+Raw private examples and predictions remain outside the repository.
+
+One frozen 32-pair TICO-dev French decoding screen rejected a general beam-4
+change: EN/FR chrF++ 57.622 to 56.917 (mean 0.167 to 0.198 seconds),
+FR/EN 62.730 to 63.046 (0.150 to 0.170 seconds). The small reverse gain does
+not justify changing production preferences or extrapolating to pivot quality.
+
+New fixes: NFC-equivalent scholarly Latin š/ñ/ē/ō, including capitals, now use
+the existing Old Nubian glyphs (eight decomposed regression cases: 0/8 before,
+8/8 after). This corrects Unicode handling, not historical mappings. Old Nubian
+combining marks remain preserved and are flagged beyond the Coptic block;
+Borama/Kaddare reverse conversion now flags unmapped private-use characters
+in every private-use range. All eight routes preserve tested unknowns, numbers
+and punctuation. Independent linguistic gold accuracy/CER remains unmeasured.
+
+All translation routes now flag added exact sentence repetition without editing
+text. Intentional source repetition no longer automatically invalidates an
+optional candidate. Existing numeric and negation review cues remain; names
+are not substituted. These cues are conservative diagnostics, not semantic
+certification. No training, private weight upload or unsupported language claim
+was added. Source regression gate: 384 passed, 11 skipped, 196 subtests passed;
+Ruff and credential scan passed. Native AfriSLM and human review remain gaps.

@@ -190,7 +190,7 @@ def _chart_transliterate(text: str, source: str, target: str) -> Conversion:
                 )
         else:
             output.append(char)
-            if 0xE000 <= ord(char) <= 0xE1FF:
+            if is_private_use_character(char):
                 warnings.append(
                     f"No {source} chart entry for U+{ord(char):04X}; preserved."
                 )
@@ -283,6 +283,7 @@ def _read_old_nubian(text: str) -> Conversion:
 
         output.append(char)
         candidate_outputs = [prefix + char for prefix in candidate_outputs]
+        preserved_marks |= unicodedata.category(char).startswith("M")
         if char.isalpha() and (
             "COPTIC" in unicodedata.name(char, "") or 0x2C80 <= ord(char) <= 0x2CFF
         ):
@@ -318,6 +319,7 @@ def _read_old_nubian(text: str) -> Conversion:
 
 
 def _write_old_nubian(text: str) -> Conversion:
+    text = unicodedata.normalize("NFC", text)
     output = []
     index = 0
     matched_tokens = []
